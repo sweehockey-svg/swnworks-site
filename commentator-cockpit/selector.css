@@ -1,0 +1,76 @@
+:root{
+  color-scheme:dark;
+  --bg:#04101a;
+  --panel:#091a26;
+  --panel2:#0d2130;
+  --line:#203746;
+  --text:#f4f7f9;
+  --muted:#7890a1;
+  --yellow:#f4b21b;
+  --green:#62d69a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:
+  radial-gradient(circle at 78% 0,rgba(28,77,104,.22),transparent 30%),
+  linear-gradient(180deg,#06131e,#030a10 72%);
+  color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif}
+body{min-height:100vh}
+a{color:inherit}
+.selector-shell{width:min(1500px,calc(100% - 48px));margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.selector-topbar{height:86px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.swn-brand{display:flex;align-items:baseline;text-decoration:none;letter-spacing:.08em}
+.swn-brand strong{font-size:21px;font-weight:1000;color:var(--yellow)}
+.swn-brand span{font-size:21px;font-weight:950}
+.contact{font-size:11px;font-weight:850;color:#91a7b4;text-decoration:none}
+.contact:hover{color:var(--yellow)}
+main{flex:1}
+.selector-hero{min-height:420px;padding:80px 0 64px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:64px;align-items:end}
+.kicker{display:block;color:var(--yellow);font-size:10px;font-weight:1000;letter-spacing:.18em}
+.selector-hero h1{margin:14px 0 20px;font-size:clamp(54px,7vw,104px);line-height:.92;letter-spacing:-.055em}
+.selector-hero p{margin:0;max-width:720px;color:#8da2ae;font-size:17px;line-height:1.65}
+.selector-status{justify-self:end;width:min(100%,390px);padding:22px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,rgba(13,33,48,.92),rgba(6,20,30,.95))}
+.selector-status span,.selector-status small{display:block;font-size:9px;font-weight:900;letter-spacing:.13em;color:#6f8896}
+.selector-status strong{display:block;margin:8px 0 9px;font-size:23px}
+.selector-status small{color:#9bb0bb;line-height:1.5;letter-spacing:.05em}
+.competition-section{padding-bottom:84px}
+.section-head{display:flex;align-items:center;gap:14px;padding-bottom:15px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.section-head span{font:800 10px/1 Consolas,monospace;color:var(--yellow)}
+.section-head h2{margin:0;font-size:17px;letter-spacing:.11em;text-transform:uppercase}
+.competition-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
+.competition-card{min-height:410px;padding:26px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(12,31,44,.98),rgba(6,17,25,.98));display:flex;flex-direction:column;text-decoration:none}
+.competition-card.active{transition:.2s ease}
+.competition-card.active:hover{transform:translateY(-3px);border-color:#526f80;box-shadow:0 20px 55px rgba(0,0,0,.28)}
+.competition-card.future{opacity:.7}
+.card-head,.card-foot{display:flex;align-items:center;justify-content:space-between}
+.state,.card-copy small,.card-foot{font-size:9px;font-weight:950;letter-spacing:.13em}
+.state{color:var(--yellow)}
+.arrow{font-size:22px}
+.index{font:800 10px/1 Consolas,monospace;color:#637b89}
+.league-logo{width:210px;height:82px;margin:42px 0 34px;padding:10px 14px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.league-logo img{width:100%;height:100%;object-fit:contain}
+.future-mark{margin:48px 0 38px;width:82px;height:82px;border:1px dashed #3b5565;border-radius:18px;display:grid;place-items:center;color:#526d7c;font-size:42px;font-weight:300}
+.card-copy{margin-top:auto}
+.card-copy small{color:#6e8795}
+.card-copy h3{margin:8px 0 12px;font-size:clamp(32px,3vw,48px);letter-spacing:-.035em}
+.card-copy p{margin:0;max-width:690px;color:#91a5b1;font-size:13px;line-height:1.65}
+.card-foot{margin-top:28px;padding-top:17px;border-top:1px solid #19313f;color:#c8d4db}
+.card-foot.muted{justify-content:flex-start;color:#607886}
+footer{min-height:82px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:20px;color:#5e7481;font-size:9px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+footer span:first-child{color:#94a8b3}
+@media(max-width:900px){
+  .selector-shell{width:min(100% - 28px,1500px)}
+  .selector-hero{min-height:0;padding:62px 0 50px;grid-template-columns:1fr;gap:32px}
+  .selector-status{justify-self:start}
+  .competition-grid{grid-template-columns:1fr}
+  .competition-card{min-height:350px}
+}
+@media(max-width:620px){
+  .selector-topbar{height:72px}
+  .swn-brand strong,.swn-brand span{font-size:18px}
+  .contact{font-size:9px}
+  .selector-hero h1{font-size:clamp(48px,15vw,70px)}
+  .selector-hero p{font-size:14px}
+  .competition-card{padding:20px}
+  .league-logo{width:170px;height:68px;margin:34px 0 28px}
+  footer{padding:22px 0;align-items:flex-start;flex-direction:column;gap:7px}
+}
