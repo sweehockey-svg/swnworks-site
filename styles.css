@@ -39,9 +39,9 @@ main,footer{width:min(1440px,calc(100% - 64px));margin:0 auto}
 .products{display:grid;grid-template-columns:1.25fr .9fr;gap:20px;padding:24px 0 34px}
 .product-card{display:block;border:1px solid #3a4b55;background:#071018;overflow:hidden;text-decoration:none}
 .product-card.featured{border-color:#9e7518}
-.product-card img{display:block;width:100%;height:100%;object-fit:cover}
+.product-card img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
 .product-card.featured:hover{border-color:var(--gold2);box-shadow:0 0 0 1px rgba(226,170,42,.15),0 24px 60px rgba(0,0,0,.28)}
-.broadcast-hidden{display:none!important}
+.private-product{cursor:default;border-color:#3a4b55}
 .focus{display:grid;grid-template-columns:1.15fr repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:0}
 .focus>div,.focus>article{min-height:160px;padding:28px 28px 24px}
 .focus>article{border-left:1px solid var(--line)}
@@ -58,7 +58,7 @@ main,footer{width:min(1440px,calc(100% - 64px));margin:0 auto}
 .about{display:grid;grid-template-columns:1fr 1.05fr 1.15fr .9fr;min-height:250px;border-bottom:1px solid var(--line)}
 .about>div{padding:34px 34px 30px}
 .about>div+div{border-left:1px solid var(--line)}
-.about-photo{background-image:linear-gradient(rgba(4,9,13,.15),rgba(4,9,13,.55)),url("assets/hero-cockpit.svg");background-size:cover;background-position:22% 48%;min-height:250px}
+.about-photo{background-image:linear-gradient(rgba(4,9,13,.15),rgba(4,9,13,.55)),url("assets/about-arena.webp");background-size:cover;background-position:22% 48%;min-height:250px}
 .about-title h2{margin:0;font-size:28px;line-height:1.1;letter-spacing:-.03em}
 .about-copy p,.contact-box>p:not(.eyebrow){margin:0;color:#9dacb4;font-size:12px;line-height:1.65}
 .contact-box h3{margin:0 0 8px;font-size:20px}
@@ -108,4 +108,55 @@ footer{height:88px;display:flex;align-items:center;justify-content:space-between
     width:126px;
     height:66px;
   }
+}
+
+
+/* v13 · final generated visual assets */
+.hero-visual{
+  overflow:hidden;
+  border-radius:3px;
+}
+.hero-visual img{
+  width:100%;
+  height:auto;
+  aspect-ratio:4/3;
+  object-fit:cover;
+  object-position:center;
+}
+.products{
+  align-items:stretch;
+}
+.product-card{
+  min-width:0;
+}
+.product-card img{
+  width:100%;
+  height:100%;
+  aspect-ratio:16/9;
+  object-fit:cover;
+}
+.private-product{
+  position:relative;
+  pointer-events:none;
+}
+.private-product:after{
+  content:"PRIVAT · INGEN DIREKTLÄNK";
+  position:absolute;
+  right:14px;
+  bottom:12px;
+  padding:6px 8px;
+  border:1px solid rgba(226,170,42,.45);
+  background:rgba(3,8,11,.78);
+  color:#d8b65c;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.12em;
+  opacity:.78;
+}
+.about-photo{
+  background-image:linear-gradient(rgba(4,9,13,.04),rgba(4,9,13,.38)),url("assets/about-arena.webp");
+  background-position:center;
+}
+@media(max-width:1100px){
+  .product-card img{height:auto}
 }
