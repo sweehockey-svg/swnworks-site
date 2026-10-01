@@ -89,3 +89,12 @@ footer{min-height:82px;border-top:1px solid var(--line);display:flex;align-items
 .project-card-link:hover .project-status{
   color:var(--accent);
 }
+
+
+/* v8 · homepage project visibility */
+.project-grid.single{
+  grid-template-columns:1fr;
+}
+.project-grid [hidden]{
+  display:none !important;
+}
