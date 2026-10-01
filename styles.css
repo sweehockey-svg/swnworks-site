@@ -83,3 +83,29 @@ footer{height:88px;display:flex;align-items:center;justify-content:space-between
   .about{grid-template-columns:1fr}.about>div+div{border-left:0;border-top:1px solid var(--line)}.about>div{padding:28px 18px}.about-photo{min-height:190px}
   footer{height:auto;padding:26px 0;gap:8px;flex-direction:column;align-items:flex-start}
 }
+
+/* v11 · approved SWNWORKS logo lockup */
+.site-header{
+  height:96px;
+}
+.brand{
+  width:154px;
+}
+.brand img{
+  width:154px;
+  height:78px;
+  object-fit:contain;
+  object-position:left center;
+}
+@media(max-width:760px){
+  .site-header{
+    height:82px;
+  }
+  .brand{
+    width:126px;
+  }
+  .brand img{
+    width:126px;
+    height:66px;
+  }
+}
