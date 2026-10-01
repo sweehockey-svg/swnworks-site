@@ -1,0 +1,2719 @@
+*{box-sizing:border-box}body{margin:0;background:#070b10;color:#f6f8fb;font:14px/1.35 Inter,system-ui,sans-serif}header{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid #26313d;background:#0b1118}.brand{display:flex;align-items:center;gap:12px}.brand>b,.seh{display:grid;place-items:center;background:#f4b21b;color:#07111d;font-weight:950}.brand>b{width:42px;height:42px;clip-path:polygon(50% 0,100% 20%,88% 82%,50% 100%,12% 82%,0 20%)}.brand span{font-weight:900;letter-spacing:.06em}.brand small{display:block;color:#7e8b99;font-size:10px}.live-dot{font-size:11px;font-weight:900;color:#9aa6b3}.live-dot:before{content:"";display:inline-block;width:7px;height:7px;background:#f4b21b;border-radius:50%;margin-right:7px}main{display:grid;grid-template-columns:330px 1fr;min-height:calc(100vh - 70px)}aside{padding:18px;border-right:1px solid #26313d;background:#0a1016}.block{padding:0 0 20px;margin-bottom:20px;border-bottom:1px solid #202a34}.block h3{font-size:10px;letter-spacing:.16em;color:#7e8b99}.scene-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.scene-grid button{border:1px solid #2a3745;background:#111923;color:#d9e0e7;border-radius:8px;padding:10px;text-align:left;font-weight:800}.scene-grid button.active{border-color:#f4b21b;color:#f4b21b;background:#171a18}label{display:grid;gap:5px;font-size:9px;font-weight:900;letter-spacing:.11em;color:#8793a0;margin:10px 0}select,input{background:#111923;border:1px solid #2a3745;color:#fff;border-radius:8px;padding:10px}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:8px}.workspace{padding:28px;overflow:auto}.screen{width:min(100%,1280px);aspect-ratio:16/9;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 38%,#0b4566 0,#082d47 36%,#061a2a 72%,#040d15 100%);box-shadow:0 30px 70px #0008;border:1px solid #284357}.texture{position:absolute;inset:0;opacity:.18;background:linear-gradient(120deg,transparent 0 45%,#fff 45.1% 45.3%,transparent 45.4% 100%),repeating-linear-gradient(90deg,#fff0 0 90px,#fff 91px,#fff0 92px);mix-blend-mode:overlay}.top{position:absolute;z-index:20;left:3%;right:3%;top:3%;height:10%;display:flex;align-items:center;gap:16px;border-bottom:1px solid #ffffff24}.seh{width:62px;height:62px;font-size:24px;clip-path:polygon(50% 0,100% 20%,88% 82%,50% 100%,12% 82%,0 20%)}.top strong{font-size:clamp(14px,1.5vw,25px);letter-spacing:.04em}.top small{display:block;color:#9cb1c1;font-size:clamp(8px,.75vw,12px);margin-top:2px}.onair{margin-left:auto;font-size:11px;font-weight:900;letter-spacing:.13em}.onair i{display:inline-block;width:8px;height:8px;background:#ef3b38;border-radius:50%;margin-right:7px;box-shadow:0 0 14px #ef3b38}.scene{position:absolute;inset:14% 3% 8%;display:none}.scene.active{display:flex}.opening{flex-direction:column;align-items:center;justify-content:center}.eyebrow{font-weight:900;letter-spacing:.25em;color:#a8bac8}.opening h1{font-size:clamp(55px,8vw,130px);line-height:.75;margin:3% 0;text-align:center;letter-spacing:-.06em}.opening h1 span{color:#f4b21b}.opening-match{display:flex;align-items:center;gap:32px}.team{display:flex;align-items:center;gap:12px}.team img,.side img,.stat-head img,.score img{width:76px;height:76px;object-fit:contain}.opening-match b{font-size:clamp(15px,1.6vw,26px)}.opening-match em{font-size:24px;color:#f4b21b;font-style:normal;font-weight:950}.matchup{align-items:center}.versus{width:100%;display:grid;grid-template-columns:1fr 180px 1fr;align-items:center}.side{display:flex;flex-direction:column;align-items:center;gap:20px}.side img{width:60%;height:280px}.side b{font-size:clamp(20px,2.5vw,42px);text-align:center}.vs{text-align:center}.vs small,.vs span{display:block}.vs small{color:#ef3b38;font-weight:950}.vs strong{font-size:80px;color:#f4b21b}.vs span{font-weight:900}.lineup,.stats{flex-direction:column}.scene-title{margin:2% 0}.scene-title small{display:block;color:#f4b21b;font-weight:950;letter-spacing:.18em}.scene-title b{font-size:clamp(28px,4vw,58px)}.players{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;flex:1}.player{position:relative;background:linear-gradient(#163e5a,#0b1b28);border:1px solid #ffffff25;display:flex;flex-direction:column;justify-content:flex-end;padding:12px;overflow:hidden}.player span{position:absolute;top:10px;left:10px;color:#f4b21b;font-weight:950}.sil{position:absolute;inset:12% 8% 18%;display:grid;place-items:center;font-size:100px;font-weight:950;color:#ffffff0d}.player b{font-size:11px}.stat-head{display:grid;grid-template-columns:1fr 1fr;margin-bottom:12px}.stat-head>div{display:flex;align-items:center;gap:12px}.stat-head>div:last-child{justify-content:flex-end}.statrows{border-top:1px solid #ffffff25}.statrows>div{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;padding:15px 3%;border-bottom:1px solid #ffffff20}.statrows b{font-size:clamp(24px,3vw,48px);color:#f4b21b}.statrows b:last-child{text-align:right}.statrows span{text-align:center;font-weight:900;color:#9db0bf}.intermission{flex-direction:column;align-items:center;justify-content:center}.period{color:#f4b21b;font-weight:950;letter-spacing:.22em}.score{display:flex;align-items:center;gap:35px;margin:4% 0}.score>div{display:flex;align-items:center;gap:14px}.score strong{font-size:clamp(55px,7vw,110px)}.score span{font-size:55px;color:#607789}.next{font-weight:900;letter-spacing:.15em}.lowerthird{align-items:flex-end}.camera-placeholder{position:absolute;inset:0;display:grid;place-items:center;color:#ffffff18;font-size:4vw;font-weight:950;border:1px dashed #ffffff12}.lower{z-index:2;margin:0 0 4% 3%;display:flex;align-items:center;min-width:45%;background:#07131dea;border-left:6px solid #f4b21b;padding:14px 20px;gap:15px;box-shadow:0 12px 30px #0008}.seh.mini{width:46px;height:46px;font-size:16px}.lower small{display:block;color:#f4b21b;font-weight:950}.lower b{font-size:clamp(18px,2vw,32px)}.bug{position:absolute;right:3%;bottom:2%;display:flex;gap:10px;font-size:10px;letter-spacing:.08em}.bug span{color:#91a5b5}.hint{color:#70808e;font-size:11px;margin-top:12px}@media(max-width:900px){main{grid-template-columns:1fr}aside{border-right:0}.workspace{padding:12px}}
+.players .player img{position:absolute;inset:7% 0 19%;width:100%;height:74%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 10px 14px #0008)}.player-info{position:relative;z-index:2;background:linear-gradient(transparent,#08131ee8 28%);margin:-10px;padding:32px 10px 10px}.player-info strong{display:block;font-size:clamp(10px,1vw,17px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.player-info small{display:block;color:#9fb1bf;font-size:8px;margin-top:4px}.road,.leaders{flex-direction:column}.road-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;flex:1;align-items:center}.road-card{background:#071722b8;border:1px solid #ffffff24;padding:22px;display:grid;grid-template-rows:auto 1fr auto 1fr auto;gap:12px;min-height:72%}.road-team{display:flex;align-items:center;gap:16px}.road-team img{width:72px;height:72px;object-fit:contain}.road-team b{font-size:clamp(20px,2.2vw,38px)}.road-step{display:grid;grid-template-columns:1fr auto;align-items:end}.road-step small{grid-column:1/-1;color:#9db0bf;font-weight:900;letter-spacing:.15em}.road-step strong{font-size:clamp(24px,3vw,46px);color:#f4b21b}.road-step span{text-align:right;color:#b9c7d1}.road-step.final strong{color:#fff}.road-card i{height:1px;background:#ffffff24}.leader-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1}.leader-card{position:relative;display:grid;grid-template-columns:42% 58%;align-items:end;background:linear-gradient(135deg,#123d59,#071621);border:1px solid #ffffff24;overflow:hidden;min-height:190px}.leader-card>img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 12px 16px #0008)}.leader-card>div{padding:18px}.leader-card small,.leader-card em{display:block;color:#9db0bf;font-style:normal}.leader-card b{display:block;font-size:clamp(18px,2vw,32px);margin:4px 0 10px}.leader-card span{font-size:clamp(14px,1.4vw,22px);color:#f4b21b}.leader-card em{margin-top:7px;font-size:10px}.scene-grid{grid-template-columns:1fr 1fr}.statrows>div{padding:10px 3%}
+
+.lineup-control{padding-bottom:16px}.lineup-control #lineupEditors{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}.lineup-control #lineupEditors label{margin:5px 0}.lineup-control #lineupEditors select{min-width:0;width:100%;padding:8px}.control-note{display:block;color:#70808e;font-size:10px;line-height:1.35;margin-top:8px}
+
+.event-logo{width:74px;height:64px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}.event-logo img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 4px 10px #0005)}.event-logo.mini{width:58px;height:50px}
+
+/* Lineup cards: top-anchor portraits, tighter image area, roomier info */
+.lineup .players{flex:0 0 66%;min-height:0;align-self:stretch}
+.lineup .player{min-height:0;padding:10px;justify-content:flex-end}
+.lineup .players .player img{inset:7% 0 auto;width:100%;height:58%;object-fit:contain;object-position:center top;transform:scale(1.12);transform-origin:center top}
+.lineup .player-info{min-height:25%;margin:-10px;padding:18px 10px 12px;background:linear-gradient(180deg,#08131ef2,#08131e 55%)}
+.lineup .player-info strong{font-size:clamp(11px,1.05vw,18px);white-space:normal;line-height:1.12;overflow:visible;text-overflow:clip}
+.lineup .player-info small{font-size:9px;line-height:1.35;margin-top:7px;white-space:normal}
+
+/* Normalize lineup portraits to the tighter Feerlezz-style crop */
+.lineup .players .player img{inset:5% 3% auto;width:94%;height:61%;object-fit:contain;object-position:center top;transform:scale(1.18);transform-origin:center top}
+
+/* Lineup portrait zoom +20% */
+.lineup .players .player img{transform:scale(1.42)}
+
+.lineup-title{display:flex;align-items:center;justify-content:space-between;gap:24px}.lineup-title>div{min-width:0}.lineup-title #lineupTeamLogo{width:92px;height:92px;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 7px 14px #0008)}
+
+/* Players to Watch: keep all four cards inside the 1080 composition */
+.leader-grid{grid-template-rows:1fr 1fr;min-height:0}
+.leader-card{min-height:0}
+.leader-card>img{height:100%;max-height:100%;object-fit:contain;object-position:center bottom}
+.leader-card>div{padding:14px 16px}
+.leader-card b{font-size:clamp(17px,1.7vw,28px);margin:3px 0 7px}
+.leader-card span{font-size:clamp(13px,1.2vw,20px)}
+
+/* Players to Watch v2: restore text column and keep portrait contained */
+.leader-card{grid-template-columns:46% 54%;align-items:stretch}
+.leader-card>img{width:100%;height:100%;min-height:0;object-fit:contain;object-position:center bottom;transform:none}
+.leader-card>div{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:14px 18px;background:linear-gradient(90deg,#07162100,#071621d9 18%,#071621)}
+.leader-card small,.leader-card b,.leader-card span,.leader-card em{position:relative;z-index:2}
+
+/* Players to Watch: normalize portrait crop/scale */
+.leader-card>img{width:100%;height:100%;object-fit:contain;object-position:center top;transform:scale(1.22);transform-origin:center top}
+
+.leader-copy{position:relative}.leader-team-logo{position:absolute;right:16px;top:14px;width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 5px 8px #0007);opacity:.95}.leader-copy small,.leader-copy b,.leader-copy span,.leader-copy em{padding-right:64px}
+
+/* Intermission: broadcast-scale score presentation */
+.intermission{justify-content:flex-start;padding-top:13%}
+.intermission .period{font-size:clamp(16px,1.45vw,25px);margin-bottom:28px}
+.intermission .score{width:82%;justify-content:center;gap:42px;margin:0 0 30px}
+.intermission .score>div{flex:1;display:grid;align-items:center;gap:18px}
+.intermission .score>.homeTeam{grid-template-columns:112px minmax(0,1fr) auto;text-align:left}
+.intermission .score>.awayTeam{grid-template-columns:auto minmax(0,1fr) 112px;text-align:right}
+.intermission .score img{width:112px;height:112px;object-fit:contain;filter:drop-shadow(0 9px 14px #0008)}
+.intermission .score b{font-size:clamp(18px,1.7vw,29px);line-height:1.05}
+.intermission .score strong{font-size:clamp(82px,8vw,132px);line-height:.9}
+.intermission .score>span{font-size:64px;color:#607789;font-weight:300}
+.intermission .next{font-size:clamp(13px,1.15vw,19px);letter-spacing:.18em;opacity:.92}
+
+.rolematch{flex-direction:column}.role-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;flex:1;min-height:0}.role-grid.two{grid-template-rows:1fr}.role-card{display:grid;grid-template-columns:42% 58%;min-height:0;overflow:hidden;border:1px solid #ffffff24;background:linear-gradient(135deg,#123d59,#071621)}.role-card>img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 10px 14px #0008)}.role-info{padding:14px 16px;display:flex;flex-direction:column;justify-content:center;min-width:0;background:linear-gradient(90deg,#07162144,#071621 28%)}.role-team{display:flex;align-items:center;gap:8px;color:#9db0bf}.role-team img{width:34px;height:34px;object-fit:contain}.role-info>strong{font-size:clamp(15px,1.5vw,25px);margin:5px 0 8px}.role-head,.role-stat{display:grid;grid-template-columns:1fr 62px 62px;align-items:center;gap:8px}.role-head{color:#f4b21b;font-size:9px;margin-bottom:2px}.role-stat{border-top:1px solid #ffffff18;padding:4px 0}.role-stat span{font-size:10px;color:#9db0bf;font-weight:900}.role-stat b{text-align:center;font-size:clamp(12px,1.15vw,19px)}.role-card.empty{display:grid;place-items:center;color:#70808e}.role-grid.two .role-card{grid-template-columns:48% 52%}.role-grid.two .role-card>img{transform:scale(1.08);transform-origin:center bottom}
+
+.role-grid-six{grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr}.role-grid-six .role-card{grid-template-columns:43% 57%}.role-grid-six .role-info{padding:10px}.role-grid-six .role-team img{width:26px;height:26px}.role-grid-six .role-info>strong{font-size:clamp(12px,1vw,17px)}.role-grid-six .role-head,.role-grid-six .role-stat{grid-template-columns:1fr 48px 48px}.role-grid-six .role-stat{padding:2px 0}.role-grid-six .role-stat b{font-size:clamp(10px,.85vw,14px)}.key-grid .role-card{grid-template-columns:52% 48%}.spotlight{padding:0!important}.spotlight-wrap{height:100%}.spotlight-player{height:100%;display:grid;grid-template-columns:48% 52%;align-items:end}.spotlight-player>img{width:100%;height:92%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 20px 24px #000a)}.spotlight-copy{align-self:center;padding:40px}.spotlight-team{display:flex;align-items:center;gap:14px;color:#a9bac6;font-weight:800}.spotlight-team img{width:70px;height:70px;object-fit:contain}.spotlight-copy h2{font-size:clamp(38px,4.2vw,72px);margin:10px 0 2px}.spotlight-copy h3{margin:0 0 28px;color:#f4b21b;font-size:22px}.spotlight-total{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid #ffffff25;padding-bottom:18px;margin-bottom:18px}.spotlight-total b{font-size:72px;color:#f4b21b}.spotlight-total span{font-weight:900;letter-spacing:.12em}.spotlight-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.spotlight-stats div{border-left:2px solid #f4b21b;padding-left:10px}.spotlight-stats b{display:block;font-size:30px}.spotlight-stats span{font-size:9px;color:#9db0bf;font-weight:900}
+
+/* Blue Line Battle: prioritize complete stats over portrait area */
+.defense .role-grid{gap:12px;grid-template-rows:minmax(0,1fr) minmax(0,1fr)}
+.defense .role-card{grid-template-columns:38% 62%;min-height:0}
+.defense .role-card>img{width:100%;height:100%;max-height:100%;object-fit:contain;object-position:center bottom;transform:scale(1.04);transform-origin:center bottom}
+.defense .role-info{padding:9px 14px;justify-content:center}
+.defense .role-team img{width:28px;height:28px}
+.defense .role-info>strong{font-size:clamp(14px,1.35vw,22px);margin:3px 0 5px}
+.defense .role-head,.defense .role-stat{grid-template-columns:minmax(0,1fr) 58px 58px}
+.defense .role-head{margin-bottom:0}
+.defense .role-stat{padding:2px 0;line-height:1.05}
+.defense .role-stat b{font-size:clamp(11px,1vw,17px)}
+
+/* Blue Line Battle v36: compact cards so all GP/G/A/P rows remain visible */
+.defense .scene-title{margin-bottom:14px}
+.defense .role-grid{gap:10px;grid-template-rows:repeat(2,minmax(0,1fr))}
+.defense .role-card{grid-template-columns:36% 64%;overflow:hidden}
+.defense .role-card>img{transform:scale(.94);transform-origin:center bottom}
+.defense .role-info{padding:6px 12px;justify-content:center;overflow:hidden}
+.defense .role-team{gap:6px;line-height:1}
+.defense .role-team img{width:24px;height:24px}
+.defense .role-team small{font-size:9px}
+.defense .role-info>strong{font-size:clamp(13px,1.22vw,20px);line-height:1;margin:3px 0 4px}
+.defense .role-head,.defense .role-stat{grid-template-columns:minmax(0,1fr) 52px 58px;gap:5px}
+.defense .role-head{font-size:7px;line-height:1}
+.defense .role-stat{padding:1px 0;min-height:18px}
+.defense .role-stat span{font-size:8px;line-height:1}
+.defense .role-stat b{font-size:clamp(10px,.92vw,15px);line-height:1}
+
+
+/* Blue Line Battle v37: narrower broadcast panel, centered instead of edge-to-edge */
+.defense .role-grid{width:88%;max-width:1500px;align-self:center;margin-inline:auto}
+
+
+/* Blue Line Battle v38: broadcast legibility + normalized portrait/fallback scale */
+.defense .role-info{padding:8px 15px}
+.defense .role-team{gap:8px}
+.defense .role-team img{width:30px;height:30px}
+.defense .role-team small{font-size:10px}
+.defense .role-info>strong{font-size:clamp(15px,1.38vw,23px);line-height:1.05;margin:5px 0 6px}
+.defense .role-head,.defense .role-stat{grid-template-columns:minmax(0,1fr) 58px 64px;gap:7px}
+.defense .role-head{font-size:8px}
+.defense .role-stat{padding:2px 0;min-height:21px}
+.defense .role-stat span{font-size:9px}
+.defense .role-stat b{font-size:clamp(12px,1.02vw,17px)}
+.defense .role-card>img{transform:scale(1.02);transform-origin:center bottom}
+.defense .role-card .sil{transform:scale(.86);transform-origin:center bottom}
+
+
+/* Goalie Battle v39: portraits outside, direct comparison table in the middle */
+.goalies .scene-title{margin-bottom:18px}
+.goalies #goaliesGrid.goalie-battle-grid,.goalies #goaliesGrid{width:94%;max-width:1660px;margin-inline:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(420px,.82fr) minmax(0,1fr);grid-template-rows:1fr;gap:16px;align-items:stretch}
+.goalie-person{position:relative;min-width:0;overflow:hidden;background:linear-gradient(135deg,#123d59,#071621);border:1px solid #ffffff24;display:flex;align-items:flex-end;justify-content:center}
+.goalie-person>img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 12px 18px #0009)}
+.goalie-person.empty{display:grid;place-items:center;color:#70808e;font-weight:900}
+.goalie-name{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(0deg,#07131df7 58%,#07131d00)}
+.goalie-name>img{width:44px;height:44px;object-fit:contain;flex:0 0 auto}
+.goalie-name span{min-width:0}.goalie-name b{display:block;font-size:clamp(14px,1.25vw,21px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.goalie-name small{display:block;color:#9db0bf;margin-top:3px}
+.goalie-center{align-self:center;background:#07131de8;border:2px solid #ffffff35;box-shadow:0 12px 30px #0007;padding:18px 12px}
+.goalie-center-title{text-align:center;color:#f4b21b;font-size:clamp(17px,1.55vw,26px);font-weight:950;letter-spacing:.05em;padding:2px 0 16px;border-bottom:2px solid #f4b21b}
+.goalie-columns,.goalie-row{display:grid;grid-template-columns:minmax(58px,1fr) minmax(58px,1fr) 64px minmax(58px,1fr) minmax(58px,1fr);align-items:center;text-align:center;column-gap:8px}
+.goalie-columns{background:#f4b21b;color:#07131d;font-size:9px;font-weight:950;padding:7px 0}
+.goalie-columns i{height:100%}
+.goalie-row{border-bottom:1px solid #f4b21b99;padding:11px 0}
+.goalie-row span{font-size:10px;color:#c3ced6;font-weight:950}
+.goalie-row b{font-size:clamp(17px,1.45vw,25px);line-height:1;color:#f4f7fa;white-space:nowrap}
+.goalie-row b:nth-child(-n+2){color:#f4b21b}
+.goalie-row b:nth-last-child(-n+2){color:#f4b21b}
+
+
+/* Key Matchup v40: direct player-v-player comparison */
+.keymatchup .scene-title{margin-bottom:18px}
+.keymatchup #keyGrid{width:94%;max-width:1660px;margin-inline:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(420px,.82fr) minmax(0,1fr);grid-template-rows:1fr;gap:16px;align-items:stretch}
+.key-person{position:relative;min-width:0;overflow:hidden;background:linear-gradient(135deg,#123d59,#071621);border:1px solid #ffffff24;display:flex;align-items:flex-end;justify-content:center}
+.key-person>img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 12px 18px #0009)}
+.key-person.empty{display:grid;place-items:center;color:#70808e;font-weight:900}
+.key-name{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(0deg,#07131df7 58%,#07131d00)}
+.key-name>img{width:44px;height:44px;object-fit:contain;flex:0 0 auto}.key-name span{min-width:0}.key-name b{display:block;font-size:clamp(14px,1.25vw,21px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.key-name small{display:block;color:#9db0bf;margin-top:3px}
+.key-center{align-self:center;background:#07131de8;border:2px solid #ffffff35;box-shadow:0 12px 30px #0007;padding:18px 12px}
+.key-center-title{text-align:center;color:#f4b21b;font-size:clamp(17px,1.55vw,26px);font-weight:950;letter-spacing:.05em;padding:2px 0 16px;border-bottom:2px solid #f4b21b}
+.key-columns,.key-row{display:grid;grid-template-columns:minmax(58px,1fr) minmax(58px,1fr) 64px minmax(58px,1fr) minmax(58px,1fr);align-items:center;text-align:center;column-gap:8px}.key-columns{background:#f4b21b;color:#07131d;font-size:9px;font-weight:950;padding:7px 0}.key-columns i{height:100%}
+.key-row{border-bottom:1px solid #f4b21b99;padding:9px 0}.key-row span{font-size:10px;color:#c3ced6;font-weight:950}.key-row b{font-size:clamp(16px,1.45vw,25px);line-height:1;color:#f4b21b;white-space:nowrap}
+
+
+/* Player Spotlight v45: keep full stat block inside 16:9 safe area */
+.spotlight-player{align-items:end}
+.spotlight-player>img{height:90%}
+.spotlight-copy{align-self:center;padding:18px 40px 12px;transform:translateY(-18px)}
+.spotlight-copy h2{font-size:clamp(36px,3.75vw,64px);line-height:.98;margin:8px 0 4px}
+.spotlight-copy h3{margin:0 0 14px}
+.spotlight-total{padding-bottom:10px;margin-bottom:10px}
+.spotlight-total b{font-size:64px;line-height:1}
+.spotlight-stats b{font-size:27px;line-height:1.05}
+.spotlight-stats span{display:block;margin-top:3px}
+
+
+/* Broadcast context scenes v46 */
+.table,.teamcompare,.scorers{padding-top:118px!important}
+.broadcast-table{width:82%;max-width:1320px;margin:16px auto 0;background:#07131de8;border:1px solid #ffffff2b}
+.bt-head,.bt-row{display:grid;grid-template-columns:48px minmax(280px,1fr) repeat(5,90px);align-items:center;min-height:54px;padding:0 18px;text-align:center}
+.bt-head{min-height:38px;background:#f4b21b;color:#07131d;font-size:10px;font-weight:950}.bt-head span:nth-child(2){text-align:left}
+.bt-row{border-bottom:1px solid #ffffff18;font-size:18px}.bt-row:last-child{border-bottom:0}.bt-row.selected{background:#f4b21b18;border-left:4px solid #f4b21b}
+.bt-team{display:flex;align-items:center;gap:14px;text-align:left}.bt-team img{width:38px;height:38px;object-fit:contain}.bt-team strong{font-size:19px}.bt-row>b:last-child{color:#f4b21b;font-size:22px}
+.team-compare{width:92%;max-width:1580px;margin:24px auto 0;display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:16px;align-items:center}
+.tc-team{height:310px;background:#0b2d42;border:1px solid #ffffff25;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}.tc-team img{width:150px;height:150px;object-fit:contain}.tc-team b{font-size:24px}
+.tc-center{background:#07131de8;border:2px solid #ffffff35;padding:14px}.tc-cols,.tc-row{display:grid;grid-template-columns:1fr 1fr 100px 1fr 1fr;gap:7px;align-items:center;text-align:center}.tc-cols{background:#f4b21b;color:#07131d;padding:8px 0;font-size:9px;font-weight:950}.tc-row{padding:13px 0;border-bottom:1px solid #f4b21b88}.tc-row b{font-size:23px;color:#f4b21b}.tc-row span{font-size:9px;font-weight:950;color:#c3ced6}
+.scorer-grid{width:92%;max-width:1580px;margin:18px auto 0;display:grid;grid-template-columns:1fr 1fr;gap:20px}.scorer-side{background:#07131de8;border:1px solid #ffffff2b;padding:12px}.scorer-team{display:flex;align-items:center;gap:12px;padding:4px 8px 12px;border-bottom:2px solid #f4b21b}.scorer-team img{width:46px;height:46px;object-fit:contain}.scorer-team b{font-size:22px}.scorer{display:grid;grid-template-columns:34px 74px minmax(0,1fr) 60px 60px 72px;align-items:center;gap:10px;min-height:112px;border-bottom:1px solid #ffffff1c}.scorer>strong{font-size:28px;color:#f4b21b;text-align:center}.scorer>img{width:74px;height:104px;object-fit:contain;object-position:center bottom}.scorer div b{display:block;font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scorer div small{color:#9db0bf}.scorer>span{font-size:16px;font-weight:850}.scorer>em{font-style:normal;font-size:24px;font-weight:950;color:#f4b21b}
+
+
+/* More broadcast scenes v47 */
+.formguide,.offense,.defenseleaders,.goalieleaders{padding-top:118px!important}
+.form-grid,.offense-grid,.leaderboard-dual{width:92%;max-width:1580px;margin:20px auto 0;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.form-card,.off-card,.lb-side{background:#07131de8;border:1px solid #ffffff2b;padding:18px}
+.form-team,.off-team,.lb-team{display:flex;align-items:center;gap:14px;border-bottom:2px solid #f4b21b;padding-bottom:12px}.form-team img,.off-team img,.lb-team img{width:54px;height:54px;object-fit:contain}.form-team b,.off-team b,.lb-team b{font-size:24px}
+.form-record{text-align:center;padding:22px 0 16px}.form-record strong{display:block;color:#f4b21b;font-size:58px;line-height:1}.form-record span,.form-stats span,.off-big span,.off-row span{font-size:9px;font-weight:950;color:#9db0bf;letter-spacing:.12em}
+.form-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form-stats div{background:#0b2d42;padding:13px;text-align:center}.form-stats b{display:block;font-size:24px}
+.off-big{text-align:center;padding:20px 0}.off-big b{display:block;font-size:58px;color:#f4b21b;line-height:1}.off-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.off-row div{text-align:center;background:#0b2d42;padding:12px}.off-row b{display:block;font-size:24px}
+.off-top{height:116px;margin-top:12px;display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:14px;border-top:1px solid #ffffff20}.off-top>img{width:90px;height:112px;object-fit:contain;object-position:center bottom}.off-top span small{display:block;color:#f4b21b;font-weight:950}.off-top span b{font-size:20px}.off-top strong{font-size:28px;color:#f4b21b}
+.lb-player{display:grid;grid-template-columns:34px 74px minmax(0,1fr) 64px 70px 72px;align-items:center;gap:10px;min-height:112px;border-bottom:1px solid #ffffff1c}.lb-player>strong{font-size:28px;color:#f4b21b;text-align:center}.lb-player>img{width:74px;height:104px;object-fit:contain;object-position:center bottom}.lb-player div b{display:block;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lb-player div small{color:#9db0bf}.lb-player>span{font-size:15px;font-weight:850;text-align:center}.lb-player>em{font-style:normal;font-size:22px;font-weight:950;color:#f4b21b;text-align:center}.goalie-lb .lb-player{grid-template-columns:34px 74px minmax(0,1fr) 66px 84px 70px}
+
+
+/* Table scene v48: deliberate title/table split */
+.table .scene-title{left:3%;top:34%;width:21%;max-width:330px;transform:none}
+.table .scene-title small{white-space:nowrap}
+.table .scene-title b{font-size:clamp(38px,4.1vw,70px);line-height:.95;white-space:nowrap}
+.table .broadcast-table{width:72%;max-width:none;margin:20px 3% 0 auto}
+.table .bt-row.selected{background:#f4b21b12;border-left:0}
+.table .bt-row.selected .bt-team{position:relative}
+.table .bt-row.selected .bt-team:before{content:"";position:absolute;left:-18px;top:8px;bottom:8px;width:4px;background:#f4b21b}
+
+
+/* Table scene v49: guarantee clear separation between title and standings */
+.table .scene-title{left:3%;top:34%;width:20%;max-width:300px;z-index:2}
+.table .scene-title b{font-size:clamp(34px,3.45vw,58px);letter-spacing:-.025em}
+.table .broadcast-table{width:69%;margin-left:auto;margin-right:3%;position:relative;z-index:3}
+
+
+/* Table scene v50: use the same title system as the rest of Broadcast Studio */
+.table .scene-title{position:relative;left:auto;top:auto;width:auto;max-width:none;transform:none;margin:0 0 22px 0;z-index:2}
+.table .scene-title small{display:block;white-space:normal}
+.table .scene-title b{display:block;font-size:clamp(42px,4.8vw,76px);line-height:.98;letter-spacing:-.025em;white-space:normal}
+.table .broadcast-table{width:82%;max-width:1320px;margin:0 auto;position:relative;z-index:3}
+
+
+/* Context scenes v51: full-width broadcast layout, no title/content collisions */
+.teamcompare,.scorers,.formguide,.offense,.defenseleaders,.goalieleaders{padding-top:118px!important;display:block!important}
+.teamcompare .scene-title,.scorers .scene-title,.formguide .scene-title,.offense .scene-title,.defenseleaders .scene-title,.goalieleaders .scene-title{
+  position:relative;left:auto;top:auto;width:auto;max-width:none;transform:none;margin:0 3% 18px;z-index:2
+}
+.teamcompare .scene-title small,.scorers .scene-title small,.formguide .scene-title small,.offense .scene-title small,.defenseleaders .scene-title small,.goalieleaders .scene-title small{display:block;white-space:normal}
+.teamcompare .scene-title b,.scorers .scene-title b,.formguide .scene-title b,.offense .scene-title b,.defenseleaders .scene-title b,.goalieleaders .scene-title b{
+  display:block;font-size:clamp(38px,4.15vw,66px);line-height:.96;letter-spacing:-.025em;white-space:normal
+}
+.team-compare,.scorer-grid,.form-grid,.offense-grid,.leaderboard-dual{width:94%;max-width:1660px;margin:0 auto}
+.team-compare{grid-template-columns:minmax(250px,.8fr) minmax(430px,1.15fr) minmax(250px,.8fr);gap:14px}
+.tc-team{height:270px}.tc-team img{width:125px;height:125px}.tc-team b{font-size:21px}
+.tc-center{padding:12px}.tc-row{padding:10px 0}.tc-row b{font-size:21px}
+.scorer-grid,.leaderboard-dual{gap:16px}
+.scorer-side,.lb-side{min-width:0;overflow:hidden}
+.scorer{grid-template-columns:30px 66px minmax(130px,1fr) 52px 52px 62px;gap:8px;min-height:98px}
+.scorer>img{width:66px;height:90px}.scorer div b{font-size:16px}.scorer>span{font-size:14px}.scorer>em{font-size:20px}
+.form-grid,.offense-grid{grid-template-columns:1fr 1fr}
+.form-card,.off-card{min-width:0}
+.form-record{padding:12px 0}.form-record strong{font-size:50px}
+.form-stats div{padding:10px}.form-stats b{font-size:21px}
+.off-big{padding:12px 0}.off-big b{font-size:50px}.off-row div{padding:10px}.off-top{height:100px}.off-top>img{height:96px}
+.lb-player{grid-template-columns:30px 66px minmax(120px,1fr) 54px 58px 62px;gap:8px;min-height:96px}
+.lb-player>img{width:66px;height:90px}.lb-player div b{font-size:16px}.lb-player>span{font-size:13px}.lb-player>em{font-size:19px}
+.goalie-lb .lb-player{grid-template-columns:30px 66px minmax(120px,1fr) 58px 72px 58px}
+
+
+/* v52: only the active broadcast scene may participate in layout */
+.broadcast-stage .scene{display:none!important}
+.broadcast-stage .scene.active{display:block!important}
+.broadcast-stage .scene.lineup.active,
+.broadcast-stage .scene.matchup.active,
+.broadcast-stage .scene.stats.active,
+.broadcast-stage .scene.road.active,
+.broadcast-stage .scene.player.active,
+.broadcast-stage .scene.pause.active,
+.broadcast-stage .scene.lowerthird.active,
+.broadcast-stage .scene.role-matchup.active,
+.broadcast-stage .scene.spotlight.active{display:block!important}
+
+
+/* v53: screen is the scene root; enforce one active scene without relying on a nonexistent wrapper */
+.screen>.scene{display:none!important}
+.screen>.scene.active{display:flex!important}
+.screen>.scene.table.active,
+.screen>.scene.teamcompare.active,
+.screen>.scene.scorers.active,
+.screen>.scene.formguide.active,
+.screen>.scene.offense.active,
+.screen>.scene.defenseleaders.active,
+.screen>.scene.goalieleaders.active{display:block!important}
+
+
+/* v54: new context scenes align exactly with the established Starting Six title origin */
+.table.active,.teamcompare.active,.scorers.active,.formguide.active,.offense.active,.defenseleaders.active,.goalieleaders.active{
+  padding-top:0!important;
+}
+.table .scene-title,
+.teamcompare .scene-title,.scorers .scene-title,.formguide .scene-title,.offense .scene-title,.defenseleaders .scene-title,.goalieleaders .scene-title{
+  margin:2% 0 18px!important;
+}
+.table .scene-title b,
+.teamcompare .scene-title b,.scorers .scene-title b,.formguide .scene-title b,.offense .scene-title b,.defenseleaders .scene-title b,.goalieleaders .scene-title b{
+  font-size:clamp(28px,4vw,58px)!important;
+  line-height:normal!important;
+  letter-spacing:normal!important;
+}
+.table .broadcast-table,.team-compare,.scorer-grid,.form-grid,.offense-grid,.leaderboard-dual{
+  width:100%;
+  max-width:none;
+}
+
+
+/* v55: tighten Team Comparison into a denser broadcast card */
+.teamcompare .scene-title{margin-bottom:10px!important}
+.teamcompare .team-compare{width:88%;max-width:1450px;margin:0 auto;grid-template-columns:minmax(220px,.78fr) minmax(410px,1.18fr) minmax(220px,.78fr);gap:12px}
+.teamcompare .tc-team{height:245px}
+.teamcompare .tc-team img{width:112px;height:112px}
+.teamcompare .tc-team b{font-size:20px}
+.teamcompare .tc-center{padding:10px}
+.teamcompare .tc-cols{padding:7px 0}
+.teamcompare .tc-row{padding:9px 0}
+.teamcompare .tc-row b{font-size:20px}
+
+
+/* v56: consistent Swedish scene naming */
+.teamcompare .scene-title b{text-transform:uppercase}
+
+
+/* v57: scoring leaders - stronger player hierarchy and portrait treatment */
+.scorers .scene-title{margin-bottom:12px!important}
+.scorers .scorer-grid{width:92%;max-width:1540px}
+.scorers .scorer-side{padding:14px 16px}
+.scorers .scorer-team{padding:2px 8px 12px}
+.scorers .scorer-team img{width:50px;height:50px}
+.scorers .scorer-team b{font-size:22px}
+.scorers .scorer{grid-template-columns:34px 82px minmax(150px,1fr) 58px 58px 72px;min-height:104px;gap:10px}
+.scorers .scorer>strong{font-size:30px}
+.scorers .scorer>img{width:82px;height:98px;object-fit:contain;object-position:center bottom}
+.scorers .scorer div b{font-size:17px}
+.scorers .scorer div small{font-size:10px}
+.scorers .scorer>span{font-size:15px}
+.scorers .scorer>em{font-size:22px}
+
+
+/* v58: scoring leaders use the available broadcast width and larger player treatment */
+.scorers .scorer-grid{width:100%;max-width:none;gap:14px}
+.scorers .scorer-side{padding:14px 16px}
+.scorers .scorer{grid-template-columns:38px 94px minmax(155px,1fr) 62px 62px 78px;min-height:112px;gap:10px}
+.scorers .scorer>strong{font-size:32px}
+.scorers .scorer>img{width:94px;height:106px}
+.scorers .scorer div b{font-size:18px}
+.scorers .scorer div small{font-size:10px}
+.scorers .scorer>span{font-size:16px}
+.scorers .scorer>em{font-size:24px}
+
+
+/* v59: scoring leaders - fill the vertical composition instead of leaving a dead lower third */
+.scorers .scene-title{margin-bottom:10px!important}
+.scorers .scorer-grid{width:100%;max-width:none;gap:14px}
+.scorers .scorer-side{padding:16px}
+.scorers .scorer-team{min-height:62px;padding:2px 10px 14px}
+.scorers .scorer-team img{width:54px;height:54px}
+.scorers .scorer-team b{font-size:23px}
+.scorers .scorer{grid-template-columns:40px 108px minmax(160px,1fr) 64px 64px 82px;min-height:132px;gap:12px}
+.scorers .scorer>strong{font-size:34px}
+.scorers .scorer>img{width:108px;height:126px;object-fit:contain;object-position:center bottom}
+.scorers .scorer div b{font-size:19px}
+.scorers .scorer div small{font-size:10px}
+.scorers .scorer>span{font-size:16px}
+.scorers .scorer>em{font-size:25px}
+
+
+/* v60: scoring leaders must stay inside the 1920x1080 safe area */
+.scorers .scene-title{margin-bottom:8px!important}
+.scorers .scorer-grid{height:calc(100% - 128px);max-height:620px}
+.scorers .scorer-side{height:100%;padding:12px 16px;box-sizing:border-box}
+.scorers .scorer-team{min-height:54px;padding:0 8px 10px}
+.scorers .scorer-team img{width:48px;height:48px}
+.scorers .scorer-team b{font-size:21px}
+.scorers .scorer{grid-template-columns:36px 90px minmax(155px,1fr) 60px 60px 76px;min-height:0;height:calc((100% - 66px)/3);gap:10px}
+.scorers .scorer>strong{font-size:31px}
+.scorers .scorer>img{width:90px;height:100%;max-height:112px}
+.scorers .scorer div b{font-size:17px}
+.scorers .scorer>span{font-size:15px}
+.scorers .scorer>em{font-size:23px}
+
+
+/* v61: Backligan mirrors Poängligan sizing and safe-area composition */
+.defenseleaders .scene-title{margin-bottom:8px!important}
+.defenseleaders .leaderboard-dual{width:100%;max-width:none;gap:14px;height:calc(100% - 128px);max-height:620px}
+.defenseleaders .lb-side{height:100%;padding:12px 16px;box-sizing:border-box}
+.defenseleaders .lb-team{min-height:54px;padding:0 8px 10px}
+.defenseleaders .lb-team img{width:48px;height:48px}
+.defenseleaders .lb-team b{font-size:21px}
+.defenseleaders .lb-player{grid-template-columns:36px 90px minmax(155px,1fr) 60px 60px 76px;min-height:0;height:calc((100% - 66px)/3);gap:10px}
+.defenseleaders .lb-player>strong{font-size:31px}
+.defenseleaders .lb-player>img{width:90px;height:100%;max-height:112px;object-fit:contain;object-position:center bottom}
+.defenseleaders .lb-player div b{font-size:17px}
+.defenseleaders .lb-player div small{font-size:10px}
+.defenseleaders .lb-player>span{font-size:15px}
+.defenseleaders .lb-player>em{font-size:23px}
+
+
+/* v62: Målvaktsligan mirrors the Poängligan/Backligan visual system, while allowing 1–3 goalies */
+.goalieleaders .scene-title{margin-bottom:8px!important}
+.goalieleaders .leaderboard-dual{width:100%;max-width:none;gap:14px;height:calc(100% - 128px);max-height:620px}
+.goalieleaders .lb-side{height:100%;padding:12px 16px;box-sizing:border-box}
+.goalieleaders .lb-team{min-height:54px;padding:0 8px 10px}
+.goalieleaders .lb-team img{width:48px;height:48px}
+.goalieleaders .lb-team b{font-size:21px}
+.goalieleaders .lb-player{grid-template-columns:36px 90px minmax(155px,1fr) 64px 82px 68px;min-height:112px;height:auto;gap:10px}
+.goalieleaders .lb-player>strong{font-size:31px}
+.goalieleaders .lb-player>img{width:90px;height:108px;object-fit:contain;object-position:center bottom}
+.goalieleaders .lb-player div b{font-size:17px}
+.goalieleaders .lb-player div small{font-size:10px}
+.goalieleaders .lb-player>span{font-size:15px}
+.goalieleaders .lb-player>em{font-size:23px}
+
+
+/* v63: Lower third studio preview. OBS/browser-source mode remains clean via ?obs=1 */
+.lowerthird .camera-placeholder{
+  background:
+    radial-gradient(circle at 68% 38%,#23465b55 0,#0b1a25cc 38%,#050a0f 100%),
+    linear-gradient(135deg,#102633 0 35%,#08131c 35% 65%,#142b38 65% 100%);
+  border:0;
+  color:transparent;
+}
+.lowerthird .camera-placeholder:before{
+  content:"PREVIEW · LIVE VIDEO";
+  position:absolute;top:4%;right:3%;
+  color:#ffffff55;font-size:10px;letter-spacing:.16em;font-weight:900;
+}
+body.obs-preview .lowerthird .camera-placeholder{background:transparent!important}
+body.obs-preview .lowerthird .camera-placeholder:before{display:none}
+body.obs-preview .screen{background:transparent!important;box-shadow:none;border-color:transparent}
+body.obs-preview .texture,
+body.obs-preview .top,
+body.obs-preview .bug{display:none!important}
+body.obs-preview .lowerthird{inset:0}
+
+
+/* v64: Game Night commentator selectors and portraits */
+.opening{padding-bottom:54px}
+.opening-commentators{
+  position:absolute;left:50%;bottom:54px;transform:translateX(-50%);
+  display:flex;gap:18px;justify-content:center;align-items:flex-end;width:88%;
+}
+.opening-commentator{
+  width:330px;height:94px;display:grid;grid-template-columns:88px 1fr;align-items:center;
+  background:#061521ee;border:1px solid #365063;border-left:5px solid #ffb400;
+  box-shadow:0 12px 28px #0005;text-align:left;overflow:hidden;
+}
+.opening-commentator>img,.opening-commentator>.commentator-placeholder{
+  width:88px;height:94px;object-fit:contain;object-position:center bottom;background:#12364b;
+}
+.opening-commentator>.commentator-placeholder{
+  display:grid;place-items:center;color:#ffffff45;font-size:12px;font-weight:900;letter-spacing:.12em;
+}
+.opening-commentator>div:last-child{padding:0 14px;min-width:0}
+.opening-commentator small{display:block;color:#ffb400;font-size:10px;font-weight:900;letter-spacing:.09em;margin-bottom:5px}
+.opening-commentator b{display:block;color:#f7f9fb;font-size:20px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.opening:has(.opening-commentators:not(:empty)) .opening-match{transform:translateY(-18px)}
+
+
+/* v65: commentator cards - give names room and make 1/2 commentator states deliberate */
+.opening-commentators{gap:16px;width:760px;bottom:50px}
+.opening-commentator{width:372px;height:94px;grid-template-columns:92px minmax(0,1fr)}
+.opening-commentator>img,.opening-commentator>.commentator-placeholder{width:92px;height:94px}
+.opening-commentator>div:last-child{padding:0 12px}
+.opening-commentator b{font-size:17px;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.12}
+.opening-commentators .opening-commentator:only-child{width:420px}
+.opening-commentators .opening-commentator:only-child b{font-size:19px}
+
+
+/* v66: integrate commentators into the Game Night lockup instead of hanging below it */
+.opening{padding-bottom:28px}
+.opening-commentators{bottom:58px;width:720px;gap:12px}
+.opening-commentator{width:354px;height:78px;grid-template-columns:76px minmax(0,1fr);box-shadow:none;background:#061521d9}
+.opening-commentator>img,.opening-commentator>.commentator-placeholder{width:76px;height:78px}
+.opening-commentator>div:last-child{padding:0 11px}
+.opening-commentator small{font-size:9px;margin-bottom:3px}
+.opening-commentator b{font-size:16px;line-height:1.08}
+.opening-commentators .opening-commentator:only-child{width:390px}
+.opening-commentators .opening-commentator:only-child b{font-size:17px}
+.opening:has(.opening-commentators:not(:empty)) h1{transform:translateY(-12px)}
+.opening:has(.opening-commentators:not(:empty)) .opening-match{transform:translateY(-26px)}
+
+
+/* v67: fixed studio preview + independently scrollable control rail */
+html,body{height:100%;overflow:hidden}
+header{position:relative;z-index:100}
+main{height:calc(100vh - 70px);min-height:0;overflow:hidden}
+aside{
+  height:100%;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-gutter:stable;
+  overscroll-behavior:contain;
+}
+.workspace{
+  height:100%;
+  min-height:0;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+.twocol{min-width:0}
+.twocol>*{min-width:0}
+.twocol input,.twocol select{width:100%;min-width:0}
+aside input,aside select{max-width:100%}
+
+
+/* v68: lower commentator strip slightly on Game Night */
+.opening-commentators{bottom:36px}
+
+
+/* v69: dedicated OBS Browser Source mode */
+body.obs-preview{margin:0;background:transparent!important;overflow:hidden!important}
+body.obs-preview>header,
+body.obs-preview main>aside{display:none!important}
+body.obs-preview main{
+  display:block!important;
+  width:100vw!important;
+  height:100vh!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+body.obs-preview .workspace{
+  width:100vw!important;
+  height:100vh!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:hidden!important;
+  display:block!important;
+}
+body.obs-preview .screen{
+  width:100vw!important;
+  height:100vh!important;
+  max-width:none!important;
+  aspect-ratio:auto!important;
+  margin:0!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+
+/* v70: OBS browser source must preserve the designed dark 1920x1080 canvas.
+   Do not make the broadcast screen transparent; transparency belongs outside overlays only. */
+html.obs-preview,
+body.obs-preview{
+  background:#06111a!important;
+}
+body.obs-preview .screen{
+  background-color:#06263a!important;
+}
+
+
+/* v71: OBS page background fix. The normal .screen background is composed partly
+   by page/workspace layers, so keep every OBS viewport layer on the broadcast navy. */
+html.obs-preview,
+html.obs-preview body,
+body.obs-preview,
+body.obs-preview main,
+body.obs-preview .workspace,
+body.obs-preview .screen{
+  background-color:#06263a!important;
+}
+
+
+/* v73: OBS viewport is itself the 16:9 canvas. Avoid CSS min() inside transform,
+   which Chromium/OBS can reject and then leave the fixed 1920 canvas offset/cropped. */
+body.obs-preview .workspace{position:relative!important;display:block!important}
+body.obs-preview .screen{
+  position:relative!important;
+  left:auto!important;top:auto!important;
+  width:100vw!important;height:100vh!important;
+  max-width:none!important;aspect-ratio:auto!important;
+  transform:none!important;
+  margin:0!important;
+  overflow:hidden!important;
+}
+
+/* v74: OBS must be the exact same composed scene as studio preview.
+   v63 hid global chrome (.texture/.top/.bug) for lower-third overlay use; that
+   accidentally stripped those elements from every OBS scene. Restore them except
+   when the active scene itself is lower third. */
+body.obs-preview .texture,
+body.obs-preview .top,
+body.obs-preview .bug{display:block!important}
+body.obs-preview .lowerthird .texture,
+body.obs-preview .lowerthird .top,
+body.obs-preview .lowerthird .bug{display:none!important}
+
+/* v75: preserve each chrome element's intended display type in OBS.
+   v74 restored visibility with display:block, which broke the flex header layout. */
+body.obs-preview .texture{display:block!important}
+body.obs-preview .top{display:flex!important}
+body.obs-preview .bug{display:flex!important}
+
+/* v76: optical balance for the opening/Game Night scene.
+   Keep the OBS/studio geometry identical; move only the opening composition down. */
+.opening{transform:translateY(3.5%)}
+
+
+
+/* v78: broadcast cut. Quick dip + restrained horizontal motion, no slideshow feel. */
+.scene{will-change:opacity,transform}
+.scene.scene-enter{z-index:3;animation:sehBroadcastIn .42s cubic-bezier(.2,.75,.2,1) both}
+.scene.scene-leave{z-index:2;animation:sehBroadcastOut .18s ease-in both;pointer-events:none}
+.screen.scene-switching::after{
+  content:"";position:absolute;inset:0;z-index:90;pointer-events:none;
+  background:linear-gradient(110deg,transparent 0 43%,rgba(250,176,0,.16) 49%,rgba(255,255,255,.08) 50%,transparent 57%);
+  transform:translateX(-115%);animation:sehBroadcastWipe .42s cubic-bezier(.3,.7,.2,1) both;
+}
+@keyframes sehBroadcastOut{
+  from{opacity:1;filter:brightness(1)}
+  to{opacity:0;filter:brightness(.72)}
+}
+@keyframes sehBroadcastIn{
+  0%,30%{opacity:0;transform:translateX(14px);filter:brightness(.78)}
+  100%{opacity:1;transform:translateX(0);filter:brightness(1)}
+}
+@keyframes sehBroadcastWipe{
+  0%{transform:translateX(-115%)}
+  100%{transform:translateX(115%)}
+}
+.opening.scene-enter{animation-name:sehOpeningBroadcastIn}
+@keyframes sehOpeningBroadcastIn{
+  0%,30%{opacity:0;transform:translate(14px,3.5%);filter:brightness(.78)}
+  100%{opacity:1;transform:translate(0,3.5%);filter:brightness(1)}
+}
+@media (prefers-reduced-motion:reduce){
+  .scene.scene-enter,.scene.scene-leave,.screen.scene-switching::after{animation-duration:.01ms!important}
+}
+
+
+/* v79: four synchronized broadcast themes. Layout/data stay shared; only the visual package changes. */
+body[data-theme="broadcast"] .screen{--theme-accent:#f4b21b;--theme-panel:#061521e8;--theme-line:#365063}
+body[data-theme] .screen{transition:background-color .25s ease,filter .25s ease}
+body[data-theme] .scene-title small,
+body[data-theme] .player>span,
+body[data-theme] .opening h1 span,
+body[data-theme] .opening-match em,
+body[data-theme] .opening-commentator small{color:var(--theme-accent,#f4b21b)}
+body[data-theme] .opening-commentator{border-left-color:var(--theme-accent,#f4b21b);background:var(--theme-panel,#061521d9);border-color:var(--theme-line,#365063);border-left-width:5px}
+body[data-theme] .screen.scene-switching::after{background:linear-gradient(110deg,transparent 0 43%,color-mix(in srgb,var(--theme-accent,#f4b21b) 18%,transparent) 49%,rgba(255,255,255,.08) 50%,transparent 57%)}
+
+/* Arena: dark rink-night package with spotlight pools and warmer broadcast gold. */
+body[data-theme="arena"] .screen{
+  --theme-accent:#ffc229;--theme-panel:#090e14ed;--theme-line:#4d5963;
+  background:
+    radial-gradient(ellipse at 50% -12%,rgba(255,255,255,.13) 0,rgba(255,255,255,.035) 25%,transparent 48%),
+    radial-gradient(circle at 16% 42%,rgba(244,178,27,.10),transparent 28%),
+    radial-gradient(circle at 84% 42%,rgba(244,178,27,.08),transparent 28%),
+    linear-gradient(180deg,#101922 0%,#071019 58%,#04090e 100%)!important;
+}
+body[data-theme="arena"] .texture{
+  opacity:.42;background:
+  linear-gradient(90deg,transparent 49.8%,rgba(255,255,255,.055) 50%,transparent 50.2%),
+  repeating-linear-gradient(90deg,transparent 0 159px,rgba(255,255,255,.025) 160px),
+  linear-gradient(160deg,transparent 0 43%,rgba(244,178,27,.08) 43.2%,transparent 43.5%);
+}
+body[data-theme="arena"] .top{border-bottom-color:#ffffff22}
+body[data-theme="arena"] .player,
+body[data-theme="arena"] .scorer-side,
+body[data-theme="arena"] .lb-side{background:#080f16e8}
+
+/* Ice: colder, brighter TV package with rink geometry. */
+body[data-theme="ice"] .screen{
+  --theme-accent:#7fd7ff;--theme-panel:#0a2638e8;--theme-line:#72b9d4;
+  background:
+    radial-gradient(circle at 50% 48%,rgba(151,220,244,.16),transparent 35%),
+    linear-gradient(135deg,#12384c 0%,#09283a 48%,#0d3447 100%)!important;
+}
+body[data-theme="ice"] .texture{
+  opacity:.7;background:
+    radial-gradient(circle at 50% 50%,transparent 0 112px,rgba(164,225,245,.10) 113px 116px,transparent 117px),
+    linear-gradient(90deg,transparent 49.85%,rgba(224,248,255,.13) 50%,transparent 50.15%),
+    repeating-linear-gradient(90deg,transparent 0 191px,rgba(196,234,246,.045) 192px);
+}
+body[data-theme="ice"] .top{border-bottom-color:#b9ecff35}
+body[data-theme="ice"] .opening h1 span{color:#9ce4ff}
+body[data-theme="ice"] .opening-match em{color:#9ce4ff}
+
+/* Impact: high-energy eSports package, heavier diagonals and giant ghost marks. */
+body[data-theme="impact"] .screen{
+  --theme-accent:#ffb400;--theme-panel:#11111aee;--theme-line:#66532b;
+  background:
+    linear-gradient(118deg,transparent 0 18%,rgba(255,180,0,.12) 18.1% 18.8%,transparent 18.9% 70%,rgba(255,180,0,.07) 70.1% 71.2%,transparent 71.3%),
+    radial-gradient(circle at 78% 18%,rgba(255,180,0,.12),transparent 25%),
+    linear-gradient(145deg,#111827 0%,#07111e 48%,#0b1018 100%)!important;
+}
+body[data-theme="impact"] .texture{
+  opacity:.75;background:
+    repeating-linear-gradient(118deg,transparent 0 110px,rgba(255,255,255,.025) 111px 112px),
+    linear-gradient(90deg,transparent 0 62%,rgba(255,180,0,.055) 62% 100%);
+}
+body[data-theme="impact"] .scene-title b,
+body[data-theme="impact"] .opening h1{letter-spacing:-.045em}
+body[data-theme="impact"] .player{border-color:#7b6330;background:#0b1320e8}
+body[data-theme="impact"] .top{border-bottom-color:#ffb40038}
+
+/* OBS overrides previously forced Broadcast navy. Let the selected theme own the canvas. */
+html.obs-preview body[data-theme="arena"],
+body.obs-preview[data-theme="arena"],
+body.obs-preview[data-theme="arena"] main,
+body.obs-preview[data-theme="arena"] .workspace{background:#071019!important}
+body.obs-preview[data-theme="arena"] .screen{background:
+  radial-gradient(ellipse at 50% -12%,rgba(255,255,255,.13) 0,rgba(255,255,255,.035) 25%,transparent 48%),
+  radial-gradient(circle at 16% 42%,rgba(244,178,27,.10),transparent 28%),
+  radial-gradient(circle at 84% 42%,rgba(244,178,27,.08),transparent 28%),
+  linear-gradient(180deg,#101922 0%,#071019 58%,#04090e 100%)!important}
+html.obs-preview body[data-theme="ice"],
+body.obs-preview[data-theme="ice"],
+body.obs-preview[data-theme="ice"] main,
+body.obs-preview[data-theme="ice"] .workspace{background:#09283a!important}
+body.obs-preview[data-theme="ice"] .screen{background:
+  radial-gradient(circle at 50% 48%,rgba(151,220,244,.16),transparent 35%),
+  linear-gradient(135deg,#12384c 0%,#09283a 48%,#0d3447 100%)!important}
+html.obs-preview body[data-theme="impact"],
+body.obs-preview[data-theme="impact"],
+body.obs-preview[data-theme="impact"] main,
+body.obs-preview[data-theme="impact"] .workspace{background:#07111e!important}
+body.obs-preview[data-theme="impact"] .screen{background:
+  linear-gradient(118deg,transparent 0 18%,rgba(255,180,0,.12) 18.1% 18.8%,transparent 18.9% 70%,rgba(255,180,0,.07) 70.1% 71.2%,transparent 71.3%),
+  radial-gradient(circle at 78% 18%,rgba(255,180,0,.12),transparent 25%),
+  linear-gradient(145deg,#111827 0%,#07111e 48%,#0b1018 100%)!important}
+
+/* v81: lineup H/B uses the same broadcast transition as every other scene.
+   Snapshot logo keeps the normal lineup-logo geometry while the outgoing frame fades. */
+.lineup-transition-old{display:flex!important;position:absolute!important;inset:14% 3% 8%!important;z-index:2!important;pointer-events:none!important}
+.lineup-team-logo-snapshot{width:92px!important;height:92px!important;max-width:92px!important;max-height:92px!important;object-fit:contain!important;flex:0 0 auto!important;filter:drop-shadow(0 7px 14px #0008)!important}
+
+/* v83: freeze outgoing lineup logo geometry during H/B crossfade. */
+.lineup-transition-old .lineup-title>img{width:92px!important;height:92px!important;max-width:92px!important;max-height:92px!important;object-fit:contain!important;flex:0 0 auto!important;filter:drop-shadow(0 7px 14px #0008)!important;transform:none!important;margin:0!important}
+
+
+/* v85: Forward Battle compact stat stack. Centers have FO% and must still show P. */
+.offense .scene-title{margin-bottom:12px}
+.offense .role-grid{gap:10px;grid-template-rows:repeat(2,minmax(0,1fr))}
+.offense .role-card{grid-template-columns:42% 58%;overflow:hidden}
+.offense .role-info{padding:7px 14px;justify-content:center;overflow:hidden}
+.offense .role-team{gap:7px;line-height:1}
+.offense .role-team img{width:27px;height:27px}
+.offense .role-team small{font-size:9px}
+.offense .role-info>strong{font-size:clamp(14px,1.32vw,22px);line-height:1.05;margin:4px 0 5px}
+.offense .role-head,.offense .role-stat{grid-template-columns:minmax(0,1fr) 56px 62px;gap:6px}
+.offense .role-head{font-size:8px;line-height:1;margin-bottom:0}
+.offense .role-stat{padding:2px 0;min-height:20px;line-height:1}
+.offense .role-stat span{font-size:9px;line-height:1}
+.offense .role-stat b{font-size:clamp(11px,1vw,16px);line-height:1}
+
+
+/* v86: Forward Battle final fit: reserve room for the center's extra FO% row. */
+.offense .role-info{padding:5px 12px}
+.offense .role-team img{width:24px;height:24px}
+.offense .role-info>strong{font-size:clamp(13px,1.25vw,21px);margin:2px 0 3px;line-height:1}
+.offense .role-head,.offense .role-stat{grid-template-columns:minmax(0,1fr) 54px 60px;gap:5px}
+.offense .role-head{font-size:7px}
+.offense .role-stat{padding:1px 0;min-height:17px}
+.offense .role-stat span{font-size:8px}
+.offense .role-stat b{font-size:clamp(10px,.95vw,15px)}
+
+
+/* v87: Forward Battle needs actual vertical room, not microscopic stats. */
+.offense{padding-top:104px!important}
+.offense .scene-title{margin-bottom:8px}
+.offense .scene-title b{font-size:clamp(36px,3.75vw,60px)}
+.offense .role-grid{min-height:0;height:calc(100% - 126px);grid-template-rows:repeat(2,minmax(0,1fr));gap:10px}
+.offense .role-card{min-height:0}
+.offense .role-info{padding:8px 14px;justify-content:center}
+.offense .role-team img{width:27px;height:27px}
+.offense .role-team small{font-size:9px}
+.offense .role-info>strong{font-size:clamp(14px,1.3vw,22px);margin:3px 0 5px;line-height:1.03}
+.offense .role-head,.offense .role-stat{grid-template-columns:minmax(0,1fr) 56px 62px;gap:6px}
+.offense .role-head{font-size:8px}
+.offense .role-stat{padding:2px 0;min-height:20px}
+.offense .role-stat span{font-size:9px}
+.offense .role-stat b{font-size:clamp(11px,1vw,16px)}
+
+
+/* v88: Forward Battle hard-fit: P must be visible on every card, including centers. */
+.offense .role-grid{height:calc(100% - 108px)}
+.offense .scene-title{margin-bottom:4px}
+.offense .role-info{padding:4px 12px;justify-content:flex-start}
+.offense .role-team{margin-top:3px}
+.offense .role-team img{width:22px;height:22px}
+.offense .role-info>strong{font-size:clamp(13px,1.2vw,20px);margin:2px 0 3px}
+.offense .role-head,.offense .role-stat{grid-template-columns:minmax(0,1fr) 52px 58px;gap:4px}
+.offense .role-head{font-size:7px;line-height:1}
+.offense .role-stat{padding:1px 0;min-height:16px;line-height:1}
+.offense .role-stat span{font-size:8px}
+.offense .role-stat b{font-size:clamp(10px,.9vw,14px)}
+
+
+/* v89: FORWARD BATTLE is .forwards, not .offense. Keep all five center rows visible. */
+.forwards{padding-top:96px!important}
+.forwards .scene-title{margin-bottom:8px!important}
+.forwards .scene-title b{font-size:clamp(38px,4vw,64px)!important;line-height:.95}
+.forwards .role-grid-six{height:calc(100% - 104px)!important;min-height:0!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+.forwards .role-card{min-height:0!important;overflow:hidden!important;grid-template-columns:42% 58%!important}
+.forwards .role-info{padding:6px 12px!important;justify-content:center!important;overflow:hidden!important}
+.forwards .role-team{gap:6px!important;line-height:1!important}
+.forwards .role-team img{width:23px!important;height:23px!important}
+.forwards .role-team small{font-size:9px!important}
+.forwards .role-info>strong{font-size:clamp(13px,1.22vw,20px)!important;line-height:1!important;margin:3px 0 4px!important}
+.forwards .role-head,.forwards .role-stat{grid-template-columns:minmax(0,1fr) 54px 60px!important;gap:5px!important}
+.forwards .role-head{font-size:7px!important;line-height:1!important;margin:0!important}
+.forwards .role-stat{padding:1px 0!important;min-height:17px!important;line-height:1!important}
+.forwards .role-stat span{font-size:8px!important;line-height:1!important}
+.forwards .role-stat b{font-size:clamp(10px,.95vw,15px)!important;line-height:1!important}
+
+
+/* v90: Forward Battle layout correction. Do not add padding inside an already-inset scene. */
+.forwards{padding:0!important;flex-direction:column!important}
+.forwards .scene-title{margin:0 0 10px!important;flex:0 0 auto!important}
+.forwards .scene-title b{font-size:clamp(38px,4vw,64px)!important;line-height:1!important}
+.forwards .role-grid-six{height:auto!important;flex:1 1 auto!important;min-height:0!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+.forwards .role-card{min-height:0!important}
+.forwards .role-info{padding:7px 12px!important;justify-content:center!important}
+.forwards .role-team img{width:24px!important;height:24px!important}
+.forwards .role-info>strong{font-size:clamp(13px,1.22vw,20px)!important;margin:3px 0 4px!important}
+.forwards .role-stat{min-height:18px!important;padding:1px 0!important}
+
+
+/* v91: Forward Battle uses card height instead of wasting it. Team identity moves up; stats breathe. */
+.forwards .role-grid-six{gap:12px!important}
+.forwards .role-card{grid-template-columns:42% 58%!important}
+.forwards .role-info{justify-content:flex-start!important;padding:12px 12px 8px!important}
+.forwards .role-team{margin:0 0 2px!important;align-items:center!important}
+.forwards .role-team img{width:24px!important;height:24px!important}
+.forwards .role-info>strong{margin:1px 0 7px!important;line-height:1.04!important}
+.forwards .role-head{margin-top:auto!important;margin-bottom:2px!important}
+.forwards .role-stat{padding:3px 0!important;min-height:21px!important}
+.forwards .role-stat span{font-size:9px!important}
+.forwards .role-stat b{font-size:clamp(11px,1.02vw,16px)!important}
+
+
+/* v92: Forward Battle final geometry fix: keep identity high, stats block low but fully inside cards. */
+.forwards .role-info{display:flex!important;flex-direction:column!important;padding:10px 12px 10px!important;min-height:0!important;overflow:hidden!important}
+.forwards .role-team{flex:0 0 auto!important;margin:0 0 2px!important}
+.forwards .role-info>strong{flex:0 0 auto!important;margin:0!important;line-height:1.08!important}
+.forwards .role-head{margin-top:auto!important;padding-top:5px!important;margin-bottom:0!important;flex:0 0 auto!important}
+.forwards .role-stat{padding:2px 0!important;min-height:19px!important;line-height:1!important;flex:0 0 auto!important}
+.forwards .role-stat span{line-height:1!important}
+.forwards .role-stat b{line-height:1!important}
+
+
+/* v93: Forward Battle: remove wasted gap; stats begin below identity instead of bottom anchoring. */
+.forwards .role-info{justify-content:flex-start!important}
+.forwards .role-head{margin-top:10px!important;padding-top:0!important}
+.forwards .role-stat{padding:3px 0!important;min-height:21px!important}
+
+
+/* v94: Forward Battle polish only. Preserve geometry. */
+.forwards .role-team{font-size:12px!important;line-height:1.15!important;gap:6px!important}
+.forwards .role-team img{width:25px!important;height:25px!important}
+.forwards .role-head{margin-top:15px!important;margin-bottom:3px!important}
+.forwards .role-head span{line-height:1.1!important}
+.forwards .role-stat{border-top-color:rgba(255,255,255,.10)!important}
+
+
+/* v95: manual playoff series scene for between-game broadcast use */
+.series{align-items:center;justify-content:center;text-align:center;padding:8% 5% 6%!important}
+.series-kicker{font-size:clamp(15px,1.35vw,22px);font-weight:900;letter-spacing:.16em;color:var(--theme-accent,#f4b21b);margin-bottom:5px}
+.series-title{font-size:clamp(38px,4.2vw,70px);font-weight:1000;letter-spacing:-.045em;text-transform:uppercase;line-height:1;margin-bottom:34px}
+.series-board{width:100%;display:grid;grid-template-columns:1fr 320px 1fr;align-items:center;gap:34px}
+.series-team{display:flex;flex-direction:column;align-items:center;min-width:0}
+.series-team>img{width:150px;height:150px;object-fit:contain;filter:drop-shadow(0 14px 18px #0009);margin-bottom:14px}
+.series-team>b{font-size:clamp(21px,2vw,34px);font-weight:1000;line-height:1.05;max-width:100%;text-transform:uppercase}
+.series-score{display:grid;grid-template-columns:1fr 36px 1fr;align-items:center}
+.series-score strong{font-size:clamp(80px,9vw,145px);font-weight:1000;line-height:.85}
+.series-score>span{font-size:52px;font-weight:300;opacity:.5}
+.series-score small{grid-column:1/-1;font-size:12px;font-weight:900;letter-spacing:.2em;color:#ffffff88;margin-top:15px}
+.series-dots{display:flex;gap:9px;margin-top:20px;min-height:14px}
+.series-dots i{display:block;width:42px;height:7px;border-radius:10px;background:#ffffff22;border:1px solid #ffffff25}
+.series-dots i.won{background:var(--theme-accent,#f4b21b);border-color:var(--theme-accent,#f4b21b);box-shadow:0 0 14px color-mix(in srgb,var(--theme-accent,#f4b21b) 38%,transparent)}
+.series-next{margin-top:38px;padding:12px 26px;border:1px solid #ffffff20;background:#061521b8;font-size:13px;font-weight:900;letter-spacing:.16em}
+
+
+/* v96: Series scene is a vertical composition. The base active scene is flex-row. */
+.screen>.scene.series.active{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:2% 5% 3%!important}
+.series-kicker{flex:0 0 auto!important;white-space:nowrap!important}
+.series-title{flex:0 0 auto!important;width:100%!important;margin:6px 0 30px!important;text-align:center!important}
+.series-board{flex:0 0 auto!important}
+.series-next{flex:0 0 auto!important;margin-top:34px!important}
+
+
+/* v97: optional individual game results in series scene */
+.series-results{margin-top:22px;text-align:center;min-height:45px}
+.series-results[hidden]{display:none!important}
+.series-results>small{display:block;font-size:9px;font-weight:900;letter-spacing:.2em;color:#8fa6b7;margin-bottom:8px}
+#seriesResultsList{display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
+#seriesResultsList span{padding:6px 11px;border:1px solid #ffffff1d;background:#061521a8;font-size:12px;font-weight:800;letter-spacing:.04em}
+#seriesResultsList b{color:var(--theme-accent,#f4b21b);margin-right:4px}
+.series-results+.series-next{margin-top:18px!important}
+.series-results[hidden]+.series-next{margin-top:34px!important}
+.series-results-toggle{display:flex;grid-template-columns:auto 1fr;align-items:center;gap:8px;margin-top:14px}
+.series-results-toggle input{width:16px;height:16px;margin:0;padding:0}
+.series-result-inputs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.series-result-inputs label{margin:2px 0}
+.series-result-inputs input{width:100%;min-width:0;padding:8px}
+
+
+/* v98: Director-first control desk. Preview is deliberately compact. */
+@media(min-width:901px){
+  body:not(.obs-preview){height:100vh;overflow:hidden;background:#05090e}
+  body:not(.obs-preview) header{height:58px;padding:0 20px;background:#080e14;border-bottom-color:#1b2731}
+  body:not(.obs-preview) main{height:calc(100vh - 58px);min-height:0;grid-template-columns:minmax(560px,46vw) minmax(0,1fr)}
+  body:not(.obs-preview) aside{height:100%;overflow-y:auto;padding:18px 22px 50px;background:linear-gradient(180deg,#091119,#070d13);border-right:1px solid #22303b;scrollbar-width:thin;scrollbar-color:#334655 #091119}
+  body:not(.obs-preview) .workspace{height:100%;overflow-y:auto;padding:22px 28px;background:radial-gradient(circle at 50% 12%,#101c26 0,#070c11 54%,#05080c 100%)}
+  body:not(.obs-preview) .control-hero{padding:4px 2px 18px;margin-bottom:16px;border-bottom:1px solid #1f2b35}
+  body:not(.obs-preview) .control-hero span{display:block;color:#f4b21b;font-size:9px;font-weight:950;letter-spacing:.2em}
+  body:not(.obs-preview) .control-hero strong{display:block;margin-top:3px;font-size:22px;letter-spacing:-.02em}
+  body:not(.obs-preview) .control-hero small{display:block;margin-top:2px;color:#728392;font-size:10px}
+  body:not(.obs-preview) .block{padding:0 0 16px;margin-bottom:16px}
+  body:not(.obs-preview) .block h3{margin:0 0 9px;font-size:9px}
+  body:not(.obs-preview) .scene-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  body:not(.obs-preview) .scene-grid button{min-width:0;padding:9px 8px;border-radius:6px;font-size:11px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body:not(.obs-preview) label{margin:8px 0}
+  body:not(.obs-preview) select,body:not(.obs-preview) input{padding:8px 9px;border-radius:6px}
+  body:not(.obs-preview) .preview-toolbar{width:min(100%,760px);display:flex;align-items:center;justify-content:space-between;margin:0 auto 12px}
+  body:not(.obs-preview) .preview-toolbar span{display:block;color:#728392;font-size:8px;font-weight:950;letter-spacing:.2em}
+  body:not(.obs-preview) .preview-toolbar strong{display:block;margin-top:2px;font-size:11px;letter-spacing:.06em}
+  body:not(.obs-preview) .obs-open{display:inline-flex;align-items:center;padding:9px 12px;border:1px solid #314555;border-radius:6px;background:#0b151e;color:#dce7ef;text-decoration:none;font-size:9px;font-weight:950;letter-spacing:.08em}
+  body:not(.obs-preview) .obs-open:hover{border-color:#f4b21b;color:#f4b21b}
+  body:not(.obs-preview) .preview-shell{width:min(100%,760px);margin:0 auto;padding:10px;background:#090f15;border:1px solid #1f2c36;border-radius:10px;box-shadow:0 18px 45px #0008}
+  body:not(.obs-preview) .preview-shell .screen{width:100%;max-width:none;box-shadow:none}
+  body:not(.obs-preview) .hint{width:min(100%,760px);margin:9px auto 0;text-align:center;font-size:9px;color:#586977}
+}
+body.obs-preview .control-hero,body.obs-preview .preview-toolbar{display:none!important}
+body.obs-preview .preview-shell{display:contents}
+
+
+/* v99: Studio preview renders the exact 1280x720 composition, then scales it.
+   OBS mode remains untouched at native output rules. */
+@media(min-width:901px){
+  body:not(.obs-preview) .preview-shell{width:min(100%,620px);padding:9px;overflow:hidden}
+  body:not(.obs-preview) .preview-toolbar,
+  body:not(.obs-preview) .hint{width:min(100%,620px)}
+  body:not(.obs-preview) .preview-scale{
+    --preview-scale:min(.47, calc((100vw - 46vw - 90px) / 1280));
+    width:calc(1280px * var(--preview-scale));
+    height:calc(720px * var(--preview-scale));
+    margin:0 auto;
+    overflow:hidden;
+  }
+  body:not(.obs-preview) .preview-scale>.screen{
+    width:1280px!important;
+    height:720px!important;
+    aspect-ratio:auto!important;
+    max-width:none!important;
+    transform:scale(var(--preview-scale));
+    transform-origin:top left;
+    box-shadow:none!important;
+  }
+}
+body.obs-preview .preview-scale{display:contents}
+
+
+/* v100: fix preview scaling math. Percentage-based calc inside a custom property
+   was resolving against the 1280px child, producing an oversized cropped canvas. */
+@media(min-width:901px){
+  body:not(.obs-preview) .preview-shell{width:min(100%,620px)}
+  body:not(.obs-preview) .preview-scale{
+    --preview-scale:.445;
+    width:569.6px;
+    height:320.4px;
+    max-width:100%;
+    margin:0 auto;
+    overflow:hidden;
+  }
+  body:not(.obs-preview) .preview-scale>.screen{
+    width:1280px!important;
+    height:720px!important;
+    min-width:1280px!important;
+    min-height:720px!important;
+    max-width:none!important;
+    transform:scale(.445)!important;
+    transform-origin:0 0!important;
+  }
+}
+@media(min-width:901px) and (max-width:1300px){
+  body:not(.obs-preview) .preview-scale{
+    --preview-scale:.36;
+    width:460.8px;
+    height:259.2px;
+  }
+  body:not(.obs-preview) .preview-scale>.screen{transform:scale(.36)!important}
+}
+
+
+/* v101: use the right column as the live director surface */
+@media(min-width:901px){
+ body:not(.obs-preview) .workspace{display:flex;flex-direction:column;align-items:center}
+ body:not(.obs-preview) .scene-dock,
+ body:not(.obs-preview) .director-dock{width:min(100%,620px)}
+ body:not(.obs-preview) .scene-dock{margin:16px auto 0;padding-top:14px;border-top:1px solid #1d2a34}
+ body:not(.obs-preview) .scene-dock .block{margin:0;padding:0;border:0}
+ body:not(.obs-preview) .scene-dock h3{margin:0 0 9px;color:#7f93a3;font-size:8px;letter-spacing:.18em}
+ body:not(.obs-preview) .scene-dock .scene-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+ body:not(.obs-preview) .scene-dock button{padding:8px 5px;font-size:9px}
+ body:not(.obs-preview) .director-dock{margin:16px auto 30px;padding:15px 16px;background:#081119;border:1px solid #1f303d;border-radius:9px}
+ body:not(.obs-preview) .dock-head{padding-bottom:11px;margin-bottom:11px;border-bottom:1px solid #1d2b35}
+ body:not(.obs-preview) .dock-head span{display:block;color:#f4b21b;font-size:8px;font-weight:950;letter-spacing:.18em}
+ body:not(.obs-preview) .dock-head strong{display:block;margin-top:2px;font-size:15px}
+ body:not(.obs-preview) .dock-head small,.dock-note{color:#667b8b;font-size:9px}
+ body:not(.obs-preview) .dock-grid{display:grid;grid-template-columns:1fr 1fr 1.45fr;gap:8px;align-items:end}
+ body:not(.obs-preview) .dock-grid label{margin:0;font-size:8px}
+ body:not(.obs-preview) .dock-grid input,body:not(.obs-preview) .dock-grid select{margin-top:4px}
+ body:not(.obs-preview) .dock-note{display:block;margin-top:8px}
+}
+body.obs-preview .scene-dock,body.obs-preview .director-dock{display:none!important}
+
+
+/* v102: desktop controller uses two-column forms instead of wasteful full-width fields. */
+@media(min-width:901px){
+ body:not(.obs-preview) aside>.block:not(.theme-control):not(.lineup-control):not(.series-control){
+   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:10px;align-items:end
+ }
+ body:not(.obs-preview) aside>.block:not(.theme-control):not(.lineup-control):not(.series-control)>h3,
+ body:not(.obs-preview) aside>.block:not(.theme-control):not(.lineup-control):not(.series-control)>.control-note{
+   grid-column:1/-1
+ }
+ body:not(.obs-preview) aside>.block:not(.theme-control):not(.lineup-control):not(.series-control)>.twocol{
+   grid-column:1/-1
+ }
+ body:not(.obs-preview) .theme-control{display:grid;grid-template-columns:1fr 1fr;column-gap:10px;align-items:end}
+ body:not(.obs-preview) .theme-control>h3,
+ body:not(.obs-preview) .theme-control>.control-note{grid-column:1/-1}
+ body:not(.obs-preview) .theme-control>label{grid-column:1/2}
+ body:not(.obs-preview) .series-control{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:10px;align-items:end}
+ body:not(.obs-preview) .series-control>h3,
+ body:not(.obs-preview) .series-control>.series-results-toggle,
+ body:not(.obs-preview) .series-control>.series-result-inputs,
+ body:not(.obs-preview) .series-control>.control-note{grid-column:1/-1}
+ body:not(.obs-preview) .series-control>.twocol{grid-column:1/-1}
+ body:not(.obs-preview) .lineup-control #lineupEditors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px}
+ body:not(.obs-preview) .lineup-control #lineupEditors>label{min-width:0}
+}
+
+
+/* v103: Twitch matchfeed behind the scaled studio graphics preview. OBS output untouched. */
+@media(min-width:901px){
+ body:not(.obs-preview) .preview-scale{position:relative;background:#02070b}
+ body:not(.obs-preview) .twitch-layer{position:absolute;inset:0;z-index:0;background:#02070b;overflow:hidden}
+ body:not(.obs-preview) .twitch-layer>div:first-child,
+ body:not(.obs-preview) .twitch-layer iframe{width:100%!important;height:100%!important;border:0}
+ body:not(.obs-preview) .preview-scale>.screen{position:relative;z-index:2;pointer-events:none}
+ body:not(.obs-preview) .twitch-layer.is-hidden{display:none}
+ body:not(.obs-preview) .stream-empty{position:absolute;inset:0;display:grid;place-items:center;color:#334653;font-size:10px;font-weight:950;letter-spacing:.2em;background:linear-gradient(135deg,#07121b,#02070b)}
+ body:not(.obs-preview) .twitch-layer.has-stream .stream-empty{display:none}
+ body:not(.obs-preview) .stream-dock{width:min(100%,620px);margin:14px auto 0;padding:14px 16px;background:#081119;border:1px solid #1f303d;border-radius:9px}
+ body:not(.obs-preview) .stream-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
+ body:not(.obs-preview) .stream-controls>label:first-child{margin:0}
+ body:not(.obs-preview) #loadTwitch{height:34px;padding:0 13px;border:1px solid #d79c13;border-radius:6px;background:#15140c;color:#f4b21b;font-size:9px;font-weight:950;letter-spacing:.08em;cursor:pointer}
+ body:not(.obs-preview) .stream-check{display:flex;align-items:center;gap:7px;margin:2px 0 0;font-size:8px}
+ body:not(.obs-preview) .stream-check input{width:15px;height:15px;margin:0;padding:0}
+ body:not(.obs-preview) .stream-status{display:flex;align-items:center;gap:7px;margin-top:9px;color:#647887;font-size:8px;font-weight:900;letter-spacing:.1em}
+ body:not(.obs-preview) .stream-status i{width:7px;height:7px;border-radius:50%;background:#566672}
+ body:not(.obs-preview) .stream-status.ready{color:#a9c8b5}
+ body:not(.obs-preview) .stream-status.ready i{background:#4fc47a;box-shadow:0 0 9px #4fc47a88}
+}
+body.obs-preview .twitch-layer,body.obs-preview .stream-dock{display:none!important}
+
+
+/* v104: preview wrapper must keep its 16:9 height inside flex workspace. */
+@media(min-width:901px){
+ body:not(.obs-preview) .preview-shell{flex:0 0 auto!important;min-height:338.4px!important;height:338.4px!important;box-sizing:border-box}
+ body:not(.obs-preview) .preview-scale{flex:none!important;display:block!important}
+}
+@media(min-width:901px) and (max-width:1300px){
+ body:not(.obs-preview) .preview-shell{min-height:277.2px!important;height:277.2px!important}
+}
+
+
+/* v105: explicit LIVE MATCH scene + Twitch player at supported native embed size. */
+body:not(.obs-preview) .scene.live{background:transparent!important}
+body:not(.obs-preview) .scene.live.active{display:flex!important}
+body:not(.obs-preview) .live-safe{position:absolute;inset:auto 0 0;display:flex;justify-content:flex-end;pointer-events:none}
+body:not(.obs-preview) .live-safe span{padding:7px 10px;background:#07121bcc;border-left:2px solid var(--theme-accent,#f4b21b);font-size:9px;font-weight:950;letter-spacing:.14em}
+body:not(.obs-preview) #twitchPlayer{position:absolute;inset:0}
+body:not(.obs-preview) #twitchPlayer iframe{width:100%;height:100%;display:block}
+body.obs-preview .scene.live{background:transparent!important}
+body.obs-preview .scene.live .live-safe{display:none!important}
+
+
+/* v106: LIVE MATCH is a transparent overlay, not a full broadcast background.
+   Studio shows Twitch beneath it; OBS remains transparent for a video source below. */
+.screen.live-mode{background:transparent!important}
+.screen.live-mode>.texture{display:none!important}
+.screen.live-mode>.top{background:linear-gradient(180deg,rgba(4,13,20,.90),rgba(4,13,20,.58) 72%,transparent)!important;border-bottom-color:rgba(255,255,255,.13)!important}
+.screen.live-mode>.bug{background:rgba(4,13,20,.72);padding:5px 8px;border-radius:3px}
+body:not(.obs-preview) .screen.live-mode{box-shadow:none!important}
+body:not(.obs-preview) .preview-scale:has(.screen.live-mode){background:#02070b}
+
+
+/* v107: Match Live owns its video layer in OBS too. */
+body.obs-preview .twitch-layer{display:block!important;position:absolute;inset:0;z-index:0;background:#000;overflow:hidden}
+body.obs-preview #twitchPlayer,body.obs-preview #twitchPlayer iframe{position:absolute;inset:0;width:100%!important;height:100%!important;border:0}
+body.obs-preview .screen{position:relative}
+body.obs-preview .screen>.texture,body.obs-preview .screen>.top,body.obs-preview .screen>.scene,body.obs-preview .screen>.bug{position:absolute;z-index:2}
+body.obs-preview .screen.live-mode{background:transparent!important}
+body.obs-preview .screen:not(.live-mode) .twitch-layer{display:none!important}
+
+
+/* v108: Twitch layer lives inside the 1280x720 broadcast canvas.
+   It must fill the output in OBS and sit below every graphic layer. */
+.screen>.twitch-layer{position:absolute!important;inset:0!important;z-index:0!important;width:100%!important;height:100%!important;background:#000;overflow:hidden}
+.screen>.twitch-layer #twitchPlayer,.screen>.twitch-layer iframe{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:0!important}
+.screen>.twitch-layer .stream-empty{position:absolute;inset:0;z-index:0}
+.screen>.texture,.screen>.top,.screen>.scene,.screen>.bug{z-index:2}
+body:not(.obs-preview) .screen:not(.live-mode)>.twitch-layer,
+body.obs-preview .screen:not(.live-mode)>.twitch-layer{display:none!important}
+body:not(.obs-preview) .screen.live-mode>.twitch-layer,
+body.obs-preview .screen.live-mode>.twitch-layer{display:block!important}
+
+
+/* v109: Match Live must allow direct Twitch player interaction in studio preview.
+   Only the video layer gets pointer events; broadcast graphics stay click-through. */
+@media(min-width:901px){
+ body:not(.obs-preview) .screen.live-mode{pointer-events:none!important}
+ body:not(.obs-preview) .screen.live-mode>.twitch-layer{pointer-events:auto!important}
+ body:not(.obs-preview) .screen.live-mode>.twitch-layer iframe{pointer-events:auto!important}
+}
+
+
+/* v110: OBS Twitch layer must render exactly like studio preview once mounted. */
+body.obs-preview .screen.live-mode>.twitch-layer.has-stream .stream-empty{display:none!important}
+body.obs-preview .screen.live-mode>.twitch-layer #twitchPlayer{display:block!important;position:absolute!important;inset:0!important;z-index:1!important}
+body.obs-preview .screen.live-mode>.twitch-layer iframe{display:block!important;position:absolute!important;inset:0!important;z-index:1!important;width:100%!important;height:100%!important;opacity:1!important;visibility:visible!important}
+body.obs-preview .screen.live-mode>.twitch-layer{z-index:0!important}
+
+body:not(.obs-preview) #screen>.twitch-layer.is-hidden{display:none!important}
+
+
+/* v112: single-source OBS. Keep Twitch completely unobscured until Twitch confirms PLAYING,
+   then reveal the normal Svensk eHockey graphics in the same Browser Source. */
+html.obs-preview.obs-twitch-booting body #screen{
+  background:#000!important;
+}
+html.obs-preview.obs-twitch-booting body #screen>.twitch-layer{
+  display:block!important;
+  z-index:10!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+html.obs-preview.obs-twitch-booting body #screen>:not(#twitchLayer){
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+html.obs-preview.obs-twitch-booting body #screen::before,
+html.obs-preview.obs-twitch-booting body #screen::after{
+  opacity:0!important;
+  visibility:hidden!important;
+}
+html.obs-preview.obs-twitch-playing body #screen>.twitch-layer{
+  display:block!important;
+  z-index:0!important;
+}
+html.obs-preview.obs-twitch-playing body #screen>.top,
+html.obs-preview.obs-twitch-playing body #screen>.bug,
+html.obs-preview.obs-twitch-playing body #screen>.scene.active{
+  opacity:1!important;
+  visibility:visible!important;
+}
+
+
+/* v113: in OBS Match Live, never place the full-size transparent live scene above Twitch.
+   The scene has no visible OBS content, but it covers most of the iframe and can trigger
+   Chromium/Twitch occlusion behavior. Keep only the small visible broadcast chrome above video. */
+html.obs-preview body #screen.live-mode>.scene.live,
+html.obs-preview.obs-twitch-playing body #screen.live-mode>.scene.live,
+html.obs-preview.obs-twitch-booting body #screen.live-mode>.scene.live{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+html.obs-preview.obs-twitch-playing body #screen.live-mode>.top,
+html.obs-preview.obs-twitch-playing body #screen.live-mode>.bug{
+  display:flex!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+
+
+/* v114: first-class direct HLS/video source for one-page OBS composition. */
+.screen>.twitch-layer #directVideo{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  object-fit:cover;background:#000;z-index:1;border:0;
+}
+.screen>.twitch-layer #directVideo[hidden]{display:none!important}
+.stream-source-controls{grid-template-columns:minmax(0,1fr) auto!important}
+.stream-source-controls .source-field{grid-column:1/-1}
+.stream-source-controls .stream-check{grid-column:auto}
+.source-field[hidden]{display:none!important}
+@media(min-width:901px){
+ body:not(.obs-preview) .screen.live-mode>.twitch-layer #directVideo{pointer-events:none!important}
+}
+body.obs-preview .screen.live-mode>.twitch-layer #directVideo{
+  display:block;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover;
+}
+html.obs-preview.obs-twitch-booting body #screen>.twitch-layer #directVideo,
+html.obs-preview.obs-twitch-playing body #screen>.twitch-layer #directVideo{
+  opacity:1!important;visibility:visible!important;
+}
+
+/* v115: Twitch resolver status/UI */
+.stream-dock code{font:inherit;color:#c9d9e6;background:#0a151e;border:1px solid #263845;border-radius:4px;padding:1px 4px}
+
+
+/* v116: OBS output is literally the same 1280x720 program-preview canvas.
+   Only the surrounding controller UI is removed and the complete canvas is scaled to the viewport. */
+html.obs-preview,html.obs-preview body{
+  margin:0!important;padding:0!important;width:100%!important;height:100%!important;overflow:hidden!important;background:#000!important;
+}
+body.obs-preview>header,
+body.obs-preview aside,
+body.obs-preview .preview-toolbar,
+body.obs-preview .hint,
+body.obs-preview .scene-dock,
+body.obs-preview .director-dock,
+body.obs-preview .stream-dock{
+  display:none!important;
+}
+body.obs-preview main,
+body.obs-preview .workspace,
+body.obs-preview .preview-shell,
+body.obs-preview .preview-scale{
+  position:relative!important;
+  width:100vw!important;height:100vh!important;max-width:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+  background:#000!important;overflow:hidden!important;
+}
+body.obs-preview .preview-scale>.screen{
+  position:absolute!important;
+  left:50%!important;top:50%!important;
+  width:1280px!important;height:720px!important;
+  min-width:1280px!important;min-height:720px!important;
+  max-width:none!important;
+  margin:0!important;
+  transform:translate(-50%,-50%) scale(var(--obs-preview-scale,1))!important;
+  transform-origin:center center!important;
+}
+/* Never apply the old OBS boot/reveal masking. Preview and output now share the same composition. */
+html.obs-preview.obs-twitch-booting body #screen>:not(#twitchLayer),
+html.obs-preview.obs-twitch-playing body #screen>.top,
+html.obs-preview.obs-twitch-playing body #screen>.bug,
+html.obs-preview.obs-twitch-playing body #screen>.scene.active{
+  opacity:revert!important;visibility:revert!important;
+}
+
+
+/* v117: Match Live safe area.
+   NHL's match clock/scoreboard occupies the upper-left corner, so live broadcast chrome starts farther right.
+   Other full-screen scenes keep the original header geometry. */
+.screen.live-mode>.top{
+  left:30%!important;
+  right:3%!important;
+  top:2.2%!important;
+  height:8.2%!important;
+  gap:10px!important;
+  padding-left:8px!important;
+  background:linear-gradient(180deg,rgba(4,13,20,.88),rgba(4,13,20,.52) 70%,transparent)!important;
+  border-bottom-color:rgba(255,255,255,.12)!important;
+}
+.screen.live-mode>.top .event-logo{
+  width:46px!important;
+  height:42px!important;
+}
+.screen.live-mode>.top strong{
+  font-size:18px!important;
+  line-height:1.05!important;
+}
+.screen.live-mode>.top small{
+  font-size:9px!important;
+  margin-top:2px!important;
+}
+.screen.live-mode>.top .onair{
+  font-size:9px!important;
+  white-space:nowrap!important;
+}
+.screen.live-mode>.top .onair i{
+  width:7px!important;
+  height:7px!important;
+  margin-right:6px!important;
+}
+
+
+/* v118: Match Live top-right lockup.
+   Keep NHL's scoreboard area clear on the left; put match text immediately left of the SEC logo. */
+.screen.live-mode>.top{
+  left:30%!important;
+  right:2.2%!important;
+  top:2.2%!important;
+  height:8.2%!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  padding-left:0!important;
+}
+.screen.live-mode>.top>.onair{
+  order:1!important;
+  margin-left:0!important;
+  margin-right:auto!important;
+}
+.screen.live-mode>.top>div:nth-child(2){
+  order:2!important;
+  text-align:right!important;
+  min-width:0!important;
+}
+.screen.live-mode>.top>.event-logo{
+  order:3!important;
+  width:50px!important;
+  height:46px!important;
+  margin-left:4px!important;
+  flex:0 0 50px!important;
+}
+.screen.live-mode>.top>div:nth-child(2)>strong,
+.screen.live-mode>.top>div:nth-child(2)>small{
+  text-align:right!important;
+}
+
+
+/* v119: Match Live top bar matched to the NHL scoreboard scale.
+   Compact, low-profile broadcast strip that leaves the in-game clock clear. */
+.screen.live-mode>.top{
+  left:30%!important;
+  right:2.2%!important;
+  top:3.0%!important;
+  height:6.0%!important;
+  min-height:0!important;
+  gap:8px!important;
+  padding:0 6px!important;
+  background:linear-gradient(180deg,rgba(4,13,20,.86),rgba(4,13,20,.62))!important;
+  border-bottom:1px solid rgba(255,255,255,.11)!important;
+}
+.screen.live-mode>.top>.event-logo{
+  width:38px!important;
+  height:38px!important;
+  flex:0 0 38px!important;
+  margin-left:4px!important;
+}
+.screen.live-mode>.top>div:nth-child(2){
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  min-height:0!important;
+}
+.screen.live-mode>.top strong{
+  font-size:15px!important;
+  line-height:1.0!important;
+  letter-spacing:.035em!important;
+}
+.screen.live-mode>.top small{
+  font-size:8px!important;
+  line-height:1.0!important;
+  margin-top:3px!important;
+}
+.screen.live-mode>.top>.onair{
+  font-size:8px!important;
+  letter-spacing:.11em!important;
+}
+.screen.live-mode>.top>.onair i{
+  width:6px!important;
+  height:6px!important;
+  margin-right:5px!important;
+}
+
+
+/* v120: Match Live compact top-right box, sized like the NHL scoreboard. */
+.screen.live-mode>.top{
+  left:auto!important;
+  right:3%!important;
+  top:3%!important;
+  width:26%!important;
+  height:7.2%!important;
+  min-height:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:10px!important;
+  padding:0 10px 0 12px!important;
+  background:linear-gradient(180deg,rgba(4,13,20,.92),rgba(4,13,20,.78))!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  border-bottom-color:rgba(255,255,255,.16)!important;
+  border-radius:2px!important;
+}
+.screen.live-mode>.top>.onair{
+  display:none!important;
+}
+.screen.live-mode>.top>div:nth-child(2){
+  order:1!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  text-align:right!important;
+}
+.screen.live-mode>.top>.event-logo{
+  order:2!important;
+  width:42px!important;
+  height:42px!important;
+  flex:0 0 42px!important;
+  margin:0!important;
+}
+.screen.live-mode>.top strong{
+  display:block!important;
+  font-size:15px!important;
+  line-height:1.02!important;
+  letter-spacing:.035em!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.screen.live-mode>.top small{
+  display:block!important;
+  font-size:8px!important;
+  line-height:1.0!important;
+  margin-top:4px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+
+/* v121: regional broadcast skins.
+   FI/FCL = blue + white ice package. DE/GCL = black + red + gold package.
+   Layout and scene geometry stay shared. */
+
+/* ---------- FINLAND / FCL ---------- */
+html[lang="fi"] body[data-theme] .screen{
+  --theme-accent:#2f7ee6;
+  --theme-panel:#061b33ee;
+  --theme-line:#6aa8ef;
+  background:
+    radial-gradient(circle at 72% 20%,rgba(255,255,255,.11),transparent 28%),
+    radial-gradient(circle at 20% 82%,rgba(39,112,207,.20),transparent 34%),
+    linear-gradient(135deg,#07192c 0%,#0b3159 48%,#06182a 100%)!important;
+  border-color:#487fb9!important;
+}
+html[lang="fi"] body[data-theme] .texture{
+  opacity:.26!important;
+  background:
+    linear-gradient(118deg,transparent 0 44%,rgba(255,255,255,.16) 44.15%,transparent 44.45%),
+    repeating-linear-gradient(90deg,transparent 0 127px,rgba(255,255,255,.055) 128px,transparent 129px),
+    linear-gradient(180deg,rgba(255,255,255,.035),transparent 32%)!important;
+}
+html[lang="fi"] .opening h1 span,
+html[lang="fi"] .opening-match em,
+html[lang="fi"] .vs strong,
+html[lang="fi"] .period,
+html[lang="fi"] .statrows b,
+html[lang="fi"] .road-step strong,
+html[lang="fi"] .leader-card span,
+html[lang="fi"] .lower small{color:#5ba2f2!important}
+html[lang="fi"] .player,
+html[lang="fi"] .leader-card,
+html[lang="fi"] .scorer-side,
+html[lang="fi"] .lb-side,
+html[lang="fi"] .road-card{
+  background:linear-gradient(145deg,rgba(15,58,103,.94),rgba(5,23,42,.96))!important;
+  border-color:rgba(113,172,236,.30)!important;
+}
+html[lang="fi"] .lower{border-left-color:#2f7ee6!important;background:#071c31ee!important}
+html[lang="fi"] .bug{background:rgba(5,24,43,.82)!important;border-color:rgba(94,156,221,.28)!important}
+html[lang="fi"] .screen.live-mode>.top{
+  background:linear-gradient(180deg,rgba(7,33,60,.95),rgba(8,26,45,.84))!important;
+  border-color:rgba(113,172,236,.32)!important;
+  box-shadow:inset 0 -2px 0 rgba(255,255,255,.08)!important;
+}
+html[lang="fi"] body:not(.obs-preview)>header{background:#071521!important;border-bottom-color:#234e75!important}
+html[lang="fi"] body:not(.obs-preview) aside{background:linear-gradient(180deg,#081725,#06111d)!important;border-right-color:#234565!important}
+html[lang="fi"] body:not(.obs-preview) .workspace{background:radial-gradient(circle at 54% 12%,#0d2c49 0,#07131f 52%,#040b12 100%)!important}
+html[lang="fi"] body:not(.obs-preview) .brand>b{background:#fff!important;color:#175ea9!important}
+html[lang="fi"] body:not(.obs-preview) .live-dot:before{background:#5ba2f2!important}
+html[lang="fi"] body:not(.obs-preview) .control-hero span{color:#70aff4!important}
+html[lang="fi"] body:not(.obs-preview) .scene-grid button.active{
+  border-color:#5ba2f2!important;color:#dcecff!important;background:#0b2845!important;
+  box-shadow:inset 0 0 0 1px rgba(91,162,242,.18)!important;
+}
+html[lang="fi"] body:not(.obs-preview) select,
+html[lang="fi"] body:not(.obs-preview) input{background:#0b1d2d!important;border-color:#294c69!important}
+html[lang="fi"] body:not(.obs-preview) .obs-open:hover{border-color:#5ba2f2!important;color:#bdddff!important}
+
+/* ---------- GERMANY / GCL ---------- */
+html[lang="de"] body[data-theme] .screen{
+  --theme-accent:#f2c500;
+  --theme-panel:#100e0fee;
+  --theme-line:#8a262d;
+  background:
+    radial-gradient(circle at 76% 18%,rgba(224,31,46,.12),transparent 30%),
+    radial-gradient(circle at 20% 82%,rgba(242,197,0,.08),transparent 28%),
+    linear-gradient(135deg,#111214 0%,#090a0c 48%,#171011 100%)!important;
+  border-color:#5b2529!important;
+}
+html[lang="de"] body[data-theme] .texture{
+  opacity:.30!important;
+  background:
+    linear-gradient(118deg,transparent 0 44%,rgba(218,32,45,.26) 44.1%,rgba(242,197,0,.12) 44.25%,transparent 44.55%),
+    repeating-linear-gradient(90deg,transparent 0 127px,rgba(255,255,255,.03) 128px,transparent 129px),
+    linear-gradient(180deg,rgba(0,0,0,.10),transparent 28%)!important;
+}
+html[lang="de"] .opening h1 span,
+html[lang="de"] .opening-match em,
+html[lang="de"] .vs strong,
+html[lang="de"] .period,
+html[lang="de"] .statrows b,
+html[lang="de"] .road-step strong,
+html[lang="de"] .leader-card span,
+html[lang="de"] .lower small{color:#f2c500!important}
+html[lang="de"] .scene-title small,
+html[lang="de"] .opening-commentator small{color:#f2c500!important}
+html[lang="de"] .player,
+html[lang="de"] .leader-card,
+html[lang="de"] .scorer-side,
+html[lang="de"] .lb-side,
+html[lang="de"] .road-card{
+  background:linear-gradient(145deg,rgba(33,19,20,.96),rgba(9,10,12,.97))!important;
+  border-color:rgba(208,40,50,.28)!important;
+}
+html[lang="de"] .lower{border-left-color:#d82432!important;background:#111011ee!important}
+html[lang="de"] .bug{background:rgba(12,12,13,.88)!important;border-color:rgba(242,197,0,.22)!important}
+html[lang="de"] .screen.live-mode>.top{
+  background:linear-gradient(180deg,rgba(17,17,18,.96),rgba(11,11,12,.88))!important;
+  border-color:rgba(242,197,0,.24)!important;
+  box-shadow:inset 0 -2px 0 #c91d2a!important;
+}
+html[lang="de"] .onair i{background:#d91f2d!important;box-shadow:0 0 14px rgba(217,31,45,.75)!important}
+html[lang="de"] body:not(.obs-preview)>header{background:#0d0d0f!important;border-bottom-color:#492126!important}
+html[lang="de"] body:not(.obs-preview) aside{background:linear-gradient(180deg,#111113,#09090b)!important;border-right-color:#3d2024!important}
+html[lang="de"] body:not(.obs-preview) .workspace{background:radial-gradient(circle at 55% 12%,#221619 0,#0c0d0f 50%,#050506 100%)!important}
+html[lang="de"] body:not(.obs-preview) .brand>b{
+  background:linear-gradient(180deg,#f2c500 0 34%,#d91f2d 34% 67%,#111 67%)!important;
+  color:#fff!important;text-shadow:0 1px 2px #000!important;
+}
+html[lang="de"] body:not(.obs-preview) .live-dot:before{background:#d91f2d!important}
+html[lang="de"] body:not(.obs-preview) .control-hero span{color:#f2c500!important}
+html[lang="de"] body:not(.obs-preview) .scene-grid button.active{
+  border-color:#f2c500!important;color:#f2c500!important;background:#201817!important;
+  box-shadow:inset 3px 0 0 #d91f2d!important;
+}
+html[lang="de"] body:not(.obs-preview) select,
+html[lang="de"] body:not(.obs-preview) input{background:#141416!important;border-color:#402a2d!important}
+html[lang="de"] body:not(.obs-preview) .obs-open:hover{border-color:#f2c500!important;color:#f2c500!important}
+
+
+/* v122: regional skin polish.
+   Remove Swedish yellow from FI and make DE surfaces consistently black/red/gold. */
+
+/* FI / FCL: blue + white throughout all shared scene components */
+html[lang="fi"] .player span,
+html[lang="fi"] .role-head,
+html[lang="fi"] .spotlight-copy h3,
+html[lang="fi"] .spotlight-total b,
+html[lang="fi"] .goalie-center-title,
+html[lang="fi"] .goalie-row b:nth-child(-n+2),
+html[lang="fi"] .goalie-row b:nth-last-child(-n+2),
+html[lang="fi"] .key-center-title,
+html[lang="fi"] .key-row b,
+html[lang="fi"] .bt-row>b:last-child,
+html[lang="fi"] .tc-row b,
+html[lang="fi"] .scorer>strong,
+html[lang="fi"] .scorer>em,
+html[lang="fi"] .form-record strong,
+html[lang="fi"] .off-big b,
+html[lang="fi"] .off-top span small,
+html[lang="fi"] .off-top strong,
+html[lang="fi"] .lb-player>strong,
+html[lang="fi"] .lb-player>em{
+  color:#69adf7!important;
+}
+html[lang="fi"] .spotlight-stats div{border-left-color:#69adf7!important}
+html[lang="fi"] .goalie-center-title,
+html[lang="fi"] .key-center-title{border-bottom-color:#69adf7!important}
+html[lang="fi"] .goalie-row,
+html[lang="fi"] .key-row,
+html[lang="fi"] .tc-row{border-bottom-color:rgba(105,173,247,.42)!important}
+html[lang="fi"] .goalie-columns,
+html[lang="fi"] .key-columns,
+html[lang="fi"] .bt-head,
+html[lang="fi"] .tc-cols{
+  background:#f5f9ff!important;
+  color:#082846!important;
+}
+html[lang="fi"] .bt-row.selected{background:rgba(91,162,242,.12)!important;border-left-color:#f5f9ff!important}
+html[lang="fi"] .table .bt-row.selected .bt-team:before{background:#f5f9ff!important}
+html[lang="fi"] .scorer-team,
+html[lang="fi"] .form-team,
+html[lang="fi"] .off-team,
+html[lang="fi"] .lb-team{border-bottom-color:#69adf7!important}
+html[lang="fi"] .broadcast-table,
+html[lang="fi"] .tc-center,
+html[lang="fi"] .scorer-side,
+html[lang="fi"] .form-card,
+html[lang="fi"] .off-card,
+html[lang="fi"] .lb-side,
+html[lang="fi"] .goalie-center,
+html[lang="fi"] .key-center{
+  background:linear-gradient(145deg,rgba(9,39,70,.96),rgba(4,20,37,.98))!important;
+  border-color:rgba(111,174,239,.30)!important;
+}
+html[lang="fi"] .tc-team,
+html[lang="fi"] .role-card{
+  background:linear-gradient(145deg,#123f70,#071d34)!important;
+  border-color:rgba(111,174,239,.30)!important;
+}
+html[lang="fi"] body:not(.obs-preview) .dock-head span{color:#70aff4!important}
+html[lang="fi"] body:not(.obs-preview) #loadTwitch{
+  border-color:#5ba2f2!important;background:#0b2845!important;color:#eef7ff!important;
+}
+html[lang="fi"] body:not(.obs-preview) #loadTwitch:hover{background:#12385d!important;border-color:#eef7ff!important}
+
+/* DE / GCL: remove leftover blue surfaces, retain deliberate German gold accents */
+html[lang="de"] .broadcast-table,
+html[lang="de"] .tc-center,
+html[lang="de"] .scorer-side,
+html[lang="de"] .form-card,
+html[lang="de"] .off-card,
+html[lang="de"] .lb-side,
+html[lang="de"] .goalie-center,
+html[lang="de"] .key-center{
+  background:linear-gradient(145deg,rgba(24,17,18,.97),rgba(8,9,10,.99))!important;
+  border-color:rgba(205,38,48,.28)!important;
+}
+html[lang="de"] .tc-team,
+html[lang="de"] .role-card{
+  background:linear-gradient(145deg,#2b1719,#0d0d0f)!important;
+  border-color:rgba(205,38,48,.30)!important;
+}
+html[lang="de"] .bt-row.selected{background:rgba(217,31,45,.10)!important;border-left-color:#d91f2d!important}
+html[lang="de"] .table .bt-row.selected .bt-team:before{background:#d91f2d!important}
+html[lang="de"] .scorer-team,
+html[lang="de"] .form-team,
+html[lang="de"] .off-team,
+html[lang="de"] .lb-team{border-bottom-color:#d91f2d!important}
+html[lang="de"] .goalie-row,
+html[lang="de"] .key-row,
+html[lang="de"] .tc-row{border-bottom-color:rgba(217,31,45,.38)!important}
+html[lang="de"] body:not(.obs-preview) .dock-head span{color:#f2c500!important}
+html[lang="de"] body:not(.obs-preview) #loadTwitch{
+  border-color:#f2c500!important;background:#1b1510!important;color:#f2c500!important;
+}
+
+
+/* v122: complete regional accent pass. Remove remaining SCL-yellow bleed. */
+html[lang="fi"] body[data-theme] .scene-title small,
+html[lang="fi"] body[data-theme] .player>span,
+html[lang="fi"] body[data-theme] .vs strong,
+html[lang="fi"] body[data-theme] .role-head,
+html[lang="fi"] body[data-theme] .spotlight-copy h3,
+html[lang="fi"] body[data-theme] .spotlight-total b,
+html[lang="fi"] body[data-theme] .goalie-center-title,
+html[lang="fi"] body[data-theme] .goalie-row b:nth-child(-n+2),
+html[lang="fi"] body[data-theme] .goalie-row b:nth-last-child(-n+2),
+html[lang="fi"] body[data-theme] .key-center-title,
+html[lang="fi"] body[data-theme] .key-row b,
+html[lang="fi"] body[data-theme] .bt-row>b:last-child,
+html[lang="fi"] body[data-theme] .tc-row b,
+html[lang="fi"] body[data-theme] .scorer>strong,
+html[lang="fi"] body[data-theme] .scorer>em,
+html[lang="fi"] body[data-theme] .form-record strong,
+html[lang="fi"] body[data-theme] .off-big b,
+html[lang="fi"] body[data-theme] .off-top span small,
+html[lang="fi"] body[data-theme] .off-top strong,
+html[lang="fi"] body[data-theme] .lb-player>strong,
+html[lang="fi"] body[data-theme] .lb-player>em{
+  color:#5ba2f2!important;
+}
+html[lang="fi"] body[data-theme] .bt-head,
+html[lang="fi"] body[data-theme] .tc-cols,
+html[lang="fi"] body[data-theme] .goalie-columns,
+html[lang="fi"] body[data-theme] .key-columns{
+  background:#5ba2f2!important;color:#06182a!important;
+}
+html[lang="fi"] body[data-theme] .goalie-center-title,
+html[lang="fi"] body[data-theme] .key-center-title,
+html[lang="fi"] body[data-theme] .scorer-team,
+html[lang="fi"] body[data-theme] .form-team,
+html[lang="fi"] body[data-theme] .off-team,
+html[lang="fi"] body[data-theme] .lb-team{
+  border-color:#5ba2f2!important;
+}
+html[lang="fi"] body[data-theme] .goalie-row,
+html[lang="fi"] body[data-theme] .key-row,
+html[lang="fi"] body[data-theme] .tc-row{
+  border-bottom-color:rgba(91,162,242,.48)!important;
+}
+html[lang="fi"] body[data-theme] .bt-row.selected{background:rgba(91,162,242,.09)!important}
+html[lang="fi"] body[data-theme] .bt-row.selected .bt-team:before{background:#5ba2f2!important}
+html[lang="fi"] body[data-theme] .spotlight-stats div{border-left-color:#5ba2f2!important}
+html[lang="fi"] body:not(.obs-preview) .dock-head span{color:#70aff4!important}
+html[lang="fi"] body:not(.obs-preview) #loadTwitch{border-color:#397fc5!important;color:#bdddff!important;background:#0b2034!important}
+
+html[lang="de"] body[data-theme] .scene-title small,
+html[lang="de"] body[data-theme] .player>span,
+html[lang="de"] body[data-theme] .vs strong,
+html[lang="de"] body[data-theme] .role-head,
+html[lang="de"] body[data-theme] .spotlight-copy h3,
+html[lang="de"] body[data-theme] .spotlight-total b,
+html[lang="de"] body[data-theme] .goalie-center-title,
+html[lang="de"] body[data-theme] .goalie-row b:nth-child(-n+2),
+html[lang="de"] body[data-theme] .goalie-row b:nth-last-child(-n+2),
+html[lang="de"] body[data-theme] .key-center-title,
+html[lang="de"] body[data-theme] .key-row b,
+html[lang="de"] body[data-theme] .bt-row>b:last-child,
+html[lang="de"] body[data-theme] .tc-row b,
+html[lang="de"] body[data-theme] .scorer>strong,
+html[lang="de"] body[data-theme] .scorer>em,
+html[lang="de"] body[data-theme] .form-record strong,
+html[lang="de"] body[data-theme] .off-big b,
+html[lang="de"] body[data-theme] .off-top span small,
+html[lang="de"] body[data-theme] .off-top strong,
+html[lang="de"] body[data-theme] .lb-player>strong,
+html[lang="de"] body[data-theme] .lb-player>em{
+  color:#f2c500!important;
+}
+html[lang="de"] body[data-theme] .bt-head,
+html[lang="de"] body[data-theme] .tc-cols,
+html[lang="de"] body[data-theme] .goalie-columns,
+html[lang="de"] body[data-theme] .key-columns{
+  background:#f2c500!important;color:#0b0b0c!important;
+}
+html[lang="de"] body[data-theme] .goalie-center-title,
+html[lang="de"] body[data-theme] .key-center-title,
+html[lang="de"] body[data-theme] .scorer-team,
+html[lang="de"] body[data-theme] .form-team,
+html[lang="de"] body[data-theme] .off-team,
+html[lang="de"] body[data-theme] .lb-team{
+  border-color:#d91f2d!important;
+}
+html[lang="de"] body[data-theme] .goalie-row,
+html[lang="de"] body[data-theme] .key-row,
+html[lang="de"] body[data-theme] .tc-row{
+  border-bottom-color:rgba(217,31,45,.46)!important;
+}
+html[lang="de"] body[data-theme] .bt-row.selected{background:rgba(217,31,45,.10)!important}
+html[lang="de"] body[data-theme] .bt-row.selected .bt-team:before{background:#d91f2d!important}
+html[lang="de"] body[data-theme] .spotlight-stats div{border-left-color:#d91f2d!important}
+html[lang="de"] body:not(.obs-preview) .dock-head span{color:#f2c500!important}
+html[lang="de"] body:not(.obs-preview) #loadTwitch{border-color:#8b6f00!important;color:#f2c500!important;background:#17140b!important}
+
+
+/* v123: neutral commentator fallback portrait. */
+.opening-commentator>.commentator-placeholder{
+  position:relative!important;
+  display:block!important;
+  overflow:hidden;
+  background:linear-gradient(160deg,#25313b 0%,#111920 100%)!important;
+  color:transparent!important;
+}
+.opening-commentator>.commentator-placeholder::before{
+  content:"";
+  position:absolute;
+  left:50%;top:17px;
+  width:27px;height:27px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:rgba(226,232,237,.86);
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+.opening-commentator>.commentator-placeholder::after{
+  content:"";
+  position:absolute;
+  left:50%;bottom:-13px;
+  width:66px;height:57px;
+  transform:translateX(-50%);
+  border-radius:45% 45% 12% 12%;
+  background:linear-gradient(180deg,rgba(203,213,220,.90),rgba(126,142,153,.82));
+}
+html[lang="fi"] .opening-commentator>.commentator-placeholder{
+  background:linear-gradient(160deg,#173b5d,#091b2b)!important;
+}
+html[lang="de"] .opening-commentator>.commentator-placeholder{
+  background:linear-gradient(160deg,#292123,#111113)!important;
+}
+
+
+/* v124: player nationality flags. */
+.player-flag{
+  position:static!important;
+  inset:auto!important;
+  display:inline-block!important;
+  width:24px!important;
+  height:18px!important;
+  min-width:24px!important;
+  max-width:24px!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  transform:none!important;
+  filter:none!important;
+  margin:0 7px 0 0!important;
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:2px;
+  box-shadow:0 1px 5px rgba(0,0,0,.35)!important;
+  vertical-align:-3px;
+}
+.player-info .player-flag{
+  width:18px!important;
+  height:14px!important;
+  min-width:18px!important;
+  max-width:18px!important;
+  margin-right:5px!important;
+  vertical-align:-2px;
+}
+.spotlight-copy h2 .player-flag{
+  width:32px!important;
+  height:24px!important;
+  min-width:32px!important;
+  max-width:32px!important;
+  margin-right:10px!important;
+  vertical-align:-3px;
+}
+
+
+/* v125: group-aware standings, 9–16 team density and split playoff group tables */
+.table.table-dense-mode .scene-title{margin:.8% 0 8px!important}
+.table.table-dense-mode .scene-title b{font-size:clamp(25px,3.35vw,50px)!important}
+.table .broadcast-table.bt-dense .bt-head,
+.table .broadcast-table.bt-dense .bt-row{
+  grid-template-columns:42px minmax(250px,1fr) repeat(5,78px);
+  min-height:41px;
+  padding:0 14px;
+}
+.table .broadcast-table.bt-dense .bt-head{min-height:31px;font-size:9px}
+.table .broadcast-table.bt-dense .bt-row{font-size:15px}
+.table .broadcast-table.bt-dense .bt-team{gap:10px}
+.table .broadcast-table.bt-dense .bt-team img{width:29px;height:29px}
+.table .broadcast-table.bt-dense .bt-team strong{font-size:16px}
+.table .broadcast-table.bt-dense .bt-row>b:last-child{font-size:18px}
+
+.table .broadcast-table.bt-xdense .bt-head,
+.table .broadcast-table.bt-xdense .bt-row{
+  grid-template-columns:36px minmax(230px,1fr) repeat(5,72px);
+  min-height:31px;
+  padding:0 12px;
+}
+.table .broadcast-table.bt-xdense .bt-head{min-height:27px;font-size:8px}
+.table .broadcast-table.bt-xdense .bt-row{font-size:12px}
+.table .broadcast-table.bt-xdense .bt-team{gap:8px}
+.table .broadcast-table.bt-xdense .bt-team img{width:23px;height:23px}
+.table .broadcast-table.bt-xdense .bt-team strong{font-size:13px}
+.table .broadcast-table.bt-xdense .bt-row>b:last-child{font-size:15px}
+.table .broadcast-table.bt-xdense .bt-row.selected .bt-team:before{top:4px;bottom:4px}
+
+.table .broadcast-table.bt-dual{
+  width:100%;
+  max-width:none;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:16px;
+  background:transparent!important;
+  border:0!important;
+}
+.table .bt-panel{
+  min-width:0;
+  overflow:hidden;
+  background:#07131de8;
+  border:1px solid #ffffff2b;
+}
+.table .bt-panel-title{
+  min-height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f4b21b;
+  color:#07131d;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.table .bt-panel .bt-head,
+.table .bt-panel .bt-row{
+  grid-template-columns:30px minmax(105px,1fr) repeat(5,43px);
+  min-height:29px;
+  padding:0 7px;
+}
+.table .bt-panel .bt-head{min-height:25px;font-size:7px}
+.table .bt-panel .bt-row{font-size:10px}
+.table .bt-panel .bt-team{gap:6px;min-width:0}
+.table .bt-panel .bt-team img{width:21px;height:21px;flex:0 0 21px}
+.table .bt-panel .bt-team strong{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:11px;
+}
+.table .bt-panel .bt-row>b:last-child{font-size:13px}
+.table .bt-panel .bt-row.selected .bt-team:before{left:-7px;top:4px;bottom:4px;width:3px}
+.table.table-dual-mode .scene-title{margin:.6% 0 7px!important}
+.table.table-dual-mode .scene-title b{font-size:clamp(24px,3.1vw,46px)!important}
+
+html[lang="fi"] .table .bt-panel{
+  background:linear-gradient(145deg,rgba(9,39,70,.96),rgba(4,20,37,.98))!important;
+  border-color:rgba(111,174,239,.30)!important;
+}
+html[lang="fi"] .table .bt-panel-title{
+  background:#f5f9ff!important;
+  color:#082846!important;
+}
+html[lang="de"] .table .bt-panel{
+  background:linear-gradient(145deg,rgba(24,17,18,.97),rgba(8,9,10,.99))!important;
+  border-color:rgba(205,38,48,.28)!important;
+}
+html[lang="de"] .table .bt-panel-title{
+  background:#f2c500!important;
+  color:#0b0b0c!important;
+}
+
+
+/* v126: show both team lineups in the director and dim players already in use. */
+body:not(.obs-preview) .lineup-control #lineupEditors{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+body:not(.obs-preview) .lineup-editor-side{
+  min-width:0;
+  padding:10px;
+  border:1px solid #223542;
+  border-radius:7px;
+  background:#09131b;
+}
+body:not(.obs-preview) .lineup-editor-head{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-height:42px;
+  margin-bottom:7px;
+  padding-bottom:7px;
+  border-bottom:1px solid #223542;
+}
+body:not(.obs-preview) .lineup-editor-head img{
+  width:34px;
+  height:34px;
+  flex:0 0 34px;
+  object-fit:contain;
+}
+body:not(.obs-preview) .lineup-editor-head span{min-width:0}
+body:not(.obs-preview) .lineup-editor-head small{
+  display:block;
+  margin-bottom:1px;
+  color:#728899;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+body:not(.obs-preview) .lineup-editor-head b{
+  display:block;
+  overflow:hidden;
+  color:#eef4f7;
+  font-size:11px;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+body:not(.obs-preview) .lineup-editor-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:0 8px;
+}
+body:not(.obs-preview) .lineup-editor-grid>label{min-width:0}
+body:not(.obs-preview) .lineup-editor-grid select{width:100%;min-width:0}
+body:not(.obs-preview) .lineup-editor-grid option.lineup-option-used{
+  color:#596976!important;
+  background:#0a1117!important;
+}
+@media(max-width:900px){
+  body:not(.obs-preview) .lineup-control #lineupEditors{grid-template-columns:1fr}
+}
+
+
+/* v127: selected team marker belongs to the row edge, not between rank and logo. */
+.table .bt-row{position:relative}
+.table .bt-row.selected .bt-team:before{display:none!important}
+.table .bt-row.selected::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:5px;
+  bottom:5px;
+  width:4px;
+  border-radius:0 2px 2px 0;
+  background:#f4b21b;
+  pointer-events:none;
+}
+.table .broadcast-table.bt-dense .bt-row.selected::before{
+  top:4px;
+  bottom:4px;
+  width:4px;
+}
+.table .broadcast-table.bt-xdense .bt-row.selected::before{
+  top:3px;
+  bottom:3px;
+  width:3px;
+}
+.table .bt-panel .bt-row.selected::before{
+  top:3px;
+  bottom:3px;
+  width:3px;
+}
+html[lang="fi"] .table .bt-row.selected::before{background:#f5f9ff!important}
+html[lang="de"] .table .bt-row.selected::before{background:#d91f2d!important}
+
+
+/* v133: live team strip overlays the EA logo/team abbreviations, leaving score/time visible. */
+.live-team-strip{
+  display:none;
+  position:absolute;
+  left:8px;
+  top:14px;
+  z-index:6;
+  width:162px;
+  height:72px;
+  border:1px solid rgba(103,175,232,.50);
+  background:rgba(2,20,36,.96);
+  box-shadow:0 4px 14px rgba(0,0,0,.30);
+  overflow:hidden;
+  pointer-events:none;
+}
+.screen.live-mode>.live-team-strip{display:grid;grid-template-rows:1fr 1fr}
+.screen.live-team-strip-off>.live-team-strip{display:none!important}
+.live-team-strip .live-team-row{
+  position:relative;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr);
+  align-items:center;
+  min-width:0;
+  background:
+    linear-gradient(120deg,rgba(4,33,58,.98),rgba(3,23,42,.96) 68%,rgba(8,45,76,.88));
+}
+.live-team-strip .live-team-row+ .live-team-row{
+  border-top:1px solid rgba(122,188,238,.34);
+}
+.live-team-strip .live-team-row::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(118deg,transparent 0 62%,rgba(255,255,255,.035) 62% 76%,transparent 76%);
+  pointer-events:none;
+}
+.live-team-strip .live-team-row>img{
+  width:24px;
+  height:24px;
+  justify-self:center;
+  object-fit:contain;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.55));
+}
+.live-team-strip .live-team-row>b{
+  position:relative;
+  z-index:1;
+  min-width:0;
+  padding:0 6px 0 0;
+  overflow:hidden;
+  color:#f4b21b;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.01em;
+  line-height:1;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  text-shadow:0 2px 5px rgba(0,0,0,.55);
+}
+html[lang="fi"] .live-team-strip{
+  border-color:rgba(111,174,239,.62);
+  background:rgba(5,29,53,.95);
+}
+html[lang="fi"] .live-team-strip .live-team-row>b{color:#f5f9ff}
+html[lang="de"] .live-team-strip{
+  border-color:rgba(217,31,45,.52);
+  background:rgba(18,12,14,.95);
+}
+html[lang="de"] .live-team-strip .live-team-row>b{color:#f2c500}
+
+
+/* v134: nudge live top-right lockup left for better balance with the in-game scoreboard. */
+.screen.live-mode>.top{
+  right:4.5%!important;
+}
+
+
+/* v135: dedicated Match Live overlay control replaces duplicate quick controls. */
+.live-overlay-control{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-top:2px;
+  padding:13px 14px;
+  border:1px solid #2a3d4c;
+  border-radius:8px;
+  background:#0b1924;
+}
+.live-overlay-control>div{min-width:0}
+.live-overlay-control b{
+  display:block;
+  color:#f1f6f9;
+  font-size:12px;
+  line-height:1.15;
+}
+.live-overlay-control small{
+  display:block;
+  margin-top:4px;
+  color:#718697;
+  font-size:9px;
+  line-height:1.35;
+}
+.live-overlay-switch{
+  flex:0 0 auto;
+  display:flex!important;
+  align-items:center;
+  gap:8px;
+  margin:0!important;
+  padding:9px 11px;
+  border:1px solid #f4b21b;
+  border-radius:7px;
+  background:#17170d;
+  color:#f4b21b!important;
+  font-size:9px!important;
+  font-weight:950!important;
+  letter-spacing:.08em!important;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.live-overlay-switch input{
+  width:16px!important;
+  height:16px!important;
+  margin:0!important;
+  accent-color:#f4b21b;
+}
+html[lang="fi"] .live-overlay-switch{
+  border-color:#5ba2f2!important;
+  background:#0b2845!important;
+  color:#dcecff!important;
+}
+html[lang="fi"] .live-overlay-switch input{accent-color:#5ba2f2}
+html[lang="de"] .live-overlay-switch{
+  border-color:#f2c500!important;
+  background:#201817!important;
+  color:#f2c500!important;
+}
+html[lang="de"] .live-overlay-switch input{accent-color:#f2c500}
+
+
+/* v136: compact live toggles above scene buttons so key controls stay in reach. */
+.scene-quick-toggles{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin:0 0 9px;
+}
+.scene-quick-toggle{
+  display:flex!important;
+  align-items:center;
+  gap:6px;
+  margin:0!important;
+  min-height:28px;
+  padding:5px 8px;
+  border:1px solid #2a3d4c;
+  border-radius:6px;
+  background:#0b1924;
+  color:#91a5b5!important;
+  font-size:8px!important;
+  font-weight:950!important;
+  letter-spacing:.06em!important;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.scene-quick-toggle input{
+  width:14px!important;
+  height:14px!important;
+  margin:0!important;
+  accent-color:#f4b21b;
+}
+.scene-quick-toggle:has(input:checked){
+  border-color:#6a5420;
+  color:#f4b21b!important;
+  background:#15150d;
+}
+html[lang="fi"] .scene-quick-toggle:has(input:checked){
+  border-color:#5ba2f2!important;
+  color:#dcecff!important;
+  background:#0b2845!important;
+}
+html[lang="fi"] .scene-quick-toggle input{accent-color:#5ba2f2}
+html[lang="de"] .scene-quick-toggle:has(input:checked){
+  border-color:#f2c500!important;
+  color:#f2c500!important;
+  background:#201817!important;
+}
+html[lang="de"] .scene-quick-toggle input{accent-color:#f2c500}
+
+
+/* v137: lock lineup card rows so all six cards align regardless of name length. */
+.lineup .players{
+  align-items:stretch;
+}
+.lineup .player{
+  height:100%;
+  min-height:0;
+}
+.lineup .player-info{
+  flex:0 0 31%;
+  min-height:31%;
+  max-height:31%;
+  display:grid;
+  grid-template-rows:minmax(0,2.35em) 1.35em;
+  align-content:end;
+  row-gap:7px;
+  box-sizing:border-box;
+  margin:-10px;
+  padding:18px 10px 12px;
+}
+.lineup .player-info strong{
+  display:-webkit-box;
+  min-height:2.35em;
+  max-height:2.35em;
+  overflow:hidden;
+  line-height:1.175;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  white-space:normal;
+}
+.lineup .player-info small{
+  display:block;
+  height:1.35em;
+  margin:0;
+  overflow:hidden;
+  line-height:1.35;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.lineup .players .player>img{
+  top:5%;
+  bottom:auto;
+  height:61%;
+}
+
+
+/* v138: optional commentator info in the lower-left corner of Match Live. */
+.live-commentators{
+  display:none;
+  position:absolute;
+  left:18px;
+  bottom:22px;
+  z-index:6;
+  flex-direction:column;
+  gap:5px;
+  width:252px;
+  pointer-events:none;
+}
+.screen.live-mode:not(.live-commentators-off)>.live-commentators:not(:empty){
+  display:flex;
+}
+.live-commentator{
+  height:48px;
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr);
+  align-items:center;
+  overflow:hidden;
+  border:1px solid rgba(103,175,232,.42);
+  border-left:3px solid #f4b21b;
+  background:linear-gradient(100deg,rgba(3,22,38,.96),rgba(4,35,60,.92));
+  box-shadow:0 5px 14px rgba(0,0,0,.28);
+}
+.live-commentator>img,
+.live-commentator>.commentator-placeholder{
+  width:46px;
+  height:48px;
+  object-fit:cover;
+  object-position:center top;
+  background:linear-gradient(160deg,#173b5d,#091b2b);
+}
+.live-commentator>.commentator-placeholder{
+  position:relative;
+}
+.live-commentator>.commentator-placeholder:before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:8px;
+  width:13px;
+  height:13px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:rgba(210,220,228,.78);
+}
+.live-commentator>.commentator-placeholder:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-6px;
+  width:32px;
+  height:28px;
+  transform:translateX(-50%);
+  border-radius:50% 50% 12% 12%;
+  background:rgba(160,177,188,.70);
+}
+.live-commentator>div:last-child{
+  min-width:0;
+  padding:0 10px;
+}
+.live-commentator small{
+  display:block;
+  margin-bottom:3px;
+  color:#f4b21b;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.live-commentator b{
+  display:block;
+  overflow:hidden;
+  color:#f5f8fa;
+  font-size:12px;
+  line-height:1.08;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+html[lang="fi"] .live-commentator{
+  border-color:rgba(111,174,239,.42);
+  border-left-color:#5ba2f2;
+  background:linear-gradient(100deg,rgba(5,27,48,.96),rgba(9,49,88,.92));
+}
+html[lang="fi"] .live-commentator small{color:#dcecff}
+html[lang="de"] .live-commentator{
+  border-color:rgba(217,31,45,.38);
+  border-left-color:#f2c500;
+  background:linear-gradient(100deg,rgba(16,14,15,.96),rgba(35,18,20,.94));
+}
+html[lang="de"] .live-commentator small{color:#f2c500}
+
+
+/* v139: split background packages from graphics packages.
+   Background package owns only the canvas/background texture.
+   Graphics package owns overlays, cards, typography and scene geometry. */
+.theme-control label+label{margin-top:10px}
+
+/* Broadcast = the existing default/background for each regional studio. */
+body[data-background="broadcast"] .screen{
+  /* Intentionally keep the existing base/regional Broadcast background. */
+}
+
+/* Arena background only. */
+body[data-background="arena"] .screen{
+  background:
+    radial-gradient(ellipse at 50% -12%,rgba(255,255,255,.13) 0,rgba(255,255,255,.035) 25%,transparent 48%),
+    radial-gradient(circle at 16% 42%,rgba(244,178,27,.10),transparent 28%),
+    radial-gradient(circle at 84% 42%,rgba(244,178,27,.08),transparent 28%),
+    linear-gradient(180deg,#101922 0%,#071019 58%,#04090e 100%)!important;
+}
+body[data-background="arena"] .texture{
+  opacity:.42!important;
+  background:
+    linear-gradient(90deg,transparent 49.8%,rgba(255,255,255,.055) 50%,transparent 50.2%),
+    repeating-linear-gradient(90deg,transparent 0 159px,rgba(255,255,255,.025) 160px),
+    linear-gradient(160deg,transparent 0 43%,rgba(244,178,27,.08) 43.2%,transparent 43.5%)!important;
+}
+
+/* Ice background only. */
+body[data-background="ice"] .screen{
+  background:
+    radial-gradient(circle at 50% 48%,rgba(151,220,244,.16),transparent 35%),
+    linear-gradient(135deg,#12384c 0%,#09283a 48%,#0d3447 100%)!important;
+}
+body[data-background="ice"] .texture{
+  opacity:.7!important;
+  background:
+    radial-gradient(circle at 50% 50%,transparent 0 112px,rgba(164,225,245,.10) 113px 116px,transparent 117px),
+    linear-gradient(90deg,transparent 49.85%,rgba(224,248,255,.13) 50%,transparent 50.15%),
+    repeating-linear-gradient(90deg,transparent 0 191px,rgba(196,234,246,.045) 192px)!important;
+}
+
+/* Impact background only. */
+body[data-background="impact"] .screen{
+  background:
+    linear-gradient(118deg,transparent 0 18%,rgba(255,180,0,.12) 18.1% 18.8%,transparent 18.9% 70%,rgba(255,180,0,.07) 70.1% 71.2%,transparent 71.3%),
+    radial-gradient(circle at 78% 18%,rgba(255,180,0,.12),transparent 25%),
+    linear-gradient(145deg,#111827 0%,#07111e 48%,#0b1018 100%)!important;
+}
+body[data-background="impact"] .texture{
+  opacity:.75!important;
+  background:
+    repeating-linear-gradient(118deg,transparent 0 110px,rgba(255,255,255,.025) 111px 112px),
+    linear-gradient(90deg,transparent 0 62%,rgba(255,180,0,.055) 62% 100%)!important;
+}
+
+/* OBS/root backing follows only the selected background package. */
+body.obs-preview[data-background="arena"],
+body.obs-preview[data-background="arena"] main,
+body.obs-preview[data-background="arena"] .workspace{background:#071019!important}
+body.obs-preview[data-background="ice"],
+body.obs-preview[data-background="ice"] main,
+body.obs-preview[data-background="ice"] .workspace{background:#09283a!important}
+body.obs-preview[data-background="impact"],
+body.obs-preview[data-background="impact"] main,
+body.obs-preview[data-background="impact"] .workspace{background:#07111e!important}
+
+/* Package 1: current graphics, now explicitly named Standard.
+   Future graphics packages can override overlays without touching data-background. */
+body[data-graphics="standard"] .screen{
+  --theme-accent:#f4b21b;
+  --theme-panel:#061521e8;
+  --theme-line:#365063;
+}
+
+
+/* v140: Game Night background + graphics package.
+   Background and overlays remain independently selectable. */
+
+/* ----- Background package: Game Night ----- */
+body[data-background="gamenight"] .screen{
+  background:
+    linear-gradient(180deg,rgba(1,8,15,.06),rgba(1,8,15,.10)),
+    url("assets/game-night-background.webp") center center / cover no-repeat!important;
+}
+body[data-background="gamenight"] .texture{
+  opacity:0!important;
+  background:none!important;
+}
+body.obs-preview[data-background="gamenight"],
+body.obs-preview[data-background="gamenight"] main,
+body.obs-preview[data-background="gamenight"] .workspace{
+  background:#020912!important;
+}
+
+/* ----- Graphics package: Game Night ----- */
+body[data-graphics="gamenight"] .screen{
+  --theme-accent:#ffbd00;
+  --theme-panel:rgba(2,15,26,.94);
+  --theme-line:rgba(255,189,0,.64);
+}
+body[data-graphics="gamenight"] .top{
+  height:10.5%;
+  gap:13px;
+  border:0!important;
+  background:transparent!important;
+}
+body[data-graphics="gamenight"] .top::after{
+  content:"";
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:1px;
+  background:linear-gradient(90deg,#ffbd00 0,rgba(255,189,0,.48) 40%,rgba(255,189,0,.08) 82%,transparent);
+  box-shadow:0 0 10px rgba(255,189,0,.18);
+}
+body[data-graphics="gamenight"] .top .event-logo{
+  width:70px;height:66px;
+  padding:4px;
+  background:linear-gradient(145deg,rgba(0,18,31,.98),rgba(6,13,20,.94));
+  border-left:3px solid #ffbd00;
+  filter:drop-shadow(0 7px 10px rgba(0,0,0,.7));
+}
+body[data-graphics="gamenight"] .top strong{
+  font-size:clamp(17px,1.65vw,28px);
+  font-weight:950;
+  text-shadow:0 2px 7px #000;
+}
+body[data-graphics="gamenight"] .top small{
+  color:#aebdca!important;
+  letter-spacing:.035em;
+}
+body[data-graphics="gamenight"] .onair{
+  padding:7px 10px;
+  background:rgba(3,14,23,.76);
+  border:1px solid rgba(255,189,0,.18);
+}
+
+/* Opening: match identity first, styled after the Game Night mock. */
+body[data-graphics="gamenight"] .opening{
+  padding:0 4% 76px!important;
+  justify-content:center;
+  transform:translateY(2.2%);
+}
+body[data-graphics="gamenight"] .opening .eyebrow{
+  color:#d3dbe2!important;
+  font-size:clamp(10px,.85vw,15px);
+  letter-spacing:.34em;
+  text-shadow:0 2px 8px #000;
+}
+body[data-graphics="gamenight"] .opening h1{
+  margin:10px 0 22px!important;
+  font-size:clamp(58px,6.5vw,104px)!important;
+  line-height:.88!important;
+  letter-spacing:-.055em!important;
+  white-space:nowrap;
+  transform:none!important;
+  color:transparent!important;
+  background:linear-gradient(180deg,#fff 0%,#eef1f3 35%,#9aa5ad 72%,#f4f6f7 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  filter:drop-shadow(0 5px 3px rgba(0,0,0,.75));
+}
+body[data-graphics="gamenight"] .opening h1 br{display:none}
+body[data-graphics="gamenight"] .opening h1 span{
+  display:inline-block;
+  margin-left:.16em;
+  color:transparent!important;
+  background:linear-gradient(180deg,#ffe07b 0%,#ffbd00 42%,#d88a00 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  text-shadow:none!important;
+  filter:drop-shadow(0 0 9px rgba(255,183,0,.30));
+}
+body[data-graphics="gamenight"] .opening-match{
+  width:84%;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 100px minmax(0,1fr);
+  gap:24px!important;
+  align-items:center;
+  transform:none!important;
+}
+body[data-graphics="gamenight"] .opening-match .team{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+body[data-graphics="gamenight"] .opening-match .team img{
+  width:clamp(125px,11.8vw,190px)!important;
+  height:clamp(125px,11.8vw,190px)!important;
+  object-fit:contain;
+  filter:drop-shadow(0 0 10px rgba(255,189,0,.28)) drop-shadow(0 15px 18px rgba(0,0,0,.72));
+}
+body[data-graphics="gamenight"] .opening-match .team b{
+  width:min(100%,360px);
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 22px;
+  overflow:hidden;
+  color:#f7f9fb!important;
+  background:linear-gradient(180deg,rgba(7,28,42,.98),rgba(2,13,22,.98));
+  border-top:1px solid #d99b00;
+  border-bottom:3px solid #ffbd00;
+  clip-path:polygon(5% 0,95% 0,100% 50%,95% 100%,5% 100%,0 50%);
+  font-size:clamp(17px,1.75vw,29px)!important;
+  line-height:1.05;
+  text-align:center;
+  text-shadow:0 2px 5px #000;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+body[data-graphics="gamenight"] .opening-match em{
+  color:#ffbd00!important;
+  font-size:clamp(38px,4.1vw,68px)!important;
+  font-style:italic;
+  font-weight:1000;
+  letter-spacing:-.08em;
+  text-shadow:0 0 14px rgba(255,189,0,.38),0 5px 8px #000;
+  transform:skew(-9deg);
+}
+body[data-graphics="gamenight"] .opening-commentators{
+  left:0!important;
+  bottom:0!important;
+  width:min(720px,58%)!important;
+  transform:none!important;
+  justify-content:flex-start!important;
+  gap:9px!important;
+}
+body[data-graphics="gamenight"] .opening-commentator{
+  width:min(410px,100%)!important;
+  height:78px!important;
+  grid-template-columns:76px minmax(0,1fr)!important;
+  background:linear-gradient(105deg,rgba(1,18,31,.97),rgba(3,24,38,.94))!important;
+  border:1px solid rgba(255,189,0,.58)!important;
+  border-left:5px solid #ffbd00!important;
+  box-shadow:0 9px 24px rgba(0,0,0,.46)!important;
+  clip-path:polygon(0 0,96% 0,100% 50%,96% 100%,0 100%);
+}
+body[data-graphics="gamenight"] .opening-commentator>img,
+body[data-graphics="gamenight"] .opening-commentator>.commentator-placeholder{
+  width:76px!important;height:78px!important;
+  background:#0a293c!important;
+}
+body[data-graphics="gamenight"] .opening-commentator small{
+  color:#ffbd00!important;
+  font-size:8px!important;
+  letter-spacing:.12em;
+}
+body[data-graphics="gamenight"] .opening-commentator b{
+  color:#fff!important;
+  font-size:15px!important;
+}
+
+/* Shared Game Night scene language. */
+body[data-graphics="gamenight"] .scene-title{
+  padding:0 0 10px;
+  border-bottom:1px solid rgba(255,189,0,.32);
+}
+body[data-graphics="gamenight"] .scene-title small{
+  color:#ffbd00!important;
+  text-shadow:0 1px 5px #000;
+}
+body[data-graphics="gamenight"] .scene-title b{
+  color:#f4f6f8!important;
+  text-shadow:0 4px 10px rgba(0,0,0,.65);
+}
+body[data-graphics="gamenight"] .player,
+body[data-graphics="gamenight"] .road-card,
+body[data-graphics="gamenight"] .leader-card,
+body[data-graphics="gamenight"] .scorer-side,
+body[data-graphics="gamenight"] .lb-side,
+body[data-graphics="gamenight"] .form-card,
+body[data-graphics="gamenight"] .role-card,
+body[data-graphics="gamenight"] .spotlight-player{
+  background:linear-gradient(145deg,rgba(8,31,47,.97),rgba(2,12,21,.98))!important;
+  border-color:rgba(255,189,0,.42)!important;
+  box-shadow:inset 0 -2px 0 rgba(255,189,0,.22),0 8px 22px rgba(0,0,0,.23);
+}
+body[data-graphics="gamenight"] .player>span,
+body[data-graphics="gamenight"] .road-step strong,
+body[data-graphics="gamenight"] .leader-card span,
+body[data-graphics="gamenight"] .statrows b,
+body[data-graphics="gamenight"] .period,
+body[data-graphics="gamenight"] .vs strong,
+body[data-graphics="gamenight"] .spotlight-total b{
+  color:#ffbd00!important;
+}
+body[data-graphics="gamenight"] .player-info{
+  background:linear-gradient(180deg,rgba(2,12,20,0),rgba(2,12,20,.98) 27%)!important;
+  border-top:1px solid rgba(255,189,0,.18);
+}
+body[data-graphics="gamenight"] .versus .side img,
+body[data-graphics="gamenight"] .stat-head img,
+body[data-graphics="gamenight"] .road-team img{
+  filter:drop-shadow(0 0 9px rgba(255,189,0,.24)) drop-shadow(0 9px 13px rgba(0,0,0,.62));
+}
+body[data-graphics="gamenight"] .vs strong{
+  text-shadow:0 0 15px rgba(255,189,0,.28),0 5px 8px #000;
+}
+body[data-graphics="gamenight"] .statrows{
+  background:rgba(2,14,24,.78);
+  border:1px solid rgba(255,189,0,.22);
+}
+body[data-graphics="gamenight"] .statrows>div{
+  border-bottom-color:rgba(255,189,0,.16)!important;
+}
+body[data-graphics="gamenight"] .broadcast-table,
+body[data-graphics="gamenight"] .bt-panel{
+  background:rgba(2,14,24,.94)!important;
+  border-color:rgba(255,189,0,.34)!important;
+  box-shadow:0 9px 24px rgba(0,0,0,.30);
+}
+body[data-graphics="gamenight"] .broadcast-table .bt-head,
+body[data-graphics="gamenight"] .bt-panel-title{
+  background:linear-gradient(90deg,#ffbd00,#d58d00)!important;
+  color:#07121c!important;
+}
+body[data-graphics="gamenight"] .broadcast-table .bt-row,
+body[data-graphics="gamenight"] .bt-panel .bt-row{
+  border-bottom-color:rgba(255,189,0,.12)!important;
+}
+body[data-graphics="gamenight"] .series-board{
+  padding:24px;
+  background:linear-gradient(115deg,rgba(3,22,36,.96),rgba(4,13,22,.97))!important;
+  border:1px solid rgba(255,189,0,.46);
+  box-shadow:inset 0 -3px 0 rgba(255,189,0,.32),0 12px 26px rgba(0,0,0,.28);
+}
+body[data-graphics="gamenight"] .series-kicker,
+body[data-graphics="gamenight"] .series-next{
+  color:#ffbd00!important;
+}
+body[data-graphics="gamenight"] .lower{
+  background:linear-gradient(100deg,rgba(2,16,27,.98),rgba(4,27,42,.95))!important;
+  border-left-color:#ffbd00!important;
+  border-top:1px solid rgba(255,189,0,.48);
+  border-bottom:2px solid rgba(255,189,0,.76);
+  box-shadow:0 10px 24px rgba(0,0,0,.45)!important;
+  clip-path:polygon(0 0,97% 0,100% 50%,97% 100%,0 100%);
+}
+body[data-graphics="gamenight"] .lower small{color:#ffbd00!important}
+body[data-graphics="gamenight"] .bug{
+  padding:7px 13px;
+  background:linear-gradient(100deg,rgba(2,15,26,.92),rgba(4,25,38,.88))!important;
+  border:1px solid rgba(255,189,0,.42)!important;
+  border-right:4px solid #ffbd00!important;
+  clip-path:polygon(4% 0,100% 0,100% 100%,4% 100%,0 50%);
+}
+body[data-graphics="gamenight"] .bug b{color:#fff!important}
+body[data-graphics="gamenight"] .bug span{color:#c5ced5!important}
+
+/* Live overlays in the same package. */
+body[data-graphics="gamenight"] .live-team-strip{
+  border-color:rgba(255,189,0,.72)!important;
+  background:rgba(2,15,25,.97)!important;
+  box-shadow:0 4px 16px rgba(0,0,0,.46),0 0 10px rgba(255,189,0,.10)!important;
+}
+body[data-graphics="gamenight"] .live-team-strip .live-team-row{
+  background:linear-gradient(110deg,rgba(4,26,42,.98),rgba(2,12,20,.98))!important;
+}
+body[data-graphics="gamenight"] .live-team-strip .live-team-row+ .live-team-row{
+  border-top-color:rgba(255,189,0,.35)!important;
+}
+body[data-graphics="gamenight"] .live-team-strip .live-team-row>b{
+  color:#ffbd00!important;
+}
+body[data-graphics="gamenight"] .live-commentator{
+  border-color:rgba(255,189,0,.52)!important;
+  border-left-color:#ffbd00!important;
+  background:linear-gradient(100deg,rgba(2,16,27,.98),rgba(4,29,44,.94))!important;
+}
+body[data-graphics="gamenight"] .live-commentator small{color:#ffbd00!important}
+body[data-graphics="gamenight"] .screen.scene-switching::after{
+  background:linear-gradient(110deg,transparent 0 42%,rgba(255,189,0,.28) 48%,rgba(255,245,204,.16) 50%,transparent 58%)!important;
+}
+
+
+/* v141: dedicated background package layer.
+   Keeps background packages independent from scene/graphics styling. */
+.background-package-layer{
+  display:none;
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background-position:center;
+  background-size:cover;
+  background-repeat:no-repeat;
+}
+body[data-background="gamenight"] .screen{
+  background:#020912!important;
+}
+body[data-background="gamenight"] .background-package-layer{
+  display:block;
+  background-image:
+    linear-gradient(180deg,rgba(1,8,15,.02),rgba(1,8,15,.05)),
+    url("/lab/broadcast-studio/assets/game-night-background-photo.webp");
+}
+.screen.live-mode>.background-package-layer{
+  display:none!important;
+}
+.screen>.texture,
+.screen>.top,
+.screen>.scene,
+.screen>.bug,
+.screen>.live-team-strip,
+.screen>.live-commentators{
+  z-index:2;
+}
+
+
+/* v144: approved photographic Game Night background. */
+body[data-background="gamenight"] .background-package-layer{
+  background-image:url("/lab/broadcast-studio/assets/game-night-background-photo.webp")!important;
+  background-position:center center!important;
+  background-size:cover!important;
+  background-repeat:no-repeat!important;
+}
