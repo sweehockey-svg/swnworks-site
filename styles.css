@@ -160,3 +160,31 @@ footer{height:88px;display:flex;align-items:center;justify-content:space-between
 @media(max-width:1100px){
   .product-card img{height:auto}
 }
+
+
+/* v14 · reference mockup lock + hidden Broadcast Studio */
+.products.single-product{
+  grid-template-columns:minmax(0,1fr);
+}
+.products.single-product .featured{
+  width:min(100%,920px);
+}
+.private-product[hidden]{
+  display:none !important;
+}
+.brand{
+  width:220px;
+}
+.brand img{
+  height:68px;
+  object-fit:contain;
+  object-position:left center;
+}
+@media(min-width:1101px){
+  .hero{
+    grid-template-columns:.78fr 1.22fr;
+  }
+  .hero-visual img{
+    min-height:470px;
+  }
+}
