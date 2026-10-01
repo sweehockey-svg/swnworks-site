@@ -1,12 +1,36 @@
 <!doctype html>
 <html lang="sv">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="robots" content="noindex,nofollow">
-  <title>Broadcast Studio · SWNWORKS</title>
-  <meta http-equiv="refresh" content="0;url=SV/">
-  <script>location.replace("SV/" + location.search + location.hash)</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#06111a">
+<title>Broadcast Studio · SWNWORKS</title>
+<style>
+:root{color-scheme:dark;--bg:#06111a;--panel:#0a1823;--line:#223543;--text:#f4f7f9;--muted:#7890a1;--yellow:#f4b21b}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 70% 20%,rgba(31,71,95,.18),transparent 36%),linear-gradient(180deg,#07131d,#040b11);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{display:grid;place-items:center;padding:28px}.wrap{width:min(980px,100%)}
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:30px}.badge{width:48px;height:52px;display:grid;place-items:center;background:var(--yellow);color:#07111a;font-weight:1000;font-size:12px;clip-path:polygon(50% 0,100% 18%,90% 82%,50% 100%,10% 82%,0 18%)}.brand strong{display:block;font-size:20px;letter-spacing:.02em}.brand small{display:block;margin-top:4px;color:#8ca0af;font-size:10px;font-weight:900;letter-spacing:.16em}
+.hero{margin-bottom:22px}.hero span{color:var(--yellow);font-size:10px;font-weight:950;letter-spacing:.18em}.hero h1{margin:6px 0 5px;font-size:clamp(28px,5vw,48px);line-height:1}.hero p{margin:0;color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{padding:20px;background:linear-gradient(180deg,rgba(13,29,41,.96),rgba(7,19,28,.96));border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 38px rgba(0,0,0,.18)}.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.lang{display:flex;align-items:center;gap:11px}.flag{width:40px;height:40px;border:1px solid #324754;border-radius:8px;display:grid;place-items:center;background:#0d1b25;font-size:19px}.lang small{display:block;color:var(--muted);font-size:9px;font-weight:900;letter-spacing:.15em}.lang strong{display:block;margin-top:2px;font-size:18px}.brandtag{color:#8aa0af;font-size:9px;font-weight:950;letter-spacing:.12em}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}a{display:flex;align-items:center;justify-content:center;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #304654;color:var(--text);text-decoration:none;font-size:11px;font-weight:950;letter-spacing:.035em;background:#0c1a25}a:hover{border-color:#536d7e;background:#102331}a.obs{border-color:#8f6a0d;color:var(--yellow);background:#17170e}.path{margin-top:10px;color:#607786;font:10px/1.4 Consolas,monospace;word-break:break-all}
+.admin-note{margin-top:18px;padding:15px 16px;border:1px solid #263a47;border-radius:10px;background:#081722;display:flex;align-items:center;justify-content:space-between;gap:16px}.admin-note div span{display:block;color:var(--yellow);font-size:9px;font-weight:950;letter-spacing:.14em}.admin-note div p{margin:4px 0 0;color:#7f94a2;font-size:10px;line-height:1.5}.admin-note a{flex:0 0 auto;min-height:38px}
+.footer{margin-top:22px;padding-top:16px;border-top:1px solid #182935;color:#5f7686;font-size:10px;text-align:center}
+@media(max-width:700px){body{padding:18px}.grid{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.card{padding:17px}.admin-note{align-items:flex-start;flex-direction:column}.admin-note a{width:100%}}
+</style>
 </head>
-<body><a href="SV/">Öppna Broadcast Studio</a></body>
+<body>
+<main class="wrap">
+  <div class="brand"><div class="badge">SWN</div><div><strong>Broadcast Studio</strong><small>SWNWORKS · LIVE PRODUCTION</small></div></div>
+  <section class="hero"><span>STUDIO SELECT</span><h1>Välj sändningsstudio</h1><p>Varje språk har egen kontrollstudio och egen OBS-output.</p></section>
+  <section class="grid">
+    <article class="card"><div class="card-head"><div class="lang"><div class="flag">🇸🇪</div><div><small>SVENSKA</small><strong>Svensk eHockey</strong></div></div><div class="brandtag">SEH</div></div><div class="actions"><a href="SV/">ÖPPNA STUDIO</a><a class="obs" href="SV/?obs=1" target="_blank" rel="noopener">OBS OUTPUT ↗</a></div><div class="path">/broadcast-studio/SV/?obs=1</div></article>
+    <article class="card"><div class="card-head"><div class="lang"><div class="flag">🇫🇮</div><div><small>SUOMI</small><strong>SportsGamer</strong></div></div><div class="brandtag">SG</div></div><div class="actions"><a href="fi/">AVAA STUDIO</a><a class="obs" href="fi/?obs=1" target="_blank" rel="noopener">OBS OUTPUT ↗</a></div><div class="path">/broadcast-studio/fi/?obs=1</div></article>
+    <article class="card"><div class="card-head"><div class="lang"><div class="flag">🇩🇪</div><div><small>DEUTSCH</small><strong>SportsGamer</strong></div></div><div class="brandtag">SG</div></div><div class="actions"><a href="de/">STUDIO ÖFFNEN</a><a class="obs" href="de/?obs=1" target="_blank" rel="noopener">OBS OUTPUT ↗</a></div><div class="path">/broadcast-studio/de/?obs=1</div></article>
+    <article class="card"><div class="card-head"><div class="lang"><div class="flag">🇬🇧</div><div><small>ENGLISH</small><strong>SportsGamer</strong></div></div><div class="brandtag">SG</div></div><div class="actions"><a href="en/">OPEN STUDIO</a><a class="obs" href="en/?obs=1" target="_blank" rel="noopener">OBS OUTPUT ↗</a></div><div class="path">/broadcast-studio/en/?obs=1</div></article>
+  </section>
+  <section class="admin-note"><div><span>ADMIN · DATA</span><p>Datasynken ligger tills vidare kvar på Svensk eHockey eftersom adminsessionen är bunden till den domänen.</p></div><a href="https://www.svenskehockey.se/lab/broadcast-studio/" target="_blank" rel="noopener">ÖPPNA DATAADMIN ↗</a></section>
+  <div class="footer">SWNWORKS Broadcast Studio · dold testmiljö</div>
+</main>
+</body>
 </html>
