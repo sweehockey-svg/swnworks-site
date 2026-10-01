@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#06111a">
+  <title>Commentator Cockpit · Hockeyettan</title>
+  <script>
+    (() => {
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem("commentator-cockpit-theme") === "light" ? "light" : "dark";
+      } catch {
+        document.documentElement.dataset.theme = "dark";
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="cockpit.css?v=42">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-copy">
+          <div class="eyebrow">HOCKEYETTAN · COMMENTATOR TOOL</div>
+          <h1>Commentator Cockpit</h1>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="home-button hidden" id="homeButton" type="button">ALLA LAG</button>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Byt färgläge" title="Byt färgläge">
+          <span aria-hidden="true">☾</span><strong>MÖRK</strong>
+        </button>
+        <button class="account-button" id="accountButton" type="button">
+          <span class="account-dot"></span><strong>LOGGA IN</strong><small>NOTES + AI</small>
+        </button>
+        <div class="sync-state" id="syncState" role="status" aria-live="polite">
+          <span class="sync-dot"></span>
+          <span id="syncText">Laddar Hockeyettan-data…</span>
+        </div>
+        <div class="clock" id="clock">--:--:--</div>
+      </div>
+    </header>
+
+    <main class="league-home route-screen" id="homeScreen">
+      <section class="league-home-hero">
+        <div class="league-home-logo"><img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Logo_Hockeyettan.svg" alt="Hockeyettan"></div>
+        <span>HOCKEYETTAN · COMMENTATOR COCKPIT</span>
+        <h2>Välj lag</h2>
+        <p>Alla lag syns här. Själva kommentatorscockpiten öppnas bara för användare som har behörighet till det valda laget.</p>
+      </section>
+      <section class="team-grid" id="teamGrid">
+        <div class="home-loading">Laddar Hockeyettan-lag…</div>
+      </section>
+      <footer class="swahnworks-credit" aria-label="Utvecklare">
+        <span>Koncept &amp; utveckling</span>
+        <strong>SWNWORKS</strong>
+      </footer>
+    </main>
+
+    <main class="team-lock route-screen hidden" id="lockScreen">
+      <section class="team-lock-card">
+        <div class="lock-badge" id="lockBadge">—</div>
+        <span>TEAM COCKPIT</span>
+        <h2 id="lockTeamName">Lag</h2>
+        <p id="lockMessage" aria-live="polite">Kontrollerar behörighet…</p>
+        <div class="team-lock-actions">
+          <button type="button" id="lockLoginButton">LOGGA IN / KONTO</button>
+          <button type="button" class="retry-button hidden" id="lockRetryButton">FÖRSÖK IGEN</button>
+          <button type="button" id="lockHomeButton">TILL ALLA LAG</button>
+        </div>
+      </section>
+    </main>
+
+    <main class="cockpit route-screen hidden" id="cockpitScreen">
+      <section class="match-hero">
+        <div class="match-meta">
+          <span class="live-pill">NÄSTA MATCH</span>
+          <span id="competitionLabel">Hockeyettan</span>
+          <span>·</span>
+          <span id="venueLabel">Arena hämtas från Swehockey</span>
+        </div>
+
+        <div class="scoreboard">
+          <div class="team home">
+            <div class="team-badge">VÄS</div>
+            <div>
+              <small>HEMMA</small>
+              <strong id="homeName">Valt lag</strong>
+            </div>
+          </div>
+
+          <div class="score-center">
+            <div class="score"><span id="homeScore">–</span><b>:</b><span id="awayScore">–</span></div>
+            <div class="period" id="gameState">Ingen match laddad</div>
+          </div>
+
+          <div class="team away">
+            <div>
+              <small>BORTA</small>
+              <strong id="awayName">Motståndare</strong>
+            </div>
+            <div class="team-badge muted">—</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="panel match-panel">
+          <div class="panel-head">
+            <div>
+              <span class="panel-kicker">MATCHLÄGE</span>
+              <h2>Överblick</h2>
+            </div>
+            <span class="panel-status">SWEHOCKEY</span>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat"><span>SKOTT</span><strong id="shotsValue">–</strong><small id="shotsDetail">senaste match</small></div>
+            <div class="stat"><span>RÄDDNINGAR</span><strong id="savesValue">–</strong><small id="savesDetail">senaste match</small></div>
+            <div class="stat"><span>PP</span><strong id="ppValue">–</strong><small id="ppDetail">senaste match</small></div>
+            <div class="stat"><span>PIM</span><strong id="pimValue">–</strong><small id="pimDetail">senaste match</small></div>
+          </div>
+
+          <div class="section-block">
+            <div class="section-title"><span>FORM</span><small>SENASTE 5</small></div>
+            <div class="form-row">
+              <span id="homeFormLabel">Valt lag</span>
+              <div class="form-dots" id="homeFormDots"><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <div class="form-row">
+              <span id="awayFormLabel">Motståndare</span>
+              <div class="form-dots" id="awayFormDots"><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <div class="section-title"><span>TABELL</span><small>LIVE NÄR DATA FINNS</small></div>
+            <div class="table-placeholder" id="standingsQuick">
+              <div><b>–</b><span>Valt lag</span><em>– p</em></div>
+              <div><b>–</b><span>Motståndare</span><em>– p</em></div>
+            </div>
+          </div>
+        </aside>
+
+        <section class="panel event-panel">
+          <div class="panel-head">
+            <div>
+              <span class="panel-kicker">MATCHFEED</span>
+              <h2>Senaste händelser</h2>
+            </div>
+
+          </div>
+
+          <div class="empty-state" id="eventFeed">
+            <div class="empty-icon">↯</div>
+            <strong>Laddar senaste matchen</strong>
+            <p>Matchrapport, händelser och statistik hämtas från vår databas när Swehockey publicerar dem.</p>
+          </div>
+        </section>
+
+        <aside class="panel assistant-panel">
+          <div class="panel-head">
+            <div>
+              <span class="panel-kicker yellow">ASSISTENT</span>
+              <h2>Snabbfakta</h2>
+            </div>
+            <span class="assistant-light">●</span>
+          </div>
+
+          <div class="fact-stack" id="factStack">
+            <article class="fact-card primary">
+              <span>DATASTATUS</span>
+              <strong>Laddar verifierad Hockeyettan-data.</strong>
+              <p>Serie, tabell, schema och trupp hämtas från vår egen databas.</p>
+            </article>
+            <article class="fact-card">
+              <span>NÄSTA</span>
+              <strong>Matchcollector och liveflöde är anslutna.</strong>
+              <p>Kedjor, events och matchstatistik uppdateras automatiskt när officiell data finns.</p>
+            </article>
+          </div>
+
+          <button class="ai-button" id="aiButton" type="button">
+            <span>AI</span>
+            <strong>Talking point</strong>
+            <small>Verifierad fallback nu · server-AI förberedd</small>
+          </button>
+        </aside>
+      </section>
+
+    </main>
+
+    <section class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" aria-hidden="true">
+      <div class="drawer-head">
+        <div>
+          <span class="panel-kicker" id="drawerKicker">MATCH</span>
+          <h2 id="drawerTitle">Matchöversikt</h2>
+        </div>
+        <button class="close-button" id="closeDrawer" type="button" aria-label="Stäng">×</button>
+      </div>
+      <div class="drawer-body" id="drawerBody"></div>
+    </section>
+
+    <nav class="deck hidden" id="cockpitDeck" aria-label="Cockpit navigation">
+      <button class="deck-key active" data-panel="match"><span>01</span><strong>MATCH</strong></button>
+      <button class="deck-key" data-panel="lines"><span>02</span><strong>KEDJOR</strong></button>
+      <button class="deck-key" data-panel="players"><span>03</span><strong>SPELARE</strong></button>
+      <button class="deck-key" data-panel="goalies"><span>04</span><strong>MÅLV.</strong></button>
+      <button class="deck-key" data-panel="special"><span>05</span><strong>PP/BP</strong></button>
+      <button class="deck-key" data-panel="live"><span>06</span><strong>LIVE</strong></button>
+      <button class="deck-key" data-panel="story"><span>07</span><strong>STORY</strong></button>
+      <button class="deck-key" data-panel="h2h"><span>08</span><strong>H2H</strong></button>
+      <button class="deck-key" data-panel="studio"><span>09</span><strong>STUDIO</strong></button>
+      <button class="deck-key" data-panel="notes"><span>10</span><strong>NOTES</strong></button>
+      <button class="deck-key accent" data-panel="ai"><span>11</span><strong>AI</strong></button>
+    </nav>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js?v=1"></script>
+  <script src="cockpit.js?v=40"></script>
+</body>
+</html>
