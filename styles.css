@@ -912,3 +912,48 @@ a.product-feature-card:hover{
 @media(max-width:720px){
   .brand-logo{width:92px;}
 }
+
+
+/* v29 · render complete official logo as header lockup */
+.official-brand{
+  width:118px;
+  height:100px;
+  min-width:118px;
+  display:block;
+  flex:0 0 118px;
+  background-image:url("assets/swnworks-logo-official-white.png?v=3");
+  background-repeat:no-repeat;
+  background-position:left center;
+  background-size:contain;
+  overflow:visible;
+}
+.official-brand .brand-logo{
+  display:none !important;
+}
+.site-header{
+  overflow:visible;
+}
+@media(min-width:1101px){
+  .site-header{
+    height:112px;
+  }
+  .hero-inner{
+    min-height:358px;
+  }
+}
+@media(max-width:1100px){
+  .official-brand{
+    width:108px;
+    min-width:108px;
+    flex-basis:108px;
+    height:92px;
+  }
+}
+@media(max-width:720px){
+  .official-brand{
+    width:94px;
+    min-width:94px;
+    flex-basis:94px;
+    height:82px;
+  }
+}
