@@ -188,3 +188,69 @@ footer{height:88px;display:flex;align-items:center;justify-content:space-between
     min-height:470px;
   }
 }
+
+
+/* v15 · tighter desktop rhythm and stronger hierarchy */
+@media(min-width:1101px){
+  .site-header{
+    height:90px;
+  }
+  .brand{
+    width:228px;
+  }
+  .brand img{
+    height:70px;
+  }
+  .site-header nav{
+    gap:34px;
+  }
+  .site-header nav a{
+    font-size:13px;
+  }
+
+  .hero{
+    min-height:470px;
+    gap:44px;
+    padding:34px 0 28px;
+  }
+  .hero-copy{
+    max-width:610px;
+  }
+  .hero .eyebrow{
+    margin-bottom:12px;
+  }
+  .hero h1{
+    font-size:clamp(50px,4.8vw,74px);
+    line-height:.97;
+  }
+  .lead{
+    margin-top:20px;
+    font-size:16px;
+    line-height:1.62;
+  }
+  .hero-actions{
+    margin-top:24px;
+  }
+  .hero-visual img{
+    min-height:0;
+    height:390px;
+    aspect-ratio:auto;
+    object-fit:cover;
+  }
+
+  .products{
+    padding-top:18px;
+  }
+
+  .focus>div,
+  .focus>article{
+    min-height:168px;
+    padding:30px 28px 26px;
+  }
+  .focus h3{
+    font-size:18px;
+  }
+  .focus article p{
+    font-size:12.5px;
+  }
+}
