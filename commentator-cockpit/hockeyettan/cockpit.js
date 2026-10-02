@@ -291,6 +291,17 @@
     }).format(new Date(iso)).replace(",", " ·");
   }
 
+  const LIVE_FALLBACK_WINDOW_MS=4*60*60*1000;
+
+  function gameIsLive(game) {
+    if(!game || game.status==="final") return false;
+    if(gameIsLive(game)) return true;
+    const start=Date.parse(game.scheduled_start||"");
+    if(!Number.isFinite(start)) return false;
+    const now=Date.now();
+    return now>=start && now<=start+LIVE_FALLBACK_WINDOW_MS;
+  }
+
   function ageOn(dateText, referenceIso) {
     if (!dateText) return null;
     const birth = new Date(dateText + "T12:00:00Z");
@@ -462,7 +473,7 @@
       hour:"2-digit",minute:"2-digit",timeZone:"Europe/Stockholm"
     }).format(new Date(state.competition.updated_at));
     const ageText=age==null?"":age<1?" · nyss":" · "+age+" min sedan";
-    const liveText=state.lastLiveRefreshAt && state.nextGame?.status==="live"
+    const liveText=state.lastLiveRefreshAt && gameIsLive(state.nextGame)
       ? " · live "+new Intl.DateTimeFormat("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit",timeZone:"Europe/Stockholm"}).format(new Date(state.lastLiveRefreshAt))
       : "";
     const warningText=state.loadWarnings.length ? " · "+state.loadWarnings.length+" delvarning"+(state.loadWarnings.length===1?"":"ar") : "";
@@ -534,7 +545,7 @@
 
   const LEGACY_NOTE_STORAGE_KEY="commentator-cockpit-notes-v1";
   const NOTE_STORAGE_PREFIX="commentator-cockpit-notes-v2";
-  const AUTH_REDIRECT_URL="https://www.svenskehockey.se/lab/commentator-cockpit/";
+  const AUTH_REDIRECT_URL=window.location.origin+window.location.pathname;
   const AUTH_PENDING_TEAM_KEY="commentator-cockpit-auth-team";
 
   function noteStorageKey(userId=state.authUser?.id) {
@@ -1267,9 +1278,18 @@
     return minutes + ":" + String(seconds).padStart(2, "0");
   }
 
-  function latestStatsPair() {
-    const game = state.latestFocusGame;
+  function displayGame() {
+    return gameIsLive(state.nextGame) ? state.nextGame : state.latestFocusGame;
+  }
+
+  function statsPairForGame(game) {
     if (!game) return { home: null, away: null };
+    if (game.id === state.nextGame?.id && gameIsLive(state.nextGame)) {
+      return {
+        home: state.teamGameStats.find((row)=>row.game_id===game.id&&row.team_id===game.home_team_id) || null,
+        away: state.teamGameStats.find((row)=>row.game_id===game.id&&row.team_id===game.away_team_id) || null
+      };
+    }
     return {
       home: state.latestTeamStats.get(game.home_team_id) || null,
       away: state.latestTeamStats.get(game.away_team_id) || null
@@ -1277,13 +1297,14 @@
   }
 
   function statPair(a, b, formatter = (v) => v ?? "–") {
+    if(a==null&&b==null) return "–";
     return formatter(a) + "–" + formatter(b);
   }
 
   function renderMatchStats() {
-    const game = state.latestFocusGame;
+    const game = displayGame();
     if (!game) return;
-    const { home, away } = latestStatsPair();
+    const { home, away } = statsPairForGame(game);
     const homeName = getTeamName(game.home_team_id);
     const awayName = getTeamName(game.away_team_id);
     const detail = shortTeam(homeName) + "–" + shortTeam(awayName);
@@ -1308,10 +1329,9 @@
     document.getElementById("pimDetail").textContent = detail;
   }
 
-  function matchStatsStripHtml() {
-    const game = state.latestFocusGame;
+  function matchStatsStripHtml(game=displayGame()) {
     if (!game) return "";
-    const { home, away } = latestStatsPair();
+    const { home, away } = statsPairForGame(game);
     if (!home && !away) return "";
     const items = [
       ["SKOTT", statPair(home?.shots, away?.shots)],
@@ -1348,8 +1368,12 @@
 
   function renderLatestGame() {
     const feed = document.getElementById("eventFeed");
-    const game = state.latestFocusGame;
     if (!feed) return;
+
+    const live=gameIsLive(state.nextGame);
+    const game=live ? state.nextGame : state.latestFocusGame;
+    const events=live ? state.currentEvents : state.latestEvents;
+
     if(!game){
       feed.className="empty-state";
       feed.innerHTML='<div class="empty-icon">↯</div><strong>Ingen tidigare matchdata ännu</strong><p>Cockpiten har nästa match, men ingen importerad slutrapport för det valda laget ännu.</p>';
@@ -1357,8 +1381,8 @@
     }
     feed.className = "event-feed-live";
 
-    const eventRows = state.latestEvents.length
-      ? '<div class="event-list">' + state.latestEvents.slice(0,12).map((event) => {
+    const eventRows = events.length
+      ? '<div class="event-list">' + events.slice(0,12).map((event) => {
           const teamName = event.team_id ? getTeamName(event.team_id) : "";
           const label = event.event_type === "goal" ? "MÅL" :
             event.event_type === "penalty" ? "UTVISNING" :
@@ -1376,19 +1400,35 @@
             '<div class="event-score">' + score + '</div>' +
           '</div>';
         }).join("") + '</div>'
-      : '<div class="recent-game-foot">Inga importerade händelser för matchen ännu.</div>';
+      : '<div class="recent-game-foot">'+(live?'Inväntar första importerade matchhändelsen.':'Inga importerade händelser för matchen ännu.')+'</div>';
+
+    const scoreEvent=events.find((event)=>event.home_score!=null&&event.away_score!=null);
+    const officialLive=game.status==="live";
+    const homeScore=live
+      ? (officialLive&&game.home_score!=null ? game.home_score : scoreEvent?.home_score)
+      : game.home_score;
+    const awayScore=live
+      ? (officialLive&&game.away_score!=null ? game.away_score : scoreEvent?.away_score)
+      : game.away_score;
+    const header=live
+      ? 'LIVE MATCH · ' + esc(state.focusTeam.canonical_name.toUpperCase()) + ' · ' + (events.length?'OFFICIELL EVENTDATA':'INVÄNTAR MATCHDATA')
+      : 'SENASTE MATCH · ' + esc(state.focusTeam.canonical_name.toUpperCase()) + ' · OFFICIELL EVENTDATA';
+    const footer=esc(game.venue_name || "") + ' · ' +
+      (live
+        ? (events.length ? events.length + ' importerade händelser' : 'väntar på Swehockey-data')
+        : events.length + ' importerade händelser');
 
     feed.innerHTML =
       '<article class="recent-game">' +
-        '<div class="recent-game-top"><span>SENASTE MATCH · ' + esc(state.focusTeam.canonical_name.toUpperCase()) + ' · OFFICIELL EVENTDATA</span><span>' + esc(swedishDate(game.scheduled_start)) + '</span></div>' +
+        '<div class="recent-game-top"><span>' + header + '</span><span>' + esc(swedishDate(game.scheduled_start)) + '</span></div>' +
         '<div class="recent-game-score">' +
           '<span>' + esc(getTeamName(game.home_team_id)) + '</span>' +
-          '<strong>' + esc(game.home_score) + '–' + esc(game.away_score) + '</strong>' +
+          '<strong>' + esc(homeScore ?? "–") + '–' + esc(awayScore ?? "–") + '</strong>' +
           '<span>' + esc(getTeamName(game.away_team_id)) + '</span>' +
         '</div>' +
-        '<div class="recent-game-foot">' + esc(game.venue_name || "") + ' · ' + state.latestEvents.length + ' importerade händelser</div>' +
+        '<div class="recent-game-foot">' + footer + '</div>' +
       '</article>' +
-      matchStatsStripHtml() +
+      matchStatsStripHtml(game) +
       eventRows;
   }
 
@@ -1451,7 +1491,7 @@
     if(!state.nextGame||!state.focusTeam||!state.opponent) return [];
     const facts=[];
     const game=state.nextGame;
-    const live=game.status==="live";
+    const live=gameIsLive(game);
     const focusStanding=state.standingsByTeam.get(state.focusTeam.id);
     const oppStanding=state.standingsByTeam.get(state.opponent.id);
     const focusForm=formSummary(state.focusForm,state.focusTeam.id);
@@ -1757,7 +1797,7 @@
   }
 
   function aiMode() {
-    if(state.nextGame?.status==="live") return "live";
+    if(gameIsLive(state.nextGame)) return "live";
     return "pregame";
   }
 
@@ -2119,12 +2159,12 @@
   }
 
   function currentPlayerGameRow(seasonRow) {
-    if(state.nextGame?.status!=="live") return null;
+    if(!gameIsLive(state.nextGame)) return null;
     return state.currentPlayerStats.find((row)=>sameStatPlayer(seasonRow,row)) || null;
   }
 
   function currentGoalieGameRow(seasonRow) {
-    if(state.nextGame?.status!=="live") return null;
+    if(!gameIsLive(state.nextGame)) return null;
     return state.currentGoalieStats.find((row)=>sameStatPlayer(seasonRow,row)) || null;
   }
 
@@ -2448,12 +2488,12 @@
 
 
   function studioGame() {
-    return state.nextGame?.status === "live" ? state.nextGame : state.latestFocusGame;
+    return gameIsLive(state.nextGame) ? state.nextGame : state.latestFocusGame;
   }
 
   function studioEvents(game) {
     if(!game) return [];
-    return game.id === state.nextGame?.id && state.nextGame?.status === "live"
+    return game.id === state.nextGame?.id && gameIsLive(state.nextGame)
       ? state.currentEvents
       : state.latestEvents;
   }
@@ -2469,7 +2509,7 @@
   function studioPeriod(game,events) {
     const eventPeriods=events.map((event)=>Number(event.period||0)).filter((period)=>period>0&&period<=5);
     const maxEventPeriod=eventPeriods.length?Math.max(...eventPeriods):1;
-    if(game?.status==="live"&&Number(game.period)>0) return Math.max(1,Number(game.period));
+    if(gameIsLive(game)&&Number(game.period)>0) return Math.max(1,Number(game.period));
     return Math.max(1,maxEventPeriod);
   }
 
@@ -2568,7 +2608,7 @@
       away:periodEvents.filter((event)=>event.event_type==="goal"&&event.team_id===awayId&&String(event.strength||"").toUpperCase().startsWith("PP")).length
     };
     const keyPlayer=periodKeyPlayer(events,period);
-    const live=game.status==="live";
+    const live=gameIsLive(game);
     const modeLabel=live?"AKTUELL MATCH":"TESTLÄGE · SENASTE MATCH";
 
     const periodResult=goals.home===goals.away
@@ -2652,7 +2692,7 @@
           const home = state.teamById.get(game.home_team_id);
           const away = state.teamById.get(game.away_team_id);
           const active = game.id === state.nextGame?.id;
-          const live = game.status === "live";
+          const live = gameIsLive(game);
           const tag = live ? "LIVE" : active ? "NÄSTA" : "";
           return '<article class="upcoming-game' + (active ? ' active' : '') + (live ? ' live' : '') + '">' +
             '<div class="upcoming-game-time"><strong>' + esc(swedishDate(game.scheduled_start)) + '</strong>' +
@@ -2677,7 +2717,7 @@
     const statsStatus=statsTotal
       ? (state.loadWarnings.some((item)=>/statistik|special/i.test(item.scope)) ? ["warn","DELVIS"] : ["ready","REDO"])
       : ["waiting","VÄNTAR"];
-    const liveStatus=state.nextGame?.status==="live"
+    const liveStatus=gameIsLive(state.nextGame)
       ? (state.currentEvents.length ? ["ready","LIVE"] : ["warn","STARTAD"])
       : (state.nextGame?.source_event_game_id ? ["ready","FÖRBEREDD"] : ["waiting","VÄNTAR"]);
     const items=[
@@ -2721,11 +2761,11 @@
       drawerBody.innerHTML = renderLineups();
     } else if (key === "players") {
       drawerBody.innerHTML =
-        '<article class="drawer-card stats-intro"><strong>'+(state.nextGame?.status==="live"?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(state.nextGame?.status==="live"?"LIVE-raden kommer från pågående Player Summary när Swehockey publicerar den. ":"")+'Säsongstotalen kommer direkt från Swehockey. S5 räknas från de fem senaste Player Summary-rapporterna som finns importerade.</span></article>' +
+        '<article class="drawer-card stats-intro"><strong>'+(gameIsLive(state.nextGame)?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(gameIsLive(state.nextGame)?"LIVE-raden kommer från pågående Player Summary när Swehockey publicerar den. ":"")+'Säsongstotalen kommer direkt från Swehockey. S5 räknas från de fem senaste Player Summary-rapporterna som finns importerade.</span></article>' +
         '<div class="stats-team-grid players-grid">' + renderPlayerStats() + '</div>';
     } else if (key === "goalies") {
       drawerBody.innerHTML =
-        '<article class="drawer-card stats-intro"><strong>'+(state.nextGame?.status==="live"?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(state.nextGame?.status==="live"?"LIVE-raden uppdateras från pågående Player Summary när den finns. ":"")+'SV%, GAA och record kommer från Swehockeys säsongstabell. S5 räknas från matchrapporterna.</span></article>' +
+        '<article class="drawer-card stats-intro"><strong>'+(gameIsLive(state.nextGame)?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(gameIsLive(state.nextGame)?"LIVE-raden uppdateras från pågående Player Summary när den finns. ":"")+'SV%, GAA och record kommer från Swehockeys säsongstabell. S5 räknas från matchrapporterna.</span></article>' +
         '<div class="stats-team-grid goalies-grid">' + renderGoalieStats() + '</div>';
     } else if (key === "special") {
       drawerBody.innerHTML = renderSpecialTeams();
@@ -3058,7 +3098,7 @@
     }
 
     state.currentEvents = [];
-    if (state.nextGame?.status === "live") {
+    if (gameIsLive(state.nextGame)) {
       const { data: currentEvents, error: currentEventsError } = await client.from("game_events")
         .select("id,period,clock_display,event_seconds,event_type,team_id,strength,home_score,away_score,description")
         .eq("game_id", state.nextGame.id)
@@ -3117,15 +3157,23 @@
     document.getElementById("awayName").textContent = away?.canonical_name || "Bortalag";
     document.querySelector(".team.home .team-badge").innerHTML = teamLogoMarkup(home?.canonical_name,"score-team-logo");
     document.querySelector(".team.away .team-badge").innerHTML = teamLogoMarkup(away?.canonical_name,"score-team-logo");
-    const isLive = game.status === "live";
+    const isLive = gameIsLive(game);
+    const officialLive = game.status === "live";
+    const latestLiveEvent = state.currentEvents.find((event)=>event.home_score!=null&&event.away_score!=null) || state.currentEvents[0] || null;
+    const livePeriod = game.period || latestLiveEvent?.period || null;
+    const liveClock = game.clock_display || latestLiveEvent?.clock_display || null;
+    const homeLiveScore = officialLive && game.home_score!=null ? game.home_score : latestLiveEvent?.home_score;
+    const awayLiveScore = officialLive && game.away_score!=null ? game.away_score : latestLiveEvent?.away_score;
     const livePill = document.querySelector(".live-pill");
     livePill.textContent = isLive ? "LIVE" : "NÄSTA MATCH";
     livePill.classList.toggle("is-live", isLive);
     document.getElementById("gameState").textContent = isLive
-      ? "P" + (game.period || "–") + " · " + (game.clock_display || "LIVE")
+      ? (officialLive || latestLiveEvent
+          ? "P" + (livePeriod || "–") + " · " + (liveClock || "LIVE")
+          : "LIVE · INVÄNTAR MATCHDATA")
       : swedishDate(game.scheduled_start);
-    document.getElementById("homeScore").textContent = isLive ? game.home_score : "–";
-    document.getElementById("awayScore").textContent = isLive ? game.away_score : "–";
+    document.getElementById("homeScore").textContent = isLive ? (homeLiveScore ?? "–") : "–";
+    document.getElementById("awayScore").textContent = isLive ? (awayLiveScore ?? "–") : "–";
 
     document.getElementById("homeFormLabel").textContent = state.focusTeam.canonical_name;
     document.getElementById("awayFormLabel").textContent = state.opponent.canonical_name;
@@ -3140,7 +3188,7 @@
     const focusStanding = state.standingsByTeam.get(state.focusTeam.id);
     const oppStanding = state.standingsByTeam.get(state.opponent.id);
     panels.match.cards = [
-      ["Nästa match", swedishDate(game.scheduled_start) + " · " + (game.venue_name || "Arena ej angiven")],
+      [isLive ? "Aktuell match" : "Nästa match", swedishDate(game.scheduled_start) + " · " + (game.venue_name || "Arena ej angiven")],
       ["Tabell", state.focusTeam.canonical_name + " #" + (focusStanding?.rank ?? "–") + " (" + (focusStanding?.points ?? "–") + " p) · " +
         state.opponent.canonical_name + " #" + (oppStanding?.rank ?? "–") + " (" + (oppStanding?.points ?? "–") + " p)"],
       ["Kedjor", state.nextLineup
@@ -3162,7 +3210,7 @@
   async function refreshActiveMatch() {
     if(!client||!state.teamDataLoaded||!state.selectedTeam||!canAccessTeam(state.selectedTeam.id)||!state.nextGame?.id||state.liveRefreshBusy) return;
     state.liveRefreshBusy=true;
-    if(state.nextGame?.status==="live") setSyncStatus("working","Uppdaterar live-data…");
+    if(gameIsLive(state.nextGame)) setSyncStatus("working","Uppdaterar live-data…");
     try{
       const {data:game,error:gameError}=await client.from("games")
         .select("id,scheduled_start,home_team_id,away_team_id,venue_name,status,period,clock_display,home_score,away_score,source_game_id,source_event_game_id,game_number")
@@ -3178,7 +3226,7 @@
         return;
       }
 
-      if(game.status==="live"){
+      if(gameIsLive(game)){
         const [eventResult,statsResult,playerResult,goalieResult,lineupResult]=await Promise.all([
           client.from("game_events")
             .select("id,period,clock_display,event_seconds,event_type,team_id,strength,home_score,away_score,description")
@@ -3231,7 +3279,7 @@
     }catch(error){
       console.error("Live refresh failed",error);
       state.lastLiveRefreshError=String(error?.message||error||"Okänt fel");
-      if(state.nextGame?.status==="live") setSyncStatus("warn","Live-uppdatering misslyckades · senaste data visas");
+      if(gameIsLive(state.nextGame)) setSyncStatus("warn","Live-uppdatering misslyckades · senaste data visas");
     }finally{
       state.liveRefreshBusy=false;
       if(!state.lastLiveRefreshError) renderSyncFreshness();
