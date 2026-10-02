@@ -16,7 +16,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="cockpit.css?v=45">
+  <link rel="stylesheet" href="cockpit.css?v=46">
 </head>
 <body>
   <div class="app-shell">
@@ -113,6 +113,7 @@
             <div>
               <span class="panel-kicker">MATCHLÄGE</span>
               <h2>Överblick</h2>
+              <small class="overview-context" id="overviewContext"></small>
             </div>
             <span class="panel-status">SWEHOCKEY</span>
           </div>
@@ -149,7 +150,7 @@
           <div class="panel-head">
             <div>
               <span class="panel-kicker">MATCHFEED</span>
-              <h2>Senaste händelser</h2>
+              <h2 id="eventPanelTitle">Senaste händelser</h2>
             </div>
 
           </div>
@@ -221,6 +222,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js?v=1"></script>
-  <script src="cockpit.js?v=48"></script>
+  <script src="cockpit.js?v=49"></script>
 </body>
 </html>
