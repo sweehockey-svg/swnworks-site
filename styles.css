@@ -585,3 +585,117 @@ footer{
   .portfolio-copy{padding:20px 18px 22px}
   .portfolio-copy h3{font-size:23px}
 }
+
+
+/* v18 · unified top product cards */
+.products{
+  grid-template-columns:1fr;
+  gap:0;
+}
+.product-feature-grid{
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+.product-feature-card{
+  min-height:222px;
+  display:grid;
+  grid-template-columns:43% 57%;
+  overflow:hidden;
+  border:1px solid #334650;
+  border-radius:10px;
+  background:linear-gradient(145deg,#071018,#040a0e);
+  text-decoration:none;
+  transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+.product-feature-card.featured-product{
+  border-color:#9a7119;
+}
+a.product-feature-card:hover{
+  border-color:#b88a27;
+  transform:translateY(-1px);
+  box-shadow:0 14px 35px rgba(0,0,0,.25);
+}
+.product-feature-visual{
+  min-width:0;
+  min-height:220px;
+  position:relative;
+  overflow:hidden;
+  border-right:1px solid #263943;
+  background:#08131a;
+}
+.product-feature-visual img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.featured-product .product-feature-visual img{
+  object-position:center;
+}
+.private-feature .product-feature-visual img{
+  object-position:center;
+}
+.product-feature-copy{
+  padding:24px 25px 22px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.product-feature-copy h3{
+  margin:9px 0 9px;
+  font-size:25px;
+  letter-spacing:-.035em;
+}
+.product-feature-copy p{
+  margin:0;
+  color:#a9b6bc;
+  font-size:12px;
+  line-height:1.6;
+}
+.product-feature-copy .product-link{
+  margin-top:17px;
+}
+.muted-link{
+  color:#83949d;
+  cursor:default;
+}
+
+/* keep the next row visually aligned with the lead products */
+.portfolio-head{
+  padding-top:26px;
+}
+
+@media(max-width:1100px){
+  .product-feature-grid{
+    grid-template-columns:1fr;
+  }
+  .product-feature-card{
+    min-height:210px;
+  }
+  .product-feature-visual{
+    min-height:210px;
+  }
+}
+
+@media(max-width:720px){
+  .product-feature-card{
+    grid-template-columns:1fr;
+    min-height:0;
+  }
+  .product-feature-visual{
+    min-height:180px;
+    border-right:0;
+    border-bottom:1px solid #263943;
+  }
+  .product-feature-copy{
+    padding:20px 18px 22px;
+  }
+  .product-feature-copy h3{
+    font-size:23px;
+  }
+  .portfolio-head{
+    padding-top:20px;
+  }
+}
