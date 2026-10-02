@@ -469,16 +469,18 @@
       return;
     }
     const age=syncAgeMinutes();
-    const time=new Intl.DateTimeFormat("sv-SE",{
+    const timeFormat=new Intl.DateTimeFormat("sv-SE",{
       hour:"2-digit",minute:"2-digit",timeZone:"Europe/Stockholm"
-    }).format(new Date(state.competition.updated_at));
+    });
+    const time=timeFormat.format(new Date(state.competition.updated_at));
     const ageText=age==null?"":age<1?" · nyss":" · "+age+" min sedan";
-    const liveText=state.lastLiveRefreshAt && gameIsLive(state.nextGame)
-      ? " · live "+new Intl.DateTimeFormat("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit",timeZone:"Europe/Stockholm"}).format(new Date(state.lastLiveRefreshAt))
-      : "";
+    const liveSourceAt=state.nextGame?.updated_at || state.lastLiveRefreshAt;
+    const syncLabel=liveSourceAt && gameIsLive(state.nextGame)
+      ? "LIVE-data "+timeFormat.format(new Date(liveSourceAt))+" · Grundsynk "+time+ageText
+      : "Swehockey synkad · "+time+ageText;
     const warningText=state.loadWarnings.length ? " · "+state.loadWarnings.length+" delvarning"+(state.loadWarnings.length===1?"":"ar") : "";
     const kind=state.loadWarnings.length ? "warn" : age!=null&&age>180 ? "bad" : age!=null&&age>75 ? "warn" : "ok";
-    setSyncStatus(kind,"Swehockey synkad · "+time+ageText+liveText+warningText);
+    setSyncStatus(kind,syncLabel+warningText);
   }
 
   function recordLoadWarning(scope,error) {
@@ -2921,7 +2923,7 @@
 
     const activeWindowStart = new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString();
     const { data: nextGames, error: nextError } = await client.from("games")
-      .select("id,scheduled_start,home_team_id,away_team_id,venue_name,status,period,clock_display,home_score,away_score,source_game_id,source_event_game_id,game_number")
+      .select("id,scheduled_start,home_team_id,away_team_id,venue_name,status,period,clock_display,home_score,away_score,source_game_id,source_event_game_id,game_number,updated_at")
       .eq("competition_id", competition.id)
       .neq("status", "final")
       .or("home_team_id.eq." + state.focusTeam.id + ",away_team_id.eq." + state.focusTeam.id)
@@ -3213,7 +3215,7 @@
     if(gameIsLive(state.nextGame)) setSyncStatus("working","Uppdaterar live-data…");
     try{
       const {data:game,error:gameError}=await client.from("games")
-        .select("id,scheduled_start,home_team_id,away_team_id,venue_name,status,period,clock_display,home_score,away_score,source_game_id,source_event_game_id,game_number")
+        .select("id,scheduled_start,home_team_id,away_team_id,venue_name,status,period,clock_display,home_score,away_score,source_game_id,source_event_game_id,game_number,updated_at")
         .eq("id",state.nextGame.id)
         .single();
       if(gameError) throw gameError;
