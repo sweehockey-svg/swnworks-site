@@ -54,10 +54,12 @@ button{font:inherit}
 .panel-kicker.yellow{color:var(--yellow)}
 .panel-status{padding:5px 7px;border:1px solid #30495b;border-radius:6px;color:#7d95a5;font-size:8px;font-weight:950}
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.stat{padding:12px;border:1px solid #1d3443;border-radius:9px;background:#071824;display:grid;grid-template-columns:1fr auto;grid-template-areas:"a b" "c b";align-items:center}
+.stat{padding:12px;border:1px solid #1d3443;border-radius:9px;background:#071824;display:grid;grid-template-columns:1fr auto;grid-template-areas:"a b" "c b" "d b";align-items:center}
 .stat span{grid-area:a;color:#7891a1;font-size:8px;font-weight:950;letter-spacing:.11em}
 .stat strong{grid-area:b;font-size:23px}
 .stat small{grid-area:c;margin-top:4px;color:#506a7b;font-size:9px}
+.stat-updated{grid-area:d;margin-top:3px;color:#6f8797;font-size:7px;font-weight:800;font-style:normal;white-space:nowrap}
+.stat-updated:empty{display:none}
 .section-block{margin-top:17px;padding-top:14px;border-top:1px solid var(--line-soft)}
 .section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .section-title span{font-size:9px;font-weight:1000;letter-spacing:.12em}
