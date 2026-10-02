@@ -1420,6 +1420,15 @@
         ? (events.length ? events.length + ' importerade händelser' : 'väntar på Swehockey-data')
         : events.length + ' importerade händelser');
 
+    if (live) {
+      const latestEvent=events[0] || null;
+      const liveContext=latestEvent
+        ? '<div class="recent-game-top"><span>P' + esc(latestEvent.period || game.period || "–") + ' · SENASTE HÄNDELSE ' + esc(latestEvent.clock_display || game.clock_display || "–") + '</span></div>'
+        : '<div class="recent-game-top"><span>LIVE · INVÄNTAR FÖRSTA HÄNDELSEN</span></div>';
+      feed.innerHTML = liveContext + eventRows;
+      return;
+    }
+
     feed.innerHTML =
       '<article class="recent-game">' +
         '<div class="recent-game-top"><span>' + header + '</span><span>' + esc(swedishDate(game.scheduled_start)) + '</span></div>' +
