@@ -912,7 +912,8 @@ button{font:inherit}
   .drawer.stats-wide .goalie-recent strong{font-size:8px}
 
   .deck{
-    width:min(1160px,calc(100vw - 24px));
+    width:calc(100vw - 40px);
+    max-width:1600px;
     bottom:10px;
     gap:5px;
     padding:7px;
@@ -2220,7 +2221,7 @@ html[data-theme="light"] .theme-toggle:hover{
   }
 
   .deck{
-    width:min(1380px,calc(100vw - 24px));
+    width:min(2400px,calc(100vw - 24px));
     max-width:none;
   }
 
