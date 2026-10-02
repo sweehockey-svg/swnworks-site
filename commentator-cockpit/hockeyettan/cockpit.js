@@ -1303,6 +1303,32 @@
     return formatter(a) + "–" + formatter(b);
   }
 
+  function latestStatChangedAt(home, away, key) {
+    const values=[
+      home?.source_fragment?.stat_changed_at?.[key],
+      away?.source_fragment?.stat_changed_at?.[key]
+    ].filter(Boolean)
+      .map((value)=>new Date(value))
+      .filter((date)=>Number.isFinite(date.getTime()))
+      .sort((a,b)=>b.getTime()-a.getTime());
+    return values[0] || null;
+  }
+
+  function renderStatChanged(elementId, home, away, key, game) {
+    const element=document.getElementById(elementId);
+    if(!element) return;
+    if(!gameIsLive(game)) {
+      element.textContent="";
+      return;
+    }
+    const changedAt=latestStatChangedAt(home,away,key);
+    element.textContent=changedAt
+      ? "senast ändrad " + new Intl.DateTimeFormat("sv-SE",{
+          hour:"2-digit",minute:"2-digit",timeZone:"Europe/Stockholm"
+        }).format(changedAt)
+      : "";
+  }
+
   function renderMatchStats() {
     const game = displayGame();
     if (!game) return;
@@ -1329,6 +1355,11 @@
     document.getElementById("pimValue").textContent =
       statPair(home?.pim, away?.pim);
     document.getElementById("pimDetail").textContent = detail;
+
+    renderStatChanged("shotsUpdated",home,away,"shots",game);
+    renderStatChanged("savesUpdated",home,away,"saves",game);
+    renderStatChanged("ppUpdated",home,away,"pp",game);
+    renderStatChanged("pimUpdated",home,away,"pim",game);
   }
 
   function matchStatsStripHtml(game=displayGame()) {
@@ -3049,7 +3080,7 @@
         .eq("competition_id", competition.id)
         .in("team_id", focusTeamIds),
       client.from("team_game_stats")
-        .select("game_id,team_id,goals,shots,saves,pim,period_stats,power_play_opportunities,power_play_goals,power_play_pct,power_play_seconds,penalty_kill_opportunities,penalty_kill_goals_against,penalty_kill_pct")
+        .select("game_id,team_id,goals,shots,saves,pim,period_stats,power_play_opportunities,power_play_goals,power_play_pct,power_play_seconds,penalty_kill_opportunities,penalty_kill_goals_against,penalty_kill_pct,source_fragment")
         .in("game_id", statGameIds)
         .in("team_id", focusTeamIds)
     ]);
@@ -3126,7 +3157,7 @@
 
     if (state.latestFocusGame) {
       const { data: teamStats, error: teamStatsError } = await client.from("team_game_stats")
-        .select("team_id,goals,shots,saves,save_pct,pim,power_play_pct,power_play_seconds,period_stats")
+        .select("team_id,goals,shots,saves,save_pct,pim,power_play_pct,power_play_seconds,period_stats,source_fragment")
         .eq("game_id", state.latestFocusGame.id);
       if (teamStatsError) {
         recordLoadWarning("Senaste matchstatistik",teamStatsError);
@@ -3247,7 +3278,7 @@
             .order("ordinal",{ascending:true})
             .limit(100),
           client.from("team_game_stats")
-            .select("game_id,team_id,goals,shots,saves,pim,period_stats,power_play_opportunities,power_play_goals,power_play_pct,power_play_seconds,penalty_kill_opportunities,penalty_kill_goals_against,penalty_kill_pct")
+            .select("game_id,team_id,goals,shots,saves,pim,period_stats,power_play_opportunities,power_play_goals,power_play_pct,power_play_seconds,penalty_kill_opportunities,penalty_kill_goals_against,penalty_kill_pct,source_fragment")
             .eq("game_id",game.id),
           client.from("player_game_stats")
             .select("game_id,team_id,player_id,source_name,jersey_number,position,goals,assists,points,plus_minus,pim,shots,faceoff_wins,faceoff_losses,faceoff_pct")
