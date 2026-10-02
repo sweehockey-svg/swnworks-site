@@ -38,9 +38,7 @@ a{color:inherit}
   min-height:470px;
   overflow:hidden;
   isolation:isolate;
-  background-image:url("assets/hero-cockpit.svg");
-  background-size:cover;
-  background-position:center 55%;
+  background:#030a0e;
   border-bottom:1px solid rgba(89,113,126,.25);
 }
 .hero:before{
@@ -697,5 +695,43 @@ a.product-feature-card:hover{
   }
   .portfolio-head{
     padding-top:20px;
+  }
+}
+
+
+/* v20 · controlled hero image crop */
+.hero-bg-image{
+  position:absolute;
+  top:0;
+  right:0;
+  width:72%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 58%;
+  z-index:-3;
+  pointer-events:none;
+}
+.hero:before{
+  background:
+    linear-gradient(90deg,
+      rgba(2,8,12,1) 0%,
+      rgba(2,8,12,.98) 22%,
+      rgba(2,8,12,.88) 34%,
+      rgba(2,8,12,.54) 46%,
+      rgba(2,8,12,.16) 62%,
+      rgba(2,8,12,.06) 100%),
+    linear-gradient(0deg,rgba(2,8,12,.45) 0%,rgba(2,8,12,0) 48%);
+}
+@media(max-width:1100px){
+  .hero-bg-image{
+    width:82%;
+    object-position:center 58%;
+  }
+}
+@media(max-width:720px){
+  .hero-bg-image{
+    width:100%;
+    object-position:64% 58%;
+    opacity:.72;
   }
 }
