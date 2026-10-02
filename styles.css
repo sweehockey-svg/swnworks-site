@@ -38,9 +38,9 @@ a{color:inherit}
   min-height:470px;
   overflow:hidden;
   isolation:isolate;
-  background-image:url("assets/hero-cockpit.webp");
+  background-image:url("assets/hero-cockpit.svg");
   background-size:cover;
-  background-position:center 52%;
+  background-position:center 55%;
   border-bottom:1px solid rgba(89,113,126,.25);
 }
 .hero:before{
