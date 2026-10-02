@@ -812,3 +812,28 @@ a.product-feature-card:hover{
     color:var(--gold2);
   }
 }
+
+
+/* v24 · final homepage spacing polish */
+@media(min-width:1101px){
+  .site-header nav{
+    border-color:rgba(121,151,166,.11);
+    background:linear-gradient(90deg,rgba(3,10,14,.17),rgba(3,10,14,.36));
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+  }
+  .hero-copy{
+    transform:translateY(12px);
+  }
+  .featured-product .product-feature-visual img,
+  .private-feature .product-feature-visual img{
+    object-fit:contain;
+    object-position:center;
+    padding:8px;
+    background:#071018;
+  }
+  .portfolio-head{
+    padding-top:34px;
+  }
+}
