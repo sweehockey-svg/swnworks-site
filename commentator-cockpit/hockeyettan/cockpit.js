@@ -1336,6 +1336,11 @@
     const homeName = getTeamName(game.home_team_id);
     const awayName = getTeamName(game.away_team_id);
     const detail = shortTeam(homeName) + "–" + shortTeam(awayName);
+    const overviewContext=document.getElementById("overviewContext");
+    if(overviewContext){
+      const opponentName=game.home_team_id===state.focusTeam?.id ? awayName : homeName;
+      overviewContext.textContent=(gameIsLive(game) ? "LIVE MATCH · VS " : "SENASTE MATCH · VS ") + opponentName;
+    }
 
     document.getElementById("shotsValue").textContent =
       statPair(home?.shots, away?.shots);
@@ -1406,6 +1411,8 @@
     const live=gameIsLive(state.nextGame);
     const game=live ? state.nextGame : state.latestFocusGame;
     const events=live ? state.currentEvents : state.latestEvents;
+    const eventPanelTitle=document.getElementById("eventPanelTitle");
+    if(eventPanelTitle) eventPanelTitle.textContent=live ? "Senaste händelser" : "Matchhändelser";
 
     if(!game){
       feed.className="empty-state";
@@ -1428,11 +1435,17 @@
             ? '<b>' + event.home_score + '–' + event.away_score + '</b>'
             : '';
           const isShootout=event.event_type === "shootout_winner";
+          const eventSeconds=Number(event.event_seconds);
           const timePrimary=isShootout ? "SO" : (event.clock_display || "–");
-          const timeSecondary=isShootout ? "GWS" : "P" + (event.period || "–");
+          const timeSecondary=isShootout
+            ? "GWS"
+            : event.period
+              ? "P" + event.period
+              : (Number.isFinite(eventSeconds) && eventSeconds >= 3600 ? "OT" : "–");
+          const rowTeamName=isShootout ? "" : teamName;
           return '<div class="event-row ' + ((event.event_type === "goal" || isShootout) ? "goal" : "") + '">' +
             '<div class="event-time"><strong>' + esc(timePrimary) + '</strong><span>' + esc(timeSecondary) + '</span></div>' +
-            '<div class="event-copy"><div><em>' + esc(label) + '</em>' + (teamName ? '<span>' + esc(teamName) + '</span>' : '') + '</div>' +
+            '<div class="event-copy"><div><em>' + esc(label) + '</em>' + (rowTeamName ? '<span>' + esc(rowTeamName) + '</span>' : '') + '</div>' +
             '<p>' + esc(event.description || "") + '</p></div>' +
             '<div class="event-score">' + score + '</div>' +
           '</div>';
@@ -1440,20 +1453,21 @@
       : '<div class="recent-game-foot">'+(live?'Inväntar första importerade matchhändelsen.':'Inga importerade händelser för matchen ännu.')+'</div>';
 
     const scoreEvent=events.find((event)=>event.home_score!=null&&event.away_score!=null);
+    const shootoutEvent=events.find((event)=>event.event_type==="shootout_winner"&&event.home_score!=null&&event.away_score!=null);
     const officialLive=game.status==="live";
     const homeScore=live
       ? (officialLive&&game.home_score!=null ? game.home_score : scoreEvent?.home_score)
-      : game.home_score;
+      : (shootoutEvent?.home_score ?? game.home_score);
     const awayScore=live
       ? (officialLive&&game.away_score!=null ? game.away_score : scoreEvent?.away_score)
-      : game.away_score;
+      : (shootoutEvent?.away_score ?? game.away_score);
     const header=live
       ? 'LIVE MATCH · ' + esc(state.focusTeam.canonical_name.toUpperCase()) + ' · ' + (events.length?'OFFICIELL EVENTDATA':'INVÄNTAR MATCHDATA')
       : 'SENASTE MATCH · ' + esc(state.focusTeam.canonical_name.toUpperCase()) + ' · OFFICIELL EVENTDATA';
     const footer=esc(game.venue_name || "") + ' · ' +
       (live
         ? (events.length ? events.length + ' importerade händelser' : 'väntar på Swehockey-data')
-        : events.length + ' importerade händelser');
+        : events.length + ' importerade händelser' + (shootoutEvent ? ' · efter straffar' : ''));
 
     if (live) {
       const latestEvent=events[0] || null;
@@ -1754,7 +1768,7 @@
       '</article>'
     ).join("") +
     (facts.length>3
-      ? '<button class="quick-fact-next" id="nextQuickFact" type="button"><span>↻</span><strong>NÄSTA SNABBIS</strong><small>Redan visade fakta prioriteras ned</small></button>'
+      ? '<button class="quick-fact-next" id="nextQuickFact" type="button"><span>↻</span><strong>NY SNABBFAKTA</strong><small>Redan visade fakta prioriteras ned</small></button>'
       : "");
 
     const next=document.getElementById("nextQuickFact");
@@ -3311,6 +3325,31 @@
         if(game.source_event_game_id){
           const latestLineup=await loadLineup(game);
           if(latestLineup) state.nextLineup=latestLineup;
+        }
+
+        if(state.latestFocusGame?.id){
+          const [latestGameResult,latestEventsResult,latestStatsResult]=await Promise.all([
+            client.from("games")
+              .select("id,scheduled_start,home_team_id,away_team_id,venue_name,status,period,clock_display,home_score,away_score,source_event_game_id,updated_at")
+              .eq("id",state.latestFocusGame.id)
+              .single(),
+            client.from("game_events")
+              .select("id,period,clock_display,event_seconds,event_type,team_id,strength,home_score,away_score,description")
+              .eq("game_id",state.latestFocusGame.id)
+              .eq("is_active",true)
+              .order("event_seconds",{ascending:false})
+              .order("ordinal",{ascending:true})
+              .limit(100),
+            client.from("team_game_stats")
+              .select("team_id,goals,shots,saves,save_pct,pim,power_play_pct,power_play_seconds,period_stats,source_fragment")
+              .eq("game_id",state.latestFocusGame.id)
+          ]);
+          if(latestGameResult.error) throw latestGameResult.error;
+          if(latestEventsResult.error) throw latestEventsResult.error;
+          if(latestStatsResult.error) throw latestStatsResult.error;
+          state.latestFocusGame={...state.latestFocusGame,...latestGameResult.data};
+          state.latestEvents=latestEventsResult.data||[];
+          state.latestTeamStats=new Map((latestStatsResult.data||[]).map((row)=>[row.team_id,row]));
         }
       }
 
