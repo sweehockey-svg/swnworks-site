@@ -3169,7 +3169,7 @@
     livePill.classList.toggle("is-live", isLive);
     document.getElementById("gameState").textContent = isLive
       ? (officialLive || latestLiveEvent
-          ? "P" + (livePeriod || "–") + " · " + (liveClock || "LIVE")
+          ? "P" + (livePeriod || "–") + " · senaste händelse " + (liveClock || "–")
           : "LIVE · INVÄNTAR MATCHDATA")
       : swedishDate(game.scheduled_start);
     document.getElementById("homeScore").textContent = isLive ? (homeLiveScore ?? "–") : "–";
