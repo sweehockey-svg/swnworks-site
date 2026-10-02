@@ -1418,6 +1418,7 @@
       ? '<div class="event-list">' + events.slice(0,12).map((event) => {
           const teamName = event.team_id ? getTeamName(event.team_id) : "";
           const label = event.event_type === "goal" ? "MÅL" :
+            event.event_type === "shootout_winner" ? "STRAFFAVGÖRANDE" :
             event.event_type === "penalty" ? "UTVISNING" :
             event.event_type === "goalie_in" ? "MV IN" :
             event.event_type === "goalie_out" ? "MV UT" :
@@ -1426,8 +1427,11 @@
           const score = event.home_score != null && event.away_score != null
             ? '<b>' + event.home_score + '–' + event.away_score + '</b>'
             : '';
-          return '<div class="event-row ' + (event.event_type === "goal" ? "goal" : "") + '">' +
-            '<div class="event-time"><strong>' + esc(event.clock_display || "–") + '</strong><span>P' + esc(event.period || "–") + '</span></div>' +
+          const isShootout=event.event_type === "shootout_winner";
+          const timePrimary=isShootout ? "SO" : (event.clock_display || "–");
+          const timeSecondary=isShootout ? "GWS" : "P" + (event.period || "–");
+          return '<div class="event-row ' + ((event.event_type === "goal" || isShootout) ? "goal" : "") + '">' +
+            '<div class="event-time"><strong>' + esc(timePrimary) + '</strong><span>' + esc(timeSecondary) + '</span></div>' +
             '<div class="event-copy"><div><em>' + esc(label) + '</em>' + (teamName ? '<span>' + esc(teamName) + '</span>' : '') + '</div>' +
             '<p>' + esc(event.description || "") + '</p></div>' +
             '<div class="event-score">' + score + '</div>' +
