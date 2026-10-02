@@ -356,3 +356,232 @@ footer{
   .about>div{padding:25px 20px}
   footer{height:auto;padding:24px 0;gap:8px;flex-direction:column;align-items:flex-start}
 }
+
+/* v17 · product portfolio expansion */
+.portfolio-head{
+  grid-column:1/-1;
+  padding:8px 0 0;
+}
+.portfolio-head .eyebrow{margin-bottom:0}
+.portfolio-grid{
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+.portfolio-card{
+  min-height:222px;
+  display:grid;
+  grid-template-columns:43% 57%;
+  overflow:hidden;
+  border:1px solid #334650;
+  border-radius:10px;
+  background:linear-gradient(145deg,#071018,#040a0e);
+  text-decoration:none;
+  transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+.portfolio-card:hover{
+  border-color:#8c6d25;
+  transform:translateY(-1px);
+  box-shadow:0 14px 35px rgba(0,0,0,.25);
+}
+.portfolio-visual{
+  min-width:0;
+  position:relative;
+  overflow:hidden;
+  border-right:1px solid #263943;
+  background:#08131a;
+}
+.portfolio-copy{
+  padding:24px 25px 22px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.product-type{
+  color:var(--gold);
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.18em;
+}
+.portfolio-copy h3{
+  margin:9px 0 9px;
+  font-size:25px;
+  letter-spacing:-.035em;
+}
+.portfolio-copy p{
+  margin:0;
+  color:#a9b6bc;
+  font-size:12px;
+  line-height:1.6;
+}
+.product-link{
+  margin-top:17px;
+  color:#eef1ef;
+  font-size:11px;
+  font-weight:850;
+}
+.product-link b{margin-left:7px;color:var(--gold);font-size:13px}
+
+/* Svensk eHockey card visual */
+.seh-visual{
+  padding:17px 15px;
+  background:
+    radial-gradient(circle at 76% 28%,rgba(237,177,42,.12),transparent 38%),
+    linear-gradient(145deg,#071219,#03090d 78%);
+}
+.mini-top{
+  height:27px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:0 8px;
+  border:1px solid #263b47;
+  background:#091821;
+  color:#e7ecee;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+.mini-top span{margin-right:auto;color:var(--gold2)}
+.mini-top i{width:5px;height:5px;border-radius:50%;background:#415966}
+.mini-shell{
+  height:149px;
+  display:grid;
+  grid-template-columns:31px 1fr;
+  border:1px solid #20343e;
+  border-top:0;
+  background:rgba(4,12,17,.92);
+}
+.mini-side{
+  padding:12px 7px;
+  border-right:1px solid #20343e;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.mini-side b{height:5px;border-radius:4px;background:#273e49}
+.mini-side b:first-child{background:var(--gold)}
+.mini-main{padding:14px 13px}
+.mini-kicker{
+  display:block;
+  color:#6f8996;
+  font-size:6px;
+  font-weight:850;
+  letter-spacing:.12em;
+}
+.mini-main strong{
+  display:block;
+  margin-top:6px;
+  font-size:12px;
+  line-height:1.15;
+}
+.mini-stats{display:flex;gap:6px;margin:12px 0}
+.mini-stats em{
+  flex:1;
+  height:29px;
+  border:1px solid #263d48;
+  background:linear-gradient(180deg,#0b1b24,#071219);
+}
+.mini-stats em:nth-child(2){border-color:#7c5e18}
+.mini-rows{display:flex;flex-direction:column;gap:6px}
+.mini-rows i{height:4px;border-radius:4px;background:#1c323d}
+.mini-rows i:nth-child(2){width:84%}
+.mini-rows i:nth-child(3){width:72%;background:#6d5418}
+.mini-rows i:nth-child(4){width:90%}
+
+/* Fantasy card visual */
+.fantasy-visual{
+  padding:18px 15px 14px;
+  background:
+    radial-gradient(circle at 50% 22%,rgba(255,201,86,.16),transparent 35%),
+    linear-gradient(160deg,#0b171f,#03090d 78%);
+}
+.fantasy-title{text-align:center}
+.fantasy-title span{
+  display:block;
+  color:#8498a3;
+  font-size:6px;
+  font-weight:850;
+  letter-spacing:.26em;
+}
+.fantasy-title strong{
+  display:block;
+  margin-top:2px;
+  color:var(--gold2);
+  font-size:15px;
+  letter-spacing:.05em;
+}
+.fantasy-board{
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:7px;
+  height:112px;
+  padding-top:11px;
+}
+.fantasy-board>div{
+  width:52px;
+  height:82px;
+  position:relative;
+  padding:7px;
+  border:1px solid #344a55;
+  background:linear-gradient(180deg,#0c1c25,#071119);
+  border-radius:5px 5px 2px 2px;
+}
+.fantasy-board .featured-player{
+  height:96px;
+  border-color:#b3811f;
+  box-shadow:0 0 22px rgba(226,170,42,.12);
+}
+.fantasy-board small{color:#80949f;font-size:6px;font-weight:900}
+.fantasy-board b{float:right;color:#fff;font-size:10px}
+.fantasy-board i{
+  position:absolute;
+  left:9px;
+  right:9px;
+  bottom:10px;
+  height:40px;
+  border-radius:50% 50% 8px 8px;
+  background:
+    radial-gradient(circle at 50% 26%,#c3cdd2 0 13%,transparent 14%),
+    linear-gradient(180deg,transparent 0 31%,#334a56 32% 100%);
+  opacity:.85;
+}
+.featured-player i{
+  background:
+    radial-gradient(circle at 50% 26%,#d7dde0 0 13%,transparent 14%),
+    linear-gradient(180deg,transparent 0 31%,#8d6a1c 32% 100%);
+}
+.fantasy-footer{
+  height:28px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  border-top:1px solid #263a44;
+  color:#748a95;
+  font-size:6px;
+  font-weight:850;
+  letter-spacing:.09em;
+}
+.fantasy-footer strong{color:#fff;font-size:9px}
+.fantasy-footer em{margin-left:auto;color:var(--gold);font-style:normal}
+
+@media(max-width:1100px){
+  .portfolio-grid{grid-template-columns:1fr}
+  .portfolio-card{min-height:210px}
+}
+@media(max-width:720px){
+  .portfolio-head{padding-top:4px}
+  .portfolio-card{
+    grid-template-columns:1fr;
+    min-height:0;
+  }
+  .portfolio-visual{
+    min-height:180px;
+    border-right:0;
+    border-bottom:1px solid #263943;
+  }
+  .portfolio-copy{padding:20px 18px 22px}
+  .portfolio-copy h3{font-size:23px}
+}
