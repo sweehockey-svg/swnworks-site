@@ -735,3 +735,28 @@ a.product-feature-card:hover{
     opacity:.72;
   }
 }
+
+
+/* v21 · show the actual cockpit in hero instead of cropping it away */
+@media(min-width:1101px){
+  .hero-bg-image{
+    width:78%;
+    height:auto;
+    max-width:none;
+    top:-190px;
+    right:-18px;
+    object-fit:unset;
+    object-position:unset;
+  }
+  .hero:before{
+    background:
+      linear-gradient(90deg,
+        rgba(2,8,12,1) 0%,
+        rgba(2,8,12,.99) 23%,
+        rgba(2,8,12,.93) 34%,
+        rgba(2,8,12,.63) 44%,
+        rgba(2,8,12,.18) 57%,
+        rgba(2,8,12,.04) 100%),
+      linear-gradient(0deg,rgba(2,8,12,.34) 0%,rgba(2,8,12,0) 48%);
+  }
+}
