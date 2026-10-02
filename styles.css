@@ -249,7 +249,7 @@ a{color:inherit}
   min-height:182px;
   background:
     linear-gradient(rgba(3,9,13,.05),rgba(3,9,13,.28)),
-    url("assets/about-arena.webp") center/cover no-repeat;
+    url("assets/about-arena-clean.webp") center/cover no-repeat;
 }
 .about-title{padding-left:39px!important}
 .about-title h2{
