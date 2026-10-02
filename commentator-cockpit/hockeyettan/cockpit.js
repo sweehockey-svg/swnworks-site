@@ -1436,7 +1436,7 @@
             : '';
           const isShootout=event.event_type === "shootout_winner";
           const eventSeconds=Number(event.event_seconds);
-          const timePrimary=isShootout ? "SO" : (event.clock_display || "–");
+          const timePrimary=isShootout ? "STRAFF" : (event.clock_display || "–");
           const timeSecondary=isShootout
             ? "GWS"
             : event.period
@@ -1463,7 +1463,7 @@
       : (shootoutEvent?.away_score ?? game.away_score);
     const header=live
       ? 'LIVE MATCH · ' + esc(state.focusTeam.canonical_name.toUpperCase()) + ' · ' + (events.length?'OFFICIELL EVENTDATA':'INVÄNTAR MATCHDATA')
-      : 'SENASTE MATCH · ' + esc(state.focusTeam.canonical_name.toUpperCase()) + ' · OFFICIELL EVENTDATA';
+      : 'OFFICIELL MATCHRAPPORT';
     const footer=esc(game.venue_name || "") + ' · ' +
       (live
         ? (events.length ? events.length + ' importerade händelser' : 'väntar på Swehockey-data')
