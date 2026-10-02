@@ -295,7 +295,7 @@
 
   function gameIsLive(game) {
     if(!game || game.status==="final") return false;
-    if(gameIsLive(game)) return true;
+    if(game.status==="live") return true;
     const start=Date.parse(game.scheduled_start||"");
     if(!Number.isFinite(start)) return false;
     const now=Date.now();
