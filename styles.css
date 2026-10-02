@@ -760,3 +760,30 @@ a.product-feature-card:hover{
       linear-gradient(0deg,rgba(2,8,12,.34) 0%,rgba(2,8,12,0) 48%);
   }
 }
+
+
+/* v22 · use purpose-built wide hero crop */
+@media(min-width:1101px){
+  .hero-bg-image{
+    top:0;
+    right:0;
+    width:76%;
+    height:100%;
+    max-width:none;
+    object-fit:cover;
+    object-position:center center;
+    opacity:1;
+  }
+  .hero:before{
+    background:
+      linear-gradient(90deg,
+        rgba(2,8,12,1) 0%,
+        rgba(2,8,12,.99) 23%,
+        rgba(2,8,12,.91) 34%,
+        rgba(2,8,12,.63) 43%,
+        rgba(2,8,12,.20) 55%,
+        rgba(2,8,12,.04) 72%,
+        rgba(2,8,12,.02) 100%),
+      linear-gradient(0deg,rgba(2,8,12,.30) 0%,rgba(2,8,12,0) 48%);
+  }
+}
