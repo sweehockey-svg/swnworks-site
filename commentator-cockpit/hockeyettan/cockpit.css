@@ -51,6 +51,7 @@ button{font:inherit}
 .panel{min-height:490px;border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(180deg,rgba(9,26,38,.96),rgba(5,17,26,.97));box-shadow:0 18px 48px rgba(0,0,0,.15);padding:16px}
 .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:13px;margin-bottom:14px;border-bottom:1px solid var(--line-soft)}
 .panel-head h2{margin:4px 0 0;font-size:18px}
+.overview-context{display:block;margin-top:5px;color:#607989;font-size:7px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
 .panel-kicker.yellow{color:var(--yellow)}
 .panel-status{padding:5px 7px;border:1px solid #30495b;border-radius:6px;color:#7d95a5;font-size:8px;font-weight:950}
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
