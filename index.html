@@ -3,97 +3,100 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#04090d">
+  <meta name="theme-color" content="#03090d">
   <meta name="description" content="SWNWORKS utvecklar verktyg för sportdata, kommentatorer och liveproduktion.">
   <title>SWNWORKS · Sports Technology & Broadcast Tools</title>
   <link rel="icon" href="assets/swnworks-logo.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=16">
 </head>
 <body>
-  <header class="site-header">
-    <a class="brand" href="./" aria-label="SWNWORKS">
-      <img src="assets/swnworks-logo.svg" alt="SWNWORKS">
-    </a>
-    <nav aria-label="Huvudnavigation">
-      <a href="#work">Work</a>
-      <a href="#products">Products</a>
-      <a href="#about">About</a>
-      <a href="mailto:swnworks@gmail.com">Contact</a>
-    </nav>
-  </header>
+  <section class="hero" id="work">
+    <header class="site-header page">
+      <a class="brand" href="./" aria-label="SWNWORKS">
+        <span class="brand-mark"><img src="assets/swnworks-logo.svg" alt=""></span>
+        <span class="brand-copy">
+          <strong>SWNWORKS</strong>
+          <small>SPORTS TECHNOLOGY · BROADCAST TOOLS</small>
+        </span>
+      </a>
+      <nav aria-label="Huvudnavigation">
+        <a href="#work">Work</a>
+        <a href="#products">Products</a>
+        <a href="#about">About</a>
+        <a href="mailto:swnworks@gmail.com">Contact</a>
+      </nav>
+    </header>
 
-  <main>
-    <section class="hero" id="work">
+    <div class="page hero-inner">
       <div class="hero-copy">
         <p class="eyebrow">SPORT / DATA / BROADCAST</p>
         <h1>Verktyg för sport,<br>data och <span>livesändning.</span></h1>
-        <p class="lead">SWNWORKS utvecklar oberoende verktyg för kommentatorer, liveproduktion och sportdata. Produkter som hjälper team att arbeta snabbare och berätta bättre historier i realtid.</p>
+        <p class="lead">SWNWORKS utvecklar oberoende verktyg för kommentatorer, liveproduktion och sportdata. Vi bygger produkter som hjälper team att berätta bättre historier – i realtid.</p>
         <div class="hero-actions">
           <a class="btn primary" href="#products">Utforska våra produkter <span>→</span></a>
           <a class="btn secondary" href="#about">Läs mer om SWNWORKS</a>
         </div>
       </div>
-      <div class="hero-visual">
-        <img src="assets/hero-cockpit.webp" alt="Commentator Cockpit i en hockeyarena">
-      </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="products single-product" id="products">
-      <a class="product-card featured" href="commentator-cockpit/">
-        <img src="assets/commentator-cockpit.webp" alt="Commentator Cockpit">
+  <main class="page">
+    <section class="products" id="products" aria-label="Produkter">
+      <a class="visual-product featured" href="commentator-cockpit/" aria-label="Läs mer om Commentator Cockpit">
+        <img src="assets/commentator-cockpit.webp" alt="Commentator Cockpit – kommentatorverktyg för livesändning">
       </a>
 
-      <article class="product-card private-product" hidden aria-hidden="true" data-project="broadcast-studio">
-        <img src="assets/broadcast-studio.webp" alt="">
-      </article>
+      <a class="visual-product private-product" href="mailto:swnworks@gmail.com?subject=Broadcast%20Studio%20-%20beg%C3%A4r%20tillg%C3%A5ng" aria-label="Begär tillgång till Broadcast Studio">
+        <img src="assets/broadcast-studio.webp" alt="Broadcast Studio – privat produkt för livesändning och grafik">
+      </a>
     </section>
 
-    <section class="focus">
+    <section class="focus" aria-labelledby="focus-title">
       <div class="focus-intro">
         <p class="eyebrow">VÅRA FOKUSOMRÅDEN</p>
-        <h2>Från rådata till bättre sändningar.</h2>
+        <h2 id="focus-title">Från rådata till bättre sändningar.</h2>
       </div>
       <article>
-        <div class="icon bars"><i></i><i></i><i></i><i></i></div>
+        <div class="icon bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
         <h3>Sportdata</h3>
         <p>Strukturerar och visualiserar data i realtid.</p>
       </article>
       <article>
-        <div class="icon camera"></div>
+        <div class="icon camera" aria-hidden="true"></div>
         <h3>Broadcast tools</h3>
         <p>Verktyg för kommentatorer och liveproduktion.</p>
       </article>
       <article>
-        <div class="icon layers"></div>
+        <div class="icon layers" aria-hidden="true"></div>
         <h3>Workflow</h3>
         <p>Enklare arbetsflöden för starkare sändningar.</p>
       </article>
       <article>
-        <div class="icon screen"></div>
+        <div class="icon screen" aria-hidden="true"></div>
         <h3>Live graphics</h3>
         <p>Grafik, matchinfo och visuella element i realtid.</p>
       </article>
     </section>
-
-    <section class="about" id="about">
-      <div class="about-photo" role="img" aria-label="Hockeyarena"></div>
-      <div class="about-title">
-        <p class="eyebrow">OM SWNWORKS</p>
-        <h2>En oberoende produktstudio i sportens tjänst.</h2>
-      </div>
-      <div class="about-copy">
-        <p>SWNWORKS är en svensk produktstudio som utvecklar specialiserade verktyg för sport, data och livesändning. Tekniken byggs nära den faktiska produktionen, med fokus på tydlighet, tempo och användbarhet.</p>
-      </div>
-      <div class="contact-box">
-        <p class="eyebrow">KONTAKT</p>
-        <h3>Vill du veta mer?</h3>
-        <p>Hör av dig så berättar vi mer om våra produkter och framtida samarbeten.</p>
-        <a class="btn outline" href="mailto:swnworks@gmail.com">Kontakta oss <span>→</span></a>
-      </div>
-    </section>
   </main>
 
-  <footer>
+  <section class="about" id="about">
+    <div class="about-photo" role="img" aria-label="Hockeyarena"></div>
+    <div class="about-title">
+      <p class="eyebrow">OM SWNWORKS</p>
+      <h2>Ett oberoende produktstudio i sportens tjänst.</h2>
+    </div>
+    <div class="about-copy">
+      <p>SWNWORKS är ett svenskt produktstudio som utvecklar specialiserade verktyg för sport, data och livesändning. Vi kombinerar teknisk kompetens med en djup förståelse för hur sport faktiskt produceras – av och för människor som lever nära spelet.</p>
+    </div>
+    <div class="contact-box">
+      <p class="eyebrow">KONTAKT</p>
+      <h3>Vill du veta mer?</h3>
+      <p>Hör av dig så berättar vi mer om våra produkter och framtida samarbeten.</p>
+      <a class="btn outline" href="mailto:swnworks@gmail.com">Kontakta oss <span>→</span></a>
+    </div>
+  </section>
+
+  <footer class="page">
     <span>SWNWORKS</span>
     <span>Sports technology · broadcast tools</span>
     <span>Sweden · 2026</span>
