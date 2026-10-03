@@ -95,7 +95,8 @@
     accessAdminItems: [],
     accessAdminLoaded: false,
     accessAdminBusy: false,
-    accessAdminError: ""
+    accessAdminError: "",
+    baseDataLoaded: false
   };
 
   const panels = {
@@ -1320,6 +1321,17 @@
     }
   }
 
+  async function ensureLeagueBaseData() {
+    if(!state.authUser||!canAccessLeague()||state.baseDataLoaded) return false;
+    setRouteScreen("home");
+    const grid=document.getElementById("teamGrid");
+    if(grid) grid.innerHTML='<div class="home-loading">Laddar '+esc(league.displayName)+'…</div>';
+    setSyncStatus("working","Laddar "+league.displayName+"-data…");
+    await loadBaseData();
+    state.baseDataLoaded=true;
+    return true;
+  }
+
   async function handleAuthSession(session) {
     const previousId=state.authUser?.id||null;
     const nextUser=session?.user||null;
@@ -1336,6 +1348,7 @@
       state.authMessageType="";
       try{ localStorage.removeItem(AUTH_PENDING_TEAM_KEY); }catch{}
       await loadAccessForCurrentUser();
+      await ensureLeagueBaseData();
       normalizeTeamSelectionForAccess();
       const includeGuest=previousId!==nextUser.id && readNotesFromStorage(noteStorageKey(null)).length>0;
       state.notes=mergeNoteSets(
@@ -3203,6 +3216,17 @@
   async function routeApp() {
     updateAuthButton();
 
+    if(state.authUser&&canAccessLeague()&&!state.baseDataLoaded){
+      try{
+        await ensureLeagueBaseData();
+        normalizeTeamSelectionForAccess();
+      }catch(error){
+        console.error("League base load failed",error);
+        showLoadError(error);
+        return;
+      }
+    }
+
     if(!state.selectedTeam){
       renderLeagueHome();
       return;
@@ -3743,7 +3767,7 @@
   window.setInterval(renderSyncFreshness, 60000);
 
   async function boot() {
-    await loadBaseData();
+    state.selectedTeamSlug=requestedTeamSlug();
     renderLeagueHome();
     try{
       await initAuth();
