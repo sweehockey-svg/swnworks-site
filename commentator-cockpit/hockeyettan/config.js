@@ -12,6 +12,7 @@ window.COMMENTATOR_CONFIG = Object.freeze({
     groupSummary: "Norra + Södra",
     sourceKey: "swehockey",
     sourceLabel: "Swehockey",
-    seasonLabel: "2026/27"
+    seasonLabel: "2026/27",
+    accessKey: "hockeyettan"
   })
 });
