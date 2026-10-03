@@ -3216,7 +3216,12 @@
   async function routeApp() {
     updateAuthButton();
 
-    if(state.authUser&&canAccessLeague()&&!state.baseDataLoaded){
+    if(!state.authUser||!canAccessLeague()){
+      renderLeagueHome();
+      return;
+    }
+
+    if(!state.baseDataLoaded){
       try{
         await ensureLeagueBaseData();
         normalizeTeamSelectionForAccess();
@@ -3233,7 +3238,7 @@
     }
 
     if(!canAccessTeam(state.selectedTeam.id)){
-      renderTeamLock();
+      renderLeagueHome();
       return;
     }
 
