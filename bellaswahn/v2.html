@@ -589,7 +589,7 @@
 "use strict";
 
 /*
-  SPORTKALENDERN – MOBIL V4
+  SPORTKALENDERN – MOBIL V4.1
 
   API:
   Den här versionen hämtar matcher direkt från ESPN:s öppna scoreboard-endpoints.
@@ -688,6 +688,7 @@ const ESPN_SOURCES = [
 const API_CONFIG = {
   daysBack: 1,
   daysAhead: 30,
+  soccerDaysAhead: 14,
   timeoutMs: 9000,
   cacheMs: 5 * 60 * 1000
 };
@@ -974,7 +975,7 @@ function parseEspnSource(source, payload) {
 
 function saveApiCache(data) {
   try {
-    localStorage.setItem("sportkalendern_api_cache_v4", JSON.stringify({
+    localStorage.setItem("sportkalendern_api_cache_v5", JSON.stringify({
       savedAt: Date.now(),
       data
     }));
@@ -983,7 +984,7 @@ function saveApiCache(data) {
 
 function readApiCache() {
   try {
-    const raw = JSON.parse(localStorage.getItem("sportkalendern_api_cache_v4"));
+    const raw = JSON.parse(localStorage.getItem("sportkalendern_api_cache_v5"));
     if (!raw || !Array.isArray(raw.data) || !raw.savedAt) return null;
     if (Date.now() - raw.savedAt > API_CONFIG.cacheMs) return null;
     return raw.data;
@@ -992,7 +993,61 @@ function readApiCache() {
   }
 }
 
+function dateKeyWithOffset(offsetDays) {
+  const d = new Date();
+  d.setHours(12, 0, 0, 0);
+  d.setDate(d.getDate() + offsetDays);
+  return ymd(d);
+}
+
+async function fetchEspnDay(source, dateKey) {
+  const separator = source.url.includes("?") ? "&" : "?";
+  const url = `${source.url}${separator}dates=${encodeURIComponent(dateKey)}`;
+
+  const response = await fetchWithTimeout(
+    url,
+    { headers: { "Accept": "application/json" } },
+    API_CONFIG.timeoutMs
+  );
+
+  if (!response.ok) {
+    throw new Error(`${source.name} ${dateKey}: HTTP ${response.status}`);
+  }
+
+  return parseEspnSource(source, await response.json());
+}
+
 async function fetchEspnLeague(source, range) {
+  const isSoccer = source.url.includes("/sports/soccer/");
+
+  // ESPN ändrade beteendet för fotbollens date-range i september 2026.
+  // Enskilda datum fungerar fortfarande, så fotboll hämtas dag för dag.
+  if (isSoccer) {
+    const matchesById = new Map();
+    let successfulDays = 0;
+
+    for (let offset = -API_CONFIG.daysBack; offset <= API_CONFIG.soccerDaysAhead; offset++) {
+      try {
+        const day = await fetchEspnDay(source, dateKeyWithOffset(offset));
+        successfulDays++;
+        day.matches.forEach(match => matchesById.set(String(match.id), match));
+      } catch (error) {
+        console.warn(`Kunde inte hämta ${source.name} dag ${offset}`, error);
+      }
+    }
+
+    if (!successfulDays) {
+      throw new Error(`${source.name}: inga datum kunde hämtas`);
+    }
+
+    return {
+      id: source.id,
+      name: source.name,
+      sport: source.sport,
+      matches: [...matchesById.values()].sort((a,b) => new Date(a.startTime) - new Date(b.startTime))
+    };
+  }
+
   const separator = source.url.includes("?") ? "&" : "?";
   const url = `${source.url}${separator}dates=${encodeURIComponent(range)}`;
 
