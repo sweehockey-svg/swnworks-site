@@ -3719,6 +3719,8 @@
       target.closest(".deck-key") ||
       target.closest("#accountButton") ||
       target.closest("#lockLoginButton") ||
+      target.closest("#leagueLoginButton") ||
+      target.closest("#leagueAccountButton") ||
       target.closest("#aiButton")
     ) return;
 
