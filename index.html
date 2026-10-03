@@ -7,7 +7,7 @@
   <meta name="description" content="SWNWORKS utvecklar produkter och plattformar för sportdata, fantasy, kommentatorer och liveproduktion.">
   <title>SWNWORKS · Sports Technology & Broadcast Tools</title>
   <link rel="icon" href="assets/swnworks-logo.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=33">
+  <link rel="stylesheet" href="styles.css?v=34">
 </head>
 <body>
   <section class="hero" id="work">
@@ -153,7 +153,7 @@
       <p class="eyebrow">KONTAKT</p>
       <h3>Vill du veta mer?</h3>
       <p>Skicka ett meddelande så berättar vi mer om våra produkter och framtida samarbeten.</p>
-      <form class="contact-form" action="https://formsubmit.co/info@swnworks.se" method="post">
+      <form class="contact-form" action="https://formsubmit.co/ajax/info@swnworks.se" method="post">
         <div class="contact-fields">
           <label><span>Namn</span><input type="text" name="name" autocomplete="name" placeholder="Ditt namn" required></label>
           <label><span>E-post</span><input type="email" name="email" autocomplete="email" placeholder="din@epost.se" required></label>
@@ -164,6 +164,7 @@
           <input type="hidden" name="_captcha" value="false"><input type="hidden" name="_template" value="table"><button class="btn primary" type="submit">Skicka meddelande <span>→</span></button>
           <span>Eller maila direkt: <a href="mailto:info@swnworks.se">info@swnworks.se</a></span>
         </div>
+        <p class="contact-status" role="status" aria-live="polite"></p>
       </form>
     </div>
   </section>
@@ -173,5 +174,38 @@
     <span>Sports technology · broadcast tools</span>
     <span>Sweden · 2026</span>
   </footer>
+  <script>
+    const contactForm = document.querySelector('.contact-form');
+    const contactStatus = document.querySelector('.contact-status');
+    if (contactForm && contactStatus) {
+      contactForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const button = contactForm.querySelector('button[type="submit"]');
+        const original = button.innerHTML;
+        button.disabled = true;
+        button.textContent = 'Skickar…';
+        contactStatus.textContent = '';
+        contactStatus.className = 'contact-status';
+
+        try {
+          const response = await fetch(contactForm.action, {
+            method: 'POST',
+            body: new FormData(contactForm),
+            headers: { 'Accept': 'application/json' }
+          });
+          if (!response.ok) throw new Error('send failed');
+          contactForm.reset();
+          contactStatus.textContent = 'Tack! Ditt meddelande är skickat.';
+          contactStatus.classList.add('success');
+        } catch (error) {
+          contactStatus.textContent = 'Meddelandet kunde inte skickas just nu. Maila gärna info@swnworks.se.';
+          contactStatus.classList.add('error');
+        } finally {
+          button.disabled = false;
+          button.innerHTML = original;
+        }
+      });
+    }
+  </script>
 </body>
 </html>
