@@ -17,6 +17,7 @@ window.COMMENTATOR_CONFIG = Object.freeze({
     groupSummary: "Norr · Väst · Öst · Syd",
     sourceKey: "swehockey",
     sourceLabel: "Swehockey",
-    seasonLabel: "2026/27"
+    seasonLabel: "2026/27",
+    accessKey: "hockeytvaan"
   })
 });
