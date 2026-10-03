@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#06111a">
   <meta name="description" content="SWNWORKS Commentator Cockpit · välj liga eller turnering.">
   <title>Commentator Cockpit · SWNWORKS</title>
-  <link rel="stylesheet" href="selector.css?v=8">
+  <link rel="stylesheet" href="selector.css?v=9">
 </head>
 <body>
   <div class="selector-shell">
@@ -21,6 +21,10 @@
       </a>
       <div class="topbar-actions">
         <span class="private-note">PRIVAT BETA</span>
+        <button class="selector-account-button" id="selectorAccountButton" type="button">
+          <span class="selector-account-dot"></span>
+          <span><strong>LOGGA IN</strong><small>KONTO</small></span>
+        </button>
         <a class="contact" href="mailto:swnworks@gmail.com">KONTAKT</a>
       </div>
     </header>
@@ -53,9 +57,9 @@
         </div>
 
         <div class="competition-grid">
-          <a class="competition-card active" href="hockeyettan/">
+          <a class="competition-card active" href="hockeyettan/" data-league-key="hockeyettan">
             <div class="card-head">
-              <span class="state">TILLGÄNGLIG · PRIVAT BETA</span>
+              <span class="state" data-card-state>TILLGÄNGLIG · PRIVAT BETA</span>
               <span class="arrow">↗</span>
             </div>
             <div class="logo-stage">
@@ -75,9 +79,9 @@
             </div>
           </a>
 
-          <a class="competition-card active" href="hockeytvaan/">
+          <a class="competition-card active" href="hockeytvaan/" data-league-key="hockeytvaan">
             <div class="card-head">
-              <span class="state">TILLGÄNGLIG · PRIVAT BETA</span>
+              <span class="state" data-card-state>TILLGÄNGLIG · PRIVAT BETA</span>
               <span class="arrow">↗</span>
             </div>
             <div class="logo-stage">
@@ -95,9 +99,9 @@
             </div>
           </a>
 
-          <a class="competition-card active" href="suomi-sarja/">
+          <a class="competition-card active" href="suomi-sarja/" data-league-key="suomi-sarja">
             <div class="card-head">
-              <span class="state">TILLGÄNGLIG · PRIVAT BETA</span>
+              <span class="state" data-card-state>TILLGÄNGLIG · PRIVAT BETA</span>
               <span class="arrow">↗</span>
             </div>
             <div class="logo-stage">
@@ -124,5 +128,20 @@
       <span>2026</span>
     </footer>
   </div>
+
+  <div class="selector-auth-backdrop" id="selectorAuthBackdrop" hidden></div>
+  <aside class="selector-auth-panel" id="selectorAuthPanel" aria-hidden="true" aria-labelledby="selectorAuthTitle">
+    <div class="selector-auth-head">
+      <div>
+        <span>SWNWORKS · KONTO</span>
+        <h2 id="selectorAuthTitle">Logga in</h2>
+      </div>
+      <button type="button" id="selectorAuthClose" aria-label="Stäng">×</button>
+    </div>
+    <div class="selector-auth-body" id="selectorAuthBody"></div>
+  </aside>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="selector.js?v=1"></script>
 </body>
 </html>
