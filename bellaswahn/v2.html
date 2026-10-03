@@ -217,7 +217,7 @@
 
     .cards{display:grid;gap:13px}
     .match-card{
-      padding:16px;
+      padding:18px;
       background:linear-gradient(180deg,#121927,#101722);
       border:1px solid #273247;
       border-radius:20px;
@@ -260,8 +260,8 @@
     .state-chip.cancelled{color:#ff858b;border-color:rgba(255,95,103,.28)}
 
     .race-title{
-      margin-top:17px;
-      font-size:20px;
+      margin-top:18px;
+      font-size:21px;
       font-weight:900;
       letter-spacing:-.03em;
       line-height:1.25;
@@ -554,7 +554,10 @@
       <button class="tab active" data-tab="Alla">Alla</button>
       <button class="tab" data-tab="Favoriter">⭐ Favoriter</button>
       <button class="tab" data-tab="Fotboll">⚽ Fotboll</button>
-      <button class="tab" data-tab="Ishockey">🏒 Ishockey</button>
+      <button class="tab" data-tab="NHL">🏒 NHL</button>
+      <button class="tab" data-tab="NBA">🏀 NBA</button>
+      <button class="tab" data-tab="NFL">🏈 NFL</button>
+      <button class="tab" data-tab="F1">🏎️ F1</button>
     </div>
   </header>
 
@@ -589,7 +592,7 @@
 "use strict";
 
 /*
-  SPORTKALENDERN – MOBIL V4.3.1
+  SPORTKALENDERN – MOBIL V4.4
 
   API:
   Den här versionen hämtar matcher direkt från ESPN:s öppna scoreboard-endpoints.
@@ -1325,11 +1328,45 @@ function stockholmTodayKey() {
 }
 
 function formatStatus(match) {
-  if (match.status === "live") return '<span class="state-chip live">● LIVE</span>';
-  if (match.status === "final") return '<span class="state-chip final">SLUT</span>';
-  if (match.status === "cancelled") return '<span class="state-chip cancelled">INSTÄLLD</span>';
-  if (match.status === "postponed") return '<span class="state-chip cancelled">UPPSKJUTEN</span>';
   return `<span class="time-chip">◷ ${escapeHtml(dateParts(match.startTime).timeText)}</span>`;
+}
+
+const SWEDISH_BROADCASTERS = {
+  "Premier League": "Viaplay / Prime Video",
+  "Championship": "Viaplay",
+  "Allsvenskan": "TV4 Play",
+  "Serie A": "TV4 Play",
+  "Bundesliga": "Viaplay",
+  "La Liga": "Disney+",
+  "NHL": "Viaplay / Disney+",
+  "NBA": "Disney+ / NBA League Pass",
+  "NFL": "DAZN / Disney+",
+  "Formel 1": "Viaplay"
+};
+
+function swedishBroadcaster(match) {
+  const raw = String(match.channel || "").trim();
+
+  // Keep only recognisably Swedish/Nordic services if the event feed happens to contain one.
+  const allowed = [
+    /viaplay/i,
+    /v sport/i,
+    /tv6/i,
+    /tv4/i,
+    /disney/i,
+    /prime video/i,
+    /amazon prime/i,
+    /dazn/i,
+    /nba league pass/i,
+    /hbo max/i,
+    /kanal 9/i
+  ];
+
+  if (raw && allowed.some(pattern => pattern.test(raw))) {
+    return raw;
+  }
+
+  return SWEDISH_BROADCASTERS[match.league] || "Svensk sändning ej bekräftad";
 }
 
 function tvSvg() {
@@ -1364,7 +1401,7 @@ function downloadIcs(match) {
     `DTSTART:${utc(start)}`,
     `DTEND:${utc(end)}`,
     `SUMMARY:${match.kind === "race" ? match.eventTitle : `${match.home} vs ${match.away}`}`,
-    `DESCRIPTION:${match.league || ""} • ${match.channel || ""}`,
+    `DESCRIPTION:${match.league || ""} • ${swedishBroadcaster(match)}`,
     "END:VEVENT",
     "END:VCALENDAR"
   ].join("\r\n");
@@ -1446,28 +1483,36 @@ function filterMatches(matches) {
   let filtered = matches;
 
   if (activeTab === "Favoriter") {
-    filtered = filtered.filter(m =>
-      followedItems.includes(m.league) ||
-      followedItems.includes(m.home) ||
-      followedItems.includes(m.away)
+    filtered = filtered.filter(match =>
+      followedItems.includes(match.league) ||
+      followedItems.includes(match.home) ||
+      followedItems.includes(match.away)
     );
-  } else if (activeTab !== "Alla") {
-    filtered = filtered.filter(m => m.sport === activeTab);
+  } else if (activeTab === "Fotboll") {
+    filtered = filtered.filter(match => match.sport === "Fotboll");
+  } else if (activeTab === "NHL") {
+    filtered = filtered.filter(match => match.league === "NHL");
+  } else if (activeTab === "NBA") {
+    filtered = filtered.filter(match => match.league === "NBA");
+  } else if (activeTab === "NFL") {
+    filtered = filtered.filter(match => match.league === "NFL");
+  } else if (activeTab === "F1") {
+    filtered = filtered.filter(match => match.league === "Formel 1");
   }
 
   if (selectedSports.size) {
-    filtered = filtered.filter(m => selectedSports.has(m.sport));
+    filtered = filtered.filter(match => selectedSports.has(match.sport));
   }
 
   if (selectedLeagues.size) {
-    filtered = filtered.filter(m => selectedLeagues.has(m.league));
+    filtered = filtered.filter(match => selectedLeagues.has(match.league));
   }
 
   if (followedOnly) {
-    filtered = filtered.filter(m =>
-      followedItems.includes(m.league) ||
-      followedItems.includes(m.home) ||
-      followedItems.includes(m.away)
+    filtered = filtered.filter(match =>
+      followedItems.includes(match.league) ||
+      followedItems.includes(match.home) ||
+      followedItems.includes(match.away)
     );
   }
 
@@ -1478,7 +1523,7 @@ function matchCard(match, followTarget) {
   const isRace = match.kind === "race";
   const actualFollowTarget = isRace ? match.league : followTarget;
   const followed = followedItems.includes(actualFollowTarget);
-  const hasScore = !isRace && match.homeScore !== null && match.awayScore !== null;
+  const broadcaster = swedishBroadcaster(match);
 
   return `
     <article class="match-card">
@@ -1501,15 +1546,8 @@ function matchCard(match, followTarget) {
         </div>
       `}
 
-      ${hasScore ? `
-        <div class="score">
-          <span>${escapeHtml(match.homeScore)}</span>
-          <span class="score-divider">–</span>
-          <span>${escapeHtml(match.awayScore)}</span>
-        </div>` : ""}
-
       <div class="footer">
-        <div class="channel">${tvSvg()}<span>${escapeHtml(match.channel)}</span></div>
+        <div class="channel">${tvSvg()}<span>${escapeHtml(broadcaster)}</span></div>
         <div class="actions">
           <button class="btn" onclick='downloadIcs(${JSON.stringify(match)})'>${calendarSvg()}+ Kalender</button>
           <button class="btn ${followed ? "following" : ""}" onclick='toggleFollow(${safeJs(actualFollowTarget)}, event)'>
