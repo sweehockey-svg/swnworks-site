@@ -9,6 +9,9 @@ window.COMMENTATOR_CONFIG = Object.freeze({
     upperName: "HOCKEYETTAN",
     competitionSourceIds: Object.freeze(["21043","21044"]),
     expectedCompetitionCount: 2,
-    groupSummary: "Norra + Södra"
+    groupSummary: "Norra + Södra",
+    sourceKey: "swehockey",
+    sourceLabel: "Swehockey",
+    seasonLabel: "2026/27"
   })
 });
