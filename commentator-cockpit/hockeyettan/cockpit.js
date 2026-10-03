@@ -411,6 +411,7 @@
   function renderLeagueHome() {
     setRouteScreen("home");
     document.title="Commentator Cockpit · "+league.displayName;
+    document.getElementById("currentTeamButton")?.classList.add("hidden");
     const grid=document.getElementById("teamGrid");
     if(!grid) return;
     const teams=[...state.competitionTeams].sort((a,b)=>
@@ -454,6 +455,12 @@
     setRouteScreen("cockpit");
     if(state.selectedTeam){
       document.title=state.selectedTeam.canonical_name+" · Commentator Cockpit";
+      const currentTeamButton=document.getElementById("currentTeamButton");
+      if(currentTeamButton){
+        currentTeamButton.classList.remove("hidden");
+        currentTeamButton.textContent="COCKPIT · "+state.selectedTeam.canonical_name;
+        currentTeamButton.title="Aktivt cockpit-lag: "+state.selectedTeam.canonical_name;
+      }
     }
   }
 
@@ -1350,7 +1357,9 @@
     const overviewContext=document.getElementById("overviewContext");
     if(overviewContext){
       const opponentName=game.home_team_id===state.focusTeam?.id ? awayName : homeName;
-      overviewContext.textContent=(gameIsLive(game) ? "LIVE MATCH · VS " : "SENASTE MATCH · VS ") + opponentName;
+      const focusName=state.focusTeam?.canonical_name || "";
+      overviewContext.textContent=(focusName ? focusName+" · " : "") +
+        (gameIsLive(game) ? "LIVE MATCH · VS " : "SENASTE MATCH · VS ") + opponentName;
     }
 
     document.getElementById("shotsValue").textContent =
@@ -3113,9 +3122,13 @@
       optionalLoad("Form · "+state.focusTeam.canonical_name,()=>loadForm(state.focusTeam.id),[]),
       optionalLoad("Form · "+state.opponent.canonical_name,()=>loadForm(state.opponent.id),[])
     ]);
-    state.focusForm = focusForm;
-    state.opponentForm = opponentForm;
-    state.latestFocusGame = focusForm[0] || null;
+    state.focusForm = focusForm.filter((game)=>
+      game.home_team_id===state.focusTeam.id || game.away_team_id===state.focusTeam.id
+    );
+    state.opponentForm = opponentForm.filter((game)=>
+      game.home_team_id===state.opponent.id || game.away_team_id===state.opponent.id
+    );
+    state.latestFocusGame = state.focusForm[0] || null;
 
     const [nextLineup, focusFallbackLineup, opponentFallbackLineup] = await Promise.all([
       optionalLoad("Kedjor · nästa match",()=>loadLineup(state.nextGame),null),
