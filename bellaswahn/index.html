@@ -1,1 +1,481 @@
+<!DOCTYPE html>
+<html lang="sv" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sportkalendern</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b',
+                        accent: '#f97316',
+                        accenthover: '#ea580c'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0b0f19; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
 
+    <!-- TOP NAV / HEADER -->
+    <header class="sticky top-0 z-40 bg-[#0b0f19]/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2 cursor-pointer" onclick="goHome()">
+            <div class="bg-accent text-white p-2 rounded-xl font-bold text-sm">📅</div>
+            <h1 class="text-lg font-bold tracking-tight">Sportkalendern</h1>
+        </div>
+        <div class="flex items-center space-x-2">
+            <span class="text-xs bg-emerald-950 text-emerald-400 border border-emerald-800/50 px-2 py-1 rounded-full font-medium">● LIVE API</span>
+            <button onclick="openSearchModal()" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-xl border border-slate-700/60 text-slate-200 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main id="app-container" class="max-w-md mx-auto px-4 pt-4">
+        <!-- Dynamic content injected here -->
+    </main>
+
+    <!-- SEARCH / FILTER MODAL (Full View) -->
+    <div id="search-modal" class="fixed inset-0 z-50 bg-[#0b0f19] hidden flex flex-col">
+        <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-[#0b0f19]">
+            <div class="flex items-center space-x-3 w-full mr-2">
+                <button onclick="closeSearchModal()" class="text-slate-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <div class="relative w-full">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input type="text" id="global-search-input" oninput="handleSearchInput(this.value)" placeholder="Sök lag eller liga (t.ex. Arsenal, Premier League)..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-accent">
+                </div>
+            </div>
+        </div>
+        <div id="search-results-container" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <div class="text-center text-slate-500 py-12 text-sm">
+                Börja skriva för att söka efter ligor eller lag...
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800 border border-slate-700 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-medium z-50 hidden transition-all">
+    </div>
+
+    <script>
+        // MOCK DATA & STATE
+        let activeTab = 'Alla';
+        let followedItems = JSON.parse(localStorage.getItem('sportkalendern_follows')) || ['Arsenal', 'Premier League'];
+
+        const leaguesData = [
+            {
+                id: 'pl',
+                name: 'Premier League',
+                sport: 'Fotboll',
+                type: 'league',
+                matches: [
+                    { id: 101, home: 'Chelsea', away: 'Liverpool', date: 'Lördag, 3 Okt', time: '16:00', channel: 'Viaplay', isToday: true },
+                    { id: 102, home: 'Arsenal', away: 'Leeds United', date: 'Lördag, 10 Okt', time: '13:30', channel: 'Viaplay', isToday: false },
+                    { id: 103, home: 'Arsenal', away: 'Chelsea', date: 'Lördag, 24 Okt', time: '18:30', channel: 'Viaplay', isToday: false },
+                    { id: 104, home: 'Manchester United', away: 'Arsenal', date: 'Söndag, 1 Nov', time: '17:00', channel: 'Viaplay', isToday: false },
+                    { id: 105, home: 'Arsenal', away: 'Liverpool', date: 'Lördag, 7 Nov', time: '16:00', channel: 'Viaplay', isToday: false }
+                ]
+            },
+            {
+                id: 'ucl',
+                name: 'UEFA Champions League',
+                sport: 'Fotboll',
+                type: 'league',
+                matches: [
+                    { id: 201, home: 'Arsenal', away: 'LOSC Lille', date: 'Tisdag, 13 Okt', time: '21:00', channel: 'TV4 Play', isToday: false },
+                    { id: 202, home: 'Real Madrid', away: 'FC Bayern München', date: 'Onsdag, 14 Okt', time: '21:00', channel: 'TV4 Play', isToday: false },
+                    { id: 203, home: 'Barcelona', away: 'Arsenal', date: 'Tisdag, 27 Okt', time: '21:00', channel: 'TV4 Play', isToday: false }
+                ]
+            },
+            {
+                id: 'nhl',
+                name: 'NHL',
+                sport: 'Ishockey',
+                type: 'league',
+                matches: [
+                    { id: 301, home: 'New York Rangers', away: 'Boston Bruins', date: 'Söndag, 4 Okt', time: '01:00', channel: 'Viaplay', isToday: false },
+                    { id: 302, home: 'Toronto Maple Leafs', away: 'Montreal Canadiens', date: 'Måndag, 5 Okt', time: '01:00', channel: 'Viaplay', isToday: false }
+                ]
+            }
+        ];
+
+        // Extract all teams automatically
+        const teamsMap = {};
+        leaguesData.forEach(league => {
+            league.matches.forEach(m => {
+                [m.home, m.away].forEach(teamName => {
+                    if (!teamsMap[teamName]) {
+                        teamsMap[teamName] = { name: teamName, sport: league.sport, leagueName: league.name, matches: [] };
+                    }
+                    teamsMap[teamName].matches.push({ ...m, league: league.name });
+                });
+            });
+        });
+        const teamsData = Object.values(teamsMap);
+
+        // Navigation state: { view: 'home' | 'league' | 'team', id: string }
+        let currentView = { view: 'home' };
+
+        function saveFollows() {
+            localStorage.setItem('sportkalendern_follows', JSON.stringify(followedItems));
+        }
+
+        function toggleFollow(name, event) {
+            if (event) event.stopPropagation();
+            if (followedItems.includes(name)) {
+                followedItems = followedItems.filter(i => i !== name);
+                showToast(Slutade följa ${name});
+            } else {
+                followedItems.push(name);
+                showToast(Följer nu ${name}!);
+            }
+            saveFollows();
+            render();
+            if (document.getElementById('search-modal').classList.contains('flex')) {
+                handleSearchInput(document.getElementById('global-search-input').value);
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 2500);
+        }
+
+        function goHome() {
+            currentView = { view: 'home' };
+            render();
+        }
+
+        function openLeaguePage(leagueName) {
+            closeSearchModal();
+            currentView = { view: 'league', name: leagueName };
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openTeamPage(teamName) {
+            closeSearchModal();
+            currentView = { view: 'team', name: teamName };
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openSearchModal() {
+            document.getElementById('search-modal').classList.remove('hidden');
+            document.getElementById('search-modal').classList.add('flex');
+            document.getElementById('global-search-input').focus();
+            handleSearchInput('');
+        }
+
+        function closeSearchModal() {
+            document.getElementById('search-modal').classList.add('hidden');
+            document.getElementById('search-modal').classList.remove('flex');
+        }
+
+        function handleSearchInput(query) {
+            const container = document.getElementById('search-results-container');
+            const q = query.toLowerCase().trim();
+
+            let matchedLeagues = leaguesData.filter(l => l.name.toLowerCase().includes(q));
+            let matchedTeams = teamsData.filter(t => t.name.toLowerCase().includes(q));
+
+            if (q === '') {
+                container.innerHTML = <div class="text-center text-slate-500 py-12 text-sm">Börja skriva för att söka efter ligor eller lag...</div>;
+                return;
+            }
+
+            let html = '';
+
+            if (matchedLeagues.length > 0) {
+                html += <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Ligor</div>;
+                matchedLeagues.forEach(l => {
+                    const isFollowed = followedItems.includes(l.name);
+                    html += `
+                        <div onclick="openLeaguePage('${l.name}')" class="bg-slate-900 border border-slate-800 hover:border-slate-700 p-3.5 rounded-xl flex items-center justify-between cursor-pointer transition">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-slate-800 p-2 rounded-lg text-accent">🏆</div>
+                                <div>
+                                    <div class="font-bold text-sm text-white">${l.name}</div>
+                                    <div class="text-xs text-slate-400">${l.sport} • Hela säsongen</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="toggleFollow('${l.name}', event)" class="px-3 py-1.5 rounded-lg text-xs font-medium ${isFollowed ? 'bg-accent text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">
+                                    ${isFollowed ? '✓ Följer' : '+ Följ'}
+                                </button>
+                                <span class="text-slate-500">➔</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            if (matchedTeams.length > 0) {
+                html += <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-4 mb-2">Lag</div>;
+                matchedTeams.forEach(t => {
+                    const isFollowed = followedItems.includes(t.name);
+                    html += `
+                        <div onclick="openTeamPage('${t.name}')" class="bg-slate-900 border border-slate-800 hover:border-slate-700 p-3.5 rounded-xl flex items-center justify-between cursor-pointer transition">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-slate-800 p-2 rounded-lg text-accent">⚽</div>
+                                <div>
+                                    <div class="font-bold text-sm text-white">${t.name}</div>
+                                    <div class="text-xs text-slate-400">${t.leagueName} • ${t.sport}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="toggleFollow('${t.name}', event)" class="px-3 py-1.5 rounded-lg text-xs font-medium ${isFollowed ? 'bg-accent text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">
+                                    ${isFollowed ? '✓ Följer' : '+ Följ'}
+                                </button>
+                                <span class="text-slate-500">➔</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            if (matchedLeagues.length === 0 && matchedTeams.length === 0) {
+                html = <div class="text-center text-slate-500 py-12 text-sm">Inga träffar på "${query}"</div>;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // RENDER VIEWS
+        function render() {
+            const container = document.getElementById('app-container');
+
+            if (currentView.view === 'home') {
+                renderHome(container);
+            } else if (currentView.view === 'league') {
+                renderLeaguePage(container, currentView.name);
+            } else if (currentView.view === 'team') {
+                renderTeamPage(container, currentView.name);
+            }
+        }
+
+        function renderHome(container) {
+            // Filter matches based on active tab
+            let allMatches = [];
+            leaguesData.forEach(l => {
+                l.matches.forEach(m => {
+                    allMatches.push({ ...m, sport: l.sport, league: l.name });
+                });
+            });
+
+            let filtered = allMatches;
+            if (activeTab === 'Mina Val') {
+                filtered = allMatches.filter(m => followedItems.includes(m.league) || followedItems.includes(m.home) || followedItems.includes(m.away));
+            } else if (activeTab === 'Fotboll') {
+                filtered = allMatches.filter(m => m.sport === 'Fotboll');
+            } else if (activeTab === 'Ishockey') {
+                filtered = allMatches.filter(m => m.sport === 'Ishockey');
+            }
+
+            // Group by date
+            const grouped = {};
+            filtered.forEach(m => {
+                if (!grouped[m.date]) grouped[m.date] = [];
+                grouped[m.date].push(m);
+            });
+
+            let html = `
+                <!-- FILTER TABS -->
+                <div class="flex space-x-2 overflow-x-auto pb-3 mb-2 scrollbar-none">
+                    ${['Alla', 'Mina Val', 'Fotboll', 'Ishockey'].map(tab => `
+                        <button onclick="activeTab = '${tab}'; render();" class="px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${activeTab === tab ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-cardbg text-slate-300 hover:bg-slate-800'}">
+                            ${tab === 'Mina Val' ? '⭐ ' : ''}${tab}
+                        </button>
+                    `).join('')}
+                </div>
+
+                <!-- MATCH LIST -->
+                <div class="space-y-6 mt-4">
+            `;
+
+            if (Object.keys(grouped).length === 0) {
+                html += <div class="text-center py-16 text-slate-500 text-sm">Inga matcher att visa för detta filter.</div>;
+            } else {
+                for (const [dateStr, matches] of Object.entries(grouped)) {
+                    const isToday = matches.some(m => m.isToday);
+                    html += `
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">${dateStr}</span>
+                                ${isToday ? '<span class="bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wide">IDAG</span>' : ''}
+                            </div>
+                    `;
+
+                    matches.forEach(m => {
+                        const isHomeFollowed = followedItems.includes(m.home);
+                        const isAwayFollowed = followedItems.includes(m.away);
+                        const isLeagueFollowed = followedItems.includes(m.league);
+
+                        html += `
+                            <div class="bg-cardbg border border-slate-800/80 rounded-2xl p-4 shadow-md hover:border-slate-700 transition">
+                                <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                                    <span onclick="openLeaguePage('${m.league}')" class="cursor-pointer hover:underline flex items-center space-x-1 font-medium text-slate-300">
+                                        <span>⚽</span>
+                                        <span>${m.sport} • ${m.league}</span>
+                                    </span>
+                                    <span class="bg-slate-900 px-2.5 py-1 rounded-lg font-semibold text-accent">⏰ ${m.time}</span>
+                                </div>
+                                <div class="text-base font-bold text-white mb-3 flex items-center justify-between">
+                                    <div>
+                                        <span onclick="openTeamPage('${m.home}')" class="cursor-pointer hover:text-accent transition">${m.home}</span> 
+                                        <span class="text-slate-500 font-normal mx-1.5">vs</span> 
+                                        <span onclick="openTeamPage('${m.away}')" class="cursor-pointer hover:text-accent transition">${m.away}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-xs">
+                                    <span class="text-slate-400 font-medium">📺 ${m.channel}</span>
+                                    <div class="flex items-center space-x-2">
+                                        <button onclick="showToast('Match tillagd i kalendern (.ics)')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl font-medium transition">
+                                            📅 + Kalender
+                                        </button>
+                                        <button onclick="toggleFollow('${m.home}', event)" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl font-medium transition">
+                                            ${isHomeFollowed ? '✓ ' + m.home : '+ Följ ' + m.home}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += </div>;
+                }
+            }
+
+            html += </div>;
+            container.innerHTML = html;
+        }
+
+        function renderLeaguePage(container, leagueName) {
+            const league = leaguesData.find(l => l.name === leagueName);
+            if (!league) { return goHome(); }
+
+            const isFollowed = followedItems.includes(league.name);
+
+            let html = `
+                <div class="mb-4">
+                    <button onclick="goHome()" class="text-xs text-slate-400 hover:text-white flex items-center space-x-1 mb-3">
+                        <span>← Tillbaka till kalendern</span>
+                    </button>
+                    <div class="bg-cardbg border border-slate-800 rounded-2xl p-5 mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-2xl">🏆</span>
+                            <button onclick="toggleFollow('${league.name}')" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold ${isFollowed ? 'bg-accent text-white' : 'bg-slate-800 text-slate-200 hover:bg-slate-700'}">
+                                ${isFollowed ? '✓ Följer Ligan' : '+ Följ Ligan'}
+                            </button>
+                        </div>
+                        <h2 class="text-xl font-bold text-white">${league.name}</h2>
+                        <p class="text-xs text-slate-400 mt-1">${league.sport} • Säsong 2026/2027 • Alla matcher</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+            `;
+
+            league.matches.forEach(m => {
+                html += `
+                    <div class="bg-cardbg border border-slate-800/80 rounded-2xl p-4 shadow-md">
+                        <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                            <span class="font-medium text-slate-300">${m.date}</span>
+                            <span class="bg-slate-900 px-2 py-0.5 rounded-md font-semibold text-accent">⏰ ${m.time}</span>
+                        </div>
+                        <div class="text-base font-bold text-white mb-3">
+                            <span onclick="openTeamPage('${m.home}')" class="cursor-pointer hover:text-accent">${m.home}</span> 
+                            <span class="text-slate-500 font-normal mx-1.5">vs</span> 
+                            <span onclick="openTeamPage('${m.away}')" class="cursor-pointer hover:text-accent">${m.away}</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-xs">
+                            <span class="text-slate-400">📺 ${m.channel}</span>
+                            <button onclick="showToast('Match tillagd i kalendern')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl font-medium">
+                                📅 + Kalender
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += </div>;
+            container.innerHTML = html;
+        }
+
+        function renderTeamPage(container, teamName) {
+            const team = teamsData.find(t => t.name === teamName);
+            if (!team) { return goHome(); }
+
+            const isFollowed = followedItems.includes(team.name);
+
+            let html = `
+                <div class="mb-4">
+                    <button onclick="goHome()" class="text-xs text-slate-400 hover:text-white flex items-center space-x-1 mb-3">
+                        <span>← Tillbaka till kalendern</span>
+                    </button>
+                    <div class="bg-cardbg border border-slate-800 rounded-2xl p-5 mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-2xl">⚽</span>
+                            <button onclick="toggleFollow('${team.name}')" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold ${isFollowed ? 'bg-accent text-white' : 'bg-slate-800 text-slate-200 hover:bg-slate-700'}">
+                                ${isFollowed ? '✓ Följer Laget' : '+ Följ Laget'}
+                            </button>
+                        </div>
+                        <h2 class="text-xl font-bold text-white">${team.name}</h2>
+                        <p class="text-xs text-slate-400 mt-1">${team.leagueName} • ${team.sport} • Säsongsschema</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+            `;
+
+            team.matches.forEach(m => {
+                html += `
+                    <div class="bg-cardbg border border-slate-800/80 rounded-2xl p-4 shadow-md">
+                        <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                            <span class="font-medium text-slate-300">${m.date} • <span class="text-accent">${m.league}</span></span>
+                            <span class="bg-slate-900 px-2 py-0.5 rounded-md font-semibold text-accent">⏰ ${m.time}</span>
+                        </div>
+                        <div class="text-base font-bold text-white mb-3">
+                            <span>${m.home}</span> 
+                            <span class="text-slate-500 font-normal mx-1.5">vs</span> 
+                            <span>${m.away}</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-xs">
+                            <span class="text-slate-400">📺 ${m.channel}</span>
+                            <button onclick="showToast('Match tillagd i kalendern')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl font-medium">
+                                📅 + Kalender
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += </div>;
+            container.innerHTML = html;
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
