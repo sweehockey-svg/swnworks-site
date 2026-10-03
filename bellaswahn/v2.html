@@ -589,7 +589,7 @@
 "use strict";
 
 /*
-  SPORTKALENDERN – MOBIL V4.1
+  SPORTKALENDERN – MOBIL V4.3.1
 
   API:
   Den här versionen hämtar matcher direkt från ESPN:s öppna scoreboard-endpoints.
@@ -724,6 +724,7 @@ const DEMO_DATA = [
 
 let leaguesData = [];
 let teamsData = [];
+let teamCatalog = [];
 let activeTab = "Alla";
 let currentView = { view: "home" };
 let dataMode = "demo";
@@ -781,26 +782,48 @@ function normalizeLeague(league) {
 function rebuildTeams() {
   const map = {};
 
+  // Teams that occur in the loaded fixture window.
   leaguesData.forEach(league => {
     league.matches.forEach(match => {
       if (match.kind === "race") return;
+
       [match.home, match.away].filter(Boolean).forEach(teamName => {
-        if (!map[teamName]) {
-          map[teamName] = {
+        const key = teamName.toLowerCase();
+
+        if (!map[key]) {
+          map[key] = {
             name: teamName,
             sport: league.sport,
             leagues: new Set(),
             matches: []
           };
         }
-        map[teamName].leagues.add(league.name);
-        map[teamName].matches.push({
+
+        map[key].leagues.add(league.name);
+        map[key].matches.push({
           ...match,
           league: league.name,
           sport: league.sport
         });
       });
     });
+  });
+
+  // Also include every team returned by the league team endpoints.
+  // This makes search useful even when a team has no game in the loaded date window.
+  teamCatalog.forEach(entry => {
+    const key = entry.name.toLowerCase();
+
+    if (!map[key]) {
+      map[key] = {
+        name: entry.name,
+        sport: entry.sport,
+        leagues: new Set(),
+        matches: []
+      };
+    }
+
+    map[key].leagues.add(entry.league);
   });
 
   teamsData = Object.values(map).map(team => ({
@@ -974,6 +997,75 @@ function parseEspnSource(source, payload) {
   };
 }
 
+function parseEspnTeams(source, payload) {
+  if (source.kind === "race") return [];
+
+  const league =
+    payload?.sports?.[0]?.leagues?.[0] ||
+    payload?.leagues?.[0] ||
+    null;
+
+  const rows = Array.isArray(league?.teams) ? league.teams : [];
+
+  return rows
+    .map(row => row?.team || row)
+    .filter(Boolean)
+    .map(team => ({
+      id: String(team.id || ""),
+      name: String(team.displayName || team.shortDisplayName || team.name || "").trim(),
+      sport: source.sport,
+      league: source.name
+    }))
+    .filter(team => team.name);
+}
+
+async function fetchEspnTeams(source) {
+  if (source.kind === "race") return [];
+
+  const teamsUrl = source.url.replace(/\/scoreboard(?:\?.*)?$/, "/teams");
+
+  const response = await fetchWithTimeout(
+    teamsUrl,
+    { headers: { "Accept": "application/json" } },
+    API_CONFIG.timeoutMs
+  );
+
+  if (!response.ok) {
+    throw new Error(`${source.name} teams: HTTP ${response.status}`);
+  }
+
+  return parseEspnTeams(source, await response.json());
+}
+
+async function loadTeamCatalog() {
+  const results = await Promise.allSettled(
+    ESPN_SOURCES
+      .filter(source => source.kind !== "race")
+      .map(source => fetchEspnTeams(source))
+  );
+
+  const seen = new Set();
+  const catalog = [];
+
+  results.forEach(result => {
+    if (result.status !== "fulfilled") return;
+
+    result.value.forEach(team => {
+      const key = `${team.name.toLowerCase()}|${team.league.toLowerCase()}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      catalog.push(team);
+    });
+  });
+
+  teamCatalog = catalog;
+  console.info(`Sportkalendern team catalog: ${teamCatalog.length} lag`);
+  rebuildTeams();
+
+  const searchValue = document.getElementById("searchInput")?.value || "";
+  if (searchValue.trim()) renderSearch(searchValue);
+}
+
 function saveApiCache(data) {
   try {
     localStorage.setItem("sportkalendern_api_cache_v6", JSON.stringify({
@@ -1101,6 +1193,10 @@ async function fetchEspnLeague(source, range) {
 }
 
 async function loadData() {
+  const teamCatalogPromise = loadTeamCatalog().catch(error => {
+    console.warn("Kunde inte ladda lagkatalogen.", error);
+  });
+
   const cached = readApiCache();
 
   if (cached) {
@@ -1129,6 +1225,7 @@ async function loadData() {
 
     leaguesData = loaded.map(normalizeLeague);
     console.info("Sportkalendern API:", leaguesData.map(l => `${l.name}: ${l.matches.length}`).join(" | "));
+    await teamCatalogPromise;
     rebuildTeams();
     saveApiCache(leaguesData);
     setStatus("live");
@@ -1143,6 +1240,7 @@ async function loadData() {
 
     if (!cached) {
       leaguesData = DEMO_DATA.map(normalizeLeague);
+      await teamCatalogPromise;
       rebuildTeams();
       setStatus("demo");
       renderEverything();
@@ -1527,12 +1625,16 @@ function renderTeamPage(name) {
     </div>
     <div class="cards">`;
 
-  team.matches
-    .slice()
-    .sort((a,b) => new Date(a.startTime) - new Date(b.startTime))
-    .forEach(match => {
-      html += matchCard(match, team.name);
-    });
+  if (team.matches.length) {
+    team.matches
+      .slice()
+      .sort((a,b) => new Date(a.startTime) - new Date(b.startTime))
+      .forEach(match => {
+        html += matchCard(match, team.name);
+      });
+  } else {
+    html += `<div class="empty">Inga matcher för ${escapeHtml(team.name)} i den laddade perioden just nu.</div>`;
+  }
 
   html += "</div>";
   container.innerHTML = html;
@@ -1559,24 +1661,21 @@ function renderSearch(query) {
   }
 
   const rank = value => {
-    const text = String(value).toLowerCase();
-    if (text === q) return 0;
-    if (text.startsWith(q)) return 1;
+    const valueText = String(value).toLowerCase();
+    if (valueText === q) return 0;
+    if (valueText.startsWith(q)) return 1;
     return 2;
   };
 
   const teams = teamsData
-    .filter(t =>
-      t.name.toLowerCase().includes(q) ||
-      t.leagues.some(l => l.toLowerCase().includes(q))
-    )
+    .filter(team => team.name.toLowerCase().includes(q))
     .sort((a,b) => rank(a.name) - rank(b.name) || a.name.localeCompare(b.name, "sv"))
     .slice(0, 8);
 
   const leagues = leaguesData
-    .filter(l =>
-      l.name.toLowerCase().includes(q) ||
-      l.sport.toLowerCase().includes(q)
+    .filter(league =>
+      league.name.toLowerCase().includes(q) ||
+      league.sport.toLowerCase().includes(q)
     )
     .sort((a,b) => rank(a.name) - rank(b.name) || a.name.localeCompare(b.name, "sv"))
     .slice(0, 5);
@@ -1585,12 +1684,12 @@ function renderSearch(query) {
 
   if (teams.length) {
     html += `<div class="search-title">Lag</div>`;
-    teams.forEach(t => {
+    teams.forEach(team => {
       html += `
-        <div class="result" onclick='openTeamPage(${safeJs(t.name)})'>
+        <div class="result" onclick='openTeamPage(${safeJs(team.name)})'>
           <div class="result-main">
-            <div class="result-name">${escapeHtml(t.name)}</div>
-            <div class="result-sub">${escapeHtml(t.leagues.join(" • "))}</div>
+            <div class="result-name">${escapeHtml(team.name)}</div>
+            <div class="result-sub">${escapeHtml(team.leagues.join(" • "))}</div>
           </div>
           <div class="result-kind">LAG</div>
         </div>`;
@@ -1599,12 +1698,12 @@ function renderSearch(query) {
 
   if (leagues.length) {
     html += `<div class="search-title">Ligor / serier</div>`;
-    leagues.forEach(l => {
+    leagues.forEach(league => {
       html += `
-        <div class="result" onclick='openLeaguePage(${safeJs(l.name)})'>
+        <div class="result" onclick='openLeaguePage(${safeJs(league.name)})'>
           <div class="result-main">
-            <div class="result-name">${escapeHtml(l.name)}</div>
-            <div class="result-sub">${escapeHtml(l.sport)}</div>
+            <div class="result-name">${escapeHtml(league.name)}</div>
+            <div class="result-sub">${escapeHtml(league.sport)}</div>
           </div>
           <div class="result-kind">SERIE</div>
         </div>`;
