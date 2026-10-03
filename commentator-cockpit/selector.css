@@ -74,3 +74,404 @@ footer span:first-child{color:#94a8b3}
   .league-logo{width:170px;height:68px;margin:34px 0 28px}
   footer{padding:22px 0;align-items:flex-start;flex-direction:column;gap:7px}
 }
+
+/* =========================================================
+   v2 · SWNWORKS selector redesign
+   ========================================================= */
+:root{
+  --bg:#02090e;
+  --panel:#07141d;
+  --panel2:#0a1c27;
+  --line:#203440;
+  --line-soft:rgba(121,151,166,.17);
+  --text:#f5f6f4;
+  --muted:#8296a2;
+  --yellow:#f6b51f;
+  --yellow2:#ffd15a;
+  --cyan:#79d9f6;
+  --green:#63e49c;
+}
+html,body{
+  background:
+    radial-gradient(circle at 78% 8%,rgba(46,92,111,.18),transparent 31%),
+    radial-gradient(circle at 22% 62%,rgba(246,181,31,.035),transparent 24%),
+    linear-gradient(180deg,#06121a 0%,#02090e 62%,#01070b 100%);
+}
+body{
+  position:relative;
+  overflow-x:hidden;
+}
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.16;
+  background:
+    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:linear-gradient(180deg,rgba(0,0,0,.8),transparent 82%);
+}
+.selector-shell{
+  width:min(1520px,calc(100% - 56px));
+  position:relative;
+  z-index:1;
+}
+.selector-topbar{
+  height:94px;
+  border-bottom:1px solid rgba(126,157,173,.18);
+}
+.swn-brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  text-decoration:none;
+  letter-spacing:0;
+}
+.swn-brand img{
+  width:46px;
+  height:46px;
+  object-fit:contain;
+  flex:0 0 46px;
+}
+.swn-brand-copy{
+  display:flex;
+  flex-direction:column;
+  line-height:1;
+}
+.swn-brand-copy strong{
+  color:var(--text);
+  font-size:20px;
+  font-weight:1000;
+  letter-spacing:.025em;
+}
+.swn-brand-copy small{
+  margin-top:7px;
+  color:#9aaab2;
+  font-size:6.6px;
+  font-weight:900;
+  letter-spacing:.25em;
+}
+.contact{
+  position:relative;
+  padding:9px 12px;
+  border:1px solid transparent;
+  border-radius:8px;
+  color:#8197a5;
+  transition:.18s ease;
+}
+.contact:hover{
+  color:var(--text);
+  border-color:rgba(246,181,31,.25);
+  background:rgba(246,181,31,.035);
+}
+.selector-hero{
+  min-height:430px;
+  padding:76px 0 58px;
+  grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);
+  gap:78px;
+  align-items:end;
+}
+.kicker{
+  position:relative;
+  padding-left:36px;
+  color:var(--yellow);
+  font-size:9px;
+  letter-spacing:.21em;
+}
+.kicker:before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:50%;
+  width:24px;
+  height:2px;
+  background:var(--yellow);
+  transform:translateY(-50%);
+}
+.selector-hero h1{
+  max-width:920px;
+  margin:18px 0 22px;
+  font-size:clamp(62px,7.1vw,108px);
+  line-height:.9;
+  letter-spacing:-.062em;
+  text-wrap:balance;
+}
+.selector-hero p{
+  max-width:760px;
+  color:#96a7b1;
+  font-size:16px;
+  line-height:1.62;
+}
+.selector-status{
+  position:relative;
+  justify-self:end;
+  width:min(100%,410px);
+  padding:24px 24px 22px;
+  border:1px solid rgba(92,126,145,.42);
+  border-radius:15px;
+  overflow:hidden;
+  background:
+    linear-gradient(145deg,rgba(11,30,42,.96),rgba(5,17,25,.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 20px 60px rgba(0,0,0,.2);
+}
+.selector-status:before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:2px;
+  background:linear-gradient(90deg,var(--yellow),rgba(246,181,31,.08) 62%,transparent);
+}
+.selector-status-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.selector-status-top>span,
+.selector-status small{
+  display:block;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.15em;
+  color:#7690a0;
+}
+.selector-status-live{
+  display:flex!important;
+  align-items:center;
+  gap:6px;
+  color:#9edeb9!important;
+}
+.selector-status-live i{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 12px rgba(99,228,156,.55);
+}
+.selector-status strong{
+  display:block;
+  margin:14px 0 8px;
+  font-size:25px;
+  letter-spacing:-.02em;
+}
+.selector-status small{
+  color:#a8b7bf;
+  line-height:1.5;
+  letter-spacing:.05em;
+}
+.selector-status-meta{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1px;
+  margin:20px -24px -22px;
+  border-top:1px solid var(--line-soft);
+  background:var(--line-soft);
+}
+.selector-status-meta span{
+  padding:13px 24px 14px;
+  background:#071722;
+  color:#9caeb8;
+  font-size:8px;
+  font-weight:800;
+  line-height:1.45;
+  letter-spacing:.035em;
+}
+.selector-status-meta b{
+  display:block;
+  margin-bottom:3px;
+  color:#536f80;
+  font-size:7px;
+  letter-spacing:.15em;
+}
+.competition-section{
+  padding-bottom:96px;
+}
+.section-head{
+  gap:16px;
+  padding:0 0 15px;
+  margin-bottom:20px;
+  border-bottom:1px solid rgba(126,157,173,.22);
+}
+.section-head span{
+  width:28px;
+  color:var(--yellow);
+}
+.section-head h2{
+  font-size:16px;
+  letter-spacing:.13em;
+}
+.competition-grid{
+  grid-template-columns:1.18fr .82fr;
+  gap:20px;
+}
+.competition-card{
+  position:relative;
+  min-height:430px;
+  padding:28px;
+  border-radius:14px;
+  border-color:rgba(74,105,122,.38);
+  overflow:hidden;
+  background:
+    linear-gradient(145deg,rgba(10,29,41,.98),rgba(4,14,21,.99));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.018);
+}
+.competition-card:before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:2px;
+  opacity:0;
+  background:linear-gradient(180deg,var(--yellow),transparent 72%);
+  transition:.2s ease;
+}
+.competition-card.active:hover{
+  transform:translateY(-4px);
+  border-color:rgba(246,181,31,.52);
+  box-shadow:
+    0 22px 65px rgba(0,0,0,.32),
+    inset 0 1px 0 rgba(255,255,255,.025);
+}
+.competition-card.active:hover:before{
+  opacity:1;
+}
+.card-head{
+  position:relative;
+  z-index:2;
+}
+.state{
+  color:var(--yellow);
+  font-size:8px;
+  letter-spacing:.16em;
+}
+.arrow{
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(121,151,166,.18);
+  border-radius:8px;
+  color:#d8e0e4;
+  font-size:17px;
+  transition:.18s ease;
+}
+.competition-card.active:hover .arrow{
+  color:#111;
+  border-color:var(--yellow);
+  background:var(--yellow);
+}
+.league-logo{
+  width:215px;
+  height:84px;
+  margin:42px 0 34px;
+  padding:11px 16px;
+  border:1px solid rgba(255,255,255,.7);
+  border-radius:10px;
+  box-shadow:0 12px 38px rgba(0,0,0,.16);
+}
+.card-copy small{
+  color:#658292;
+  font-size:8px;
+  letter-spacing:.17em;
+}
+.card-copy h3{
+  margin:8px 0 12px;
+  font-size:clamp(34px,3.3vw,50px);
+  line-height:.96;
+  letter-spacing:-.045em;
+}
+.card-copy p{
+  max-width:720px;
+  color:#95a8b2;
+  font-size:12px;
+  line-height:1.68;
+}
+.card-foot{
+  margin-top:30px;
+  padding-top:16px;
+  border-top-color:rgba(121,151,166,.17);
+  color:#d5dde1;
+  font-size:8px;
+  letter-spacing:.16em;
+}
+.future{
+  background:
+    linear-gradient(145deg,rgba(8,23,33,.91),rgba(4,13,19,.96));
+}
+.future-mark{
+  width:78px;
+  height:78px;
+  margin:48px 0 38px;
+  border-radius:15px;
+  border-color:#3a5260;
+  color:#4f6a78;
+  background:rgba(8,24,35,.5);
+}
+footer{
+  min-height:88px;
+  border-top-color:rgba(126,157,173,.17);
+  color:#586f7c;
+}
+footer span:first-child{
+  color:#859aa6;
+}
+footer span:nth-child(2){
+  color:#5e7380;
+}
+@media(max-width:900px){
+  .selector-shell{width:min(100% - 30px,1520px)}
+  .selector-hero{
+    padding:58px 0 48px;
+    grid-template-columns:1fr;
+    gap:34px;
+  }
+  .selector-status{
+    justify-self:start;
+  }
+  .competition-grid{
+    grid-template-columns:1fr;
+  }
+}
+@media(max-width:620px){
+  .selector-topbar{height:76px}
+  .swn-brand img{
+    width:40px;
+    height:40px;
+    flex-basis:40px;
+  }
+  .swn-brand-copy strong{font-size:17px}
+  .swn-brand-copy small{display:none}
+  .contact{
+    padding:7px 8px;
+    font-size:8px;
+  }
+  .selector-hero h1{
+    font-size:clamp(48px,15vw,72px);
+  }
+  .selector-hero p{
+    font-size:14px;
+  }
+  .selector-status{
+    padding:20px;
+  }
+  .selector-status-meta{
+    margin:18px -20px -20px;
+  }
+  .selector-status-meta span{
+    padding:12px 20px;
+  }
+  .competition-card{
+    min-height:365px;
+    padding:21px;
+  }
+  .league-logo{
+    width:176px;
+    height:70px;
+    margin:34px 0 29px;
+  }
+}
