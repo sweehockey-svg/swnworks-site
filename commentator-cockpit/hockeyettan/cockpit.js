@@ -454,6 +454,69 @@
     window.location.href=url.toString();
   }
 
+  function teamFilterLabel(team) {
+    const raw=String(state.teamCompetitionByTeam.get(team.id)?.group_name||"").trim();
+    const lower=raw.toLocaleLowerCase("sv-SE");
+    if(league.accessKey==="hockeyettan"){
+      if(lower.includes("norr")) return "Norra";
+      if(lower.includes("söd")||lower.includes("syd")) return "Södra";
+    }
+    if(league.accessKey==="hockeytvaan"){
+      if(lower.includes("norr")) return "Norr";
+      if(lower.includes("väst")) return "Väst";
+      if(lower.includes("öst")) return "Öst";
+      if(lower.includes("syd")||lower.includes("söd")) return "Syd";
+    }
+    return raw||league.displayName;
+  }
+
+  function removeTeamToolbar() {
+    document.getElementById("teamToolbar")?.remove();
+  }
+
+  function renderTeamToolbar(teams,grid) {
+    removeTeamToolbar();
+    if(teams.length<=1) return;
+
+    const groups=[...new Set(teams.map(teamFilterLabel).filter(Boolean))];
+    const toolbar=document.createElement("section");
+    toolbar.className="team-toolbar";
+    toolbar.id="teamToolbar";
+    toolbar.innerHTML=
+      '<label class="team-search"><span>SÖK LAG</span><input id="teamSearchInput" type="search" autocomplete="off" placeholder="Skriv lagnamn…"></label>'+
+      (groups.length>1
+        ? '<div class="team-filters" role="group" aria-label="Filtrera grupp"><button type="button" class="active" data-team-filter="ALL">ALLA</button>'+
+          groups.map((group)=>'<button type="button" data-team-filter="'+esc(group)+'">'+esc(group.toUpperCase())+'</button>').join("")+
+          '</div>'
+        : '')+
+      '<span class="team-result-count" id="teamResultCount">'+teams.length+' LAG</span>';
+    grid.parentElement?.insertBefore(toolbar,grid);
+
+    let activeGroup="ALL";
+    const input=toolbar.querySelector("#teamSearchInput");
+    const count=toolbar.querySelector("#teamResultCount");
+    const apply=()=>{
+      const query=String(input?.value||"").trim().toLocaleLowerCase("sv-SE");
+      let shown=0;
+      grid.querySelectorAll(".team-card").forEach((card)=>{
+        const group=card.dataset.teamGroup||"";
+        const name=card.dataset.teamName||"";
+        const visible=(activeGroup==="ALL"||group===activeGroup)&&(!query||name.includes(query));
+        card.classList.toggle("filtered-out",!visible);
+        if(visible) shown++;
+      });
+      if(count) count.textContent=shown+" "+(shown===1?"LAG":"LAG");
+    };
+    input?.addEventListener("input",apply);
+    toolbar.querySelectorAll("[data-team-filter]").forEach((button)=>{
+      button.addEventListener("click",()=>{
+        activeGroup=button.dataset.teamFilter||"ALL";
+        toolbar.querySelectorAll("[data-team-filter]").forEach((item)=>item.classList.toggle("active",item===button));
+        apply();
+      });
+    });
+  }
+
   function renderLeagueHome() {
     setRouteScreen("home");
     document.title="Commentator Cockpit · "+league.displayName;
@@ -462,6 +525,7 @@
     const heroCopy=document.querySelector(".league-home-hero p");
     const grid=document.getElementById("teamGrid");
     if(!grid) return;
+    removeTeamToolbar();
 
     if(!state.authUser){
       if(heroTitle) heroTitle.textContent="Logga in för att öppna "+league.displayName;
@@ -505,12 +569,14 @@
         : leagueAccess()
           ? "LIGAACCESS · ÖPPEN"
           : "ÖPPEN FÖR DIG";
-      return '<button class="team-card unlocked" type="button" data-team-id="'+esc(team.id)+'">' +
+      const group=teamFilterLabel(team);
+      return '<button class="team-card unlocked" type="button" data-team-id="'+esc(team.id)+'" data-team-group="'+esc(group)+'" data-team-name="'+esc(team.canonical_name.toLocaleLowerCase("sv-SE"))+'">' +
         '<div class="team-card-badge">'+teamLogoMarkup(team.canonical_name,"team-card-logo")+'</div>' +
-        '<div class="team-card-copy"><span>'+esc(league.upperName)+' · '+esc(state.teamCompetitionByTeam.get(team.id)?.group_name||"")+'</span><strong>'+esc(team.canonical_name)+'</strong><small>'+esc(status)+'</small></div>' +
+        '<div class="team-card-copy"><span>'+esc(group)+' · '+esc(league.upperName)+'</span><strong>'+esc(team.canonical_name)+'</strong><small>'+esc(status)+'</small></div>' +
         '<div class="team-card-arrow">→</div>' +
       '</button>';
     }).join("");
+    renderTeamToolbar(teams,grid);
     grid.querySelectorAll("[data-team-id]").forEach((button)=>{
       button.addEventListener("click",()=>{
         const team=state.teamById.get(button.dataset.teamId);
