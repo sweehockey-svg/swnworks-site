@@ -1223,3 +1223,12 @@ a.product-feature-card:hover{
 .contact-status.error{color:#ff7b72}
 
 .contact-hp{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
+
+/* Contact submit cursor: disabled is temporary while sending, not unavailable */
+.contact-actions .btn,
+.contact-actions .btn:disabled{
+  cursor:pointer;
+}
+.contact-actions .btn:disabled{
+  cursor:wait;
+}
