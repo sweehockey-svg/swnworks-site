@@ -1362,24 +1362,32 @@
         (gameIsLive(game) ? "LIVE MATCH · VS " : "SENASTE MATCH · VS ") + opponentName;
     }
 
+    const missingLabel=gameIsLive(game) ? "väntar på Swehockey" : "ej publicerat";
+    const bothMissing=(a,b)=>a==null&&b==null;
+
     document.getElementById("shotsValue").textContent =
       statPair(home?.shots, away?.shots);
-    document.getElementById("shotsDetail").textContent = detail;
+    document.getElementById("shotsDetail").textContent =
+      bothMissing(home?.shots,away?.shots) ? missingLabel : detail;
 
     document.getElementById("savesValue").textContent =
       statPair(home?.saves, away?.saves);
-    document.getElementById("savesDetail").textContent = detail;
+    document.getElementById("savesDetail").textContent =
+      bothMissing(home?.saves,away?.saves) ? missingLabel : detail;
 
     document.getElementById("ppValue").textContent =
       statPair(home?.power_play_pct, away?.power_play_pct, formatPct);
     const ppTimes = [formatClockSeconds(home?.power_play_seconds), formatClockSeconds(away?.power_play_seconds)]
       .filter(Boolean);
     document.getElementById("ppDetail").textContent =
-      ppTimes.length === 2 ? ppTimes.join("–") : detail;
+      bothMissing(home?.power_play_pct,away?.power_play_pct)
+        ? missingLabel
+        : (ppTimes.length === 2 ? ppTimes.join("–") : detail);
 
     document.getElementById("pimValue").textContent =
       statPair(home?.pim, away?.pim);
-    document.getElementById("pimDetail").textContent = detail;
+    document.getElementById("pimDetail").textContent =
+      bothMissing(home?.pim,away?.pim) ? missingLabel : detail;
 
     renderStatChanged("shotsUpdated",home,away,"shots",game);
     renderStatChanged("savesUpdated",home,away,"saves",game);
@@ -2303,7 +2311,7 @@
               Number(row.faceoff_pct).toLocaleString("sv-SE", { maximumFractionDigits: 1 });
             const recentText = recent.games
               ? 'S5 ' + recent.games + ' GP · ' + recent.goals + '+' + recent.assists + ' · ' + recent.points + ' P'
-              : 'S5 väntar på matchrapport';
+              : 'S5 · matchdata ej publicerad';
             const liveRow=currentPlayerGameRow(row);
             return '<div class="player-stat-row' + (liveRow ? ' is-live' : '') + '">' +
               '<div class="player-stat-name"><b>#' + esc(row.jersey_number ?? "–") + '</b><span>' +
@@ -2322,6 +2330,17 @@
         '</div>' +
       '</section>';
     }).join("");
+  }
+
+  function individualReportNotice(kind) {
+    if(!state.latestFocusGame) return "";
+    const rows=kind==="goalies" ? state.latestGoalieStats : state.latestPlayerStats;
+    if(rows.length) return "";
+    const label=kind==="goalies" ? "målvaktsstatistik" : "individuell matchstatistik";
+    const leagueNote=league.name==="HockeyTvåan"
+      ? "I Hockeytvåan publiceras den här delen inte för alla matcher."
+      : "Den här delen har inte publicerats för senaste matchen.";
+    return '<article class="drawer-card data-availability"><strong>'+esc(label.charAt(0).toUpperCase()+label.slice(1))+' ej publicerad</strong><span>Swehockey saknar '+esc(label)+' för senaste matchen. '+esc(leagueNote)+' Säsongsdata och övriga tillgängliga matchlager visas ändå.</span></article>';
   }
 
   function renderGoalieStats() {
@@ -2841,11 +2860,13 @@
       drawerBody.innerHTML = renderLineups();
     } else if (key === "players") {
       drawerBody.innerHTML =
-        '<article class="drawer-card stats-intro"><strong>'+(gameIsLive(state.nextGame)?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(gameIsLive(state.nextGame)?"LIVE-raden kommer från pågående Player Summary när Swehockey publicerar den. ":"")+'Säsongstotalen kommer direkt från Swehockey. S5 räknas från de fem senaste Player Summary-rapporterna som finns importerade.</span></article>' +
+        '<article class="drawer-card stats-intro"><strong>'+(gameIsLive(state.nextGame)?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(gameIsLive(state.nextGame)?"LIVE-raden kommer från pågående Player Summary när Swehockey publicerar den. ":"")+'Säsongstotalen kommer direkt från Swehockey. S5 räknas från de matchrapporter som faktiskt är publicerade.</span></article>' +
+        individualReportNotice("players") +
         '<div class="stats-team-grid players-grid">' + renderPlayerStats() + '</div>';
     } else if (key === "goalies") {
       drawerBody.innerHTML =
-        '<article class="drawer-card stats-intro"><strong>'+(gameIsLive(state.nextGame)?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(gameIsLive(state.nextGame)?"LIVE-raden uppdateras från pågående Player Summary när den finns. ":"")+'SV%, GAA och record kommer från Swehockeys säsongstabell. S5 räknas från matchrapporterna.</span></article>' +
+        '<article class="drawer-card stats-intro"><strong>'+(gameIsLive(state.nextGame)?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(gameIsLive(state.nextGame)?"LIVE-raden uppdateras från pågående Player Summary när den finns. ":"")+'SV%, GAA och record kommer från Swehockeys säsongstabell. S5 räknas från de matchrapporter som faktiskt är publicerade.</span></article>' +
+        individualReportNotice("goalies") +
         '<div class="stats-team-grid goalies-grid">' + renderGoalieStats() + '</div>';
     } else if (key === "special") {
       drawerBody.innerHTML = renderSpecialTeams();
