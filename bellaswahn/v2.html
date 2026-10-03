@@ -689,6 +689,7 @@ const API_CONFIG = {
   daysBack: 1,
   daysAhead: 30,
   soccerDaysAhead: 14,
+  teamSportsFallbackDaysAhead: 7,
   timeoutMs: 9000,
   cacheMs: 5 * 60 * 1000
 };
@@ -975,7 +976,7 @@ function parseEspnSource(source, payload) {
 
 function saveApiCache(data) {
   try {
-    localStorage.setItem("sportkalendern_api_cache_v5", JSON.stringify({
+    localStorage.setItem("sportkalendern_api_cache_v6", JSON.stringify({
       savedAt: Date.now(),
       data
     }));
@@ -984,7 +985,7 @@ function saveApiCache(data) {
 
 function readApiCache() {
   try {
-    const raw = JSON.parse(localStorage.getItem("sportkalendern_api_cache_v5"));
+    const raw = JSON.parse(localStorage.getItem("sportkalendern_api_cache_v6"));
     if (!raw || !Array.isArray(raw.data) || !raw.savedAt) return null;
     if (Date.now() - raw.savedAt > API_CONFIG.cacheMs) return null;
     return raw.data;
@@ -1049,19 +1050,54 @@ async function fetchEspnLeague(source, range) {
   }
 
   const separator = source.url.includes("?") ? "&" : "?";
-  const url = `${source.url}${separator}dates=${encodeURIComponent(range)}`;
+  const url = `${source.url}${separator}limit=1000&dates=${encodeURIComponent(range)}`;
 
-  const response = await fetchWithTimeout(
-    url,
-    { headers: { "Accept": "application/json" } },
-    API_CONFIG.timeoutMs
-  );
+  try {
+    const response = await fetchWithTimeout(
+      url,
+      { headers: { "Accept": "application/json" } },
+      API_CONFIG.timeoutMs
+    );
 
-  if (!response.ok) {
-    throw new Error(`${source.name}: HTTP ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`${source.name}: HTTP ${response.status}`);
+    }
+
+    const parsed = parseEspnSource(source, await response.json());
+
+    // ESPN kan ibland svara 200 men ändå ge tom events-lista för ett datumintervall.
+    // F1 fungerar bra som range, men NHL/NFL/NBA får en dag-för-dag fallback.
+    if (parsed.matches.length || source.kind === "race") {
+      return parsed;
+    }
+  } catch (error) {
+    console.warn(`${source.name}: range-hämtningen misslyckades`, error);
+    if (source.kind === "race") throw error;
   }
 
-  return parseEspnSource(source, await response.json());
+  const matchesById = new Map();
+  let successfulDays = 0;
+
+  for (let offset = -API_CONFIG.daysBack; offset <= API_CONFIG.teamSportsFallbackDaysAhead; offset++) {
+    try {
+      const day = await fetchEspnDay(source, dateKeyWithOffset(offset));
+      successfulDays++;
+      day.matches.forEach(match => matchesById.set(String(match.id), match));
+    } catch (error) {
+      console.warn(`Kunde inte hämta ${source.name} dag ${offset}`, error);
+    }
+  }
+
+  if (!successfulDays) {
+    throw new Error(`${source.name}: varken range eller dagsdata kunde hämtas`);
+  }
+
+  return {
+    id: source.id,
+    name: source.name,
+    sport: source.sport,
+    matches: [...matchesById.values()].sort((a,b) => new Date(a.startTime) - new Date(b.startTime))
+  };
 }
 
 async function loadData() {
@@ -1092,6 +1128,7 @@ async function loadData() {
     }
 
     leaguesData = loaded.map(normalizeLeague);
+    console.info("Sportkalendern API:", leaguesData.map(l => `${l.name}: ${l.matches.length}`).join(" | "));
     rebuildTeams();
     saveApiCache(leaguesData);
     setStatus("live");
