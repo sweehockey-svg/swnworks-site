@@ -7,7 +7,7 @@
   <meta name="description" content="SWNWORKS utvecklar produkter och plattformar för sportdata, fantasy, kommentatorer och liveproduktion.">
   <title>SWNWORKS · Sports Technology & Broadcast Tools</title>
   <link rel="icon" href="assets/swnworks-logo.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=32">
+  <link rel="stylesheet" href="styles.css?v=33">
 </head>
 <body>
   <section class="hero" id="work">
@@ -153,15 +153,15 @@
       <p class="eyebrow">KONTAKT</p>
       <h3>Vill du veta mer?</h3>
       <p>Skicka ett meddelande så berättar vi mer om våra produkter och framtida samarbeten.</p>
-      <form class="contact-form" action="#" method="post" onsubmit="return false">
+      <form class="contact-form" action="https://formsubmit.co/info@swnworks.se" method="post">
         <div class="contact-fields">
-          <label><span>Namn</span><input type="text" name="name" autocomplete="name" placeholder="Ditt namn"></label>
-          <label><span>E-post</span><input type="email" name="email" autocomplete="email" placeholder="din@epost.se"></label>
+          <label><span>Namn</span><input type="text" name="name" autocomplete="name" placeholder="Ditt namn" required></label>
+          <label><span>E-post</span><input type="email" name="email" autocomplete="email" placeholder="din@epost.se" required></label>
         </div>
-        <label><span>Ämne</span><input type="text" name="subject" placeholder="Vad gäller det?"></label>
-        <label><span>Meddelande</span><textarea name="message" rows="4" placeholder="Skriv ditt meddelande här"></textarea></label>
+        <label><span>Ämne</span><input type="text" name="_subject" placeholder="Vad gäller det?" required></label>
+        <label><span>Meddelande</span><textarea name="message" rows="4" placeholder="Skriv ditt meddelande här" required></textarea></label>
         <div class="contact-actions">
-          <button class="btn primary" type="submit" disabled title="Skickfunktionen kopplas in separat">Skicka meddelande <span>→</span></button>
+          <input type="hidden" name="_captcha" value="false"><input type="hidden" name="_template" value="table"><button class="btn primary" type="submit">Skicka meddelande <span>→</span></button>
           <span>Eller maila direkt: <a href="mailto:info@swnworks.se">info@swnworks.se</a></span>
         </div>
       </form>
