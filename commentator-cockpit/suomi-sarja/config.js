@@ -12,6 +12,7 @@ window.COMMENTATOR_CONFIG = Object.freeze({
     groupSummary: "Finland · 14 lag",
     sourceKey: "finhockey",
     sourceLabel: "Leijonat Tulospalvelu",
-    seasonLabel: "2026/27"
+    seasonLabel: "2026/27",
+    accessKey: "suomi-sarja"
   })
 });
