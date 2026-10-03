@@ -4019,3 +4019,330 @@ html[data-theme="light"] .ai-caution{
     gap:4px;
   }
 }
+
+
+/* v55 · unified light drawer system */
+html[data-theme="light"] .drawer{
+  background:#f7f9fa;
+  border-color:#c7d3da;
+  box-shadow:0 28px 75px rgba(38,53,62,.18);
+}
+html[data-theme="light"] .drawer-head{
+  border-color:#d7e0e5;
+}
+html[data-theme="light"] .drawer-head h2{
+  color:#172932;
+}
+html[data-theme="light"] .drawer-body{
+  color:#506773;
+}
+html[data-theme="light"] .close-button{
+  background:#f2f6f8;
+  border-color:#c9d5db;
+  color:#506874;
+}
+html[data-theme="light"] .close-button:hover{
+  background:#fff9e9;
+  border-color:#b99332;
+  color:#8b6300;
+}
+
+html[data-theme="light"] .drawer-card,
+html[data-theme="light"] .stats-intro,
+html[data-theme="light"] .lineup-team,
+html[data-theme="light"] .special-team-card,
+html[data-theme="light"] .goalie-card,
+html[data-theme="light"] .story-card,
+html[data-theme="light"] .note-card,
+html[data-theme="light"] .ai-point,
+html[data-theme="light"] .account-card,
+html[data-theme="light"] .access-row{
+  background:#ffffff;
+  border-color:#d0dbe1;
+  box-shadow:0 4px 14px rgba(48,64,73,.035);
+}
+html[data-theme="light"] .drawer-card strong,
+html[data-theme="light"] .story-card strong,
+html[data-theme="light"] .note-card h3,
+html[data-theme="light"] .goalie-card h3,
+html[data-theme="light"] .account-card h3{
+  color:#172a34;
+}
+
+html[data-theme="light"] .pregame-head{
+  border-color:#d2ad4a;
+  background:linear-gradient(135deg,#fff7df,#f3f6f8 62%);
+}
+html[data-theme="light"] .pregame-head strong{
+  color:#172a34;
+}
+html[data-theme="light"] .pregame-head small{
+  color:#657c88;
+}
+html[data-theme="light"] .pregame-grid article,
+html[data-theme="light"] .pregame-columns>section,
+html[data-theme="light"] .pregame-stories,
+html[data-theme="light"] .overview-recent-row,
+html[data-theme="light"] .overview-watch-row,
+html[data-theme="light"] .pregame-stories article{
+  background:#ffffff;
+  border-color:#d0dbe1;
+}
+html[data-theme="light"] .pregame-grid article>strong,
+html[data-theme="light"] .overview-watch-row strong,
+html[data-theme="light"] .pregame-stories article strong,
+html[data-theme="light"] .overview-recent-row strong{
+  color:#172a34;
+}
+html[data-theme="light"] .pregame-grid article>small,
+html[data-theme="light"] .overview-recent-row span,
+html[data-theme="light"] .overview-recent-row em,
+html[data-theme="light"] .overview-watch-row span,
+html[data-theme="light"] .overview-watch-row small,
+html[data-theme="light"] .pregame-stories article small{
+  color:#617985;
+}
+html[data-theme="light"] .overview-recent-row.win b{
+  background:#dff1e7;
+  color:#17643f;
+}
+html[data-theme="light"] .overview-recent-row.loss b{
+  background:#f3dfdf;
+  color:#8d3737;
+}
+html[data-theme="light"] .overview-recent-row.tie b{
+  background:#efe7c9;
+  color:#785f12;
+}
+html[data-theme="light"] .overview-empty{
+  color:#667c87;
+  border-color:#c9d5db;
+  background:#fbfcfd;
+}
+
+html[data-theme="light"] .note-form,
+html[data-theme="light"] .ai-form,
+html[data-theme="light"] .account-form{
+  background:#ffffff;
+  border-color:#d0dbe1;
+}
+html[data-theme="light"] .note-form input,
+html[data-theme="light"] .note-form select,
+html[data-theme="light"] .note-form textarea,
+html[data-theme="light"] .ai-form textarea,
+html[data-theme="light"] .account-form input,
+html[data-theme="light"] .access-form input,
+html[data-theme="light"] .access-form select{
+  background:#f7f9fa;
+  border-color:#c7d4da;
+  color:#1a2d37;
+}
+html[data-theme="light"] .note-form input::placeholder,
+html[data-theme="light"] .note-form textarea::placeholder,
+html[data-theme="light"] .ai-form textarea::placeholder,
+html[data-theme="light"] .account-form input::placeholder,
+html[data-theme="light"] .access-form input::placeholder{
+  color:#80919a;
+}
+html[data-theme="light"] .note-form label>span,
+html[data-theme="light"] .ai-form label span,
+html[data-theme="light"] .account-form label span{
+  color:#5d7480;
+}
+html[data-theme="light"] .note-form-actions button,
+html[data-theme="light"] .note-actions button,
+html[data-theme="light"] .ai-form-actions button,
+html[data-theme="light"] .account-actions button{
+  background:#eef3f5;
+  border-color:#c4d1d7;
+  color:#334b57;
+}
+html[data-theme="light"] .note-form-actions button.primary,
+html[data-theme="light"] .ai-form-actions button.primary,
+html[data-theme="light"] .account-form button{
+  background:var(--yellow);
+  border-color:#b88b0b;
+  color:#17130a;
+}
+html[data-theme="light"] .note-pin-control{
+  background:#f7f9fa;
+  border-color:#cbd6dc;
+  color:#506873;
+}
+html[data-theme="light"] .note-card.pinned{
+  background:linear-gradient(135deg,#fff9e9,#ffffff 62%);
+  border-color:#d8ba61;
+}
+html[data-theme="light"] .note-card p{
+  color:#526b77;
+}
+html[data-theme="light"] .note-card-head span,
+html[data-theme="light"] .note-card-head small{
+  color:#617985;
+}
+html[data-theme="light"] .notes-empty{
+  background:#fbfcfd;
+  border-color:#c8d4da;
+  color:#657b87;
+}
+
+html[data-theme="light"] .ai-safety{
+  background:#ffffff;
+  border-color:#cfdbe1;
+}
+html[data-theme="light"] .ai-status{
+  background:#ffffff;
+  border-color:#cbd7dd;
+}
+html[data-theme="light"] .ai-status strong{
+  color:#405964;
+}
+html[data-theme="light"] .ai-status.ready{
+  background:#f1faf5;
+  border-color:#94c9aa;
+}
+html[data-theme="light"] .ai-status.fallback{
+  background:#fff9e9;
+  border-color:#d7bc69;
+}
+html[data-theme="light"] .ai-point span,
+html[data-theme="light"] .ai-result-head span{
+  color:#a46e00;
+}
+html[data-theme="light"] .ai-point strong{
+  color:#172a34;
+}
+html[data-theme="light"] .ai-point p{
+  color:#58707c;
+}
+html[data-theme="light"] .ai-point small{
+  color:#788b94;
+}
+html[data-theme="light"] .ai-point>b{
+  border-color:#c6d3da;
+  color:#5d7480;
+  background:#f6f8f9;
+}
+html[data-theme="light"] .ai-result-head strong{
+  color:#4d6571;
+}
+html[data-theme="light"] .ai-caution{
+  background:#f5f8f9;
+  border-left-color:#9aabb4;
+  color:#58707c;
+}
+
+html[data-theme="light"] .story-card.editorial,
+html[data-theme="light"] .studio-banner,
+html[data-theme="light"] .h2h-latest{
+  background:linear-gradient(135deg,#fff9e9,#ffffff 58%);
+  border-color:#d6b85d;
+}
+html[data-theme="light"] .studio-banner.live{
+  background:linear-gradient(135deg,#eff9f3,#ffffff 58%);
+  border-color:#91c7a8;
+}
+html[data-theme="light"] .studio-summary-grid>div,
+html[data-theme="light"] .studio-talking-points article,
+html[data-theme="light"] .studio-event,
+html[data-theme="light"] .h2h-summary>div,
+html[data-theme="light"] .h2h-row{
+  background:#ffffff;
+  border-color:#d0dbe1;
+}
+html[data-theme="light"] .studio-banner h3,
+html[data-theme="light"] .studio-summary-grid strong,
+html[data-theme="light"] .studio-talking-points strong,
+html[data-theme="light"] .studio-event p,
+html[data-theme="light"] .h2h-summary strong,
+html[data-theme="light"] .h2h-latest>strong,
+html[data-theme="light"] .h2h-teams span,
+html[data-theme="light"] .h2h-score strong{
+  color:#172a34;
+}
+html[data-theme="light"] .studio-summary-grid span,
+html[data-theme="light"] .studio-summary-grid small,
+html[data-theme="light"] .studio-section-title span,
+html[data-theme="light"] .studio-section-title small,
+html[data-theme="light"] .studio-talking-points p,
+html[data-theme="light"] .studio-event span,
+html[data-theme="light"] .h2h-summary span,
+html[data-theme="light"] .h2h-summary small,
+html[data-theme="light"] .h2h-latest>small,
+html[data-theme="light"] .h2h-date span{
+  color:#617985;
+}
+
+html[data-theme="light"] .special-team-card,
+html[data-theme="light"] .special-primary>div,
+html[data-theme="light"] .special-recent,
+html[data-theme="light"] .special-current,
+html[data-theme="light"] .lineup-team,
+html[data-theme="light"] .lineup-goalies>div,
+html[data-theme="light"] .lineup-line,
+html[data-theme="light"] .lineup-slot,
+html[data-theme="light"] .roster-player,
+html[data-theme="light"] .goalie-card,
+html[data-theme="light"] .goalie-metrics div,
+html[data-theme="light"] .goalie-recent{
+  background:#ffffff;
+  border-color:#d0dbe1;
+}
+html[data-theme="light"] .special-primary strong,
+html[data-theme="light"] .special-recent strong,
+html[data-theme="light"] .special-current strong,
+html[data-theme="light"] .lineup-team-head h3,
+html[data-theme="light"] .lineup-goalies strong,
+html[data-theme="light"] .lineup-slot strong,
+html[data-theme="light"] .roster-player strong,
+html[data-theme="light"] .goalie-card h3,
+html[data-theme="light"] .goalie-metrics strong{
+  color:#172a34;
+}
+html[data-theme="light"] .special-team-head,
+html[data-theme="light"] .lineup-team-head,
+html[data-theme="light"] .studio-section-title{
+  border-color:#d7e0e5;
+}
+html[data-theme="light"] .special-team-head span,
+html[data-theme="light"] .special-primary span,
+html[data-theme="light"] .special-primary small,
+html[data-theme="light"] .special-current.muted span,
+html[data-theme="light"] .special-current.muted strong,
+html[data-theme="light"] .lineup-team-head span,
+html[data-theme="light"] .lineup-team-head small,
+html[data-theme="light"] .lineup-goalies b,
+html[data-theme="light"] .roster-player b,
+html[data-theme="light"] .roster-player small,
+html[data-theme="light"] .roster-player em,
+html[data-theme="light"] .goalie-card-head{
+  color:#617985;
+}
+html[data-theme="light"] .lineup-info.official,
+html[data-theme="light"] .account-card.signed-in{
+  background:linear-gradient(135deg,#eff9f3,#ffffff 62%);
+  border-color:#8fc6a6;
+}
+
+html[data-theme="light"] .account-message.success{
+  background:#eff9f3;
+  border-color:#8fc6a6;
+  color:#286b48;
+}
+html[data-theme="light"] .account-message.error{
+  background:#fff1f1;
+  border-color:#d9a3a3;
+  color:#8a3f3f;
+}
+html[data-theme="light"] .account-message{
+  background:#fff9e9;
+  border-color:#d8bf6d;
+  color:#725b17;
+}
+
+html[data-theme="light"] .access-admin{
+  border-color:#d7e0e5;
+}
+html[data-theme="light"] .access-scope-note{
+  color:#617985;
+}
