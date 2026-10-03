@@ -10,7 +10,10 @@
       ? cfg.league.competitionSourceIds.map(String)
       : ["21043","21044"],
     expectedCompetitionCount: Number(cfg?.league?.expectedCompetitionCount || 2),
-    groupSummary: cfg?.league?.groupSummary || "Norra + Södra"
+    groupSummary: cfg?.league?.groupSummary || "Norra + Södra",
+    sourceKey: cfg?.league?.sourceKey || "swehockey",
+    sourceLabel: cfg?.league?.sourceLabel || "Swehockey",
+    seasonLabel: cfg?.league?.seasonLabel || "2026/27"
   });
   const sb = window.supabase;
   const client = cfg && sb ? sb.createClient(cfg.supabaseUrl, cfg.supabasePublishableKey, {
@@ -90,8 +93,8 @@
       kicker: "MATCH",
       title: "Matchöversikt",
       cards: [
-        ["Nästa match", "Laddar från " + league.displayName + " 2026/27."],
-        ["Datakälla", "Swehockey → collector → Supabase → cockpit."]
+        ["Nästa match", "Laddar från " + league.displayName + " " + league.seasonLabel + "."],
+        ["Datakälla", league.sourceLabel + " → collector → Supabase → cockpit."]
       ]
     },
     lines: {
@@ -118,7 +121,7 @@
       kicker: "LIVE",
       title: "Live matchdata",
       cards: [
-        ["Matchcollector", "Matchrapport, lineup och events hämtas automatiskt när Swehockey publicerar dem."],
+        ["Matchcollector", "Matchrapport, lineup och events hämtas automatiskt när " + league.sourceLabel + " publicerar dem."],
         ["Grunddata", "Schema, resultat, tabell, roster och statistik synkas automatiskt."]
       ]
     },
@@ -495,7 +498,7 @@
     const liveSourceAt=state.nextGame?.updated_at || state.lastLiveRefreshAt;
     const syncLabel=liveSourceAt && gameIsLive(state.nextGame)
       ? "LIVE-data "+timeFormat.format(new Date(liveSourceAt))+" · Grundsynk "+time+ageText
-      : "Swehockey synkad · "+time+ageText;
+      : league.sourceLabel+" synkad · "+time+ageText;
     const warningText=state.loadWarnings.length ? " · "+state.loadWarnings.length+" delvarning"+(state.loadWarnings.length===1?"":"ar") : "";
     const kind=state.loadWarnings.length ? "warn" : age!=null&&age>180 ? "bad" : age!=null&&age>75 ? "warn" : "ok";
     setSyncStatus(kind,syncLabel+warningText);
@@ -1362,7 +1365,7 @@
         (gameIsLive(game) ? "LIVE MATCH · VS " : "SENASTE MATCH · VS ") + opponentName;
     }
 
-    const missingLabel=gameIsLive(game) ? "väntar på Swehockey" : "ej publicerat";
+    const missingLabel=gameIsLive(game) ? "väntar på "+league.sourceLabel : "ej publicerat";
     const bothMissing=(a,b)=>a==null&&b==null;
 
     document.getElementById("shotsValue").textContent =
@@ -1494,7 +1497,7 @@
       : 'OFFICIELL MATCHRAPPORT';
     const footer=esc(game.venue_name || "") + ' · ' +
       (live
-        ? (events.length ? events.length + ' importerade händelser' : 'väntar på Swehockey-data')
+        ? (events.length ? events.length + ' importerade händelser' : 'väntar på '+league.sourceLabel+'-data')
         : events.length + ' importerade händelser' + (shootoutEvent ? ' · efter straffar' : ''));
 
     if (live) {
@@ -1740,7 +1743,7 @@
         id:"official-lineup",
         tag:"LINEUP",
         title:"Officiell lineup för nästa match är publicerad",
-        text:"KEDJOR-panelen visar Swehockeys aktuella uppställning.",
+        text:"KEDJOR-panelen visar aktuell officiell uppställning från "+league.sourceLabel+".",
         score:150,
         story:true
       });
@@ -1955,14 +1958,14 @@
     const brief=state.aiBrief||localAiBrief("");
     const serverReady=state.aiBriefSource==="server";
     const statusText=serverReady
-      ? "Svar från servermodellen, byggt enbart på verifierad Swehockey-data."
+      ? "Svar från servermodellen, byggt enbart på verifierad officiell data."
       : !state.authUser
         ? "Fallbacken fungerar direkt. Server-AI kräver inloggning, godkänd behörighet och OPENAI_API_KEY."
         : !state.access?.active
           ? "Kontot är inloggat men inte godkänt för server-AI. Fallbacken fungerar fortfarande."
           : "Server-AI är konfigurerad. Om ett anrop misslyckas visas verifierad fallback automatiskt.";
 
-    return '<article class="drawer-card ai-safety"><strong>Ingen fri statistikfantasi</strong><span>Server-AI får match-ID och hämtar själv officiell Swehockey-data från databasen. Privata NOTES skickas aldrig till språkmodellen.</span></article>' +
+    return '<article class="drawer-card ai-safety"><strong>Ingen fri statistikfantasi</strong><span>Server-AI får match-ID och hämtar själv verifierad officiell data från databasen. Privata NOTES skickas aldrig till språkmodellen.</span></article>' +
       '<div class="ai-status '+(serverReady?"ready":"fallback")+'"><span>'+(serverReady?"SERVER-AI":"LOKAL FALLBACK")+'</span><strong>'+esc(statusText)+'</strong></div>' +
       '<form class="ai-form" id="aiForm">' +
         '<label><span>FRÅGA / VINKEL</span><textarea id="aiQuestion" rows="3" maxlength="500" placeholder="T.ex. Vad är mest relevant att säga om lagets powerplay just nu?"></textarea></label>' +
@@ -2173,7 +2176,7 @@
     const officialReady = officialTeams.has(state.focusTeam.id) && officialTeams.has(state.opponent.id);
 
     const intro = officialReady
-      ? '<article class="drawer-card lineup-info official"><strong>Officiell lineup publicerad</strong><span>Uppställningen för nästa match hämtas direkt från Swehockey och ersätter automatiskt tidigare kedjor.</span></article>'
+      ? '<article class="drawer-card lineup-info official"><strong>Officiell lineup publicerad</strong><span>Uppställningen för nästa match hämtas direkt från '+esc(league.sourceLabel)+' och ersätter automatiskt tidigare kedjor.</span></article>'
       : '<article class="drawer-card lineup-info"><strong>Officiell lineup är inte publicerad ännu</strong><span>Visar respektive lags senast importerade uppställning tills nästa matchs lineup kommer. Den byts då ut automatiskt.</span></article>';
 
     return intro +
@@ -2276,7 +2279,7 @@
 
   function renderPlayerStats() {
     if ((!state.seasonPlayerStats.length && !state.currentPlayerStats.length) || !state.nextGame) {
-      return '<div class="drawer-card"><strong>Ingen säsongsstatistik ännu</strong><span>Swehockeys Players By Team har ännu inte gett oss spelardata.</span></div>';
+      return '<div class="drawer-card"><strong>Ingen säsongsstatistik ännu</strong><span>'+esc(league.sourceLabel)+' har ännu inte gett oss spelardata.</span></div>';
     }
 
     const teamOrder = [state.focusTeam.id, state.opponent.id];
@@ -2340,12 +2343,12 @@
     const leagueNote=league.name==="HockeyTvåan"
       ? "I Hockeytvåan publiceras den här delen inte för alla matcher."
       : "Den här delen har inte publicerats för senaste matchen.";
-    return '<article class="drawer-card data-availability"><strong>'+esc(label.charAt(0).toUpperCase()+label.slice(1))+' ej publicerad</strong><span>Swehockey saknar '+esc(label)+' för senaste matchen. '+esc(leagueNote)+' Säsongsdata och övriga tillgängliga matchlager visas ändå.</span></article>';
+    return '<article class="drawer-card data-availability"><strong>'+esc(label.charAt(0).toUpperCase()+label.slice(1))+' ej publicerad</strong><span>'+esc(league.sourceLabel)+' saknar '+esc(label)+' för senaste matchen. '+esc(leagueNote)+' Säsongsdata och övriga tillgängliga matchlager visas ändå.</span></article>';
   }
 
   function renderGoalieStats() {
     if ((!state.seasonGoalieStats.length && !state.currentGoalieStats.length) || !state.nextGame) {
-      return '<div class="drawer-card"><strong>Ingen målvaktsstatistik ännu</strong><span>Swehockeys säsongstabell har ännu inte gett oss målvaktsdata.</span></div>';
+      return '<div class="drawer-card"><strong>Ingen målvaktsstatistik ännu</strong><span>'+esc(league.sourceLabel)+' har ännu inte gett oss målvaktsdata.</span></div>';
     }
 
     const teamOrder = [state.focusTeam.id, state.opponent.id];
@@ -2446,7 +2449,7 @@
     const name=getTeamName(teamId);
 
     if(!season){
-      return '<section class="special-team-card"><h3>'+esc(name)+'</h3><div class="drawer-card"><strong>Ingen special teams-data</strong><span>Swehockey har ännu inte publicerat säsongsraden.</span></div></section>';
+      return '<section class="special-team-card"><h3>'+esc(name)+'</h3><div class="drawer-card"><strong>Ingen special teams-data</strong><span>'+esc(league.sourceLabel)+' har ännu inte publicerat säsongsraden.</span></div></section>';
     }
 
     const seasonPkKills = season.pk_opportunities == null || season.pk_goals_against == null
@@ -2484,7 +2487,7 @@
   }
 
   function renderSpecialTeams() {
-    return '<article class="drawer-card special-intro"><strong>PP / BP</strong><span>Säsongen kommer direkt från Swehockeys officiella PP/Penalty Killing-tabell. Senaste 5 räknas från importerade officiella matchrapporter.</span></article>' +
+    return '<article class="drawer-card special-intro"><strong>PP / BP</strong><span>Säsongen kommer från '+esc(league.sourceLabel)+'s officiella lagstatistik. Senaste 5 räknas från importerade officiella matchrapporter.</span></article>' +
       '<div class="special-team-grid">' +
         renderSpecialTeamCard(state.focusTeam.id) +
         renderSpecialTeamCard(state.opponent.id) +
@@ -2570,7 +2573,7 @@
       '</div>';
     }).join("");
 
-    return '<article class="drawer-card h2h-intro"><strong>Historik från Swehockey</strong><span>'+esc(historySeasons.join(" · "))+' · siffrorna räknas direkt från importerade matcher.</span></article>' +
+    return '<article class="drawer-card h2h-intro"><strong>Historik från '+esc(league.sourceLabel)+'</strong><span>'+esc(historySeasons.join(" · "))+' · siffrorna räknas direkt från importerade matcher.</span></article>' +
       '<div class="h2h-summary">' +
         '<div><span>MÖTEN</span><strong>'+esc(s.games)+'</strong></div>' +
         '<div><span>VINSTER</span><strong>'+esc(s.focusWins)+'–'+esc(s.opponentWins)+'</strong><small>'+esc(state.focusTeam.canonical_name)+' – '+esc(state.opponent.canonical_name)+'</small></div>' +
@@ -2860,12 +2863,12 @@
       drawerBody.innerHTML = renderLineups();
     } else if (key === "players") {
       drawerBody.innerHTML =
-        '<article class="drawer-card stats-intro"><strong>'+(gameIsLive(state.nextGame)?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(gameIsLive(state.nextGame)?"LIVE-raden kommer från pågående Player Summary när Swehockey publicerar den. ":"")+'Säsongstotalen kommer direkt från Swehockey. S5 räknas från de matchrapporter som faktiskt är publicerade.</span></article>' +
+        '<article class="drawer-card stats-intro"><strong>'+(gameIsLive(state.nextGame)?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(gameIsLive(state.nextGame)?"LIVE-raden kommer från pågående officiell matchstatistik när "+esc(league.sourceLabel)+" publicerar den. ":"")+'Säsongstotalen kommer direkt från '+esc(league.sourceLabel)+'. S5 räknas från de matchrapporter som faktiskt är publicerade.</span></article>' +
         individualReportNotice("players") +
         '<div class="stats-team-grid players-grid">' + renderPlayerStats() + '</div>';
     } else if (key === "goalies") {
       drawerBody.innerHTML =
-        '<article class="drawer-card stats-intro"><strong>'+(gameIsLive(state.nextGame)?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(gameIsLive(state.nextGame)?"LIVE-raden uppdateras från pågående Player Summary när den finns. ":"")+'SV%, GAA och record kommer från Swehockeys säsongstabell. S5 räknas från de matchrapporter som faktiskt är publicerade.</span></article>' +
+        '<article class="drawer-card stats-intro"><strong>'+(gameIsLive(state.nextGame)?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(gameIsLive(state.nextGame)?"LIVE-raden uppdateras från pågående officiell målvaktsstatistik när den finns. ":"")+'SV%, GAA och record kommer från '+esc(league.sourceLabel)+'. S5 räknas från de matchrapporter som faktiskt är publicerade.</span></article>' +
         individualReportNotice("goalies") +
         '<div class="stats-team-grid goalies-grid">' + renderGoalieStats() + '</div>';
     } else if (key === "special") {
@@ -2912,7 +2915,7 @@
 
     const {data:competitions,error:compError}=await client.from("competitions")
       .select("id,name,season_label,group_name,updated_at,source_competition_id")
-      .eq("source","swehockey");
+      .eq("source",league.sourceKey);
     if(compError) throw compError;
     state.competitionById=new Map((competitions||[]).map((row)=>[row.id,row]));
 
