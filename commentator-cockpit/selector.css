@@ -475,3 +475,65 @@ footer span:nth-child(2){
     margin:34px 0 29px;
   }
 }
+
+
+/* =========================================================
+   v3 · selector proportions polish
+   ========================================================= */
+@media(min-width:901px){
+  .selector-hero{
+    min-height:390px;
+    padding:64px 0 52px;
+    grid-template-columns:minmax(0,1.28fr) minmax(360px,.72fr);
+    gap:72px;
+  }
+
+  .selector-hero h1{
+    max-width:860px;
+    font-size:clamp(58px,6.45vw,98px);
+    line-height:.92;
+  }
+
+  .selector-status{
+    width:min(100%,445px);
+    padding:27px 27px 24px;
+  }
+
+  .selector-status strong{
+    font-size:27px;
+  }
+
+  .selector-status-meta{
+    margin:22px -27px -24px;
+  }
+
+  .selector-status-meta span{
+    padding:14px 27px 15px;
+  }
+
+  .competition-card{
+    min-height:365px;
+  }
+
+  .league-logo{
+    margin:30px 0 24px;
+  }
+
+  .future-mark{
+    margin:34px 0 26px;
+  }
+
+  .card-copy h3{
+    margin-top:7px;
+  }
+
+  .card-foot{
+    margin-top:24px;
+  }
+}
+
+@media(min-width:1200px){
+  .competition-card{
+    min-height:350px;
+  }
+}
