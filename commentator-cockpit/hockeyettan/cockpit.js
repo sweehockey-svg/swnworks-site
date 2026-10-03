@@ -2836,15 +2836,105 @@
     ).join("")+'</div>'+warning;
   }
 
+  function overviewRecentGames(games,teamId) {
+    const rows=(games||[]).slice(0,5);
+    if(!rows.length) return '<div class="overview-empty">Inga spelade matcher ännu.</div>';
+    return '<div class="overview-recent">'+rows.map((game)=>{
+      const home=game.home_team_id===teamId;
+      const gf=Number(home?game.home_score:game.away_score);
+      const ga=Number(home?game.away_score:game.home_score);
+      const opponentId=home?game.away_team_id:game.home_team_id;
+      const result=gf>ga?"V":gf<ga?"F":"O";
+      return '<div class="overview-recent-row '+(result==="V"?"win":result==="F"?"loss":"tie")+'">'+
+        '<b>'+esc(result)+'</b><span>'+esc(shortDateOnly(game.scheduled_start))+'</span>'+
+        '<strong>'+esc(gf)+'–'+esc(ga)+'</strong><em>'+esc(getTeamName(opponentId))+'</em>'+
+      '</div>';
+    }).join("")+'</div>';
+  }
+
+  function overviewWatchPlayers(teamId) {
+    const skaters=state.seasonPlayerStats
+      .filter((row)=>row.team_id===teamId&&row.position!=="GK"&&Number(row.games_played||0)>0)
+      .sort((a,b)=>
+        Number(b.points||0)-Number(a.points||0) ||
+        Number(b.goals||0)-Number(a.goals||0) ||
+        Number(b.shots||0)-Number(a.shots||0)
+      ).slice(0,2);
+    const goalie=leadingGoalie(teamId);
+    const rows=[...skaters,...(goalie?[goalie]:[])];
+    if(!rows.length) return '<div class="overview-empty">Väntar på spelarstatistik.</div>';
+
+    return '<div class="overview-watch-list">'+rows.map((row)=>{
+      const isGoalie=state.seasonGoalieStats.includes(row);
+      const profile=state.playerProfiles.get(row.player_id)||null;
+      const age=ageOn(profile?.birth_date,state.nextGame?.scheduled_start);
+      if(isGoalie){
+        const recent=aggregateRecentGoalie(row);
+        return '<div class="overview-watch-row"><b>#'+esc(row.jersey_number??"–")+'</b><div><strong>'+
+          nationalityMarkup(row.player_id)+esc(humanSourceName(row.source_name))+'</strong><span>'+
+          esc([age!=null?age+" år":null,"MV",formatPct(row.save_pct),row.gaa!=null?"GAA "+Number(row.gaa).toLocaleString("sv-SE",{maximumFractionDigits:2}):null].filter(Boolean).join(" · "))+
+          '</span><small>S5 '+esc(recent.games)+' GP · '+esc(formatPct(recent.savePct))+' SV%</small></div></div>';
+      }
+      const recent=aggregateRecentPlayer(row);
+      const seasonLine=Number(row.goals||0)+"+"+Number(row.assists||0)+" · "+Number(row.points||0)+" P";
+      const extra=[
+        age!=null?age+" år":null,
+        row.position||null,
+        "Säsong "+seasonLine,
+        row.power_play_goals!=null?"PP-mål "+Number(row.power_play_goals||0):null
+      ].filter(Boolean).join(" · ");
+      return '<div class="overview-watch-row"><b>#'+esc(row.jersey_number??"–")+'</b><div><strong>'+
+        nationalityMarkup(row.player_id)+esc(humanSourceName(row.source_name))+'</strong><span>'+esc(extra)+
+        '</span><small>S5 '+esc(recent.games)+' GP · '+esc(recent.goals)+'+'+esc(recent.assists)+' · '+esc(recent.points)+' P'+
+        (profile?.youth_club?' · moderklubb '+esc(profile.youth_club):'')+'</small></div></div>';
+    }).join("")+'</div>';
+  }
+
+  function renderPregameCockpit() {
+    if(!state.nextGame||!state.focusTeam||!state.opponent) return "";
+    const game=state.nextGame;
+    const focusStanding=state.standingsByTeam.get(state.focusTeam.id);
+    const oppStanding=state.standingsByTeam.get(state.opponent.id);
+    const focusForm=formSummary(state.focusForm,state.focusTeam.id);
+    const oppForm=formSummary(state.opponentForm,state.opponent.id);
+    const h=state.h2hGames.length?h2hSummary():null;
+    const latestH2h=state.h2hGames[0]||null;
+    const latestH2hScore=latestH2h?h2hScoreFor(latestH2h,state.focusTeam.id):null;
+    const stories=buildInsightFacts().filter((fact)=>fact.story).sort((a,b)=>b.score-a.score).slice(0,3);
+
+    return '<section class="pregame-cockpit">'+
+      '<div class="pregame-head"><span>SÄNDNINGSKORT</span><strong>'+esc(state.focusTeam.canonical_name)+' – '+esc(state.opponent.canonical_name)+'</strong><small>'+
+        esc(swedishDate(game.scheduled_start))+' · '+esc(game.venue_name||"Arena ej angiven")+'</small></div>'+
+      '<div class="pregame-grid">'+
+        '<article><span>TABELL</span><strong>#'+esc(focusStanding?.rank??"–")+' '+esc(state.focusTeam.canonical_name)+'</strong><small>'+
+          esc(focusStanding?.points??"–")+' p · #'+esc(oppStanding?.rank??"–")+' '+esc(state.opponent.canonical_name)+' · '+esc(oppStanding?.points??"–")+' p</small></article>'+
+        '<article><span>FORM · S5</span><strong>'+esc(formText(focusForm))+'</strong><small>'+esc(state.opponent.canonical_name)+' · '+esc(formText(oppForm))+'</small></article>'+
+        '<article><span>H2H</span><strong>'+(h?esc(h.focusWins)+'–'+esc(h.opponentWins)+' i vinster':'Ingen importerad historik')+'</strong><small>'+
+          (latestH2h?'Senast '+esc(latestH2hScore.gf)+'–'+esc(latestH2hScore.ga)+' · '+esc(shortDateOnly(latestH2h.scheduled_start)):'Väntar på historik')+'</small></article>'+
+        '<article><span>DATA INFÖR MATCH</span><strong>'+(state.nextLineup?'Officiell lineup klar':'Senaste kända kedjor')+'</strong><small>'+
+          esc(league.sourceLabel)+' · livecollectorn tar över när matchdata publiceras</small></article>'+
+      '</div>'+
+      '<div class="pregame-columns">'+
+        '<section><h3>SENASTE MATCHER · '+esc(state.focusTeam.canonical_name)+'</h3>'+overviewRecentGames(state.focusForm,state.focusTeam.id)+'</section>'+
+        '<section><h3>SENASTE MATCHER · '+esc(state.opponent.canonical_name)+'</h3>'+overviewRecentGames(state.opponentForm,state.opponent.id)+'</section>'+
+      '</div>'+
+      '<div class="pregame-columns watch">'+
+        '<section><h3>HÅLL KOLL PÅ · '+esc(state.focusTeam.canonical_name)+'</h3>'+overviewWatchPlayers(state.focusTeam.id)+'</section>'+
+        '<section><h3>HÅLL KOLL PÅ · '+esc(state.opponent.canonical_name)+'</h3>'+overviewWatchPlayers(state.opponent.id)+'</section>'+
+      '</div>'+
+      '<section class="pregame-stories"><h3>VIKTIGA VINKLAR</h3>'+
+        (stories.length?stories.map((fact)=>'<article><span>'+esc(fact.tag)+'</span><strong>'+esc(fact.title)+'</strong><small>'+esc(fact.text)+'</small></article>').join("")
+          :'<div class="overview-empty">Väntar på verifierade storylines.</div>')+
+      '</section>'+
+    '</section>';
+  }
+
   function renderMatchOverview() {
     const cards = panels.match.cards || [];
-    const first = cards.slice(0, 1).map(([title, text]) =>
-      '<article class="drawer-card"><strong>' + esc(title) + '</strong><span>' + esc(text) + '</span></article>'
-    ).join("");
     const rest = cards.slice(1).map(([title, text]) =>
       '<article class="drawer-card"><strong>' + esc(title) + '</strong><span>' + esc(text) + '</span></article>'
     ).join("");
-    return first + renderDataHealth() + renderUpcomingGames() + rest;
+    return renderPregameCockpit() + renderDataHealth() + renderUpcomingGames() + rest;
   }
 
   function renderDrawer(key) {
