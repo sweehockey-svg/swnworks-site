@@ -359,7 +359,7 @@
     return state.accessRows
       .filter((row)=>row.active&&row.role==="commentator"&&row.team_id)
       .map((row)=>state.teamById.get(row.team_id))
-      .filter(Boolean);
+      .filter((team)=>Boolean(team&&state.teamCompetitionByTeam.has(team.id)));
   }
 
   function selectTeamInPlace(team) {
