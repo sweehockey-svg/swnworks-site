@@ -2892,13 +2892,22 @@
     }
 
     const competitionIds=leagueCompetitions.map((row)=>row.id);
-    const [{data:teams,error:teamError},{data:rosters,error:rosterError}]=await Promise.all([
+    const [
+      {data:teams,error:teamError},
+      {data:rosters,error:rosterError},
+      {data:standingSnapshots,error:standingSnapshotsError}
+    ]=await Promise.all([
       client.from("teams").select("id,canonical_name,short_name"),
       client.from("team_rosters").select("team_id,competition_id")
-        .in("competition_id",competitionIds).eq("is_active",true)
+        .in("competition_id",competitionIds).eq("is_active",true),
+      client.from("standings_snapshots")
+        .select("id,competition_id,fetched_at")
+        .in("competition_id",competitionIds)
+        .order("fetched_at",{ascending:false})
     ]);
     if(teamError) throw teamError;
     if(rosterError) throw rosterError;
+    if(standingSnapshotsError) throw standingSnapshotsError;
 
     state.teams=teams||[];
     state.teamById=new Map(state.teams.map((team)=>[team.id,team]));
@@ -2907,6 +2916,30 @@
       const competition=state.competitionById.get(row.competition_id);
       if(competition&&!state.teamCompetitionByTeam.has(row.team_id)){
         state.teamCompetitionByTeam.set(row.team_id,competition);
+      }
+    }
+
+    const latestSnapshotByCompetition=new Map();
+    for(const snapshot of standingSnapshots||[]){
+      if(!latestSnapshotByCompetition.has(snapshot.competition_id)){
+        latestSnapshotByCompetition.set(snapshot.competition_id,snapshot.id);
+      }
+    }
+    const snapshotIds=[...latestSnapshotByCompetition.values()];
+    if(snapshotIds.length){
+      const {data:standingRows,error:standingRowsError}=await client.from("standings_snapshot_rows")
+        .select("snapshot_id,team_id")
+        .in("snapshot_id",snapshotIds);
+      if(standingRowsError) throw standingRowsError;
+      const competitionBySnapshot=new Map(
+        [...latestSnapshotByCompetition.entries()].map(([competitionId,snapshotId])=>[snapshotId,competitionId])
+      );
+      for(const row of standingRows||[]){
+        const competitionId=competitionBySnapshot.get(row.snapshot_id);
+        const competition=state.competitionById.get(competitionId);
+        if(competition&&!state.teamCompetitionByTeam.has(row.team_id)){
+          state.teamCompetitionByTeam.set(row.team_id,competition);
+        }
       }
     }
 
