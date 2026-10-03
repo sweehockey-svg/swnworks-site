@@ -1217,3 +1217,7 @@ a.product-feature-card:hover{
   opacity:.72;
   cursor:not-allowed;
 }
+
+.contact-status{min-height:1.35em;margin:2px 0 0;font-size:13px;font-weight:700}
+.contact-status.success{color:#f5b719}
+.contact-status.error{color:#ff7b72}
