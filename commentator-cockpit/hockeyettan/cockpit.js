@@ -13,8 +13,18 @@
     groupSummary: cfg?.league?.groupSummary || "Norra + Södra",
     sourceKey: cfg?.league?.sourceKey || "swehockey",
     sourceLabel: cfg?.league?.sourceLabel || "Swehockey",
-    seasonLabel: cfg?.league?.seasonLabel || "2026/27"
+    seasonLabel: cfg?.league?.seasonLabel || "2026/27",
+    accessKey: cfg?.league?.accessKey || teamSlugForAccess(cfg?.league?.name || "hockeyettan")
   });
+  function teamSlugForAccess(value) {
+    return String(value||"")
+      .toLocaleLowerCase("sv-SE")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"")
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-+|-+$/g,"");
+  }
+
   const sb = window.supabase;
   const client = cfg && sb ? sb.createClient(cfg.supabaseUrl, cfg.supabasePublishableKey, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
@@ -346,13 +356,38 @@
   }
 
   function globalAdminAccess() {
-    return state.accessRows.find((row)=>row.active&&row.role==="admin"&&!row.team_id)||null;
+    return state.accessRows.find((row)=>
+      row.active&&row.role==="admin"&&!row.team_id&&!row.league_key
+    )||null;
+  }
+
+  function leagueAccess() {
+    return state.accessRows.find((row)=>
+      row.active&&row.role==="commentator"&&!row.team_id&&row.league_key===league.accessKey
+    )||null;
+  }
+
+  function teamAccess(teamId) {
+    return state.accessRows.find((row)=>
+      row.active&&row.role==="commentator"&&row.team_id===teamId&&row.league_key===league.accessKey
+    )||null;
+  }
+
+  function canAccessLeague() {
+    return Boolean(
+      state.authUser &&
+      (
+        globalAdminAccess() ||
+        leagueAccess() ||
+        state.accessRows.some((row)=>
+          row.active&&row.role==="commentator"&&row.team_id&&row.league_key===league.accessKey
+        )
+      )
+    );
   }
 
   function effectiveAccessForTeam(teamId) {
-    return globalAdminAccess() ||
-      state.accessRows.find((row)=>row.active&&row.role==="commentator"&&row.team_id===teamId) ||
-      null;
+    return globalAdminAccess() || leagueAccess() || teamAccess(teamId) || null;
   }
 
   function canAccessTeam(teamId) {
@@ -361,9 +396,16 @@
 
   function allowedCommentatorTeams() {
     return state.accessRows
-      .filter((row)=>row.active&&row.role==="commentator"&&row.team_id)
+      .filter((row)=>
+        row.active&&row.role==="commentator"&&row.team_id&&row.league_key===league.accessKey
+      )
       .map((row)=>state.teamById.get(row.team_id))
       .filter((team)=>Boolean(team&&state.teamCompetitionByTeam.has(team.id)));
+  }
+
+  function visibleLeagueTeams() {
+    if(globalAdminAccess()||leagueAccess()) return [...state.competitionTeams];
+    return allowedCommentatorTeams();
   }
 
   function selectTeamInPlace(team) {
@@ -383,7 +425,7 @@
   }
 
   function normalizeTeamSelectionForAccess() {
-    if(!state.authUser||globalAdminAccess()) return false;
+    if(!state.authUser||globalAdminAccess()||leagueAccess()) return false;
     const allowed=allowedCommentatorTeams();
     if(allowed.length!==1) return false;
     if(state.selectedTeam&&canAccessTeam(state.selectedTeam.id)) return false;
@@ -415,17 +457,54 @@
     setRouteScreen("home");
     document.title="Commentator Cockpit · "+league.displayName;
     document.getElementById("currentTeamButton")?.classList.add("hidden");
+    const heroTitle=document.querySelector(".league-home-hero h2");
+    const heroCopy=document.querySelector(".league-home-hero p");
     const grid=document.getElementById("teamGrid");
     if(!grid) return;
-    const teams=[...state.competitionTeams].sort((a,b)=>
+
+    if(!state.authUser){
+      if(heroTitle) heroTitle.textContent="Logga in för att öppna "+league.displayName;
+      if(heroCopy) heroCopy.textContent="Laglistan och själva kommentatorscockpiten är privat. Logga in med ett konto som har liga- eller lagbehörighet.";
+      grid.innerHTML=
+        '<section class="league-access-gate"><span>PRIVAT ARBETSYTA</span><strong>'+esc(league.displayName)+'</strong>'+
+        '<p>Den här miljön finns, men lag, matcher och arbetsdata visas först efter godkänd inloggning.</p>'+
+        '<button type="button" id="leagueLoginButton">LOGGA IN / KONTO</button></section>';
+      document.getElementById("leagueLoginButton")?.addEventListener("click",()=>renderDrawer("account"));
+      setSyncStatus("","Åtkomst krävs · "+league.displayName);
+      return;
+    }
+
+    if(!canAccessLeague()){
+      if(heroTitle) heroTitle.textContent="Ingen behörighet till "+league.displayName;
+      if(heroCopy) heroCopy.textContent="Du är inloggad, men kontot har ingen liga- eller lagbehörighet i den här miljön.";
+      grid.innerHTML=
+        '<section class="league-access-gate denied"><span>INLOGGAD · INGEN ÅTKOMST</span><strong>'+esc(state.authUser.email||"Konto")+'</strong>'+
+        '<p>En global admin kan ge dig hela ligan eller ett specifikt lag.</p>'+
+        '<div class="league-gate-actions"><button type="button" id="leagueAccountButton">KONTO</button><a href="../">TILL LIGOR / TURNERINGAR</a></div></section>';
+      document.getElementById("leagueAccountButton")?.addEventListener("click",()=>renderDrawer("account"));
+      setSyncStatus("warn","Ingen behörighet · "+league.displayName);
+      return;
+    }
+
+    const teams=visibleLeagueTeams().sort((a,b)=>
       a.canonical_name.localeCompare(b.canonical_name,"sv")
     );
+    if(heroTitle) heroTitle.textContent=teams.length===1?"Öppna lag":"Välj lag";
+    if(heroCopy){
+      heroCopy.textContent=globalAdminAccess()
+        ? "Global admin · alla lag i "+league.displayName+"."
+        : leagueAccess()
+          ? "Ligaaccess · alla lag i "+league.displayName+"."
+          : "Här visas bara de lag som ditt konto har behörighet till.";
+    }
+
     grid.innerHTML=teams.map((team)=>{
-      const access=effectiveAccessForTeam(team.id);
-      const status=!state.authUser
-        ? "KRÄVER INLOGGNING"
-        : access ? (access.role==="admin"?"ADMIN · ÖPPEN":"ÖPPEN FÖR DIG") : "LÅST";
-      return '<button class="team-card '+(access?"unlocked":"locked")+'" type="button" data-team-id="'+esc(team.id)+'">' +
+      const status=globalAdminAccess()
+        ? "ADMIN · ÖPPEN"
+        : leagueAccess()
+          ? "LIGAACCESS · ÖPPEN"
+          : "ÖPPEN FÖR DIG";
+      return '<button class="team-card unlocked" type="button" data-team-id="'+esc(team.id)+'">' +
         '<div class="team-card-badge">'+teamLogoMarkup(team.canonical_name,"team-card-logo")+'</div>' +
         '<div class="team-card-copy"><span>'+esc(league.upperName)+' · '+esc(state.teamCompetitionByTeam.get(team.id)?.group_name||"")+'</span><strong>'+esc(team.canonical_name)+'</strong><small>'+esc(status)+'</small></div>' +
         '<div class="team-card-arrow">→</div>' +
@@ -437,7 +516,7 @@
         if(team) openTeam(team);
       });
     });
-    document.getElementById("syncText").textContent=teams.length+" "+league.displayName+"-lag laddade · "+league.groupSummary;
+    document.getElementById("syncText").textContent=teams.length+" åtkomliga "+league.displayName+"-lag · "+league.groupSummary;
   }
 
   function renderTeamLock() {
@@ -648,13 +727,14 @@
     if(!button) return;
     state.access=state.selectedTeam
       ? effectiveAccessForTeam(state.selectedTeam.id)
-      : globalAdminAccess() || state.accessRows.find((row)=>row.active) || null;
+      : globalAdminAccess() || leagueAccess() ||
+        state.accessRows.find((row)=>row.active&&row.league_key===league.accessKey) || null;
     if(state.authUser){
       const label=state.authUser.email||"Inloggad";
       button.classList.toggle("signed-in",Boolean(state.access?.active));
       button.classList.toggle("pending",!state.access?.active);
       const sub=state.access?.active
-        ? (state.access.role==="admin"?"ADMIN":state.selectedTeam?"LAGACCESS":"KOMMENTATOR")
+        ? (state.access.role==="admin"?"ADMIN":leagueAccess()?"LIGAACCESS":state.selectedTeam?"LAGACCESS":"KOMMENTATOR")
         : "EJ GODKÄND";
       button.innerHTML='<span class="account-dot"></span><strong>'+esc(label)+'</strong><small>'+esc(sub)+'</small>';
     }else{
@@ -959,7 +1039,7 @@
     state.accessRows=[];
     if(!client||!state.authUser?.email) return [];
     const {data,error}=await client.from("commentator_access")
-      .select("id,email,role,team_id,active,display_name")
+      .select("id,email,role,team_id,league_key,active,display_name")
       .order("role",{ascending:true});
     if(error){
       console.error("Access check failed",error);
@@ -968,7 +1048,8 @@
     state.accessRows=data||[];
     state.access=state.selectedTeam
       ? effectiveAccessForTeam(state.selectedTeam.id)
-      : globalAdminAccess() || state.accessRows.find((row)=>row.active) || null;
+      : globalAdminAccess() || leagueAccess() ||
+        state.accessRows.find((row)=>row.active&&row.league_key===league.accessKey) || null;
     return state.accessRows;
   }
 
