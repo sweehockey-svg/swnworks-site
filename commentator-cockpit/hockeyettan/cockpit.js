@@ -21,6 +21,7 @@
     competition: null,
     teams: [],
     teamById: new Map(),
+    teamByName: new Map(),
     focusTeam: null,
     opponent: null,
     nextGame: null,
@@ -267,7 +268,7 @@
   });
 
   function teamLogoUrl(name) {
-    return TEAM_LOGOS[name] || "";
+    return state.teamByName.get(name)?.logo_url || TEAM_LOGOS[name] || "";
   }
 
   function teamLogoMarkup(name,className="team-logo-img") {
@@ -2897,7 +2898,7 @@
       {data:rosters,error:rosterError},
       {data:standingSnapshots,error:standingSnapshotsError}
     ]=await Promise.all([
-      client.from("teams").select("id,canonical_name,short_name"),
+      client.from("teams").select("id,canonical_name,short_name,logo_url,logo_source,logo_source_url"),
       client.from("team_rosters").select("team_id,competition_id")
         .in("competition_id",competitionIds).eq("is_active",true),
       client.from("standings_snapshots")
@@ -2911,6 +2912,7 @@
 
     state.teams=teams||[];
     state.teamById=new Map(state.teams.map((team)=>[team.id,team]));
+    state.teamByName=new Map(state.teams.map((team)=>[team.canonical_name,team]));
     state.teamCompetitionByTeam=new Map();
     for(const row of rosters||[]){
       const competition=state.competitionById.get(row.competition_id);
@@ -3015,10 +3017,11 @@
     state.competition=competition;
 
     const { data: teams, error: teamError } = await client.from("teams")
-      .select("id,canonical_name,short_name");
+      .select("id,canonical_name,short_name,logo_url,logo_source,logo_source_url");
     if (teamError) throw teamError;
     state.teams = teams || [];
     state.teamById = new Map(state.teams.map((team) => [team.id, team]));
+    state.teamByName = new Map(state.teams.map((team) => [team.canonical_name, team]));
     state.focusTeam = state.selectedTeam
       ? state.teamById.get(state.selectedTeam.id)
       : null;
