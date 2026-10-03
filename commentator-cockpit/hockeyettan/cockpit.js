@@ -2,6 +2,16 @@
   "use strict";
 
   const cfg = window.COMMENTATOR_CONFIG;
+  const league = Object.freeze({
+    name: cfg?.league?.name || "Hockeyettan",
+    displayName: cfg?.league?.displayName || cfg?.league?.name || "Hockeyettan",
+    upperName: cfg?.league?.upperName || String(cfg?.league?.name || "Hockeyettan").toUpperCase(),
+    competitionSourceIds: Array.isArray(cfg?.league?.competitionSourceIds)
+      ? cfg.league.competitionSourceIds.map(String)
+      : ["21043","21044"],
+    expectedCompetitionCount: Number(cfg?.league?.expectedCompetitionCount || 2),
+    groupSummary: cfg?.league?.groupSummary || "Norra + Södra"
+  });
   const sb = window.supabase;
   const client = cfg && sb ? sb.createClient(cfg.supabaseUrl, cfg.supabasePublishableKey, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
@@ -79,7 +89,7 @@
       kicker: "MATCH",
       title: "Matchöversikt",
       cards: [
-        ["Nästa match", "Laddar från Hockeyettan 2026/27."],
+        ["Nästa match", "Laddar från " + league.displayName + " 2026/27."],
         ["Datakälla", "Swehockey → collector → Supabase → cockpit."]
       ]
     },
@@ -399,7 +409,7 @@
 
   function renderLeagueHome() {
     setRouteScreen("home");
-    document.title="Commentator Cockpit · Hockeyettan";
+    document.title="Commentator Cockpit · "+league.displayName;
     const grid=document.getElementById("teamGrid");
     if(!grid) return;
     const teams=[...state.competitionTeams].sort((a,b)=>
@@ -412,7 +422,7 @@
         : access ? (access.role==="admin"?"ADMIN · ÖPPEN":"ÖPPEN FÖR DIG") : "LÅST";
       return '<button class="team-card '+(access?"unlocked":"locked")+'" type="button" data-team-id="'+esc(team.id)+'">' +
         '<div class="team-card-badge">'+teamLogoMarkup(team.canonical_name,"team-card-logo")+'</div>' +
-        '<div class="team-card-copy"><span>HOCKEYETTAN · '+esc(state.teamCompetitionByTeam.get(team.id)?.group_name||"")+'</span><strong>'+esc(team.canonical_name)+'</strong><small>'+esc(status)+'</small></div>' +
+        '<div class="team-card-copy"><span>'+esc(league.upperName)+' · '+esc(state.teamCompetitionByTeam.get(team.id)?.group_name||"")+'</span><strong>'+esc(team.canonical_name)+'</strong><small>'+esc(status)+'</small></div>' +
         '<div class="team-card-arrow">→</div>' +
       '</button>';
     }).join("");
@@ -422,7 +432,7 @@
         if(team) openTeam(team);
       });
     });
-    document.getElementById("syncText").textContent=teams.length+" Hockeyettan-lag laddade · Norra + Södra";
+    document.getElementById("syncText").textContent=teams.length+" "+league.displayName+"-lag laddade · "+league.groupSummary;
   }
 
   function renderTeamLock() {
@@ -1037,7 +1047,7 @@
         '</article>' +
         '<div class="account-actions"><button type="button" id="refreshAccessButton">KONTROLLERA BEHÖRIGHET</button>' +
         '<button type="button" class="danger" id="signOutButton">LOGGA UT</button></div>' +
-        '<article class="drawer-card"><strong>Lagstyrt</strong><span>En admin måste koppla e-postadressen till rätt Hockeyettan-lag.</span></article>' +
+        '<article class="drawer-card"><strong>Lagstyrt</strong><span>En admin måste koppla e-postadressen till rätt '+esc(league.displayName)+'-lag.</span></article>' +
         swahnworksAboutCard();
       }
 
@@ -1060,7 +1070,7 @@
         '<button type="submit" '+(state.authBusy?"disabled":"")+'>'+(state.authBusy?"SKICKAR…":"SKICKA INLOGGNINGSLÄNK")+'</button>' +
       '</form>' +
       (state.authMessage?'<div class="account-message '+esc(state.authMessageType||"")+'" role="status" aria-live="polite">'+esc(state.authMessage)+'</div>':'') +
-      '<article class="drawer-card"><strong>Lagbehörighet</strong><span>Inloggning och lagåtkomst är separata. En admin kopplar din e-postadress till rätt Hockeyettan-lag.</span></article>' +
+      '<article class="drawer-card"><strong>Lagbehörighet</strong><span>Inloggning och lagåtkomst är separata. En admin kopplar din e-postadress till rätt '+esc(league.displayName)+'-lag.</span></article>' +
       swahnworksAboutCard();
   }
 
@@ -2876,8 +2886,10 @@
     state.competitionById=new Map((competitions||[]).map((row)=>[row.id,row]));
 
     const leagueCompetitions=(competitions||[])
-      .filter((row)=>["21043","21044"].includes(row.source_competition_id));
-    if(leagueCompetitions.length<2) throw new Error("Båda Hockeyettan-serierna är inte importerade ännu.");
+      .filter((row)=>league.competitionSourceIds.includes(String(row.source_competition_id)));
+    if(leagueCompetitions.length<league.expectedCompetitionCount){
+      throw new Error(league.displayName+" är inte färdigimporterad ännu ("+leagueCompetitions.length+"/"+league.expectedCompetitionCount+" serier).");
+    }
 
     const competitionIds=leagueCompetitions.map((row)=>row.id);
     const [{data:teams,error:teamError},{data:rosters,error:rosterError}]=await Promise.all([
@@ -2966,7 +2978,7 @@
     state.notes=loadLocalNotes();
 
     const competition=state.selectedCompetition;
-    if(!competition) throw new Error("Serie saknas för valt Hockeyettan-lag.");
+    if(!competition) throw new Error("Serie saknas för valt "+league.displayName+"-lag.");
     state.competition=competition;
 
     const { data: teams, error: teamError } = await client.from("teams")
@@ -3381,7 +3393,7 @@
     setSyncStatus("bad","Datakoppling misslyckades");
     const grid=document.getElementById("teamGrid");
     if(grid){
-      grid.innerHTML='<div class="home-load-error"><strong>Kunde inte läsa Hockeyettan-data.</strong><span>'+esc(error?.message||error)+'</span><button type="button" id="homeRetryButton">FÖRSÖK IGEN</button></div>';
+      grid.innerHTML='<div class="home-load-error"><strong>Kunde inte läsa '+esc(league.displayName)+'-data.</strong><span>'+esc(error?.message||error)+'</span><button type="button" id="homeRetryButton">FÖRSÖK IGEN</button></div>';
       document.getElementById("homeRetryButton")?.addEventListener("click",()=>window.location.reload());
     }
   }
