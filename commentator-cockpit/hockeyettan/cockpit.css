@@ -3750,3 +3750,95 @@ html[data-theme="light"] .competition-button{
     grid-row:auto;
   }
 }
+
+
+/* v54 · team selector responsive + light mode cleanup */
+.league-home{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow-x:clip;
+}
+.league-home-hero{
+  width:min(760px,100%);
+  max-width:100%;
+}
+.team-toolbar,
+.team-grid{
+  min-width:0;
+  max-width:2100px;
+}
+.team-toolbar>*,
+.team-card,
+.team-card-copy{
+  min-width:0;
+}
+
+/* New selector controls need an actual light theme too. Apparently black inputs on a
+   white workspace count as "design" if nobody stops them. */
+html[data-theme="light"] .team-search input{
+  background:#ffffff;
+  border-color:#c9d5db;
+  color:#1a2a34;
+  box-shadow:0 5px 18px rgba(51,68,78,.045);
+}
+html[data-theme="light"] .team-search input::placeholder{
+  color:#7e909a;
+}
+html[data-theme="light"] .team-search span,
+html[data-theme="light"] .team-result-count{
+  color:#687d89;
+}
+html[data-theme="light"] .team-filters button{
+  background:#f7f9fa;
+  border-color:#cdd8de;
+  color:#586e7a;
+}
+html[data-theme="light"] .team-filters button:hover{
+  border-color:#b49842;
+  color:#283942;
+}
+html[data-theme="light"] .team-filters button.active{
+  background:#fff8e7;
+  border-color:#b79638;
+  color:#9a6c00;
+}
+html[data-theme="light"] .team-card{
+  border-color:#c8d5db;
+  box-shadow:0 7px 20px rgba(41,58,68,.055);
+}
+html[data-theme="light"] .team-card.unlocked{
+  border-color:#82b69c;
+}
+html[data-theme="light"] .team-card:hover{
+  border-color:#ba962f;
+  background:#fffdf7;
+  box-shadow:0 10px 26px rgba(41,58,68,.08);
+}
+html[data-theme="light"] .team-card-badge{
+  background:#f5f8f9;
+  border-color:#b8cbd4;
+}
+html[data-theme="light"] .team-card.unlocked .team-card-badge{
+  border-color:#7fad94;
+}
+html[data-theme="light"] .team-card-copy span{
+  color:#617986;
+}
+html[data-theme="light"] .team-card-copy small{
+  color:#19794e;
+}
+html[data-theme="light"] .team-card-arrow{
+  color:#617985;
+}
+
+@media(max-width:1100px){
+  .team-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:680px){
+  .team-grid{
+    grid-template-columns:1fr;
+  }
+}
