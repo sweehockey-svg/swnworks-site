@@ -161,7 +161,7 @@
         <label><span>Ämne</span><input type="text" name="_subject" placeholder="Vad gäller det?" required></label>
         <label><span>Meddelande</span><textarea name="message" rows="4" placeholder="Skriv ditt meddelande här" required></textarea></label>
         <div class="contact-actions">
-          <input type="hidden" name="_captcha" value="false"><input type="hidden" name="_template" value="table"><button class="btn primary" type="submit">Skicka meddelande <span>→</span></button>
+          <input type="hidden" name="_captcha" value="false"><input type="hidden" name="_template" value="table"><label class="contact-hp" aria-hidden="true">Website<input type="text" name="_honey" tabindex="-1" autocomplete="off"></label><button class="btn primary" type="submit">Skicka meddelande <span>→</span></button>
           <span>Eller maila direkt: <a href="mailto:info@swnworks.se">info@swnworks.se</a></span>
         </div>
         <p class="contact-status" role="status" aria-live="polite"></p>
@@ -178,8 +178,15 @@
     const contactForm = document.querySelector('.contact-form');
     const contactStatus = document.querySelector('.contact-status');
     if (contactForm && contactStatus) {
+      const formLoadedAt = Date.now();
       contactForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        const honey = contactForm.querySelector('input[name="_honey"]');
+        if ((honey && honey.value) || Date.now() - formLoadedAt < 1800) {
+          contactStatus.textContent = 'Meddelandet kunde inte skickas. Försök igen om en liten stund.';
+          contactStatus.className = 'contact-status error';
+          return;
+        }
         const button = contactForm.querySelector('button[type="submit"]');
         const original = button.innerHTML;
         button.disabled = true;
