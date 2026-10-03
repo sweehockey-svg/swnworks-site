@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#06111a">
   <meta name="description" content="SWNWORKS Commentator Cockpit · välj liga eller turnering.">
   <title>Commentator Cockpit · SWNWORKS</title>
-  <link rel="stylesheet" href="selector.css?v=7">
+  <link rel="stylesheet" href="selector.css?v=8">
 </head>
 <body>
   <div class="selector-shell">
@@ -19,49 +19,55 @@
           <small>SPORTS TECHNOLOGY · BROADCAST TOOLS</small>
         </span>
       </a>
-      <a class="contact" href="mailto:swnworks@gmail.com">swnworks@gmail.com</a>
+      <div class="topbar-actions">
+        <span class="private-note">PRIVAT BETA</span>
+        <a class="contact" href="mailto:swnworks@gmail.com">KONTAKT</a>
+      </div>
     </header>
 
     <main>
       <section class="selector-hero">
         <div>
           <span class="kicker">SWNWORKS · COMMENTATOR COCKPIT</span>
-          <h1>Välj liga eller<br>turnering.</h1>
-          <p>Varje miljö har sin egen data, lagåtkomst och matchkontext. Välj den tävling du arbetar med.</p>
+          <h1>Välj liga eller turnering.</h1>
+          <p>Ett arbetsverktyg för kommentatorer. Välj liga för matchdata, research, livehändelser, storylines och AI-stöd.</p>
         </div>
-        <div class="selector-status">
+        <aside class="selector-status" aria-label="Produktstatus">
           <div class="selector-status-top">
-            <span>PRODUCT 01</span>
-            <span class="selector-status-live"><i></i> ACTIVE</span>
+            <span>COMMENTATOR COCKPIT</span>
+            <span class="selector-status-live"><i></i> AKTIV</span>
           </div>
-          <strong>Commentator Cockpit</strong>
-          <small>Competition-aware broadcast workspace</small>
+          <strong>Broadcast workspace</strong>
+          <small>Matchförberedelse · live · research · AI-stöd</small>
           <div class="selector-status-meta">
-            <span><b>MODE</b> Competition-specific</span>
-            <span><b>ACCESS</b> Account required</span>
+            <span><b>ÅTKOMST</b> Konto krävs</span>
+            <span><b>STATUS</b> Privat beta</span>
           </div>
-        </div>
+        </aside>
       </section>
 
       <section class="competition-section" aria-labelledby="competitionTitle">
         <div class="section-head">
           <span>01</span>
-          <h2 id="competitionTitle">Tillgängliga miljöer</h2>
+          <h2 id="competitionTitle">Ligor & turneringar</h2>
         </div>
 
         <div class="competition-grid">
           <a class="competition-card active" href="hockeyettan/">
             <div class="card-head">
-              <span class="state">AVAILABLE · PRIVATE BETA</span>
+              <span class="state">TILLGÄNGLIG · PRIVAT BETA</span>
               <span class="arrow">↗</span>
             </div>
-            <div class="league-logo">
-              <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Logo_Hockeyettan.svg" alt="Hockeyettan">
+            <div class="logo-stage">
+              <div class="league-logo">
+                <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Logo_Hockeyettan.svg" alt="Hockeyettan">
+              </div>
             </div>
             <div class="card-copy">
               <small>ISHOCKEY · SVERIGE</small>
               <h3>Hockeyettan</h3>
-              <p>39 lag · Swehockey-data · lineups · spelarstatistik · storylines · liveuppdatering · verifierade AI talking points.</p>
+              <p>39 lag · Norra + Södra</p>
+              <div class="feature-tags"><span>SWEHOCKEY</span><span>LIVE</span><span>LINEUPS</span><span>AI</span></div>
             </div>
             <div class="card-foot">
               <span>ÖPPNA MILJÖ</span>
@@ -71,14 +77,17 @@
 
           <a class="competition-card active" href="hockeytvaan/">
             <div class="card-head">
-              <span class="state">AVAILABLE · PRIVATE BETA</span>
+              <span class="state">TILLGÄNGLIG · PRIVAT BETA</span>
               <span class="arrow">↗</span>
             </div>
-            <div class="league-logo hockeytvaan-league-logo"><img src="https://pqaymcvlwsruxvekvvtl.supabase.co/storage/v1/object/public/team-logos/leagues/hockeytvaan.jpg" alt="Hockeytvåan"></div>
+            <div class="logo-stage">
+              <div class="league-logo hockeytvaan-league-logo"><img src="https://pqaymcvlwsruxvekvvtl.supabase.co/storage/v1/object/public/team-logos/leagues/hockeytvaan.jpg" alt="Hockeytvåan"></div>
+            </div>
             <div class="card-copy">
               <small>ISHOCKEY · SVERIGE</small>
               <h3>Hockeytvåan</h3>
-              <p>9 serier · 79 lag · Swehockey-data · lineups · spelarstatistik · matchfeed · liveuppdatering.</p>
+              <p>79 lag · Norr · Väst · Öst · Syd</p>
+              <div class="feature-tags"><span>SWEHOCKEY</span><span>MATCHFEED</span><span>S5</span><span>AI</span></div>
             </div>
             <div class="card-foot">
               <span>ÖPPNA MILJÖ</span>
@@ -88,14 +97,17 @@
 
           <a class="competition-card active" href="suomi-sarja/">
             <div class="card-head">
-              <span class="state">AVAILABLE · PRIVATE BETA</span>
+              <span class="state">TILLGÄNGLIG · PRIVAT BETA</span>
               <span class="arrow">↗</span>
             </div>
-            <div class="league-logo suomi-logo"><img src="https://pqaymcvlwsruxvekvvtl.supabase.co/storage/v1/object/public/team-logos/leagues/suomi-sarja.jpg" alt="Suomi-sarja"></div>
+            <div class="logo-stage">
+              <div class="league-logo suomi-logo"><img src="https://pqaymcvlwsruxvekvvtl.supabase.co/storage/v1/object/public/team-logos/leagues/suomi-sarja.jpg" alt="Suomi-sarja"></div>
+            </div>
             <div class="card-copy">
               <small>ISHOCKEY · FINLAND</small>
               <h3>Suomi-sarja</h3>
-              <p>14 lag · Leijonat-data · officiella kedjor · spelar- och målvaktsstatistik · matchfeed · liveuppdatering.</p>
+              <p>14 lag · Nationell serie</p>
+              <div class="feature-tags"><span>LEIJONAT</span><span>LIVE</span><span>LINEUPS</span><span>AI</span></div>
             </div>
             <div class="card-foot">
               <span>ÖPPNA MILJÖ</span>
