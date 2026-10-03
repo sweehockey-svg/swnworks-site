@@ -299,26 +299,36 @@
 
     .footer{
       display:flex;
-      align-items:flex-end;
+      align-items:center;
       justify-content:space-between;
-      gap:10px;
+      gap:8px;
       margin-top:17px;
       padding-top:13px;
       border-top:1px solid rgba(39,50,71,.68);
+      flex-wrap:nowrap;
     }
     .channel{
       display:flex;
       align-items:center;
       gap:7px;
       min-width:0;
+      flex:1 1 auto;
       color:#9aa5b5;
       font-size:13px;
+      white-space:nowrap;
+      overflow:hidden;
     }
-    .channel svg{width:17px;height:17px;color:var(--accent)}
+    .channel span{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .channel svg{width:17px;height:17px;flex:0 0 17px;color:var(--accent)}
     .actions{
       display:flex;
       gap:7px;
       flex:0 0 auto;
+      flex-wrap:nowrap;
     }
     .btn{
       min-height:39px;
@@ -505,9 +515,30 @@
       .search-results{padding-left:13px;padding-right:13px}
       .match-card{padding:14px}
       .teams{font-size:18px}
-      .footer{display:block}
-      .actions{margin-top:11px}
-      .btn{flex:1}
+      .footer{
+        display:flex;
+        align-items:center;
+        gap:6px;
+      }
+      .channel{
+        font-size:11px;
+        gap:5px;
+      }
+      .channel svg{
+        width:15px;
+        height:15px;
+        flex-basis:15px;
+      }
+      .actions{
+        margin-top:0;
+        gap:5px;
+      }
+      .btn{
+        min-height:36px;
+        padding:0 8px;
+        font-size:11px;
+        flex:0 0 auto;
+      }
     }
   </style>
 </head>
@@ -592,7 +623,7 @@
 "use strict";
 
 /*
-  SPORTKALENDERN – MOBIL V4.4
+  SPORTKALENDERN – MOBIL V4.5
 
   API:
   Den här versionen hämtar matcher direkt från ESPN:s öppna scoreboard-endpoints.
