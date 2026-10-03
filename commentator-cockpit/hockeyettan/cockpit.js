@@ -1085,26 +1085,33 @@
 
     const rows=state.accessAdminItems.map((item)=>{
       const self=item.id===globalAdminAccess()?.id;
+      const itemScope=item.role==="admin"?"admin":item.team_id?"team":"league";
+      const scopeLabel=item.role==="admin"
+        ? "GLOBAL ADMIN"
+        : item.team_id
+          ? (item.team_name||"LAG")
+          : "LIGA · "+(item.league_key||"–");
       const action=item.active
         ? (self?"":'<button type="button" class="danger" data-access-deactivate="'+esc(item.id)+'">STÄNG AV</button>')
-        : '<button type="button" data-access-reactivate="'+esc(item.id)+'" data-access-email="'+esc(item.email)+'" data-access-role="'+esc(item.role)+'" data-access-team="'+esc(item.team_id||"")+'" data-access-name="'+esc(item.display_name||"")+'">ÅTERAKTIVERA</button>';
+        : '<button type="button" data-access-reactivate="'+esc(item.id)+'" data-access-email="'+esc(item.email)+'" data-access-scope="'+esc(itemScope)+'" data-access-team="'+esc(item.team_id||"")+'" data-access-league="'+esc(item.league_key||"")+'" data-access-name="'+esc(item.display_name||"")+'">ÅTERAKTIVERA</button>';
       return '<div class="access-row '+(item.active?"active":"inactive")+'">' +
         '<div><strong>'+esc(item.display_name||item.email)+'</strong><small>'+esc(item.email)+'</small></div>' +
-        '<span>'+esc(item.role==="admin"?"ADMIN":item.team_name||"LAG")+'</span>' +
+        '<span>'+esc(scopeLabel)+'</span>' +
         '<em>'+(item.active?"AKTIV":"AVSTÄNGD")+'</em>' +
         '<div>'+action+'</div>' +
       '</div>';
     }).join("");
 
     return '<section class="access-admin">' +
-      '<div class="section-title"><span>LAGBEHÖRIGHETER</span><small>ADMIN</small></div>' +
+      '<div class="section-title"><span>BEHÖRIGHETER</span><small>ADMIN</small></div>' +
       '<form class="access-form access-form-team" id="accessForm">' +
         '<input id="accessEmail" type="email" required placeholder="kommentator@example.com">' +
         '<input id="accessName" maxlength="120" placeholder="Namn (valfritt)">' +
-        '<select id="accessRole"><option value="commentator">Kommentator</option><option value="admin">Global admin</option></select>' +
+        '<select id="accessScope"><option value="team">Lagaccess</option><option value="league">Ligaaccess · '+esc(league.displayName)+'</option><option value="admin">Global admin</option></select>' +
         '<select id="accessTeam">'+teamOptions+'</select>' +
         '<button type="submit">LÄGG TILL / UPPDATERA</button>' +
       '</form>' +
+      '<div class="access-scope-note" id="accessScopeNote">Lagaccess gäller bara valt lag i '+esc(league.displayName)+'.</div>' +
       (state.accessAdminError?'<div class="account-message">'+esc(state.accessAdminError)+'</div>':"") +
       '<div class="access-list">'+
         (state.accessAdminBusy?'<div class="notes-empty"><strong>Laddar behörigheter…</strong></div>':
@@ -1125,21 +1132,23 @@
   function renderAccount() {
     if(state.authUser){
       const email=state.authUser.email||"Inloggad användare";
-      const allowedTeams=state.competitionTeams.filter((team)=>canAccessTeam(team.id));
+      const allowedTeams=visibleLeagueTeams();
       const teamText=isAccessAdmin()
-        ? "Global admin · alla lag"
-        : allowedTeams.length
-          ? allowedTeams.map((team)=>team.canonical_name).join(" · ")
-          : "Inga lag ännu";
+        ? "Global admin · alla ligor och lag"
+        : leagueAccess()
+          ? "Ligaaccess · "+league.displayName+" · alla lag"
+          : allowedTeams.length
+            ? allowedTeams.map((team)=>team.canonical_name).join(" · ")
+            : "Ingen åtkomst till "+league.displayName;
 
       if(!state.accessRows.some((row)=>row.active)){
         return '<article class="account-card pending">' +
           '<span>INLOGGAD · EJ GODKÄND</span><h3>'+esc(email)+'</h3>' +
-          '<p>Kontot är verifierat, men har ännu ingen lagbehörighet.</p>' +
+          '<p>Kontot är verifierat, men har ännu ingen liga- eller lagbehörighet.</p>' +
         '</article>' +
         '<div class="account-actions"><button type="button" id="refreshAccessButton">KONTROLLERA BEHÖRIGHET</button>' +
         '<button type="button" class="danger" id="signOutButton">LOGGA UT</button></div>' +
-        '<article class="drawer-card"><strong>Lagstyrt</strong><span>En admin måste koppla e-postadressen till rätt '+esc(league.displayName)+'-lag.</span></article>' +
+        '<article class="drawer-card"><strong>Behörighetsstyrt</strong><span>En admin kan ge åtkomst till hela '+esc(league.displayName)+' eller till ett specifikt lag.</span></article>' +
         swahnworksAboutCard();
       }
 
@@ -1151,18 +1160,18 @@
         (state.selectedTeam&&canAccessTeam(state.selectedTeam.id)?'<button type="button" id="syncNotesNow">SYNKA NOTES NU</button>':'') +
         '<button type="button" class="danger" id="signOutButton">LOGGA UT</button>' +
       '</div>' +
-      '<article class="drawer-card"><strong>Åtkomst</strong><span>Varje lag har sin egen cockpit-behörighet. Global admin kan öppna alla lag.</span></article>' +
+      '<article class="drawer-card"><strong>Åtkomst</strong><span>Behörighet kan ges per lag, per liga eller globalt för hela Commentator Cockpit.</span></article>' +
       accessAdminHtml() +
       swahnworksAboutCard();
     }
 
-    return '<article class="drawer-card"><strong>E-postinloggning</strong><span>Du får en personlig engångslänk via e-post. Inget lösenord behövs. Efter inloggningen kontrolleras din lagbehörighet.</span></article>' +
+    return '<article class="drawer-card"><strong>E-postinloggning</strong><span>Du får en personlig engångslänk via e-post. Inget lösenord behövs. Efter inloggningen kontrolleras din liga- eller lagbehörighet.</span></article>' +
       '<form class="account-form" id="accountForm">' +
         '<label><span>E-POST</span><input id="accountEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" required placeholder="namn@example.com" value="'+esc(state.authEmailDraft)+'"></label>' +
         '<button type="submit" '+(state.authBusy?"disabled":"")+'>'+(state.authBusy?"SKICKAR…":"SKICKA INLOGGNINGSLÄNK")+'</button>' +
       '</form>' +
       (state.authMessage?'<div class="account-message '+esc(state.authMessageType||"")+'" role="status" aria-live="polite">'+esc(state.authMessage)+'</div>':'') +
-      '<article class="drawer-card"><strong>Lagbehörighet</strong><span>Inloggning och lagåtkomst är separata. En admin kopplar din e-postadress till rätt '+esc(league.displayName)+'-lag.</span></article>' +
+      '<article class="drawer-card"><strong>Behörighet</strong><span>Inloggning och cockpitåtkomst är separata. En admin kan ge dig hela '+esc(league.displayName)+' eller ett specifikt lag.</span></article>' +
       swahnworksAboutCard();
   }
 
@@ -1231,13 +1240,14 @@
         state.accessAdminBusy=true;
         state.accessAdminError="";
         renderDrawer("account");
-        const role=document.getElementById("accessRole")?.value==="admin"?"admin":"commentator";
+        const scope=document.getElementById("accessScope")?.value||"team";
         const result=await invokeAccessAdmin({
           action:"upsert",
           email,
           display_name:String(document.getElementById("accessName")?.value||"").trim(),
-          role,
-          team_id:role==="admin"?null:document.getElementById("accessTeam")?.value
+          scope,
+          league_key:scope==="admin"?null:league.accessKey,
+          team_id:scope==="team"?document.getElementById("accessTeam")?.value:null
         });
         state.accessAdminBusy=false;
         if(!result?.ok){
@@ -1267,12 +1277,14 @@
       button.addEventListener("click",async()=>{
         state.accessAdminBusy=true;
         renderDrawer("account");
+        const scope=button.dataset.accessScope||"team";
         const result=await invokeAccessAdmin({
           action:"upsert",
           email:button.dataset.accessEmail,
           display_name:button.dataset.accessName||"",
-          role:button.dataset.accessRole==="admin"?"admin":"commentator",
-          team_id:button.dataset.accessRole==="admin"?null:button.dataset.accessTeam
+          scope,
+          league_key:scope==="admin"?null:(button.dataset.accessLeague||league.accessKey),
+          team_id:scope==="team"?button.dataset.accessTeam:null
         });
         state.accessAdminBusy=false;
         if(!result?.ok) state.accessAdminError="Kunde inte återaktivera användaren.";
@@ -1281,13 +1293,22 @@
       });
     });
 
-    const roleSelect=document.getElementById("accessRole");
+    const scopeSelect=document.getElementById("accessScope");
     const teamSelect=document.getElementById("accessTeam");
-    const syncTeamSelect=()=>{
-      if(teamSelect) teamSelect.disabled=roleSelect?.value==="admin";
+    const scopeNote=document.getElementById("accessScopeNote");
+    const syncScopeSelect=()=>{
+      const scope=scopeSelect?.value||"team";
+      if(teamSelect) teamSelect.disabled=scope!=="team";
+      if(scopeNote){
+        scopeNote.textContent=scope==="admin"
+          ? "Global admin kan öppna alla ligor och alla lag."
+          : scope==="league"
+            ? "Ligaaccess gäller alla lag i "+league.displayName+"."
+            : "Lagaccess gäller bara valt lag i "+league.displayName+".";
+      }
     };
-    roleSelect?.addEventListener("change",syncTeamSelect);
-    syncTeamSelect();
+    scopeSelect?.addEventListener("change",syncScopeSelect);
+    syncScopeSelect();
 
     if(isAccessAdmin()&&!state.accessAdminLoaded&&!state.accessAdminBusy){
       window.setTimeout(async()=>{
