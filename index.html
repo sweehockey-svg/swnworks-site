@@ -7,7 +7,7 @@
   <meta name="description" content="SWNWORKS utvecklar produkter och plattformar för sportdata, fantasy, kommentatorer och liveproduktion.">
   <title>SWNWORKS · Sports Technology & Broadcast Tools</title>
   <link rel="icon" href="assets/swnworks-logo.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=31">
+  <link rel="stylesheet" href="styles.css?v=32">
 </head>
 <body>
   <section class="hero" id="work">
@@ -24,7 +24,7 @@
         <a href="#work">Work</a>
         <a href="#products">Products</a>
         <a href="#about">About</a>
-        <a href="mailto:info@swnworks.se">Contact</a>
+        <a href="#contact">Contact</a>
       </nav>
     </header>
 
@@ -144,19 +144,27 @@
   </main>
 
   <section class="about" id="about">
-    <div class="about-photo" role="img" aria-label="Hockeyarena"></div>
-    <div class="about-title">
+    <div class="about-info">
       <p class="eyebrow">OM SWNWORKS</p>
       <h2>En oberoende produktstudio i sportens tjänst.</h2>
-    </div>
-    <div class="about-copy">
       <p>SWNWORKS är en svensk produktstudio som utvecklar specialiserade verktyg för sport, data och livesändning. Vi kombinerar teknisk kompetens med en djup förståelse för hur sport faktiskt produceras – av och för människor som lever nära spelet.</p>
     </div>
-    <div class="contact-box">
+    <div class="contact-box" id="contact">
       <p class="eyebrow">KONTAKT</p>
       <h3>Vill du veta mer?</h3>
-      <p>Hör av dig så berättar vi mer om våra produkter och framtida samarbeten.</p>
-      <a class="btn outline" href="mailto:info@swnworks.se">Kontakta oss <span>→</span></a>
+      <p>Skicka ett meddelande så berättar vi mer om våra produkter och framtida samarbeten.</p>
+      <form class="contact-form" action="#" method="post" onsubmit="return false">
+        <div class="contact-fields">
+          <label><span>Namn</span><input type="text" name="name" autocomplete="name" placeholder="Ditt namn"></label>
+          <label><span>E-post</span><input type="email" name="email" autocomplete="email" placeholder="din@epost.se"></label>
+        </div>
+        <label><span>Ämne</span><input type="text" name="subject" placeholder="Vad gäller det?"></label>
+        <label><span>Meddelande</span><textarea name="message" rows="4" placeholder="Skriv ditt meddelande här"></textarea></label>
+        <div class="contact-actions">
+          <button class="btn primary" type="submit" disabled title="Skickfunktionen kopplas in separat">Skicka meddelande <span>→</span></button>
+          <span>Eller maila direkt: <a href="mailto:info@swnworks.se">info@swnworks.se</a></span>
+        </div>
+      </form>
     </div>
   </section>
 
