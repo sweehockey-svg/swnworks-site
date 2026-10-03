@@ -14,6 +14,9 @@ window.COMMENTATOR_CONFIG = Object.freeze({
       "21319","21320","21321"
     ]),
     expectedCompetitionCount: 9,
-    groupSummary: "Norr · Väst · Öst · Syd"
+    groupSummary: "Norr · Väst · Öst · Syd",
+    sourceKey: "swehockey",
+    sourceLabel: "Swehockey",
+    seasonLabel: "2026/27"
   })
 });
