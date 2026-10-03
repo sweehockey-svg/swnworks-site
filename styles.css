@@ -1173,3 +1173,47 @@ a.product-feature-card:hover{
   .about-info h2{font-size:29px}
   .contact-actions{align-items:flex-start;flex-direction:column}
 }
+
+
+/* v33 · compact about/contact balance */
+@media(min-width:901px){
+  .about{
+    grid-template-columns:minmax(0, .8fr) minmax(0, 1.2fr);
+  }
+  .about>div{
+    padding-top:34px;
+    padding-bottom:32px;
+  }
+  .about-info{
+    padding-right:44px!important;
+  }
+  .about-info>p:last-child{
+    margin-top:18px;
+    line-height:1.6;
+  }
+  .contact-box{
+    padding-left:44px!important;
+  }
+  .contact-form{
+    margin-top:17px;
+    gap:10px;
+    max-width:none;
+  }
+  .contact-form textarea{
+    min-height:78px;
+  }
+}
+.contact-actions .btn{
+  background:var(--gold);
+  color:#05090c;
+  border:1px solid var(--gold);
+  opacity:1;
+  font-weight:900;
+}
+.contact-actions .btn:disabled{
+  background:#17150d;
+  color:#766c4d;
+  border-color:#3a321b;
+  opacity:.72;
+  cursor:not-allowed;
+}
