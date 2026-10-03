@@ -158,7 +158,7 @@
     },
     ai: {
       kicker: "AI",
-      title: "Talking point-assistent",
+      title: "Sändningsassistent",
       cards: []
     },
     account: {
@@ -2146,10 +2146,10 @@
           ? "Kontot är inloggat men inte godkänt för server-AI. Fallbacken fungerar fortfarande."
           : "Server-AI är konfigurerad. Om ett anrop misslyckas visas verifierad fallback automatiskt.";
 
-    return '<article class="drawer-card ai-safety"><strong>Ingen fri statistikfantasi</strong><span>Server-AI får match-ID och hämtar själv verifierad officiell data från databasen. Privata NOTES skickas aldrig till språkmodellen.</span></article>' +
-      '<div class="ai-status '+(serverReady?"ready":"fallback")+'"><span>'+(serverReady?"SERVER-AI":"LOKAL FALLBACK")+'</span><strong>'+esc(statusText)+'</strong></div>' +
+    return '<div class="ai-trust-strip"><span>VERIFIERAD DATA</span><strong>AI:n använder matchdata från databasen. Privata NOTES skickas aldrig till språkmodellen.</strong></div>' +
+      '<div class="ai-status '+(serverReady?"ready":"fallback")+'"><span>'+(serverReady?"SERVER-AI · AKTIV":"FALLBACK · VISAS NU")+'</span><strong>'+esc(statusText)+'</strong></div>' +
       '<form class="ai-form" id="aiForm">' +
-        '<label><span>FRÅGA / VINKEL</span><textarea id="aiQuestion" rows="3" maxlength="500" placeholder="T.ex. Vad är mest relevant att säga om lagets powerplay just nu?"></textarea></label>' +
+        '<label><span>FRÅGA / VINKEL</span><textarea id="aiQuestion" rows="2" maxlength="500" placeholder="T.ex. Vad är mest relevant att säga om lagets powerplay just nu?"></textarea></label>' +
         '<div class="ai-form-actions">' +
           '<button type="button" id="aiReset" '+(state.aiBusy?"disabled":"")+'>MEST RELEVANT NU</button>' +
           '<button type="button" id="aiFresh" class="fresh" '+(state.aiBusy?"disabled":"")+'>NYA VINKLAR</button>' +
@@ -3126,10 +3126,11 @@
     const statsWide = key === "players" || key === "goalies";
     const fullWork = key === "lines" || key === "players";
     const medium = key === "match" || key === "goalies" || key === "story" || key === "h2h" || key === "studio" || key === "notes" || key === "ai" || key === "account";
-    drawer.classList.remove("wide","medium","full-work");
+    drawer.classList.remove("wide","medium","full-work","ai-work");
     drawer.classList.toggle("stats-wide", statsWide);
     drawer.classList.toggle("full-work", fullWork);
     drawer.classList.toggle("medium", medium);
+    drawer.classList.toggle("ai-work", key === "ai");
     if (key === "lines") {
       drawerBody.innerHTML = renderLineups();
     } else if (key === "players") {
