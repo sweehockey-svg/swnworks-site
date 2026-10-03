@@ -70,8 +70,9 @@
     .brand{
       display:flex;
       align-items:center;
-      gap:12px;
+      gap:9px;
       min-width:0;
+      flex:1 1 auto;
     }
     .brand-icon{
       width:50px;height:50px;
@@ -87,11 +88,12 @@
     .brand-title{
       display:flex;
       align-items:baseline;
+      flex:1 1 auto;
       font-weight:950;
       font-style:italic;
-      letter-spacing:-.055em;
-      font-size:27px;
-      line-height:1;
+      letter-spacing:-.065em;
+      font-size:clamp(34px,9.8vw,44px);
+      line-height:.95;
       white-space:nowrap;
     }
     .brand-title-next{color:#f7f9fc}
@@ -103,7 +105,7 @@
       align-items:center;
     }
     .status-badge{
-      display:inline-flex;
+      display:none;
       align-items:center;
       gap:6px;
       min-height:38px;
@@ -644,7 +646,7 @@
 "use strict";
 
 /*
-  NEXTGAME – MOBIL V5.0
+  NEXTGAME – MOBIL V5.1
 
   API:
   Den här versionen hämtar matcher direkt från ESPN:s öppna scoreboard-endpoints.
@@ -1068,6 +1070,12 @@ function parseEspnSource(source, payload) {
 
     if (!home?.team || !away?.team) return null;
 
+    const eventLeague =
+      event?.league ||
+      competition?.league ||
+      event?.season?.league ||
+      null;
+
     return {
       id: String(event.id || competition.id || `${source.id}-${event.date}`),
       home: String(home.team.displayName || home.team.shortDisplayName || home.team.name || "Hemmalag"),
@@ -1079,7 +1087,9 @@ function parseEspnSource(source, payload) {
       awayScore: espnScoreValue(away.score),
       kind: "game",
       eventTitle: "",
-      session: ""
+      session: "",
+      leagueName: String(eventLeague?.displayName || eventLeague?.name || eventLeague?.shortName || source.name),
+      leagueSlug: String(eventLeague?.slug || eventLeague?.abbreviation || eventLeague?.id || "")
     };
   }).filter(Boolean);
 
@@ -1526,27 +1536,36 @@ function futureOnly(matches) {
     .sort((a,b) => new Date(a.startTime) - new Date(b.startTime));
 }
 
-async function fetchTeamSeasonEntry(entry) {
+function seasonYearForSource(source) {
+  const now = new Date();
+  const year = Number(new Intl.DateTimeFormat("en", {year:"numeric", timeZone:"Europe/Stockholm"}).format(now));
+  const month = Number(new Intl.DateTimeFormat("en", {month:"numeric", timeZone:"Europe/Stockholm"}).format(now));
+
+  if (source.id === "allsvenskan" || source.id === "nfl" || source.id === "f1") return year;
+  if (source.sport === "Fotboll" || source.id === "nhl" || source.id === "nba") {
+    return month >= 7 ? year + 1 : year;
+  }
+  return year;
+}
+
+async function fetchTeamSeasonEntry(entry, allSoccerCompetitions = false) {
   const source = currentSourceById(entry.sourceId);
   if (!source || source.kind === "race" || !entry.id) return [];
 
-  const base = source.url.replace(/\/scoreboard(?:\?.*)?$/, "");
-  const url = `${base}/teams/${encodeURIComponent(entry.id)}/schedule?limit=500`;
+  const season = seasonYearForSource(source);
+  const base = source.url.slice(0, source.url.lastIndexOf("/scoreboard"));
 
-  const response = await fetchWithTimeout(
-    url,
-    { headers: { "Accept": "application/json" } },
-    API_CONFIG.timeoutMs
-  );
+  const url = source.sport === "Fotboll" && allSoccerCompetitions
+    ? `https://site.api.espn.com/apis/site/v2/sports/soccer/all/teams/${encodeURIComponent(entry.id)}/schedule?season=${season}&fixture=true&limit=500`
+    : `${base}/teams/${encodeURIComponent(entry.id)}/schedule?season=${season}&fixture=true&limit=500&eventsforward=150`;
 
-  if (!response.ok) {
-    throw new Error(`${entry.name} / ${entry.league}: HTTP ${response.status}`);
-  }
+  const response = await fetchWithTimeout(url, {headers:{"Accept":"application/json"}}, API_CONFIG.timeoutMs);
+  if (!response.ok) throw new Error(`${entry.name} / ${entry.league}: HTTP ${response.status}`);
 
   const parsed = parseEspnSource(source, await response.json());
   return parsed.matches.map(match => ({
     ...match,
-    league: source.name,
+    league: match.leagueName || source.name,
     sport: source.sport
   }));
 }
@@ -1557,19 +1576,36 @@ async function loadTeamSeason(name) {
   const entries = teamCatalog.filter(entry => entry.name === name);
   if (!entries.length) return;
 
+  const uniqueEntries = [];
+  const seen = new Set();
+
+  entries.forEach(entry => {
+    const source = currentSourceById(entry.sourceId);
+    const key = source?.sport === "Fotboll" ? `soccer:${entry.id}` : `${entry.sourceId}:${entry.id}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniqueEntries.push(entry);
+    }
+  });
+
   seasonLoading.add(`team:${name}`);
   renderMain();
 
   try {
-    const results = await Promise.allSettled(entries.map(fetchTeamSeasonEntry));
-    const byId = new Map();
+    const results = await Promise.allSettled(uniqueEntries.map(entry => {
+      const source = currentSourceById(entry.sourceId);
+      return fetchTeamSeasonEntry(entry, source?.sport === "Fotboll");
+    }));
 
+    const byId = new Map();
     results.forEach(result => {
       if (result.status !== "fulfilled") return;
       result.value.forEach(match => byId.set(String(match.id), match));
     });
 
-    teamSeasonCache.set(name, futureOnly([...byId.values()]));
+    const fullSchedule = futureOnly([...byId.values()]);
+    console.info(`NextGame season schedule ${name}: ${fullSchedule.length} upcoming events`);
+    teamSeasonCache.set(name, fullSchedule);
   } catch (error) {
     console.warn("Kunde inte ladda lagets säsongsschema.", error);
     teamSeasonCache.set(name, []);
@@ -1615,7 +1651,7 @@ async function loadLeagueSeason(name) {
       leagueSeasonCache.set(name, await fetchF1Season());
     } else {
       const entries = teamCatalog.filter(entry => entry.league === name);
-      const results = await Promise.allSettled(entries.map(fetchTeamSeasonEntry));
+      const results = await Promise.allSettled(entries.map(entry => fetchTeamSeasonEntry(entry, false)));
       const byId = new Map();
 
       results.forEach(result => {
