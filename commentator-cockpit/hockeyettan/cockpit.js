@@ -2944,7 +2944,7 @@
 
     const statsWide = key === "players" || key === "goalies";
     const fullWork = key === "lines" || key === "players";
-    const medium = key === "goalies" || key === "story" || key === "h2h" || key === "studio" || key === "notes" || key === "ai" || key === "account";
+    const medium = key === "match" || key === "goalies" || key === "story" || key === "h2h" || key === "studio" || key === "notes" || key === "ai" || key === "account";
     drawer.classList.remove("wide","medium","full-work");
     drawer.classList.toggle("stats-wide", statsWide);
     drawer.classList.toggle("full-work", fullWork);
