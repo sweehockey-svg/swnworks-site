@@ -1072,3 +1072,104 @@ a.product-feature-card:hover{
   .brand-lockup-copy strong{font-size:16px;}
   .brand-lockup-copy small{display:none;}
 }
+
+
+/* v32 · about + contact form */
+.about{
+  display:grid;
+  grid-template-columns:minmax(0, .9fr) minmax(0, 1.1fr);
+  min-height:0;
+  background:#040a0e;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.about>div{
+  min-width:0;
+  padding:42px max(38px,calc((100vw - var(--page))/2)) 40px;
+}
+.about>div+div{border-left:1px solid var(--line)}
+.about-info{
+  padding-right:56px!important;
+  padding-left:max(38px,calc((100vw - var(--page))/2))!important;
+}
+.about-info h2{
+  margin:0;
+  max-width:540px;
+  font-size:34px;
+  line-height:1.05;
+  letter-spacing:-.04em;
+}
+.about-info>p:last-child{
+  max-width:600px;
+  margin:24px 0 0;
+  color:#a8b4ba;
+  font-size:13px;
+  line-height:1.7;
+}
+.contact-box{
+  padding-left:52px!important;
+  padding-right:max(38px,calc((100vw - var(--page))/2))!important;
+}
+.contact-box h3{margin:0 0 7px;font-size:24px}
+.contact-box>p:not(.eyebrow){max-width:600px}
+.contact-form{
+  display:grid;
+  gap:12px;
+  margin-top:22px;
+  max-width:720px;
+}
+.contact-fields{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.contact-form label{display:grid;gap:7px}
+.contact-form label>span{
+  color:#81939d;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+.contact-form input,.contact-form textarea{
+  width:100%;
+  border:1px solid #31434d;
+  border-radius:3px;
+  outline:none;
+  background:#071018;
+  color:#f4f5f2;
+  font:inherit;
+  font-size:12px;
+  padding:12px 13px;
+  transition:border-color .18s ease,background .18s ease;
+}
+.contact-form input{height:42px}
+.contact-form textarea{resize:vertical;min-height:92px}
+.contact-form input:focus,.contact-form textarea:focus{
+  border-color:#a87d21;
+  background:#09141c;
+}
+.contact-form input::placeholder,.contact-form textarea::placeholder{color:#60727c}
+.contact-actions{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  flex-wrap:wrap;
+}
+.contact-actions .btn{border:0;cursor:not-allowed;opacity:.62}
+.contact-actions>span{color:#71858f;font-size:10px}
+.contact-actions a{color:#c8d2d7;text-decoration:none}
+.contact-actions a:hover{color:var(--gold2)}
+
+@media(max-width:900px){
+  .about{grid-template-columns:1fr}
+  .about>div+div{border-left:0;border-top:1px solid var(--line)}
+  .about-info,.contact-box{
+    padding:30px 24px!important;
+  }
+}
+@media(max-width:560px){
+  .contact-fields{grid-template-columns:1fr}
+  .about-info h2{font-size:29px}
+  .contact-actions{align-items:flex-start;flex-direction:column}
+}
