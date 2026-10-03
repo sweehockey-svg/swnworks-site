@@ -3466,3 +3466,44 @@ html[data-theme="light"] .competition-button{
     font-size:8px;
   }
 }
+
+
+/* v51 · commentator pregame broadcast card */
+.pregame-cockpit{display:grid;gap:12px;margin-bottom:14px}
+.pregame-head{padding:15px 16px;border:1px solid #6b5519;border-radius:11px;background:linear-gradient(135deg,rgba(244,178,27,.105),rgba(7,24,35,.98))}
+.pregame-head span,.pregame-grid article>span,.pregame-columns h3,.pregame-stories>h3{display:block;color:var(--yellow);font-size:8px;font-weight:1000;letter-spacing:.13em}
+.pregame-head strong{display:block;margin-top:5px;color:#f3f7f9;font-size:18px}
+.pregame-head small{display:block;margin-top:5px;color:#8096a4;font-size:9px}
+.pregame-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.pregame-grid article{min-width:0;padding:11px;border:1px solid #1d3443;border-radius:9px;background:#081a26}
+.pregame-grid article>span{color:#688293}
+.pregame-grid article>strong{display:block;margin-top:5px;color:#eef4f7;font-size:11px;line-height:1.35}
+.pregame-grid article>small{display:block;margin-top:4px;color:#6f8796;font-size:8px;line-height:1.45}
+.pregame-columns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pregame-columns>section,.pregame-stories{padding:12px;border:1px solid #1d3443;border-radius:10px;background:#071823}
+.pregame-columns h3,.pregame-stories>h3{margin:0 0 9px;color:#718998}
+.overview-recent{display:grid;gap:4px}
+.overview-recent-row{display:grid;grid-template-columns:22px 72px 44px minmax(0,1fr);gap:7px;align-items:center;padding:7px 8px;border:1px solid #162d3a;border-radius:7px;background:#061620}
+.overview-recent-row b{display:grid;place-items:center;width:19px;height:19px;border-radius:5px;color:#dfe9ee;font-size:7px}
+.overview-recent-row.win b{background:#184a36}.overview-recent-row.loss b{background:#54292d}.overview-recent-row.tie b{background:#574b25}
+.overview-recent-row span,.overview-recent-row em{color:#718897;font-size:8px;font-style:normal}
+.overview-recent-row strong{font-size:10px}.overview-recent-row em{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.overview-watch-list{display:grid;gap:5px}
+.overview-watch-row{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;padding:8px;border:1px solid #19313f;border-radius:8px;background:#061620}
+.overview-watch-row>b{color:var(--yellow);font-size:10px}
+.overview-watch-row strong{display:block;color:#ecf2f5;font-size:10px}
+.overview-watch-row span,.overview-watch-row small{display:block;margin-top:2px;color:#718a99;font-size:7px;line-height:1.4}
+.overview-watch-row small{color:#8ba0ad}
+.pregame-stories{display:grid;gap:6px}
+.pregame-stories>h3{margin-bottom:2px}
+.pregame-stories article{display:grid;grid-template-columns:100px minmax(0,1fr);gap:4px 10px;padding:9px 10px;border:1px solid #19313f;border-radius:8px;background:#061620}
+.pregame-stories article span{grid-row:1/3;color:var(--yellow);font-size:7px;font-weight:1000;letter-spacing:.1em}
+.pregame-stories article strong{font-size:10px}
+.pregame-stories article small{color:#748d9c;font-size:8px;line-height:1.45}
+.overview-empty{padding:10px;color:#667f8f;font-size:9px;border:1px dashed #203847;border-radius:8px}
+@media(max-width:760px){
+  .pregame-grid{grid-template-columns:1fr 1fr}
+  .pregame-columns{grid-template-columns:1fr}
+  .pregame-stories article{grid-template-columns:1fr}
+  .pregame-stories article span{grid-row:auto}
+}
