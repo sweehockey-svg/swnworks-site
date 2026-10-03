@@ -1221,3 +1221,5 @@ a.product-feature-card:hover{
 .contact-status{min-height:1.35em;margin:2px 0 0;font-size:13px;font-weight:700}
 .contact-status.success{color:#f5b719}
 .contact-status.error{color:#ff7b72}
+
+.contact-hp{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
