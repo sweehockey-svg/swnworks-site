@@ -1634,7 +1634,7 @@
     const game=live||pregame ? state.nextGame : state.latestFocusGame;
     const events=live ? state.currentEvents : pregame ? [] : state.latestEvents;
     const eventPanelTitle=document.getElementById("eventPanelTitle");
-    if(eventPanelTitle) eventPanelTitle.textContent=live ? "Senaste händelser" : pregame ? "Dagens match" : "Matchhändelser";
+    if(eventPanelTitle) eventPanelTitle.textContent=live ? "LIVE · Senaste händelser" : pregame ? "Dagens match" : "Matchhändelser";
 
     if(!game){
       feed.className="empty-state";
@@ -3628,20 +3628,46 @@
     const liveClock = game.clock_display || latestLiveEvent?.clock_display || null;
     const homeLiveScore = officialLive && game.home_score!=null ? game.home_score : latestLiveEvent?.home_score;
     const awayLiveScore = officialLive && game.away_score!=null ? game.away_score : latestLiveEvent?.away_score;
+    const startMs=Date.parse(game.scheduled_start||"");
+    const minutesToStart=Number.isFinite(startMs)?Math.ceil((startMs-Date.now())/60000):null;
+    const pregameSoon=!isLive&&minutesToStart!=null&&minutesToStart>=0&&minutesToStart<=90;
     const livePill = document.querySelector(".live-pill");
+    const liveBanner = document.getElementById("liveNowBanner");
     const matchHero = document.querySelector(".match-hero");
     const scoreCenter = document.querySelector(".score-center");
     const eventPanel = document.querySelector(".event-panel");
-    livePill.textContent = isLive ? "● LIVE NU" : "NÄSTA MATCH";
+
+    livePill.textContent = isLive
+      ? "LIVE NU"
+      : pregameSoon
+        ? "IDAG · "+Math.max(1,minutesToStart)+" MIN"
+        : "NÄSTA MATCH";
     livePill.classList.toggle("is-live", isLive);
+    livePill.classList.toggle("is-pregame", pregameSoon);
     matchHero?.classList.toggle("is-live", isLive);
+    matchHero?.classList.toggle("is-pregame", pregameSoon);
     scoreCenter?.classList.toggle("is-live", isLive);
+    scoreCenter?.classList.toggle("is-pregame", pregameSoon);
     eventPanel?.classList.toggle("is-live", isLive);
+
+    if(liveBanner){
+      liveBanner.classList.toggle("hidden",!isLive);
+      liveBanner.innerHTML=isLive
+        ? '<span class="live-dot"></span><strong>LIVE NU</strong><em>'+
+          esc((officialLive||latestLiveEvent)
+            ? "P"+(livePeriod||"–")+" · "+(liveClock||"inväntar tid")
+            : "inväntar officiell matchdata")+
+          '</em>'
+        : "";
+    }
+
     document.getElementById("gameState").textContent = isLive
       ? (officialLive || latestLiveEvent
-          ? "LIVE · P" + (livePeriod || "–") + " · senaste " + (liveClock || "–")
-          : "LIVE NU · INVÄNTAR MATCHDATA")
-      : swedishDate(game.scheduled_start);
+          ? "P" + (livePeriod || "–") + " · SENASTE HÄNDELSE " + (liveClock || "–")
+          : "MATCHEN ÄR LIVE · INVÄNTAR MATCHDATA")
+      : pregameSoon
+        ? "NEDSLÄPP OM "+Math.max(1,minutesToStart)+" MIN · "+new Intl.DateTimeFormat("sv-SE",{hour:"2-digit",minute:"2-digit",timeZone:"Europe/Stockholm"}).format(new Date(game.scheduled_start))
+        : swedishDate(game.scheduled_start);
     document.getElementById("homeScore").textContent = isLive ? (homeLiveScore ?? "–") : "–";
     document.getElementById("awayScore").textContent = isLive ? (awayLiveScore ?? "–") : "–";
 
