@@ -89,20 +89,24 @@
       display:flex;
       align-items:baseline;
       flex:1 1 auto;
+      min-width:0;
       font-weight:950;
       font-style:italic;
-      letter-spacing:-.065em;
-      font-size:clamp(34px,9.8vw,44px);
+      letter-spacing:-.045em;
+      font-size:clamp(30px,8.2vw,40px);
       line-height:.95;
       white-space:nowrap;
+      transform:scaleX(1.035);
+      transform-origin:left center;
     }
     .brand-title-next{color:#f7f9fc}
     .brand-title-game{color:var(--accent)}
 
     .top-actions{
       display:flex;
-      gap:8px;
+      gap:7px;
       align-items:center;
+      flex:0 0 auto;
     }
     .status-badge{
       display:none;
@@ -234,6 +238,27 @@
       border-radius:20px;
       box-shadow:0 11px 30px rgba(0,0,0,.15);
     }
+    .match-card.past-match{
+      opacity:.48;
+      filter:saturate(.52);
+    }
+    .match-card.past-match:hover{
+      opacity:.62;
+    }
+    .now-marker{
+      scroll-margin-top:175px;
+      display:flex;
+      align-items:center;
+      gap:9px;
+      margin:2px 0 14px;
+      color:#a8b1bf;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .now-marker .today-chip{flex:0 0 auto}
+
     .card-top{
       display:flex;
       align-items:center;
@@ -502,6 +527,52 @@
       color:#ff9a5a;
     }
 
+    .favorite-list{
+      display:grid;
+      gap:9px;
+    }
+    .favorite-row{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      align-items:center;
+      gap:10px;
+      padding:13px 14px;
+      border:1px solid #29364a;
+      border-radius:15px;
+      background:#151f2f;
+    }
+    .favorite-main{
+      min-width:0;
+      cursor:pointer;
+    }
+    .favorite-name{
+      font-size:14px;
+      font-weight:900;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .favorite-sub{
+      margin-top:3px;
+      color:#8995a7;
+      font-size:11px;
+    }
+    .favorite-remove{
+      width:34px;
+      height:34px;
+      border:1px solid #344158;
+      border-radius:10px;
+      background:#1b2638;
+      color:#aab5c4;
+      font-size:16px;
+    }
+    .favorite-empty{
+      padding:28px 12px;
+      color:#7f8a9c;
+      text-align:center;
+      font-size:13px;
+    }
+
     .toast{
       position:fixed;
       left:50%;
@@ -587,6 +658,12 @@
           <span id="apiStatusText">DEMO DATA</span>
         </div>
 
+        <button id="favoritesButton" class="icon-btn" onclick="openFavorites()" aria-label="Favoriter" title="Favoriter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f4c84d" stroke-width="2" stroke-linejoin="round">
+            <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/>
+          </svg>
+        </button>
+
         <button id="searchToggleButton" class="icon-btn" onclick="toggleSearch()" aria-label="Sök" title="Sök">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="7"/>
@@ -605,8 +682,8 @@
     </div>
 
     <div id="tabs" class="tabs">
-      <button class="tab active" data-tab="Alla">Alla</button>
-      <button class="tab" data-tab="Favoriter">⭐ Favoriter</button>
+      <button class="tab" data-tab="Alla">Alla</button>
+      <button class="tab active" data-tab="Favoriter">⭐ Favoriter</button>
       <button class="tab" data-tab="Fotboll">⚽ Fotboll</button>
       <button class="tab" data-tab="NHL">🏒 NHL</button>
       <button class="tab" data-tab="NBA">🏀 NBA</button>
@@ -640,13 +717,24 @@
   </div>
 </div>
 
+<div id="favoritesSheet" class="filter-sheet hidden" onclick="favoritesBackdropClose(event)">
+  <div class="filter-panel">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">
+      <h3>⭐ Favoriter</h3>
+      <button class="close-btn" onclick="closeFavorites()" aria-label="Stäng">✕</button>
+    </div>
+    <div id="favoritesList" class="favorite-list"></div>
+  </div>
+</div>
+
 <div id="toast" class="toast hidden"></div>
 
 <script>
 "use strict";
 
 /*
-  NEXTGAME – MOBIL V5.1
+  NEXTGAME – MOBIL V5.2
 
   API:
   Den här versionen hämtar matcher direkt från ESPN:s öppna scoreboard-endpoints.
@@ -791,8 +879,10 @@ let teamCatalog = [];
 const teamSeasonCache = new Map();
 const leagueSeasonCache = new Map();
 const seasonLoading = new Set();
-let activeTab = "Alla";
+let activeTab = "Favoriter";
 let currentView = { view: "home" };
+let shouldPositionHome = true;
+let detailPositionKey = "";
 let dataMode = "demo";
 let toastTimer = null;
 let selectedSports = new Set();
@@ -1371,6 +1461,9 @@ function toggleFollow(name, event) {
 
   saveFollows();
   renderEverything();
+  if (!document.getElementById("favoritesSheet")?.classList.contains("hidden")) {
+    renderFavoritesList();
+  }
 }
 
 function showToast(message) {
@@ -1548,6 +1641,22 @@ function seasonYearForSource(source) {
   return year;
 }
 
+async function fetchSchedulePayload(url) {
+  const response = await fetchWithTimeout(
+    url,
+    { headers: { "Accept":"application/json" } },
+    API_CONFIG.timeoutMs
+  );
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+
+function sortSeasonMatches(matches) {
+  return matches
+    .filter(match => Number.isFinite(new Date(match.startTime).getTime()))
+    .sort((a,b) => new Date(a.startTime) - new Date(b.startTime));
+}
+
 async function fetchTeamSeasonEntry(entry, allSoccerCompetitions = false) {
   const source = currentSourceById(entry.sourceId);
   if (!source || source.kind === "race" || !entry.id) return [];
@@ -1555,19 +1664,39 @@ async function fetchTeamSeasonEntry(entry, allSoccerCompetitions = false) {
   const season = seasonYearForSource(source);
   const base = source.url.slice(0, source.url.lastIndexOf("/scoreboard"));
 
-  const url = source.sport === "Fotboll" && allSoccerCompetitions
-    ? `https://site.api.espn.com/apis/site/v2/sports/soccer/all/teams/${encodeURIComponent(entry.id)}/schedule?season=${season}&fixture=true&limit=500`
-    : `${base}/teams/${encodeURIComponent(entry.id)}/schedule?season=${season}&fixture=true&limit=500&eventsforward=150`;
+  const scheduleBase = source.sport === "Fotboll" && allSoccerCompetitions
+    ? `https://site.api.espn.com/apis/site/v2/sports/soccer/all/teams/${encodeURIComponent(entry.id)}/schedule`
+    : `${base}/teams/${encodeURIComponent(entry.id)}/schedule`;
 
-  const response = await fetchWithTimeout(url, {headers:{"Accept":"application/json"}}, API_CONFIG.timeoutMs);
-  if (!response.ok) throw new Error(`${entry.name} / ${entry.league}: HTTP ${response.status}`);
+  const urls = source.sport === "Fotboll"
+    ? [
+        `${scheduleBase}?season=${season}&limit=500`,
+        `${scheduleBase}?season=${season}&fixture=true&limit=500`
+      ]
+    : [
+        `${scheduleBase}?season=${season}&limit=500&eventsforward=200`
+      ];
 
-  const parsed = parseEspnSource(source, await response.json());
-  return parsed.matches.map(match => ({
-    ...match,
-    league: match.leagueName || source.name,
-    sport: source.sport
-  }));
+  const payloads = await Promise.allSettled(urls.map(fetchSchedulePayload));
+  const byId = new Map();
+
+  payloads.forEach(result => {
+    if (result.status !== "fulfilled") return;
+    const parsed = parseEspnSource(source, result.value);
+    parsed.matches.forEach(match => {
+      byId.set(String(match.id), {
+        ...match,
+        league: match.leagueName || source.name,
+        sport: source.sport
+      });
+    });
+  });
+
+  if (!byId.size) {
+    throw new Error(`${entry.name} / ${entry.league}: inget säsongsschema hittades`);
+  }
+
+  return sortSeasonMatches([...byId.values()]);
 }
 
 async function loadTeamSeason(name) {
@@ -1603,8 +1732,8 @@ async function loadTeamSeason(name) {
       result.value.forEach(match => byId.set(String(match.id), match));
     });
 
-    const fullSchedule = futureOnly([...byId.values()]);
-    console.info(`NextGame season schedule ${name}: ${fullSchedule.length} upcoming events`);
+    const fullSchedule = sortSeasonMatches([...byId.values()]);
+    console.info(`NextGame season schedule ${name}: ${fullSchedule.length} season events`);
     teamSeasonCache.set(name, fullSchedule);
   } catch (error) {
     console.warn("Kunde inte ladda lagets säsongsschema.", error);
@@ -1630,7 +1759,7 @@ async function fetchF1Season() {
   if (!response.ok) throw new Error(`Formel 1: HTTP ${response.status}`);
   const parsed = parseEspnSource(source, await response.json());
 
-  return futureOnly(parsed.matches.map(match => ({
+  return sortSeasonMatches(parsed.matches.map(match => ({
     ...match,
     league: source.name,
     sport: source.sport
@@ -1659,7 +1788,7 @@ async function loadLeagueSeason(name) {
         result.value.forEach(match => byId.set(String(match.id), match));
       });
 
-      leagueSeasonCache.set(name, futureOnly([...byId.values()]));
+      leagueSeasonCache.set(name, sortSeasonMatches([...byId.values()]));
     }
   } catch (error) {
     console.warn("Kunde inte ladda ligans säsongsschema.", error);
@@ -1672,6 +1801,7 @@ async function loadLeagueSeason(name) {
 
 function openLeaguePage(name) {
   currentView = { view:"league", name };
+  detailPositionKey = `league:${name}`;
   clearSearch();
   window.scrollTo({ top:0, behavior:"smooth" });
   renderEverything();
@@ -1680,6 +1810,7 @@ function openLeaguePage(name) {
 
 function openTeamPage(name) {
   currentView = { view:"team", name };
+  detailPositionKey = `team:${name}`;
   clearSearch();
   window.scrollTo({ top:0, behavior:"smooth" });
   renderEverything();
@@ -1687,9 +1818,63 @@ function openTeamPage(name) {
 }
 
 function goHome() {
+  activeTab = "Favoriter";
   currentView = { view:"home" };
-  window.scrollTo({ top:0, behavior:"smooth" });
+  shouldPositionHome = true;
+  document.querySelectorAll(".tab").forEach(button => {
+    button.classList.toggle("active", button.dataset.tab === "Favoriter");
+  });
+  window.scrollTo({ top:0, behavior:"auto" });
   renderEverything();
+}
+
+function favoriteType(name) {
+  const team = teamsData.find(item => item.name === name);
+  if (team) return { type:"Lag", subtitle:team.leagues.join(" • "), action:() => openTeamPage(name) };
+
+  const league = leaguesData.find(item => item.name === name) || ESPN_SOURCES.find(item => item.name === name);
+  if (league) return { type:"Liga", subtitle:league.sport || "", action:() => openLeaguePage(name) };
+
+  return { type:"Favorit", subtitle:"", action:() => {} };
+}
+
+function renderFavoritesList() {
+  const container = document.getElementById("favoritesList");
+  if (!container) return;
+
+  if (!followedItems.length) {
+    container.innerHTML = '<div class="favorite-empty">Du följer inga lag eller ligor ännu.</div>';
+    return;
+  }
+
+  container.innerHTML = followedItems
+    .slice()
+    .sort((a,b) => a.localeCompare(b, "sv"))
+    .map(name => {
+      const meta = favoriteType(name);
+      const isTeam = meta.type === "Lag";
+      return `
+        <div class="favorite-row">
+          <div class="favorite-main" onclick='${isTeam ? `openTeamPage(${safeJs(name)}); closeFavorites();` : `openLeaguePage(${safeJs(name)}); closeFavorites();`}'>
+            <div class="favorite-name">${isTeam ? "⭐ " : "🏆 "}${escapeHtml(name)}</div>
+            <div class="favorite-sub">${escapeHtml(meta.type)}${meta.subtitle ? " • " + escapeHtml(meta.subtitle) : ""}</div>
+          </div>
+          <button class="favorite-remove" onclick='toggleFollow(${safeJs(name)}, event); renderFavoritesList();' aria-label="Sluta följa">×</button>
+        </div>`;
+    }).join("");
+}
+
+function openFavorites() {
+  renderFavoritesList();
+  document.getElementById("favoritesSheet").classList.remove("hidden");
+}
+
+function closeFavorites() {
+  document.getElementById("favoritesSheet").classList.add("hidden");
+}
+
+function favoritesBackdropClose(event) {
+  if (event.target.id === "favoritesSheet") closeFavorites();
 }
 
 function toggleSearch() {
@@ -1715,6 +1900,7 @@ function clearSearch() {
 function setTab(tab) {
   activeTab = tab;
   currentView = { view:"home" };
+  shouldPositionHome = true;
 
   document.querySelectorAll(".tab").forEach(button => {
     button.classList.toggle("active", button.dataset.tab === tab);
@@ -1775,12 +1961,13 @@ function filterMatches(matches) {
 
 function matchCard(match, followTarget) {
   const isRace = match.kind === "race";
+  const isPast = new Date(match.startTime).getTime() < Date.now();
   const actualFollowTarget = isRace ? match.league : followTarget;
   const followed = followedItems.includes(actualFollowTarget);
   const broadcaster = swedishBroadcaster(match);
 
   return `
-    <article class="match-card">
+    <article class="match-card ${isPast ? "past-match" : ""}" data-start="${escapeHtml(match.startTime)}">
       <div class="card-top">
         <div class="league-chip" onclick='openLeaguePage(${safeJs(match.league)})'>
           <span>${sportIcon(match.sport)}</span>
@@ -1831,9 +2018,14 @@ function renderHome() {
   });
 
   const today = stockholmTodayKey();
+  const now = Date.now();
+  let anchorInserted = false;
   let html = "";
 
   grouped.forEach((group, dayKey) => {
+    const sorted = group.matches.slice().sort((a,b) => new Date(a.startTime) - new Date(b.startTime));
+    const firstFutureIndex = sorted.findIndex(match => new Date(match.startTime).getTime() >= now);
+
     html += `
       <section class="date-section">
         <div class="date-title">
@@ -1842,7 +2034,16 @@ function renderHome() {
         </div>
         <div class="cards">`;
 
-    group.matches.forEach(match => {
+    sorted.forEach((match,index) => {
+      if (!anchorInserted && firstFutureIndex === index) {
+        html += `
+          <div id="home-now-anchor" class="now-marker">
+            <span>${dayKey === today ? escapeHtml(group.label) : "Nästa"}</span>
+            ${dayKey === today ? '<span class="today-chip">KOMMANDE</span>' : '<span class="today-chip">NÄSTA</span>'}
+          </div>`;
+        anchorInserted = true;
+      }
+
       let followTarget = match.home;
       if (followedItems.includes(match.away) && !followedItems.includes(match.home)) {
         followTarget = match.away;
@@ -1854,6 +2055,59 @@ function renderHome() {
   });
 
   container.innerHTML = html;
+
+  if (shouldPositionHome) {
+    shouldPositionHome = false;
+    requestAnimationFrame(() => {
+      const anchor = document.getElementById("home-now-anchor");
+      if (anchor) anchor.scrollIntoView({ behavior:"auto", block:"start" });
+    });
+  }
+}
+
+function renderSeasonSchedule(matches, followTarget) {
+  if (!matches.length) return '<div class="empty">Inga matcher hittades för säsongen.</div>';
+
+  const grouped = new Map();
+  const sorted = sortSeasonMatches(matches);
+
+  sorted.forEach(match => {
+    const parts = dateParts(match.startTime);
+    if (!grouped.has(parts.dayKey)) grouped.set(parts.dayKey, {label:parts.dateText, matches:[]});
+    grouped.get(parts.dayKey).matches.push(match);
+  });
+
+  const now = Date.now();
+  let anchorInserted = false;
+  let html = "";
+
+  grouped.forEach((group,dayKey) => {
+    html += `
+      <section class="date-section">
+        <div class="date-title"><span>${escapeHtml(group.label)}</span></div>
+        <div class="cards">`;
+
+    group.matches.forEach(match => {
+      const ts = new Date(match.startTime).getTime();
+      if (!anchorInserted && ts >= now) {
+        html += '<div id="detail-now-anchor" class="now-marker"><span>Nästa</span><span class="today-chip">KOMMANDE</span></div>';
+        anchorInserted = true;
+      }
+      html += matchCard(match, typeof followTarget === "function" ? followTarget(match) : followTarget);
+    });
+
+    html += '</div></section>';
+  });
+
+  return html;
+}
+
+function positionDetailIfNeeded(key) {
+  if (detailPositionKey !== key) return;
+  detailPositionKey = "";
+  requestAnimationFrame(() => {
+    document.getElementById("detail-now-anchor")?.scrollIntoView({behavior:"auto", block:"start"});
+  });
 }
 
 function renderLeaguePage(name) {
@@ -1867,8 +2121,8 @@ function renderLeaguePage(name) {
   const container = document.getElementById("appContent");
   const loading = seasonLoading.has(`league:${name}`);
   const seasonMatches = leagueSeasonCache.get(name);
-  const matches = seasonMatches || futureOnly(
-    league.matches.map(match => ({ ...match, league: league.name, sport: league.sport }))
+  const matches = seasonMatches || sortSeasonMatches(
+    league.matches.map(match => ({ ...match, league:league.name, sport:league.sport }))
   );
 
   let html = `
@@ -1879,28 +2133,23 @@ function renderLeaguePage(name) {
           <div>
             <div class="profile-icon">${league.name === "Formel 1" ? "🏎️" : "🏆"}</div>
             <h2>${escapeHtml(league.name)}</h2>
-            <p>${escapeHtml(league.sport)} • Resterande säsong${seasonMatches ? ` • ${matches.length} event` : ""}</p>
+            <p>${escapeHtml(league.sport)} • Hela säsongen${seasonMatches ? ` • ${matches.length} event` : ""}</p>
           </div>
           <button class="btn ${followed ? "following" : ""}" onclick='toggleFollow(${safeJs(league.name)}, event)'>
             ${followed ? "✓ Följer" : "+ Följ"}
           </button>
         </div>
       </div>
-    </div>
-    <div class="cards">`;
+    </div>`;
 
   if (loading && !seasonMatches) {
-    html += `<div class="empty">Laddar resten av säsongens schema…</div>`;
-  } else if (matches.length) {
-    matches.forEach(match => {
-      html += matchCard(match, match.home || league.name);
-    });
+    html += '<div class="empty">Laddar hela säsongens schema…</div>';
   } else {
-    html += `<div class="empty">Inga kommande event hittades för resten av säsongen.</div>`;
+    html += renderSeasonSchedule(matches, match => match.home || league.name);
   }
 
-  html += "</div>";
   container.innerHTML = html;
+  positionDetailIfNeeded(`league:${name}`);
 }
 
 function renderTeamPage(name) {
@@ -1911,7 +2160,7 @@ function renderTeamPage(name) {
   const container = document.getElementById("appContent");
   const loading = seasonLoading.has(`team:${name}`);
   const seasonMatches = teamSeasonCache.get(name);
-  const matches = seasonMatches || futureOnly(team.matches);
+  const matches = seasonMatches || sortSeasonMatches(team.matches);
 
   let html = `
     <div class="detail-head">
@@ -1921,28 +2170,23 @@ function renderTeamPage(name) {
           <div>
             <div class="profile-icon">${sportIcon(team.sport)}</div>
             <h2>${escapeHtml(team.name)}</h2>
-            <p>${escapeHtml(team.leagues.join(" • "))} • Resterande säsong${seasonMatches ? ` • ${matches.length} matcher` : ""}</p>
+            <p>${escapeHtml(team.leagues.join(" • "))} • Hela säsongen${seasonMatches ? ` • ${matches.length} matcher` : ""}</p>
           </div>
           <button class="btn ${followed ? "following" : ""}" onclick='toggleFollow(${safeJs(team.name)}, event)'>
             ${followed ? "✓ Följer" : "+ Följ"}
           </button>
         </div>
       </div>
-    </div>
-    <div class="cards">`;
+    </div>`;
 
   if (loading && !seasonMatches) {
-    html += `<div class="empty">Laddar resten av säsongens spelschema…</div>`;
-  } else if (matches.length) {
-    matches.forEach(match => {
-      html += matchCard(match, team.name);
-    });
+    html += '<div class="empty">Laddar hela säsongens spelschema…</div>';
   } else {
-    html += `<div class="empty">Inga kommande matcher hittades för resten av säsongen.</div>`;
+    html += renderSeasonSchedule(matches, team.name);
   }
 
-  html += "</div>";
   container.innerHTML = html;
+  positionDetailIfNeeded(`team:${name}`);
 }
 
 function renderMain() {
