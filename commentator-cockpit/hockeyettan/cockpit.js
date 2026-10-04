@@ -1621,10 +1621,20 @@
     if (!feed) return;
 
     const live=gameIsLive(state.nextGame);
-    const game=live ? state.nextGame : state.latestFocusGame;
-    const events=live ? state.currentEvents : state.latestEvents;
+    const nextStart=Date.parse(state.nextGame?.scheduled_start||"");
+    const minutesToStart=Number.isFinite(nextStart) ? (nextStart-Date.now())/60000 : null;
+    const pregame=Boolean(
+      !live &&
+      state.nextGame &&
+      (
+        state.nextLineup ||
+        (minutesToStart!=null && minutesToStart>=0 && minutesToStart<=90)
+      )
+    );
+    const game=live||pregame ? state.nextGame : state.latestFocusGame;
+    const events=live ? state.currentEvents : pregame ? [] : state.latestEvents;
     const eventPanelTitle=document.getElementById("eventPanelTitle");
-    if(eventPanelTitle) eventPanelTitle.textContent=live ? "Senaste händelser" : "Matchhändelser";
+    if(eventPanelTitle) eventPanelTitle.textContent=live ? "Senaste händelser" : pregame ? "Dagens match" : "Matchhändelser";
 
     if(!game){
       feed.className="empty-state";
@@ -1632,6 +1642,27 @@
       return;
     }
     feed.className = "event-feed-live";
+
+    if(pregame){
+      const lineupText=state.nextLineup
+        ? "OFFICIELL LINEUP PUBLICERAD"
+        : "LINEUP INVÄNTAS";
+      const countdown=minutesToStart!=null&&minutesToStart>0
+        ? Math.max(1,Math.round(minutesToStart))+" MIN TILL NEDSLÄPP"
+        : "MATCHSTART NÄRA";
+      feed.innerHTML =
+        '<article class="recent-game pregame-game">' +
+          '<div class="recent-game-top"><span>PREMATCH · '+esc(lineupText)+'</span><span>'+esc(countdown)+'</span></div>' +
+          '<div class="recent-game-score">' +
+            '<span>' + esc(getTeamName(game.home_team_id)) + '</span>' +
+            '<strong>– : –</strong>' +
+            '<span>' + esc(getTeamName(game.away_team_id)) + '</span>' +
+          '</div>' +
+          '<div class="recent-game-foot">'+esc(game.venue_name||"Arena ej angiven")+' · '+esc(swedishDate(game.scheduled_start))+'</div>' +
+        '</article>' +
+        '<div class="recent-game-foot pregame-wait">Matchfeed växlar automatiskt till dagens livehändelser vid matchstart. '+esc(league.sourceLabel)+' synkas varje minut.</div>';
+      return;
+    }
 
     const eventRows = events.length
       ? '<div class="event-list">' + events.slice(0,12).map((event) => {
