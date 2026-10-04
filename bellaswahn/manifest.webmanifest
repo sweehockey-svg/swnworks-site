@@ -1,0 +1,17 @@
+{
+  "name": "NextGame",
+  "short_name": "NextGame",
+  "start_url": "/bellaswahn/v2.html",
+  "scope": "/bellaswahn/",
+  "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#0b0f19",
+  "icons": [
+    {
+      "src": "/bellaswahn/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
