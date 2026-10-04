@@ -3629,12 +3629,18 @@
     const homeLiveScore = officialLive && game.home_score!=null ? game.home_score : latestLiveEvent?.home_score;
     const awayLiveScore = officialLive && game.away_score!=null ? game.away_score : latestLiveEvent?.away_score;
     const livePill = document.querySelector(".live-pill");
-    livePill.textContent = isLive ? "LIVE" : "NÄSTA MATCH";
+    const matchHero = document.querySelector(".match-hero");
+    const scoreCenter = document.querySelector(".score-center");
+    const eventPanel = document.querySelector(".event-panel");
+    livePill.textContent = isLive ? "● LIVE NU" : "NÄSTA MATCH";
     livePill.classList.toggle("is-live", isLive);
+    matchHero?.classList.toggle("is-live", isLive);
+    scoreCenter?.classList.toggle("is-live", isLive);
+    eventPanel?.classList.toggle("is-live", isLive);
     document.getElementById("gameState").textContent = isLive
       ? (officialLive || latestLiveEvent
-          ? "P" + (livePeriod || "–") + " · senaste händelse " + (liveClock || "–")
-          : "LIVE · INVÄNTAR MATCHDATA")
+          ? "LIVE · P" + (livePeriod || "–") + " · senaste " + (liveClock || "–")
+          : "LIVE NU · INVÄNTAR MATCHDATA")
       : swedishDate(game.scheduled_start);
     document.getElementById("homeScore").textContent = isLive ? (homeLiveScore ?? "–") : "–";
     document.getElementById("awayScore").textContent = isLive ? (awayLiveScore ?? "–") : "–";
