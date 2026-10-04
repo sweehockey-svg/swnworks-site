@@ -16,7 +16,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="cockpit.css?v=56">
+  <link rel="stylesheet" href="cockpit.css?v=55">
 </head>
 <body>
   <div class="app-shell">
@@ -82,6 +82,12 @@
           <span>·</span>
           <span id="venueLabel">Arena hämtas från Swehockey</span>
         </div>
+
+        <button class="lineup-ready-banner hidden" id="lineupReadyBanner" type="button" aria-live="polite">
+          <span class="lineup-ready-dot"></span>
+          <strong>OFFICIELL LINEUP KLAR</strong>
+          <em>ÖPPNA KEDJOR →</em>
+        </button>
 
         <div class="scoreboard">
           <div class="team home">
@@ -223,6 +229,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js?v=4"></script>
-  <script src="cockpit.js?v=63"></script>
+  <script src="cockpit.js?v=64"></script>
 </body>
 </html>
