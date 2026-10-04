@@ -1644,9 +1644,12 @@
     feed.className = "event-feed-live";
 
     if(pregame){
-      const lineupText=state.nextLineup
-        ? "OFFICIELL LINEUP PUBLICERAD"
-        : "LINEUP INVÄNTAS";
+      const lineupStatus=officialLineupState();
+      const lineupText=lineupStatus.ready
+        ? "OFFICIELL LINEUP KLAR"
+        : lineupStatus.partial
+          ? "LINEUP DELVIS PUBLICERAD"
+          : "LINEUP INVÄNTAS";
       const countdown=minutesToStart!=null&&minutesToStart>0
         ? Math.max(1,Math.round(minutesToStart))+" MIN TILL NEDSLÄPP"
         : "MATCHSTART NÄRA";
@@ -1950,15 +1953,22 @@
       });
     }
 
-    if(state.nextLineup){
-      add({
-        id:"official-lineup",
-        tag:"LINEUP",
-        title:"Officiell lineup för nästa match är publicerad",
-        text:"KEDJOR-panelen visar aktuell officiell uppställning från "+league.sourceLabel+".",
-        score:150,
-        story:true
-      });
+    {
+      const lineupStatus=officialLineupState();
+      if(lineupStatus.ready||lineupStatus.partial){
+        add({
+          id:"official-lineup",
+          tag:"LINEUP",
+          title:lineupStatus.ready
+            ? "Officiell lineup klar för båda lagen"
+            : "Officiell lineup publicerad för ett av lagen",
+          text:lineupStatus.ready
+            ? "KEDJOR-panelen visar dagens officiella uppställningar från "+league.sourceLabel+"."
+            : "KEDJOR-panelen visar den publicerade lineupen och senaste kända kedjor för laget som återstår.",
+          score:150,
+          story:true
+        });
+      }
     }
 
     for(const note of currentEditorialNotes().filter((item)=>item.pinned)){
@@ -2299,6 +2309,31 @@
     if (playersError) throw playersError;
 
     return { game, revision, players: players || [] };
+  }
+
+  function officialLineupState() {
+    const players=state.nextLineup?.players||[];
+    const teamIds=new Set(players.map((row)=>row.team_id).filter(Boolean));
+    const focusReady=Boolean(state.focusTeam?.id&&teamIds.has(state.focusTeam.id));
+    const opponentReady=Boolean(state.opponent?.id&&teamIds.has(state.opponent.id));
+    const count=Number(focusReady)+Number(opponentReady);
+    return {
+      count,
+      ready:count===2,
+      partial:count===1,
+      updatedAt:state.nextLineup?.revision?.source_updated_at || state.nextLineup?.revision?.fetched_at || null
+    };
+  }
+
+  function lineupUpdateTime(iso) {
+    if(!iso) return "";
+    const date=new Date(iso);
+    if(Number.isNaN(date.getTime())) return "";
+    return new Intl.DateTimeFormat("sv-SE",{
+      hour:"2-digit",
+      minute:"2-digit",
+      timeZone:"Europe/Stockholm"
+    }).format(date);
   }
 
   function lineupContextForTeam(teamId) {
@@ -3631,6 +3666,9 @@
     const startMs=Date.parse(game.scheduled_start||"");
     const minutesToStart=Number.isFinite(startMs)?Math.ceil((startMs-Date.now())/60000):null;
     const pregameSoon=!isLive&&minutesToStart!=null&&minutesToStart>=0&&minutesToStart<=90;
+    const lineupState=officialLineupState();
+    const lineupBanner=document.getElementById("lineupReadyBanner");
+    const linesDeckButton=document.querySelector('.deck-key[data-panel="lines"]');
     const livePill = document.querySelector(".live-pill");
     const liveBanner = document.getElementById("liveNowBanner");
     const matchHero = document.querySelector(".match-hero");
@@ -3649,6 +3687,31 @@
     scoreCenter?.classList.toggle("is-live", isLive);
     scoreCenter?.classList.toggle("is-pregame", pregameSoon);
     eventPanel?.classList.toggle("is-live", isLive);
+
+    if(lineupBanner){
+      const show=lineupState.ready||lineupState.partial;
+      lineupBanner.classList.toggle("hidden",!show);
+      lineupBanner.classList.toggle("is-partial",lineupState.partial);
+      lineupBanner.classList.toggle("is-ready",lineupState.ready);
+      if(show){
+        const updated=lineupUpdateTime(lineupState.updatedAt);
+        lineupBanner.innerHTML=lineupState.ready
+          ? '<span class="lineup-ready-dot"></span><strong>OFFICIELL LINEUP KLAR</strong><small>Båda lagen'+(updated?' · uppdaterad '+esc(updated):'')+'</small><em>ÖPPNA KEDJOR →</em>'
+          : '<span class="lineup-ready-dot"></span><strong>LINEUP PÅ VÄG</strong><small>1 av 2 lag publicerat'+(updated?' · '+esc(updated):'')+'</small><em>ÖPPNA KEDJOR →</em>';
+        lineupBanner.onclick=()=>renderDrawer("lines");
+      }else{
+        lineupBanner.onclick=null;
+      }
+    }
+    if(linesDeckButton){
+      linesDeckButton.classList.toggle("lineup-ready",lineupState.ready);
+      linesDeckButton.classList.toggle("lineup-partial",lineupState.partial);
+      linesDeckButton.setAttribute("title",lineupState.ready
+        ? "Officiell lineup klar för båda lagen"
+        : lineupState.partial
+          ? "Officiell lineup publicerad för ett av lagen"
+          : "Kedjor");
+    }
 
     if(liveBanner){
       liveBanner.classList.toggle("hidden",!isLive);
@@ -3687,9 +3750,11 @@
       [isLive ? "Aktuell match" : "Nästa match", swedishDate(game.scheduled_start) + " · " + (game.venue_name || "Arena ej angiven")],
       ["Tabell", state.focusTeam.canonical_name + " #" + (focusStanding?.rank ?? "–") + " (" + (focusStanding?.points ?? "–") + " p) · " +
         state.opponent.canonical_name + " #" + (oppStanding?.rank ?? "–") + " (" + (oppStanding?.points ?? "–") + " p)"],
-      ["Kedjor", state.nextLineup
-        ? "Officiell lineup för nästa match är importerad."
-        : "Visar senaste kända kedjor tills nästa lineup publiceras."],
+      ["Kedjor", officialLineupState().ready
+        ? "Officiell lineup är klar för båda lagen."
+        : officialLineupState().partial
+          ? "Officiell lineup är publicerad för ett av lagen."
+          : "Visar senaste kända kedjor tills nästa lineup publiceras."],
       ["H2H", state.h2hGames.length
         ? state.h2hGames.length + " tidigare möten importerade."
         : "Inga tidigare möten importerade ännu."],
