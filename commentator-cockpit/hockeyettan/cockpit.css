@@ -4807,3 +4807,49 @@ html[data-theme="light"] .lineup-ready-banner em{
     padding:5px 6px;
   }
 }
+
+
+/* v57 · inferred regulation final state */
+.live-pill.is-final{
+  border-color:rgba(98,214,154,.38);
+  background:rgba(31,94,65,.20);
+  color:#8ce9b4;
+  box-shadow:0 0 16px rgba(98,214,154,.07);
+}
+.match-hero.is-final{
+  border-color:#315847;
+  box-shadow:0 18px 48px rgba(0,0,0,.22),inset 0 2px 0 rgba(98,214,154,.07);
+}
+.match-hero.is-final:before{
+  background:linear-gradient(90deg,#62d69a,#f4b21b 45%,rgba(244,178,27,.08) 74%,transparent);
+}
+.score-center.is-final{
+  padding:9px 18px 8px;
+  border:1px solid rgba(98,214,154,.17);
+  border-radius:12px;
+  background:radial-gradient(circle at 50% 0,rgba(98,214,154,.07),rgba(9,26,38,.03) 68%);
+}
+.score-center.is-final .score{color:#fff}
+.score-center.is-final .period{
+  color:#83d8aa;
+  font-weight:1000;
+  letter-spacing:.10em;
+}
+.event-panel.is-final{
+  border-color:#29483c;
+  box-shadow:0 18px 48px rgba(0,0,0,.15),inset 0 2px 0 rgba(98,214,154,.08);
+}
+.event-panel.is-final .panel-kicker{color:#70cf9b}
+html[data-theme="light"] .live-pill.is-final{
+  border-color:#8fc6a8;
+  background:#edf8f2;
+  color:#28774e;
+}
+html[data-theme="light"] .match-hero.is-final{border-color:#a8cdb8}
+html[data-theme="light"] .score-center.is-final{
+  border-color:#c2ddcd;
+  background:#f5fbf7;
+}
+html[data-theme="light"] .score-center.is-final .score{color:#19262d}
+html[data-theme="light"] .score-center.is-final .period{color:#357c57}
+html[data-theme="light"] .event-panel.is-final{border-color:#b7d5c3}
