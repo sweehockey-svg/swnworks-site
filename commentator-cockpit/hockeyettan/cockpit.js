@@ -3689,15 +3689,15 @@
     eventPanel?.classList.toggle("is-live", isLive);
 
     if(lineupBanner){
-      const show=lineupState.ready||lineupState.partial;
+      const show=!isLive&&(lineupState.ready||lineupState.partial);
       lineupBanner.classList.toggle("hidden",!show);
       lineupBanner.classList.toggle("is-partial",lineupState.partial);
       lineupBanner.classList.toggle("is-ready",lineupState.ready);
       if(show){
         const updated=lineupUpdateTime(lineupState.updatedAt);
         lineupBanner.innerHTML=lineupState.ready
-          ? '<span class="lineup-ready-dot"></span><strong>OFFICIELL LINEUP KLAR</strong><small>Båda lagen'+(updated?' · uppdaterad '+esc(updated):'')+'</small><em>ÖPPNA KEDJOR →</em>'
-          : '<span class="lineup-ready-dot"></span><strong>LINEUP PÅ VÄG</strong><small>1 av 2 lag publicerat'+(updated?' · '+esc(updated):'')+'</small><em>ÖPPNA KEDJOR →</em>';
+          ? '<span class="lineup-ready-dot"></span><span class="lineup-ready-copy"><span class="lineup-ready-label">LINEUP</span><strong>Båda lagen klara</strong><small>Officiella uppställningar'+(updated?' · uppdaterad '+esc(updated):'')+'</small></span><em>KEDJOR <b>→</b></em>'
+          : '<span class="lineup-ready-dot"></span><span class="lineup-ready-copy"><span class="lineup-ready-label">LINEUP</span><strong>Första laget klart</strong><small>1 av 2 lag publicerat'+(updated?' · '+esc(updated):'')+'</small></span><em>KEDJOR <b>→</b></em>';
         lineupBanner.onclick=()=>renderDrawer("lines");
       }else{
         lineupBanner.onclick=null;
