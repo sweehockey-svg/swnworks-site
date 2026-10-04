@@ -158,10 +158,10 @@
           <label><span>Namn</span><input type="text" name="name" autocomplete="name" placeholder="Ditt namn" required></label>
           <label><span>E-post</span><input type="email" name="email" autocomplete="email" placeholder="din@epost.se" required></label>
         </div>
-        <label><span>Ämne</span><input type="text" name="_subject" placeholder="Vad gäller det?" required></label>
+        <label><span>Ämne</span><input type="text" name="subject" placeholder="Vad gäller det?" required></label>
         <label><span>Meddelande</span><textarea name="message" rows="4" placeholder="Skriv ditt meddelande här" required></textarea></label>
         <div class="contact-actions">
-          <input type="hidden" name="_captcha" value="false"><input type="hidden" name="_template" value="table"><label class="contact-hp" aria-hidden="true">Website<input type="text" name="_honey" tabindex="-1" autocomplete="off"></label><button class="btn primary" type="submit">Skicka meddelande <span>→</span></button>
+          <input type="hidden" name="_captcha" value="false"><input type="hidden" name="_template" value="table"><input type="hidden" name="_subject" value="Nytt meddelande via SWNWORKS"><label class="contact-hp" aria-hidden="true">Website<input type="text" name="_honey" tabindex="-1" autocomplete="off"></label><button class="btn primary" type="submit">Skicka meddelande <span>→</span></button>
           <span>Eller maila direkt: <a href="mailto:info@swnworks.se">info@swnworks.se</a></span>
         </div>
         <p class="contact-status" role="status" aria-live="polite"></p>
