@@ -318,8 +318,38 @@
 
   const LIVE_FALLBACK_WINDOW_MS=4*60*60*1000;
 
-  function gameIsLive(game) {
+  function gameInferredRegulationFinal(game,events=null) {
     if(!game || game.status==="final") return false;
+    if(game.went_overtime===true || game.went_shootout===true || Number(game.period||0)>3) return false;
+
+    const homeScore=Number(game.home_score);
+    const awayScore=Number(game.away_score);
+    if(!Number.isFinite(homeScore)||!Number.isFinite(awayScore)||homeScore===awayScore) return false;
+
+    const rows=events || (game.id===state.nextGame?.id ? state.currentEvents : []);
+    if(!Array.isArray(rows)||!rows.length) return false;
+    if(rows.some((event)=>Number(event.period||0)>3 || Number(event.event_seconds||0)>3600)) return false;
+
+    const finalGoalieOutTeams=new Set(
+      rows
+        .filter((event)=>
+          event.event_type==="goalie_out" &&
+          Number(event.period)===3 &&
+          (Number(event.event_seconds)===3600 || String(event.clock_display||"")==="60:00") &&
+          (event.team_id===game.home_team_id || event.team_id===game.away_team_id)
+        )
+        .map((event)=>event.team_id)
+    );
+
+    return finalGoalieOutTeams.has(game.home_team_id) && finalGoalieOutTeams.has(game.away_team_id);
+  }
+
+  function gameIsEffectivelyFinal(game,events=null) {
+    return Boolean(game && (game.status==="final" || gameInferredRegulationFinal(game,events)));
+  }
+
+  function gameIsLive(game) {
+    if(!game || gameIsEffectivelyFinal(game)) return false;
     if(game.status==="live") return true;
     const start=Date.parse(game.scheduled_start||"");
     if(!Number.isFinite(start)) return false;
@@ -1483,12 +1513,14 @@
   }
 
   function displayGame() {
-    return gameIsLive(state.nextGame) ? state.nextGame : state.latestFocusGame;
+    return (gameIsLive(state.nextGame) || gameIsEffectivelyFinal(state.nextGame))
+      ? state.nextGame
+      : state.latestFocusGame;
   }
 
   function statsPairForGame(game) {
     if (!game) return { home: null, away: null };
-    if (game.id === state.nextGame?.id && gameIsLive(state.nextGame)) {
+    if (game.id === state.nextGame?.id && (gameIsLive(state.nextGame) || gameIsEffectivelyFinal(state.nextGame))) {
       return {
         home: state.teamGameStats.find((row)=>row.game_id===game.id&&row.team_id===game.home_team_id) || null,
         away: state.teamGameStats.find((row)=>row.game_id===game.id&&row.team_id===game.away_team_id) || null
@@ -1542,8 +1574,9 @@
     if(overviewContext){
       const opponentName=game.home_team_id===state.focusTeam?.id ? awayName : homeName;
       const focusName=state.focusTeam?.canonical_name || "";
+      const currentFinal=game.id===state.nextGame?.id && gameIsEffectivelyFinal(game);
       overviewContext.textContent=(focusName ? focusName+" · " : "") +
-        (gameIsLive(game) ? "LIVE MATCH · VS " : "SENASTE MATCH · VS ") + opponentName;
+        (currentFinal ? "MATCH SLUT · VS " : gameIsLive(game) ? "LIVE MATCH · VS " : "SENASTE MATCH · VS ") + opponentName;
     }
 
     const missingLabel=gameIsLive(game) ? "väntar på "+league.sourceLabel : "ej publicerat";
@@ -1621,20 +1654,22 @@
     if (!feed) return;
 
     const live=gameIsLive(state.nextGame);
+    const ended=gameIsEffectivelyFinal(state.nextGame);
     const nextStart=Date.parse(state.nextGame?.scheduled_start||"");
     const minutesToStart=Number.isFinite(nextStart) ? (nextStart-Date.now())/60000 : null;
     const pregame=Boolean(
       !live &&
+      !ended &&
       state.nextGame &&
       (
         state.nextLineup ||
         (minutesToStart!=null && minutesToStart>=0 && minutesToStart<=90)
       )
     );
-    const game=live||pregame ? state.nextGame : state.latestFocusGame;
-    const events=live ? state.currentEvents : pregame ? [] : state.latestEvents;
+    const game=live||pregame||ended ? state.nextGame : state.latestFocusGame;
+    const events=live||ended ? state.currentEvents : pregame ? [] : state.latestEvents;
     const eventPanelTitle=document.getElementById("eventPanelTitle");
-    if(eventPanelTitle) eventPanelTitle.textContent=live ? "LIVE · Senaste händelser" : pregame ? "Dagens match" : "Matchhändelser";
+    if(eventPanelTitle) eventPanelTitle.textContent=ended ? "SLUT · Matchhändelser" : live ? "LIVE · Senaste händelser" : pregame ? "Dagens match" : "Matchhändelser";
 
     if(!game){
       feed.className="empty-state";
@@ -1707,9 +1742,11 @@
     const awayScore=live
       ? (officialLive&&game.away_score!=null ? game.away_score : scoreEvent?.away_score)
       : (shootoutEvent?.away_score ?? game.away_score);
-    const header=live
-      ? 'LIVE MATCH · ' + esc(state.focusTeam.canonical_name.toUpperCase()) + ' · ' + (events.length?'OFFICIELL EVENTDATA':'INVÄNTAR MATCHDATA')
-      : 'OFFICIELL MATCHRAPPORT';
+    const header=ended
+      ? 'MATCH SLUT · 60:00'
+      : live
+        ? 'LIVE MATCH · ' + esc(state.focusTeam.canonical_name.toUpperCase()) + ' · ' + (events.length?'OFFICIELL EVENTDATA':'INVÄNTAR MATCHDATA')
+        : 'OFFICIELL MATCHRAPPORT';
     const footer=esc(game.venue_name || "") + ' · ' +
       (live
         ? (events.length ? events.length + ' importerade händelser' : 'väntar på '+league.sourceLabel+'-data')
@@ -1798,6 +1835,7 @@
     const facts=[];
     const game=state.nextGame;
     const live=gameIsLive(game);
+    const ended=gameIsEffectivelyFinal(game);
     const focusStanding=state.standingsByTeam.get(state.focusTeam.id);
     const oppStanding=state.standingsByTeam.get(state.opponent.id);
     const focusForm=formSummary(state.focusForm,state.focusTeam.id);
@@ -1808,7 +1846,18 @@
       facts.push({story:false,score:50,...fact});
     };
 
-    if(live){
+    if(ended){
+      const home=getTeamName(game.home_team_id);
+      const away=getTeamName(game.away_team_id);
+      add({
+        id:"final-score",
+        tag:"SLUT",
+        title:home+" "+game.home_score+"–"+game.away_score+" "+away,
+        text:"60:00 · matchen är avslutad efter ordinarie tid.",
+        score:225,
+        story:true
+      });
+    }else if(live){
       const home=getTeamName(game.home_team_id);
       const away=getTeamName(game.away_team_id);
       add({
@@ -3656,6 +3705,7 @@
     document.getElementById("awayName").textContent = away?.canonical_name || "Bortalag";
     document.querySelector(".team.home .team-badge").innerHTML = teamLogoMarkup(home?.canonical_name,"score-team-logo");
     document.querySelector(".team.away .team-badge").innerHTML = teamLogoMarkup(away?.canonical_name,"score-team-logo");
+    const isFinal = gameIsEffectivelyFinal(game);
     const isLive = gameIsLive(game);
     const officialLive = game.status === "live";
     const latestLiveEvent = state.currentEvents.find((event)=>event.home_score!=null&&event.away_score!=null) || state.currentEvents[0] || null;
@@ -3665,7 +3715,7 @@
     const awayLiveScore = officialLive && game.away_score!=null ? game.away_score : latestLiveEvent?.away_score;
     const startMs=Date.parse(game.scheduled_start||"");
     const minutesToStart=Number.isFinite(startMs)?Math.ceil((startMs-Date.now())/60000):null;
-    const pregameSoon=!isLive&&minutesToStart!=null&&minutesToStart>=0&&minutesToStart<=90;
+    const pregameSoon=!isLive&&!isFinal&&minutesToStart!=null&&minutesToStart>=0&&minutesToStart<=90;
     const lineupState=officialLineupState();
     const lineupBanner=document.getElementById("lineupReadyBanner");
     const linesDeckButton=document.querySelector('.deck-key[data-panel="lines"]');
@@ -3675,21 +3725,27 @@
     const scoreCenter = document.querySelector(".score-center");
     const eventPanel = document.querySelector(".event-panel");
 
-    livePill.textContent = isLive
-      ? "LIVE NU"
-      : pregameSoon
-        ? "IDAG · "+Math.max(1,minutesToStart)+" MIN"
-        : "NÄSTA MATCH";
+    livePill.textContent = isFinal
+      ? "SLUT"
+      : isLive
+        ? "LIVE NU"
+        : pregameSoon
+          ? "IDAG · "+Math.max(1,minutesToStart)+" MIN"
+          : "NÄSTA MATCH";
     livePill.classList.toggle("is-live", isLive);
     livePill.classList.toggle("is-pregame", pregameSoon);
+    livePill.classList.toggle("is-final", isFinal);
     matchHero?.classList.toggle("is-live", isLive);
     matchHero?.classList.toggle("is-pregame", pregameSoon);
+    matchHero?.classList.toggle("is-final", isFinal);
     scoreCenter?.classList.toggle("is-live", isLive);
     scoreCenter?.classList.toggle("is-pregame", pregameSoon);
+    scoreCenter?.classList.toggle("is-final", isFinal);
     eventPanel?.classList.toggle("is-live", isLive);
+    eventPanel?.classList.toggle("is-final", isFinal);
 
     if(lineupBanner){
-      const show=!isLive&&(lineupState.ready||lineupState.partial);
+      const show=!isLive&&!isFinal&&(lineupState.ready||lineupState.partial);
       lineupBanner.classList.toggle("hidden",!show);
       lineupBanner.classList.toggle("is-partial",lineupState.partial);
       lineupBanner.classList.toggle("is-ready",lineupState.ready);
@@ -3724,15 +3780,17 @@
         : "";
     }
 
-    document.getElementById("gameState").textContent = isLive
-      ? (officialLive || latestLiveEvent
-          ? "P" + (livePeriod || "–") + " · SENASTE HÄNDELSE " + (liveClock || "–")
-          : "MATCHEN ÄR LIVE · INVÄNTAR MATCHDATA")
-      : pregameSoon
-        ? "NEDSLÄPP OM "+Math.max(1,minutesToStart)+" MIN · "+new Intl.DateTimeFormat("sv-SE",{hour:"2-digit",minute:"2-digit",timeZone:"Europe/Stockholm"}).format(new Date(game.scheduled_start))
-        : swedishDate(game.scheduled_start);
-    document.getElementById("homeScore").textContent = isLive ? (homeLiveScore ?? "–") : "–";
-    document.getElementById("awayScore").textContent = isLive ? (awayLiveScore ?? "–") : "–";
+    document.getElementById("gameState").textContent = isFinal
+      ? "MATCH SLUT · 60:00"
+      : isLive
+        ? (officialLive || latestLiveEvent
+            ? "P" + (livePeriod || "–") + " · SENASTE HÄNDELSE " + (liveClock || "–")
+            : "MATCHEN ÄR LIVE · INVÄNTAR MATCHDATA")
+        : pregameSoon
+          ? "NEDSLÄPP OM "+Math.max(1,minutesToStart)+" MIN · "+new Intl.DateTimeFormat("sv-SE",{hour:"2-digit",minute:"2-digit",timeZone:"Europe/Stockholm"}).format(new Date(game.scheduled_start))
+          : swedishDate(game.scheduled_start);
+    document.getElementById("homeScore").textContent = isFinal ? (game.home_score ?? "–") : isLive ? (homeLiveScore ?? "–") : "–";
+    document.getElementById("awayScore").textContent = isFinal ? (game.away_score ?? "–") : isLive ? (awayLiveScore ?? "–") : "–";
 
     document.getElementById("homeFormLabel").textContent = state.focusTeam.canonical_name;
     document.getElementById("awayFormLabel").textContent = state.opponent.canonical_name;
@@ -3747,7 +3805,7 @@
     const focusStanding = state.standingsByTeam.get(state.focusTeam.id);
     const oppStanding = state.standingsByTeam.get(state.opponent.id);
     panels.match.cards = [
-      [isLive ? "Aktuell match" : "Nästa match", swedishDate(game.scheduled_start) + " · " + (game.venue_name || "Arena ej angiven")],
+      [isFinal ? "Match slut" : isLive ? "Aktuell match" : "Nästa match", swedishDate(game.scheduled_start) + " · " + (game.venue_name || "Arena ej angiven")],
       ["Tabell", state.focusTeam.canonical_name + " #" + (focusStanding?.rank ?? "–") + " (" + (focusStanding?.points ?? "–") + " p) · " +
         state.opponent.canonical_name + " #" + (oppStanding?.rank ?? "–") + " (" + (oppStanding?.points ?? "–") + " p)"],
       ["Kedjor", officialLineupState().ready
@@ -3787,7 +3845,8 @@
         return;
       }
 
-      if(gameIsLive(game)){
+      const inferredEnded=gameInferredRegulationFinal(game,state.currentEvents);
+      if(gameIsLive(game)||inferredEnded){
         const [eventResult,statsResult,playerResult,goalieResult,lineupResult]=await Promise.all([
           client.from("game_events")
             .select("id,period,clock_display,event_seconds,event_type,team_id,strength,home_score,away_score,description")
