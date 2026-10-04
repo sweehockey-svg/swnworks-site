@@ -4444,3 +4444,101 @@ html[data-theme="light"] .event-panel.is-live .panel-kicker{
 @media (prefers-reduced-motion:reduce){
   .live-pill.is-live::before{animation:none}
 }
+
+
+/* v56 · pregame countdown + prominent LIVE state */
+.live-pill.is-pregame{
+  border-color:#765d1e;
+  background:rgba(244,178,27,.12);
+  color:#ffc940;
+  box-shadow:0 0 16px rgba(244,178,27,.08);
+}
+.match-hero.is-pregame{
+  border-color:#4d4529;
+}
+.match-hero.is-pregame:before{
+  background:linear-gradient(90deg,var(--yellow),rgba(244,178,27,.34) 48%,transparent);
+}
+.score-center.is-pregame .period{
+  color:#e9bd4b;
+  font-weight:950;
+}
+.live-now-banner{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  margin:0 auto 8px;
+  padding:6px 10px;
+  border:1px solid rgba(255,93,88,.38);
+  border-radius:999px;
+  background:rgba(129,22,22,.28);
+  box-shadow:0 0 22px rgba(255,72,67,.12);
+  color:#ff9a96;
+  white-space:nowrap;
+}
+.live-now-banner.hidden{display:none}
+.live-now-banner .live-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#ff5d58;
+  box-shadow:0 0 0 0 rgba(255,93,88,.48);
+  animation:livePulse 1.45s ease-out infinite;
+}
+.live-now-banner strong{
+  font-size:8px;
+  font-weight:1000;
+  letter-spacing:.10em;
+}
+.live-now-banner em{
+  padding-left:7px;
+  border-left:1px solid rgba(255,255,255,.14);
+  color:#d8b5b2;
+  font-size:7px;
+  font-style:normal;
+  font-weight:900;
+  letter-spacing:.06em;
+}
+.event-panel.is-live .panel-head{
+  border-bottom-color:rgba(255,93,88,.20);
+}
+.event-panel.is-live .panel-head h2{
+  color:#fff;
+}
+html[data-theme="light"] .live-pill.is-pregame{
+  border-color:#cfaa48;
+  background:#fff7df;
+  color:#926300;
+}
+html[data-theme="light"] .match-hero.is-pregame{
+  border-color:#dbc98e;
+}
+html[data-theme="light"] .score-center.is-pregame .period{
+  color:#8a650a;
+}
+html[data-theme="light"] .live-now-banner{
+  border-color:#d87a76;
+  background:#fff0ef;
+  color:#b62925;
+  box-shadow:0 0 18px rgba(185,40,36,.07);
+}
+html[data-theme="light"] .live-now-banner em{
+  border-left-color:#e5b7b4;
+  color:#8a5552;
+}
+html[data-theme="light"] .event-panel.is-live .panel-head h2{
+  color:#182830;
+}
+@media (max-width:760px){
+  .live-now-banner{
+    padding:5px 8px;
+    gap:5px;
+  }
+  .live-now-banner em{
+    font-size:6px;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .live-now-banner .live-dot{animation:none}
+}
