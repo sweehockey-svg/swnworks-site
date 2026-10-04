@@ -739,7 +739,7 @@
 "use strict";
 
 /*
-  NEXTGAME – MOBIL V5.2
+  NEXTGAME – MOBIL V5.3
 
   API:
   Den här versionen hämtar matcher direkt från ESPN:s öppna scoreboard-endpoints.
@@ -1639,10 +1639,26 @@ function seasonYearForSource(source) {
   const year = Number(new Intl.DateTimeFormat("en", {year:"numeric", timeZone:"Europe/Stockholm"}).format(now));
   const month = Number(new Intl.DateTimeFormat("en", {month:"numeric", timeZone:"Europe/Stockholm"}).format(now));
 
-  if (source.id === "allsvenskan" || source.id === "nfl" || source.id === "f1") return year;
-  if (source.sport === "Fotboll" || source.id === "nhl" || source.id === "nba") {
+  // Calendar-year competitions.
+  if (source.id === "allsvenskan" || source.id === "f1") return year;
+
+  // European football seasons are identified by the START year at ESPN:
+  // 2026-27 => season=2026.
+  if (source.sport === "Fotboll") {
+    return month >= 7 ? year : year - 1;
+  }
+
+  // NBA/NHL seasons are identified by the END year:
+  // 2026-27 => season=2027.
+  if (source.id === "nhl" || source.id === "nba") {
     return month >= 7 ? year + 1 : year;
   }
+
+  // NFL uses the year the season starts. Jan/Feb still belongs to the previous season.
+  if (source.id === "nfl") {
+    return month <= 2 ? year - 1 : year;
+  }
+
   return year;
 }
 
@@ -1675,11 +1691,14 @@ async function fetchTeamSeasonEntry(entry, allSoccerCompetitions = false) {
 
   const urls = source.sport === "Fotboll"
     ? [
+        // Results already played during the season.
         `${scheduleBase}?season=${season}&limit=500`,
+        // Every published future fixture through the end of the season.
         `${scheduleBase}?season=${season}&fixture=true&limit=500`
       ]
     : [
-        `${scheduleBase}?season=${season}&limit=500&eventsforward=200`
+        // Full regular-season schedule for NHL / NBA / NFL.
+        `${scheduleBase}?season=${season}&seasontype=2&limit=500`
       ];
 
   const payloads = await Promise.allSettled(urls.map(fetchSchedulePayload));
@@ -1738,7 +1757,12 @@ async function loadTeamSeason(name) {
     });
 
     const fullSchedule = sortSeasonMatches([...byId.values()]);
-    console.info(`NextGame season schedule ${name}: ${fullSchedule.length} season events`);
+    console.info(`NextGame season schedule ${name}: ${fullSchedule.length} season events`, {
+      season: uniqueEntries.map(entry => {
+        const source = currentSourceById(entry.sourceId);
+        return source ? `${source.name}=${seasonYearForSource(source)}` : entry.sourceId;
+      })
+    });
     teamSeasonCache.set(name, fullSchedule);
   } catch (error) {
     console.warn("Kunde inte ladda lagets säsongsschema.", error);
@@ -1771,6 +1795,38 @@ async function fetchF1Season() {
   })));
 }
 
+async function allSettledLimited(items, limit, worker) {
+  const results = new Array(items.length);
+  let cursor = 0;
+
+  async function runner() {
+    while (true) {
+      const index = cursor++;
+      if (index >= items.length) return;
+
+      try {
+        results[index] = {
+          status:"fulfilled",
+          value:await worker(items[index], index)
+        };
+      } catch (reason) {
+        results[index] = {
+          status:"rejected",
+          reason
+        };
+      }
+    }
+  }
+
+  const runners = Array.from(
+    {length:Math.min(limit, Math.max(items.length, 1))},
+    () => runner()
+  );
+
+  await Promise.all(runners);
+  return results;
+}
+
 async function loadLeagueSeason(name) {
   if (leagueSeasonCache.has(name) || seasonLoading.has(`league:${name}`)) return;
 
@@ -1785,7 +1841,11 @@ async function loadLeagueSeason(name) {
       leagueSeasonCache.set(name, await fetchF1Season());
     } else {
       const entries = teamCatalog.filter(entry => entry.league === name);
-      const results = await Promise.allSettled(entries.map(entry => fetchTeamSeasonEntry(entry, false)));
+      const results = await allSettledLimited(
+        entries,
+        6,
+        entry => fetchTeamSeasonEntry(entry, false)
+      );
       const byId = new Map();
 
       results.forEach(result => {
@@ -1793,7 +1853,9 @@ async function loadLeagueSeason(name) {
         result.value.forEach(match => byId.set(String(match.id), match));
       });
 
-      leagueSeasonCache.set(name, sortSeasonMatches([...byId.values()]));
+      const seasonSchedule = sortSeasonMatches([...byId.values()]);
+      console.info(`NextGame league schedule ${name}: ${seasonSchedule.length} season events`);
+      leagueSeasonCache.set(name, seasonSchedule);
     }
   } catch (error) {
     console.warn("Kunde inte ladda ligans säsongsschema.", error);
