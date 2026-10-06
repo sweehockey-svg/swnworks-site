@@ -113,11 +113,11 @@ function silhouetteSvg(x,y,w,h){
   return '<g opacity=".92"><circle cx="'+cx+'" cy="'+headY+'" r="'+headR+'" fill="#050b11"/><path d="M '+(x+w*.18)+' '+(y+h*.92)+' C '+(x+w*.20)+' '+(y+h*.63)+', '+(x+w*.36)+' '+(y+h*.52)+', '+cx+' '+(y+h*.52)+' C '+(x+w*.64)+' '+(y+h*.52)+', '+(x+w*.80)+' '+(y+h*.63)+', '+(x+w*.82)+' '+(y+h*.92)+' Z" fill="#050b11"/></g>';
 }
 function statBar(x,y,w,label,value,ratio,accent="#ffbd00"){
-  const fillW=Math.max(8,Math.round(w*clamp01(ratio)));
-  return '<text x="'+x+'" y="'+(y-7)+'" fill="#9eb1bf" font-family="Arial" font-size="13" font-weight="850">'+esc(label)+'</text>'+
-    '<text x="'+(x+w)+'" y="'+(y-7)+'" text-anchor="end" fill="#f7f9fb" font-family="Arial" font-size="13" font-weight="950">'+esc(value)+'</text>'+
-    '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="8" rx="4" fill="#1a3142"/>'+
-    '<rect x="'+x+'" y="'+y+'" width="'+fillW+'" height="8" rx="4" fill="'+accent+'"/>';
+  const fillW=Math.max(10,Math.round(w*clamp01(ratio)));
+  return '<text x="'+x+'" y="'+(y-9)+'" fill="#a9bac6" font-family="Arial" font-size="14" font-weight="900">'+esc(label)+'</text>'+
+    '<text x="'+(x+w)+'" y="'+(y-9)+'" text-anchor="end" fill="#ffffff" font-family="Arial" font-size="14" font-weight="1000">'+esc(value)+'</text>'+
+    '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="9" rx="4.5" fill="#173246"/>'+
+    '<rect x="'+x+'" y="'+y+'" width="'+fillW+'" height="9" rx="4.5" fill="'+accent+'"/>';
 }
 function skaterCardConfig(kind,p,maxes){
   const ppg=p.gp?p.p/p.gp:0,gpg=p.gp?p.g/p.gp:0,apg=p.gp?p.a/p.gp:0;
@@ -158,7 +158,7 @@ function leaderboardCard(p,rank,kind,x,y,w,h,logo,maxes){
   const logoSize=big?66:46, nameSize=big?34:23, teamSize=big?14:11;
   const mainSize=big?62:42, labelSize=big?14:11;
   const statTop=y+(big?112:92), primaryX=tx, colsStart=tx+(big?150:102), colGap=big?92:64;
-  const barsY=y+h-(big?76:64), barW=Math.max(big?320:150,right-tx);
+  const barsY=y+h-(big?82:70), barW=Math.max(big?320:150,right-tx);
 
   const values=kind==="goals"
     ? [{l:"GP",v:p.gp},{l:"A",v:p.a},{l:"P",v:p.p}]
@@ -187,7 +187,7 @@ function leaderboardCard(p,rank,kind,x,y,w,h,logo,maxes){
       '<text x="'+sx+'" y="'+(statTop+(big?48:36))+'" fill="#f5f7f9" font-family="Arial Black,Arial" font-size="'+(big?32:24)+'" font-weight="1000">'+s.v+'</text>';
   });
 
-  cfg.bars.forEach((b,i)=>{o+=statBar(tx,barsY+i*(big?25:22),barW,b.label,b.value,b.ratio)});
+  cfg.bars.forEach((b,i)=>{o+=statBar(tx,barsY+i*(big?27:24),barW,b.label,b.value,b.ratio)});
   return o+'</g>';
 }
 function compactLeaderboard(rows,kind,x,y,w,rowH,offset=4){
@@ -231,7 +231,7 @@ function goalieCard(p,rank,x,y,w,h,logo,maxes){
   const logoSize=big?66:46, nameSize=big?34:23, teamSize=big?14:11;
   const mainSize=big?58:40, labelSize=big?14:11;
   const statTop=y+(big?112:92), primaryX=tx, colsStart=tx+(big?165:108), colGap=big?104:72;
-  const barsY=y+h-(big?76:64), barW=Math.max(big?320:150,right-tx);
+  const barsY=y+h-(big?82:70), barW=Math.max(big?320:150,right-tx);
   const sv=(p.sv*(p.sv<=1?100:1)), gaa=p.gaa==null?"–":fmtDec(p.gaa);
   const values=[{l:"GP",v:p.gp},{l:"GAA",v:gaa},{l:"SO",v:p.so}];
 
@@ -256,7 +256,7 @@ function goalieCard(p,rank,x,y,w,h,logo,maxes){
       '<text x="'+sx+'" y="'+(statTop+(big?48:36))+'" fill="#f5f7f9" font-family="Arial Black,Arial" font-size="'+(big?30:22)+'" font-weight="1000">'+s.v+'</text>';
   });
 
-  cfg.bars.forEach((b,i)=>{o+=statBar(tx,barsY+i*(big?25:22),barW,b.label,b.value,b.ratio)});
+  cfg.bars.forEach((b,i)=>{o+=statBar(tx,barsY+i*(big?27:24),barW,b.label,b.value,b.ratio)});
   return o+'</g>';
 }
 function compactGoalies(rows,x,y,w,rowH,offset=4){
@@ -335,7 +335,7 @@ function board(kind){
     rows.forEach((p,i)=>{o+=leaderboardCard(p,i+1,kind,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
   }else{
     const gap=S.format==="story"?26:18, cardW=W-m*2;
-    const cardH=S.format==="story"?390:S.format==="square"?225:286;
+    const cardH=S.format==="story"?390:S.format==="square"?225:298;
     let y=top;
     rows.forEach((p,i)=>{o+=leaderboardCard(p,i+1,kind,m,y,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes);y+=cardH+gap});
   }
@@ -352,7 +352,7 @@ function goalieSvg(){
     rows.forEach((p,i)=>{o+=goalieCard(p,i+1,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
   }else{
     const gap=S.format==="story"?26:18, cardW=W-m*2;
-    const cardH=S.format==="story"?390:S.format==="square"?225:286;
+    const cardH=S.format==="story"?390:S.format==="square"?225:298;
     let y=top;
     rows.forEach((p,i)=>{o+=goalieCard(p,i+1,m,y,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes);y+=cardH+gap});
   }
