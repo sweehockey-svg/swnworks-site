@@ -64,13 +64,13 @@ function defs(){return '<defs><linearGradient id="silver" x2="0" y2="1"><stop st
 function background(W,H){
   if(S.bg==="gamenight"){
     const u=new URL("../broadcast-studio/assets/game-night-background-photo.webp",location.href).href;
-    return '<image href="'+esc(u)+'" width="'+W+'" height="'+H+'" preserveAspectRatio="xMidYMid slice"/><rect width="'+W+'" height="'+H+'" fill="#020b12" fill-opacity=".50"/>';
+    return '<rect width="'+W+'" height="'+H+'" fill="#06111d"/><image href="'+esc(u)+'" width="'+W+'" height="'+H+'" preserveAspectRatio="xMidYMid slice"/><rect width="'+W+'" height="'+H+'" fill="#020b12" fill-opacity=".50"/>';
   }
   if(S.bg==="ice")return '<rect width="'+W+'" height="'+H+'" fill="#0a2a3d"/><circle cx="'+W*.5+'" cy="'+H*.56+'" r="'+Math.min(W,H)*.34+'" fill="none" stroke="#a8e6ff" stroke-opacity=".09" stroke-width="8"/><path d="M0 '+H*.56+' H'+W+'" stroke="#d7f4ff" stroke-opacity=".09" stroke-width="5"/>';
   if(S.bg==="smoke")return '<rect width="'+W+'" height="'+H+'" fill="#06111a"/><ellipse cx="'+W*.25+'" cy="'+H*.68+'" rx="'+W*.38+'" ry="'+H*.24+'" fill="#a8b5bf" fill-opacity=".09"/><ellipse cx="'+W*.8+'" cy="'+H*.35+'" rx="'+W*.3+'" ry="'+H*.2+'" fill="#ffbd00" fill-opacity=".06"/>';
   return '<rect width="'+W+'" height="'+H+'" fill="#06283d"/><path d="M0 '+H*.82+' L'+W*.48+' 0 H'+W*.62+' L'+W*.16+' '+H+'" Z" fill="#0d4a70" fill-opacity=".32"/><path d="M'+W*.6+' 0 L'+W+' '+H*.42+' V'+H*.63+' L'+W*.48+' 0 Z" fill="#ffbd00" fill-opacity=".05"/>';
 }
-function base(content){
+function legacyBase(content){
   const {w:W,h:H}=format(),m=Math.round(W*.052),hy=Math.round(H*.052),ty=Math.round(H*.19),wide=S.format==="wide";
   const c=comp(),ts=wide?78:S.format==="story"?74:68;
   return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+defs()+background(W,H)+
@@ -391,7 +391,7 @@ function groupsSvg(){
   }
   return base(o);
 }
-function board(kind){
+function legacyBoard(kind){
   const metric=kind==="goals"?"g":kind==="assists"?"a":"p", rows=skaters(metric).slice(0,3), lm=logos();
   const {w:W,h:H}=format(), m=Math.round(W*.052), top=S.format==="story"?360:S.format==="wide"?315:300;
   const maxes={
@@ -411,7 +411,7 @@ function board(kind){
   }
   return base(o);
 }
-function goalieSvg(){
+function legacyGoalieSvg(){
   const rows=goalies().slice(0,3), lm=logos();
   const {w:W,h:H}=format(), m=Math.round(W*.052), top=S.format==="story"?360:S.format==="wide"?315:300;
   const svs=rows.map(p=>p.sv*(p.sv<=1?100:1)).filter(Number.isFinite), gaas=rows.map(p=>Number(p.gaa)).filter(Number.isFinite);
@@ -447,6 +447,57 @@ function leadersSvg(){
   else{const gap=18,h=(bottom-top-gap*2)/3;o+=mini(m,top,W-m*2,h,"MÅL","g",a,lm)+mini(m,top+h+gap,W-m*2,h,"ASSISTS","a",b,lm)+mini(m,top+(h+gap)*2,W-m*2,h,"POÄNG","p",c,lm)}
   return base(o);
 }
+function svgText(x,y,value,size=24,color="#f4f7fa",weight=700,extra=""){
+  return '<text x="'+x+'" y="'+y+'" fill="'+color+'" font-family="Arial, sans-serif" font-size="'+size+'" font-weight="'+weight+'" '+extra+'>'+esc(value)+'</text>';
+}
+function base(content){
+  const {w:W,h:H}=format(),m=Math.round(W*.052),c=comp(),wide=S.format==="wide";
+  const headingSize=Math.min(wide?82:70,(W-m*2)/Math.max(1,title().length)*1.55);
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+defs()+
+    '<defs><linearGradient id="editorialShade" x2="0" y2="1"><stop stop-color="#06111d" stop-opacity=".96"/><stop offset=".6" stop-color="#06111d" stop-opacity=".88"/><stop offset="1" stop-color="#06111d" stop-opacity=".96"/></linearGradient></defs>'+background(W,H)+
+    '<rect width="'+W+'" height="'+H+'" fill="url(#editorialShade)"/><path d="M'+W*.68+' 0 L'+W+' 0 L'+W*.35+' '+H+' H'+W*.2+' Z" fill="#77bfff" opacity=".025"/>'+
+    '<rect x="'+m+'" y="48" width="6" height="56" rx="3" fill="#ffbd00"/>'+
+    (c.logo?'<image href="'+esc(c.logo)+'" x="'+(m+20)+'" y="40" width="72" height="72" preserveAspectRatio="xMidYMid meet"/>':'')+
+    svgText(m+112,72,c.label,27,"#f4f7fa",800)+svgText(m+112,97,"SVENSK eHOCKEY",12,"#a2b6c9",700,'letter-spacing="2.4"')+
+    svgText(W-m,78,"SWNWORKS / STUDIO",12,"#a2b6c9",700,'text-anchor="end" letter-spacing="2"')+
+    '<line x1="'+m+'" y1="132" x2="'+(W-m)+'" y2="132" stroke="#7b9ab6" opacity=".24"/>'+
+    svgText(m,178,subtitle(),15,"#ffcf4a",700,'letter-spacing="3"')+svgText(m,252,title(),headingSize,"#f4f7fa",900,'letter-spacing="-2"')+
+    content+'<line x1="'+m+'" y1="'+(H-65)+'" x2="'+(W-m)+'" y2="'+(H-65)+'" stroke="#7b9ab6" opacity=".24"/>'+
+    svgText(m,H-33,"SVENSK eHOCKEY · NHL 27",13,"#a2b6c9",700,'letter-spacing="1.5"')+
+    svgText(W-m,H-33,"SWNWORKS",13,"#a2b6c9",700,'text-anchor="end" letter-spacing="2"')+'</svg>';
+}
+function editorialCard(p,rank,kind,x,y,w,h,logo,maxValue){
+  const goalie=kind==="goalies",primary=goalie?fmtDec(p.sv*(p.sv<=1?100:1),1):kind==="goals"?p.g:kind==="assists"?p.a:p.p;
+  const label=goalie?"RÄDDNINGAR %":kind==="goals"?"MÅL":kind==="assists"?"ASSIST":"POÄNG";
+  const accent=rank===1?"#ffcf4a":rank===2?"#cbd9e5":"#bca58a",wide=w>1400;
+  const pad=24,pw=wide?150:Math.min(196,h-36),px=x+pad,py=y+18,ph=h-36,tx=px+pw+28,right=x+w-28;
+  const nameW=right-tx-82,nameSize=Math.min(38,nameW/Math.max(1,String(p.display_gamertag||"").length)*1.55);
+  const vals=goalie?[['MATCHER',p.gp],['GAA',p.gaa==null?'–':fmtDec(p.gaa)],['NOLLOR',p.so]]:
+    kind==="goals"?[['MATCHER',p.gp],['ASSIST',p.a],['POÄNG',p.p]]:kind==="assists"?[['MATCHER',p.gp],['MÅL',p.g],['POÄNG',p.p]]:[['MATCHER',p.gp],['MÅL',p.g],['ASSIST',p.a]];
+  let o='<g><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="20" fill="#0c1c2c" stroke="#294055"/><rect x="'+x+'" y="'+(y+22)+'" width="5" height="'+(h-44)+'" rx="2" fill="'+accent+'"/>'+
+    '<rect x="'+px+'" y="'+py+'" width="'+pw+'" height="'+ph+'" rx="12" fill="#122b3e"/>';
+  const portrait=portraitUrl(p);o+=portrait?portraitImage(portrait,px+6,py+6,pw-12,ph-12):silhouetteSvg(px+6,py+6,pw-12,ph-12);
+  o+='<rect x="'+(px+10)+'" y="'+(py+10)+'" width="40" height="32" rx="8" fill="'+accent+'"/>'+svgText(px+30,py+33,String(rank).padStart(2,'0'),19,"#07121c",900,'text-anchor="middle"');
+  o+=svgText(tx,y+51,clip(p.display_gamertag,32),nameSize,"#fff",800)+svgText(tx,y+78,clip(p.team_name_in_league||"",42),17,"#a2b6c9",600);
+  if(logo)o+=img(logo,right-58,y+20,58);
+  const sy=wide?y+113:y+112,statsX=tx+(goalie?200:150),step=(right-statsX)/3;
+  o+=svgText(tx,sy,label,12,"#a2b6c9",700,'letter-spacing="1.5"')+svgText(tx,sy+53,primary,goalie?52:64,accent,900);
+  vals.forEach((v,i)=>{const sx=statsX+i*step;o+=svgText(sx,sy,v[0],11,"#a2b6c9",700,'letter-spacing="1"')+svgText(sx,sy+47,v[1],32,"#f4f7fa",800)});
+  if(h>=255){const rate=goalie?null:p.gp?(kind==="goals"?p.g:kind==="assists"?p.a:p.p)/p.gp:0;
+    o+='<line x1="'+tx+'" y1="'+(y+h-65)+'" x2="'+right+'" y2="'+(y+h-65)+'" stroke="#294055"/>'+svgText(tx,y+h-30,goalie?"RANKAD EFTER RÄDDNINGSPROCENT":label+" / MATCH",12,"#a2b6c9",700,'letter-spacing="1"')+svgText(right,y+h-28,goalie?"SV%":fmtDec(rate),20,accent,800,'text-anchor="end"');
+  }
+  return o+'</g>';
+}
+function editorialBoard(kind){
+  const rows=kind==="goalies"?goalies().slice(0,3):skaters(kind==="goals"?"g":kind==="assists"?"a":"p").slice(0,3),lm=logos();
+  const {w:W,h:H}=format(),m=Math.round(W*.052),top=S.format==="story"?360:300,gap=20;
+  const cardH=Math.min(S.format==="story"?445:320,(H-95-top-gap*2)/3);
+  let o="";rows.forEach((p,i)=>o+=editorialCard(p,i+1,kind,m,top+i*(cardH+gap),W-m*2,cardH,lm.get(String(p.sports_gamer_team_id))||""));
+  if(!rows.length)o+=svgText(W/2,H/2,"Ingen matchstatistik ännu",30,"#a2b6c9",700,'text-anchor="middle"');
+  return base(o);
+}
+function board(kind){return editorialBoard(kind)}
+function goalieSvg(){return editorialBoard("goalies")}
 function build(){return S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind)}
 function render(){
   sync();$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=TIT[S.kind];
@@ -457,7 +508,7 @@ function dl(blob,name){const a=document.createElement("a");a.href=URL.createObje
 function dataUrl(blob){return new Promise((ok,no)=>{const f=new FileReader();f.onload=()=>ok(f.result);f.onerror=no;f.readAsDataURL(blob)})}
 async function inline(svg){
   const d=new DOMParser().parseFromString(svg,"image/svg+xml"),ims=[...d.querySelectorAll("image")];
-  await Promise.all(ims.map(async el=>{const h=el.getAttribute("href")||"";if(!h||h.startsWith("data:"))return;try{const r=await fetch(h,{mode:"cors",cache:"no-store"});if(!r.ok)throw 0;el.setAttribute("href",await dataUrl(await r.blob()))}catch(e){console.warn("Bild kunde inte bäddas in",h);el.remove()}}));
+  await Promise.all(ims.map(async el=>{const h=el.getAttribute("href")||"";if(!h||h.startsWith("data:"))return;try{const r=await fetch(h,{mode:"cors",cache:"no-store",signal:AbortSignal.timeout(8000)});if(!r.ok)throw 0;el.setAttribute("href",await dataUrl(await r.blob()))}catch(e){console.warn("Bild kunde inte bäddas in",h);el.remove()}}));
   return new XMLSerializer().serializeToString(d.documentElement);
 }
 async function expSvg(){const s=await inline(build());dl(new Blob([s],{type:"image/svg+xml;charset=utf-8"}),safe()+".svg")}
@@ -467,6 +518,12 @@ $$("[data-kind]").forEach(b=>b.onclick=()=>{$$("[data-kind]").forEach(x=>x.class
 ["stage","group","count","format","bg","logos"].forEach(id=>$("#"+id).addEventListener("change",render));
 ["title","subtitle"].forEach(id=>$("#"+id).addEventListener("input",render));
 $("#league").onchange=()=>{S.league=Number($("#league").value||527);S.group=null;load()};
-$("#refresh").onclick=load;$("#svg").onclick=()=>expSvg().catch(e=>alert(e.message));$("#png").onclick=()=>expPng().catch(e=>alert(e.message));
+async function exportGraphic(type){
+  const button=$("#"+type),label=button.textContent;
+  $("#png").disabled=$("#svg").disabled=true;button.textContent="Exporterar…";
+  try{await (type==="png"?expPng():expSvg())}catch(e){alert(e.message)}
+  finally{$("#png").disabled=$("#svg").disabled=false;button.textContent=label}
+}
+$("#refresh").onclick=load;$("#svg").onclick=()=>exportGraphic("svg");$("#png").onclick=()=>exportGraphic("png");
 render();load();
 })();
