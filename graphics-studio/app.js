@@ -106,6 +106,143 @@ function leaderboardGeometry(len){
   const total=head+rowHeights.reduce((a,b)=>a+b,0);
   return {W,H,m,top,bottom,head,width:W-m*2,rowHeights,total};
 }
+function clamp01(v){return Math.max(0,Math.min(1,Number.isFinite(Number(v))?Number(v):0))}
+function fmtDec(v,d=2){return Number.isFinite(Number(v))?Number(v).toFixed(d).replace(".",","):"–"}
+function silhouetteSvg(x,y,w,h){
+  const cx=x+w/2, headR=Math.min(w,h)*.13, headY=y+h*.27;
+  return '<g opacity=".92"><circle cx="'+cx+'" cy="'+headY+'" r="'+headR+'" fill="#050b11"/><path d="M '+(x+w*.18)+' '+(y+h*.92)+' C '+(x+w*.20)+' '+(y+h*.63)+', '+(x+w*.36)+' '+(y+h*.52)+', '+cx+' '+(y+h*.52)+' C '+(x+w*.64)+' '+(y+h*.52)+', '+(x+w*.80)+' '+(y+h*.63)+', '+(x+w*.82)+' '+(y+h*.92)+' Z" fill="#050b11"/></g>';
+}
+function statBar(x,y,w,label,value,ratio,accent="#ffbd00"){
+  const fillW=Math.max(6,Math.round(w*clamp01(ratio)));
+  return '<text x="'+x+'" y="'+(y-6)+'" fill="#8ea4b5" font-family="Arial" font-size="11" font-weight="850">'+esc(label)+'</text>'+
+    '<text x="'+(x+w)+'" y="'+(y-6)+'" text-anchor="end" fill="#f6f8fa" font-family="Arial" font-size="11" font-weight="900">'+esc(value)+'</text>'+
+    '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="6" rx="3" fill="#183042"/>'+
+    '<rect x="'+x+'" y="'+y+'" width="'+fillW+'" height="6" rx="3" fill="'+accent+'"/>';
+}
+function skaterCardConfig(kind,p,maxes){
+  const ppg=p.gp?p.p/p.gp:0,gpg=p.gp?p.g/p.gp:0,apg=p.gp?p.a/p.gp:0;
+  if(kind==="goals")return {
+    primaryLabel:"G",primaryValue:p.g,
+    meta:"P: "+p.p+" · GP: "+p.gp+" · A: "+p.a,
+    bars:[
+      {label:"G",value:String(p.g),ratio:maxes.g?p.g/maxes.g:0},
+      {label:"G/GP",value:fmtDec(gpg),ratio:maxes.gpg?gpg/maxes.gpg:0},
+      {label:"GP",value:String(p.gp),ratio:maxes.gp?p.gp/maxes.gp:0}
+    ]
+  };
+  if(kind==="assists")return {
+    primaryLabel:"A",primaryValue:p.a,
+    meta:"P: "+p.p+" · GP: "+p.gp+" · G: "+p.g,
+    bars:[
+      {label:"A",value:String(p.a),ratio:maxes.a?p.a/maxes.a:0},
+      {label:"A/GP",value:fmtDec(apg),ratio:maxes.apg?apg/maxes.apg:0},
+      {label:"GP",value:String(p.gp),ratio:maxes.gp?p.gp/maxes.gp:0}
+    ]
+  };
+  return {
+    primaryLabel:"P",primaryValue:p.p,
+    meta:"GP: "+p.gp+" · G: "+p.g+" · A: "+p.a,
+    bars:[
+      {label:"P",value:String(p.p),ratio:maxes.p?p.p/maxes.p:0},
+      {label:"PPG",value:fmtDec(ppg),ratio:maxes.ppg?ppg/maxes.ppg:0},
+      {label:"GP",value:String(p.gp),ratio:maxes.gp?p.gp/maxes.gp:0}
+    ]
+  };
+}
+function leaderboardCard(p,rank,kind,x,y,w,h,logo,maxes){
+  const portrait=portraitUrl(p),cfg=skaterCardConfig(kind,p,maxes),pad=18;
+  const portraitW=Math.min(150,Math.max(96,w*.22)), portraitH=h-36, px=x+pad, py=y+18;
+  const tx=px+portraitW+20, right=x+w-pad, barW=Math.max(120,right-tx), nameSize=w>700?25:21;
+  let o='<g filter="url(#shadow)"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="16" fill="#081827" stroke="#31506a"/>'+
+    '<rect x="'+x+'" y="'+y+'" width="7" height="'+h+'" rx="7" fill="'+(rank===1?"#ffbd00":rank===2?"#cfd8e3":"#b9803d")+'"/>'+
+    '<rect x="'+px+'" y="'+py+'" width="'+portraitW+'" height="'+portraitH+'" rx="13" fill="#0b1722" stroke="#ffbd00" stroke-opacity=".44"/>';
+  if(portrait)o+=portraitImage(portrait,px+5,py+5,portraitW-10,portraitH-10);
+  else o+=silhouetteSvg(px+5,py+5,portraitW-10,portraitH-10);
+  if(logo)o+=img(logo,right-44,y+16,44);
+  o+='<text x="'+tx+'" y="'+(y+34)+'" fill="#ffbd00" font-family="Arial" font-size="12" font-weight="950">#'+rank+'</text>'+
+    '<text x="'+tx+'" y="'+(y+62)+'" fill="#fff" font-family="Arial" font-size="'+nameSize+'" font-weight="950">'+esc(clip(p.display_gamertag,w>700?26:20))+'</text>'+
+    '<text x="'+tx+'" y="'+(y+82)+'" fill="#91a8b8" font-family="Arial" font-size="11" font-weight="800">'+esc(clip(p.team_name_in_league||"",30))+'</text>'+
+    '<text x="'+tx+'" y="'+(y+111)+'" fill="#9cb0be" font-family="Arial" font-size="11" font-weight="900">'+esc(cfg.primaryLabel)+'</text>'+
+    '<text x="'+tx+'" y="'+(y+145)+'" fill="#ffbd00" font-family="Arial" font-size="38" font-weight="1000">'+esc(cfg.primaryValue)+'</text>'+
+    '<text x="'+(tx+68)+'" y="'+(y+142)+'" fill="#dbe4e9" font-family="Arial" font-size="12" font-weight="800">'+esc(cfg.meta)+'</text>';
+  const by=y+h-68;
+  cfg.bars.forEach((b,i)=>{o+=statBar(tx,by+i*21,barW,b.label,b.value,b.ratio)});
+  return o+'</g>';
+}
+function compactLeaderboard(rows,kind,x,y,w,rowH,offset=4){
+  if(!rows.length)return "";
+  const main=kind==="goals"?"G":kind==="assists"?"A":"P";
+  let o='<g filter="url(#shadow)"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+(42+rowH*rows.length)+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".28"/>'+
+    '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="42" fill="url(#gold)"/>'+
+    '<text x="'+(x+20)+'" y="'+(y+27)+'" fill="#07121c" font-family="Arial" font-size="11" font-weight="950">#</text>'+
+    '<text x="'+(x+58)+'" y="'+(y+27)+'" fill="#07121c" font-family="Arial" font-size="11" font-weight="950">SPELARE</text>'+
+    '<text x="'+(x+w*.73)+'" y="'+(y+27)+'" text-anchor="middle" fill="#07121c" font-family="Arial" font-size="11" font-weight="950">GP</text>'+
+    '<text x="'+(x+w*.82)+'" y="'+(y+27)+'" text-anchor="middle" fill="#07121c" font-family="Arial" font-size="11" font-weight="950">G</text>'+
+    '<text x="'+(x+w*.90)+'" y="'+(y+27)+'" text-anchor="middle" fill="#07121c" font-family="Arial" font-size="11" font-weight="950">A</text>'+
+    '<text x="'+(x+w*.97)+'" y="'+(y+27)+'" text-anchor="middle" fill="#07121c" font-family="Arial" font-size="11" font-weight="950">P</text>';
+  rows.forEach((p,i)=>{const yy=y+42+i*rowH,cy=yy+rowH/2;
+    o+='<rect x="'+x+'" y="'+yy+'" width="'+w+'" height="'+rowH+'" fill="'+(i%2?"#061722":"#04121c")+'"/>'+
+      '<text x="'+(x+20)+'" y="'+(cy+6)+'" fill="#eaf0f4" font-family="Arial" font-size="16" font-weight="900">'+(i+offset)+'</text>'+
+      '<text x="'+(x+58)+'" y="'+(cy-2)+'" fill="#fff" font-family="Arial" font-size="16" font-weight="900">'+esc(clip(p.display_gamertag,24))+'</text>'+
+      '<text x="'+(x+58)+'" y="'+(cy+15)+'" fill="#7892a5" font-family="Arial" font-size="9" font-weight="700">'+esc(clip(p.team_name_in_league||"",28))+'</text>';
+    [[p.gp,.73,"GP"],[p.g,.82,"G"],[p.a,.90,"A"],[p.p,.97,"P"]].forEach(([v,pos,l])=>o+='<text x="'+(x+w*pos)+'" y="'+(cy+6)+'" text-anchor="middle" fill="'+(l===main?"#ffbd00":"#e4ebef")+'" font-family="Arial" font-size="'+(l===main?18:15)+'" font-weight="'+(l===main?950:750)+'">'+v+'</text>');
+  });
+  return o+'</g>';
+}
+function goalieCardConfig(p,maxes){
+  const svPct=(p.sv*(p.sv<=1?100:1)), gaa=p.gaa==null?null:Number(p.gaa);
+  return {
+    primaryLabel:"SV%",primaryValue:fmtDec(svPct,1),
+    meta:"GP: "+p.gp+" · GAA: "+(gaa==null?"–":fmtDec(gaa))+" · SO: "+p.so,
+    bars:[
+      {label:"SV%",value:fmtDec(svPct,1),ratio:maxes.sv?svPct/maxes.sv:0},
+      {label:"GAA",value:gaa==null?"–":fmtDec(gaa),ratio:gaa==null?0:(maxes.maxGaa?1-(gaa/maxes.maxGaa)*.8:0)},
+      {label:"GP",value:String(p.gp),ratio:maxes.gp?p.gp/maxes.gp:0}
+    ]
+  };
+}
+function goalieCard(p,rank,x,y,w,h,logo,maxes){
+  const portrait=portraitUrl(p),cfg=goalieCardConfig(p,maxes),pad=18;
+  const portraitW=Math.min(150,Math.max(96,w*.22)), portraitH=h-36, px=x+pad, py=y+18;
+  const tx=px+portraitW+20, right=x+w-pad, barW=Math.max(120,right-tx), nameSize=w>700?25:21;
+  let o='<g filter="url(#shadow)"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="16" fill="#081827" stroke="#31506a"/>'+
+    '<rect x="'+x+'" y="'+y+'" width="7" height="'+h+'" rx="7" fill="'+(rank===1?"#ffbd00":rank===2?"#cfd8e3":"#b9803d")+'"/>'+
+    '<rect x="'+px+'" y="'+py+'" width="'+portraitW+'" height="'+portraitH+'" rx="13" fill="#0b1722" stroke="#ffbd00" stroke-opacity=".44"/>';
+  if(portrait)o+=portraitImage(portrait,px+5,py+5,portraitW-10,portraitH-10);
+  else o+=silhouetteSvg(px+5,py+5,portraitW-10,portraitH-10);
+  if(logo)o+=img(logo,right-44,y+16,44);
+  o+='<text x="'+tx+'" y="'+(y+34)+'" fill="#ffbd00" font-family="Arial" font-size="12" font-weight="950">#'+rank+'</text>'+
+    '<text x="'+tx+'" y="'+(y+62)+'" fill="#fff" font-family="Arial" font-size="'+nameSize+'" font-weight="950">'+esc(clip(p.display_gamertag,w>700?26:20))+'</text>'+
+    '<text x="'+tx+'" y="'+(y+82)+'" fill="#91a8b8" font-family="Arial" font-size="11" font-weight="800">'+esc(clip(p.team_name_in_league||"",30))+'</text>'+
+    '<text x="'+tx+'" y="'+(y+111)+'" fill="#9cb0be" font-family="Arial" font-size="11" font-weight="900">'+cfg.primaryLabel+'</text>'+
+    '<text x="'+tx+'" y="'+(y+145)+'" fill="#ffbd00" font-family="Arial" font-size="38" font-weight="1000">'+cfg.primaryValue+'</text>'+
+    '<text x="'+(tx+92)+'" y="'+(y+142)+'" fill="#dbe4e9" font-family="Arial" font-size="12" font-weight="800">'+esc(cfg.meta)+'</text>';
+  const by=y+h-68;
+  cfg.bars.forEach((b,i)=>{o+=statBar(tx,by+i*21,barW,b.label,b.value,b.ratio)});
+  return o+'</g>';
+}
+function compactGoalies(rows,x,y,w,rowH,offset=4){
+  if(!rows.length)return "";
+  let o='<g filter="url(#shadow)"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+(42+rowH*rows.length)+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".28"/>'+
+    '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="42" fill="url(#gold)"/>'+
+    '<text x="'+(x+20)+'" y="'+(y+27)+'" fill="#07121c" font-family="Arial" font-size="11" font-weight="950">#</text>'+
+    '<text x="'+(x+58)+'" y="'+(y+27)+'" fill="#07121c" font-family="Arial" font-size="11" font-weight="950">MÅLVAKT</text>'+
+    '<text x="'+(x+w*.73)+'" y="'+(y+27)+'" text-anchor="middle" fill="#07121c" font-family="Arial" font-size="11" font-weight="950">GP</text>'+
+    '<text x="'+(x+w*.83)+'" y="'+(y+27)+'" text-anchor="middle" fill="#07121c" font-family="Arial" font-size="11" font-weight="950">SV%</text>'+
+    '<text x="'+(x+w*.92)+'" y="'+(y+27)+'" text-anchor="middle" fill="#07121c" font-family="Arial" font-size="11" font-weight="950">GAA</text>'+
+    '<text x="'+(x+w*.98)+'" y="'+(y+27)+'" text-anchor="middle" fill="#07121c" font-family="Arial" font-size="11" font-weight="950">SO</text>';
+  rows.forEach((p,i)=>{const yy=y+42+i*rowH,cy=yy+rowH/2,sv=(p.sv*(p.sv<=1?100:1));
+    o+='<rect x="'+x+'" y="'+yy+'" width="'+w+'" height="'+rowH+'" fill="'+(i%2?"#061722":"#04121c")+'"/>'+
+      '<text x="'+(x+20)+'" y="'+(cy+6)+'" fill="#eaf0f4" font-family="Arial" font-size="16" font-weight="900">'+(i+offset)+'</text>'+
+      '<text x="'+(x+58)+'" y="'+(cy-2)+'" fill="#fff" font-family="Arial" font-size="16" font-weight="900">'+esc(clip(p.display_gamertag,24))+'</text>'+
+      '<text x="'+(x+58)+'" y="'+(cy+15)+'" fill="#7892a5" font-family="Arial" font-size="9" font-weight="700">'+esc(clip(p.team_name_in_league||"",28))+'</text>'+
+      '<text x="'+(x+w*.73)+'" y="'+(cy+6)+'" text-anchor="middle" fill="#e4ebef" font-family="Arial" font-size="15" font-weight="750">'+p.gp+'</text>'+
+      '<text x="'+(x+w*.83)+'" y="'+(cy+6)+'" text-anchor="middle" fill="#ffbd00" font-family="Arial" font-size="18" font-weight="950">'+fmtDec(sv,1)+'</text>'+
+      '<text x="'+(x+w*.92)+'" y="'+(cy+6)+'" text-anchor="middle" fill="#e4ebef" font-family="Arial" font-size="15" font-weight="750">'+(p.gaa==null?"–":fmtDec(p.gaa))+'</text>'+
+      '<text x="'+(x+w*.98)+'" y="'+(cy+6)+'" text-anchor="middle" fill="#e4ebef" font-family="Arial" font-size="15" font-weight="750">'+p.so+'</text>';
+  });
+  return o+'</g>';
+}
 function tableSvg(){
   const r=standings(),g=geom(r.length||1),ls=logos(),size=Math.min(50,g.row-18);let o='<g filter="url(#shadow)"><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+(g.head+g.row*r.length)+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.head+'" fill="url(#gold)"/>';
   const labels=[["#",.03],["LAG",.09],["GP",.67],["W",.76],["L",.84],["GD",.91],["PTS",.975]];
@@ -148,57 +285,44 @@ function groupsSvg(){
   return base(o);
 }
 function board(kind){
-  const metric=kind==="goals"?"g":kind==="assists"?"a":"p",r=skaters(metric),g=leaderboardGeometry(r.length||1),ls=logos(),main=kind==="goals"?"G":kind==="assists"?"A":"P";
-  let o='<g filter="url(#shadow)"><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.total+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.head+'" fill="url(#gold)"/>';
-  [["#",.03],["SPELARE",.09],["GP",.72],["G",.81],["A",.89],["P",.97]].forEach(([t,p])=>o+='<text x="'+(g.m+g.width*p)+'" y="'+(g.top+31)+'" text-anchor="'+(t==="SPELARE"?"start":"middle")+'" fill="#07121c" font-family="Arial" font-size="12" font-weight="950">'+t+'</text>');
-  let y=g.top+g.head;
-  r.forEach((x,i)=>{
-    const rh=g.rowHeights[i],cy=y+rh/2,logo=ls.get(String(x.sports_gamer_team_id))||"",portrait=i<3?portraitUrl(x):"",hasPortrait=Boolean(portrait);
-    const portraitW=Math.min(S.format==="story"?82:S.format==="portrait"?72:60,rh-12),portraitH=Math.min(rh-6,portraitW*1.28);
-    const visualX=g.m+64,visualY=cy-portraitH/2;
-    const tx=g.m+(hasPortrait?visualX-g.m+portraitW+24:(S.logos?126:70));
-    o+='<rect x="'+g.m+'" y="'+y+'" width="'+g.width+'" height="'+rh+'" fill="'+(i%2?"#061722":"#04121c")+'"/>'+(i<3?'<rect x="'+g.m+'" y="'+y+'" width="5" height="'+rh+'" fill="#ffbd00" fill-opacity="'+(i===0?1:.68)+'"/>':'')+
-      '<text x="'+(g.m+27)+'" y="'+(cy+7)+'" fill="'+(i===0?"#ffbd00":"#eef3f6")+'" font-family="Arial" font-size="'+(i===0?24:20)+'" font-weight="950">'+(i+1)+'</text>';
-    if(hasPortrait){
-      o+='<rect x="'+(visualX-5)+'" y="'+(visualY+4)+'" width="'+(portraitW+10)+'" height="'+(portraitH-4)+'" rx="7" fill="#071722" stroke="#ffbd00" stroke-opacity="'+(i===0?".62":".34")+'"/>'+
-         portraitImage(portrait,visualX,visualY,portraitW,portraitH);
-    }else{
-      const size=Math.min(46,rh-18);
-      o+=img(logo,g.m+64,cy-size/2,size);
-    }
-    o+='<text x="'+tx+'" y="'+(cy-5)+'" fill="#fff" font-family="Arial" font-size="'+(i<3?21:19)+'" font-weight="900">'+esc(clip(x.display_gamertag,S.format==="wide"?28:23))+'</text>'+
-       '<text x="'+tx+'" y="'+(cy+18)+'" fill="#8299aa" font-family="Arial" font-size="11" font-weight="700">'+esc(clip(x.team_name_in_league,27))+'</text>';
-    if(hasPortrait&&S.logos&&logo)o+=img(logo,tx-2,cy+23,22);
-    [[x.gp,.72,"GP"],[x.g,.81,"G"],[x.a,.89,"A"],[x.p,.97,"P"]].forEach(([v,p,l])=>o+='<text x="'+(g.m+g.width*p)+'" y="'+(cy+7)+'" text-anchor="middle" fill="'+(l===main?"#ffbd00":"#e3e9ed")+'" font-family="Arial" font-size="'+(l===main?25:19)+'" font-weight="'+(l===main?950:750)+'">'+v+'</text>');
-    y+=rh;
-  });
-  return base(o+"</g>");
+  const metric=kind==="goals"?"g":kind==="assists"?"a":"p", rows=skaters(metric), top3=rows.slice(0,3), rest=rows.slice(3), lm=logos();
+  const {w:W,h:H}=format(), m=Math.round(W*.052), top=S.format==="story"?350:S.format==="wide"?300:300, gap=S.format==="wide"?18:14;
+  const maxes={
+    g:Math.max(1,...top3.map(p=>p.g)),a:Math.max(1,...top3.map(p=>p.a)),p:Math.max(1,...top3.map(p=>p.p)),gp:Math.max(1,...top3.map(p=>p.gp)),
+    gpg:Math.max(.01,...top3.map(p=>p.gp?p.g/p.gp:0)),apg:Math.max(.01,...top3.map(p=>p.gp?p.a/p.gp:0)),ppg:Math.max(.01,...top3.map(p=>p.gp?p.p/p.gp:0))
+  };
+  let o="";
+  if(S.format==="wide"){
+    const cardW=(W-m*2-gap*2)/3, cardH=250;
+    top3.forEach((p,i)=>{o+=leaderboardCard(p,i+1,kind,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
+    if(rest.length)o+=compactLeaderboard(rest,kind,m,top+cardH+20,W-m*2,48,4);
+  }else{
+    const cardW=W-m*2, cardH=S.format==="story"?230:S.format==="square"?165:175;
+    let y=top;
+    top3.forEach((p,i)=>{o+=leaderboardCard(p,i+1,kind,m,y,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes);y+=cardH+gap});
+    const rowH=S.format==="story"?54:S.format==="square"?40:42;
+    if(rest.length)o+=compactLeaderboard(rest,kind,m,y,cardW,rowH,4);
+  }
+  return base(o);
 }
 function goalieSvg(){
-  const r=goalies(),g=leaderboardGeometry(r.length||1),ls=logos();
-  let o='<g filter="url(#shadow)"><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.total+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.head+'" fill="url(#gold)"/>';
-  [["#",.03],["MÅLVAKT",.09],["GP",.72],["SV%",.82],["GAA",.91],["SO",.975]].forEach(([t,p])=>o+='<text x="'+(g.m+g.width*p)+'" y="'+(g.top+31)+'" text-anchor="'+(t==="MÅLVAKT"?"start":"middle")+'" fill="#07121c" font-family="Arial" font-size="12" font-weight="950">'+t+'</text>');
-  let y=g.top+g.head;
-  r.forEach((x,i)=>{
-    const rh=g.rowHeights[i],cy=y+rh/2,logo=ls.get(String(x.sports_gamer_team_id))||"",portrait=i<3?portraitUrl(x):"",hasPortrait=Boolean(portrait),sv=(x.sv*(x.sv<=1?100:1)).toFixed(1).replace(".",",");
-    const portraitW=Math.min(S.format==="story"?82:S.format==="portrait"?72:60,rh-12),portraitH=Math.min(rh-6,portraitW*1.28),visualX=g.m+64,visualY=cy-portraitH/2;
-    const tx=g.m+(hasPortrait?visualX-g.m+portraitW+24:(S.logos?126:70));
-    o+='<rect x="'+g.m+'" y="'+y+'" width="'+g.width+'" height="'+rh+'" fill="'+(i%2?"#061722":"#04121c")+'"/>'+(i<3?'<rect x="'+g.m+'" y="'+y+'" width="5" height="'+rh+'" fill="#ffbd00" fill-opacity="'+(i===0?1:.68)+'"/>':'')+
-      '<text x="'+(g.m+27)+'" y="'+(cy+7)+'" fill="'+(i===0?"#ffbd00":"#eef3f6")+'" font-family="Arial" font-size="'+(i===0?24:20)+'" font-weight="950">'+(i+1)+'</text>';
-    if(hasPortrait){
-      o+='<rect x="'+(visualX-5)+'" y="'+(visualY+4)+'" width="'+(portraitW+10)+'" height="'+(portraitH-4)+'" rx="7" fill="#071722" stroke="#ffbd00" stroke-opacity="'+(i===0?".62":".34")+'"/>'+
-         portraitImage(portrait,visualX,visualY,portraitW,portraitH);
-    }else{
-      const size=Math.min(46,rh-18);
-      o+=img(logo,g.m+64,cy-size/2,size);
-    }
-    o+='<text x="'+tx+'" y="'+(cy-5)+'" fill="#fff" font-family="Arial" font-size="'+(i<3?21:19)+'" font-weight="900">'+esc(clip(x.display_gamertag,S.format==="wide"?28:23))+'</text>'+
-       '<text x="'+tx+'" y="'+(cy+18)+'" fill="#8299aa" font-family="Arial" font-size="11" font-weight="700">'+esc(clip(x.team_name_in_league,27))+'</text>';
-    if(hasPortrait&&S.logos&&logo)o+=img(logo,tx-2,cy+23,22);
-    [[x.gp,.72,false],[sv,.82,true],[x.gaa==null?"–":x.gaa.toFixed(2).replace(".",","),.91,false],[x.so,.975,false]].forEach(([v,p,hi])=>o+='<text x="'+(g.m+g.width*p)+'" y="'+(cy+7)+'" text-anchor="middle" fill="'+(hi?"#ffbd00":"#e3e9ed")+'" font-family="Arial" font-size="'+(hi?24:18)+'" font-weight="'+(hi?950:750)+'">'+v+'</text>');
-    y+=rh;
-  });
-  return base(o+"</g>");
+  const rows=goalies(), top3=rows.slice(0,3), rest=rows.slice(3), lm=logos();
+  const {w:W,h:H}=format(), m=Math.round(W*.052), top=S.format==="story"?350:S.format==="wide"?300:300, gap=S.format==="wide"?18:14;
+  const svs=top3.map(p=>p.sv*(p.sv<=1?100:1)).filter(Number.isFinite), gaas=top3.map(p=>Number(p.gaa)).filter(Number.isFinite);
+  const maxes={sv:Math.max(1,...svs),gp:Math.max(1,...top3.map(p=>p.gp)),maxGaa:Math.max(1,...gaas)};
+  let o="";
+  if(S.format==="wide"){
+    const cardW=(W-m*2-gap*2)/3, cardH=250;
+    top3.forEach((p,i)=>{o+=goalieCard(p,i+1,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
+    if(rest.length)o+=compactGoalies(rest,m,top+cardH+20,W-m*2,48,4);
+  }else{
+    const cardW=W-m*2, cardH=S.format==="story"?230:S.format==="square"?165:175;
+    let y=top;
+    top3.forEach((p,i)=>{o+=goalieCard(p,i+1,m,y,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes);y+=cardH+gap});
+    const rowH=S.format==="story"?54:S.format==="square"?40:42;
+    if(rest.length)o+=compactGoalies(rest,m,y,cardW,rowH,4);
+  }
+  return base(o);
 }
 function mini(x,y,w,h,label,metric,data,lm){
   const hh=52,rh=(h-hh)/3;
