@@ -59,7 +59,7 @@ function goalies(){
 function stageName(){return S.stage==="regular"?"GRUPPSPEL":S.stage==="playoffs"?"SLUTSPEL":"TOTALT"}
 function sync(){S.league=Number($("#league").value||527);S.stage=$("#stage").value;S.group=$("#group").value?Number($("#group").value):S.group;S.count=Number($("#count").value||8);S.format=$("#format").value;S.bg=$("#bg").value;S.logos=$("#logos").checked}
 function title(){return ($("#title").value||TIT[S.kind]).trim().toUpperCase()}
-function subtitle(){return ($("#subtitle").value||(S.kind==="table"?stageName()+" · "+groupName(S.group):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · LIVE DATA")).trim().toUpperCase()}
+function subtitle(){return ($("#subtitle").value||(S.kind==="table"?stageName()+" · "+groupName(S.group):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label)).trim().toUpperCase()}
 function defs(){return '<defs><linearGradient id="silver" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#edf1f4"/><stop offset=".8" stop-color="#a2adb6"/><stop offset="1" stop-color="#fff"/></linearGradient><linearGradient id="gold"><stop stop-color="#ffd95f"/><stop offset=".5" stop-color="#ffbd00"/><stop offset="1" stop-color="#d88700"/></linearGradient><linearGradient id="panel" x2="1" y2="1"><stop stop-color="#071d2c" stop-opacity=".97"/><stop offset="1" stop-color="#020b12" stop-opacity=".98"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#000" flood-opacity=".58"/></filter></defs>'}
 function background(W,H){
   if(S.bg==="gamenight"){
@@ -285,42 +285,38 @@ function groupsSvg(){
   return base(o);
 }
 function board(kind){
-  const metric=kind==="goals"?"g":kind==="assists"?"a":"p", rows=skaters(metric), top3=rows.slice(0,3), rest=rows.slice(3), lm=logos();
-  const {w:W,h:H}=format(), m=Math.round(W*.052), top=S.format==="story"?350:S.format==="wide"?300:300, gap=S.format==="wide"?18:14;
+  const metric=kind==="goals"?"g":kind==="assists"?"a":"p", rows=skaters(metric).slice(0,3), lm=logos();
+  const {w:W,h:H}=format(), m=Math.round(W*.052), top=S.format==="story"?360:S.format==="wide"?315:300;
   const maxes={
-    g:Math.max(1,...top3.map(p=>p.g)),a:Math.max(1,...top3.map(p=>p.a)),p:Math.max(1,...top3.map(p=>p.p)),gp:Math.max(1,...top3.map(p=>p.gp)),
-    gpg:Math.max(.01,...top3.map(p=>p.gp?p.g/p.gp:0)),apg:Math.max(.01,...top3.map(p=>p.gp?p.a/p.gp:0)),ppg:Math.max(.01,...top3.map(p=>p.gp?p.p/p.gp:0))
+    g:Math.max(1,...rows.map(p=>p.g)),a:Math.max(1,...rows.map(p=>p.a)),p:Math.max(1,...rows.map(p=>p.p)),gp:Math.max(1,...rows.map(p=>p.gp)),
+    gpg:Math.max(.01,...rows.map(p=>p.gp?p.g/p.gp:0)),apg:Math.max(.01,...rows.map(p=>p.gp?p.a/p.gp:0)),ppg:Math.max(.01,...rows.map(p=>p.gp?p.p/p.gp:0))
   };
   let o="";
   if(S.format==="wide"){
-    const cardW=(W-m*2-gap*2)/3, cardH=250;
-    top3.forEach((p,i)=>{o+=leaderboardCard(p,i+1,kind,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
-    if(rest.length)o+=compactLeaderboard(rest,kind,m,top+cardH+20,W-m*2,48,4);
+    const gap=24, cardW=(W-m*2-gap*2)/3, cardH=420;
+    rows.forEach((p,i)=>{o+=leaderboardCard(p,i+1,kind,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
   }else{
-    const cardW=W-m*2, cardH=S.format==="story"?230:S.format==="square"?165:175;
+    const gap=S.format==="story"?26:18, cardW=W-m*2;
+    const cardH=S.format==="story"?360:S.format==="square"?205:250;
     let y=top;
-    top3.forEach((p,i)=>{o+=leaderboardCard(p,i+1,kind,m,y,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes);y+=cardH+gap});
-    const rowH=S.format==="story"?54:S.format==="square"?40:42;
-    if(rest.length)o+=compactLeaderboard(rest,kind,m,y,cardW,rowH,4);
+    rows.forEach((p,i)=>{o+=leaderboardCard(p,i+1,kind,m,y,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes);y+=cardH+gap});
   }
   return base(o);
 }
 function goalieSvg(){
-  const rows=goalies(), top3=rows.slice(0,3), rest=rows.slice(3), lm=logos();
-  const {w:W,h:H}=format(), m=Math.round(W*.052), top=S.format==="story"?350:S.format==="wide"?300:300, gap=S.format==="wide"?18:14;
-  const svs=top3.map(p=>p.sv*(p.sv<=1?100:1)).filter(Number.isFinite), gaas=top3.map(p=>Number(p.gaa)).filter(Number.isFinite);
-  const maxes={sv:Math.max(1,...svs),gp:Math.max(1,...top3.map(p=>p.gp)),maxGaa:Math.max(1,...gaas)};
+  const rows=goalies().slice(0,3), lm=logos();
+  const {w:W,h:H}=format(), m=Math.round(W*.052), top=S.format==="story"?360:S.format==="wide"?315:300;
+  const svs=rows.map(p=>p.sv*(p.sv<=1?100:1)).filter(Number.isFinite), gaas=rows.map(p=>Number(p.gaa)).filter(Number.isFinite);
+  const maxes={sv:Math.max(1,...svs),gp:Math.max(1,...rows.map(p=>p.gp)),maxGaa:Math.max(1,...gaas)};
   let o="";
   if(S.format==="wide"){
-    const cardW=(W-m*2-gap*2)/3, cardH=250;
-    top3.forEach((p,i)=>{o+=goalieCard(p,i+1,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
-    if(rest.length)o+=compactGoalies(rest,m,top+cardH+20,W-m*2,48,4);
+    const gap=24, cardW=(W-m*2-gap*2)/3, cardH=420;
+    rows.forEach((p,i)=>{o+=goalieCard(p,i+1,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
   }else{
-    const cardW=W-m*2, cardH=S.format==="story"?230:S.format==="square"?165:175;
+    const gap=S.format==="story"?26:18, cardW=W-m*2;
+    const cardH=S.format==="story"?360:S.format==="square"?205:250;
     let y=top;
-    top3.forEach((p,i)=>{o+=goalieCard(p,i+1,m,y,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes);y+=cardH+gap});
-    const rowH=S.format==="story"?54:S.format==="square"?40:42;
-    if(rest.length)o+=compactGoalies(rest,m,y,cardW,rowH,4);
+    rows.forEach((p,i)=>{o+=goalieCard(p,i+1,m,y,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes);y+=cardH+gap});
   }
   return base(o);
 }
@@ -345,7 +341,7 @@ function leadersSvg(){
 function build(){return S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind)}
 function render(){
   sync();$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=TIT[S.kind];
-  $("#stageField").hidden=S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table";$("#countField").hidden=S.kind==="table"||S.kind==="groups"||S.kind==="leaders";
+  $("#stageField").hidden=S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table";$("#countField").hidden=true;
 }
 function safe(){return (comp().code+"-"+TIT[S.kind]).toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1200)}
