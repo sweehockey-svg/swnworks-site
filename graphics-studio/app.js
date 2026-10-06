@@ -512,18 +512,20 @@ function podiumCard(p,rank,kind,x,y,w,h,logo,maxes){
   let o='<g filter="url(#shadow)"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="23" fill="url(#podiumPanel)" stroke="'+accent+'" stroke-width="2"/>'+
     '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="23" fill="url(#cardLines)"/>'+
     '<path d="M'+(x+23)+' '+(y+4)+' H'+(x+rail)+' V'+(y+h-4)+' H'+(x+23)+' Q'+(x+4)+' '+(y+h-4)+' '+(x+4)+' '+(y+h-23)+' V'+(y+23)+' Q'+(x+4)+' '+(y+4)+' '+(x+23)+' '+(y+4)+' Z" fill="url(#medal'+rank+')"/>'+
-    svgText(x+rail/2,y+70*s,'#'+rank,55*s,"#071018",900,'text-anchor="middle"')+
+    svgText(x+rail/2,y+h*.37,'TOPP',12,"#071018",800,'text-anchor="middle" letter-spacing="1"')+
+    svgText(x+rail/2,y+h*.59,rank,70,"#071018",900,'text-anchor="middle"')+
     '<rect x="'+px+'" y="'+py+'" width="'+pw+'" height="'+ph+'" rx="16" fill="#06243b" stroke="#e2e8ec" stroke-width="3"/>'+
-    '<path d="M'+(px+pw-6)+' '+(py+7)+' L'+(px+6)+' '+(py+ph-7)+' H'+(px+pw-6)+' Z" fill="#ffd12c"/>';
+    '<path d="M'+(px+pw-6)+' '+(py+ph*.63)+' L'+(px+pw*.48)+' '+(py+ph-7)+' H'+(px+pw-6)+' Z" fill="#ffd12c"/>';
   const portrait=portraitUrl(p);o+=silhouetteSvg(px+8,py+8,pw-16,ph-16);if(portrait)o+=portraitImage(portrait,px+6,py+6,pw-12,ph-12);
   o+=svgText(tx,y+46*s,clip(p.display_gamertag,32),nameSize,"#fff",900)+svgText(tx,y+72*s,clip(p.team_name_in_league||"",40),18*s,"#bbc8d3",700);
   if(logo)o+=img(logo,right-82,y+18,82);
-  const sy=y+109*s,mainX=tx+Math.min(110,w*.07),statsX=mainX+(goalie?155:120),step=(right-32-statsX)/3;
+  const sy=y+109*s,mainX=tx+20,statsX=mainX+(goalie?210:180),step=(right-32-statsX)/3;
   o+=svgText(mainX,sy,label,18*s,"#ffcf4a",800)+svgText(mainX-4,sy+68*s,value,(goalie?62:83)*s,"#ffcf4a",900);
   const vals=goalie?[['GP',p.gp],['GAA',p.gaa==null?'–':fmtDec(p.gaa)],['SO',p.so]]:kind==="goals"?[['GP',p.gp],['A',p.a],['P',p.p]]:kind==="assists"?[['GP',p.gp],['G',p.g],['P',p.p]]:[['GP',p.gp],['G',p.g],['A',p.a]];
   vals.forEach((v,i)=>o+=svgText(statsX+i*step,sy,v[0],16*s,"#bbc8d3",600)+svgText(statsX+i*step,sy+43*s,v[1],32*s,"#fff",900));
-  const rate=p.gp?p[metric]/p.gp:0,ppg=p.gp?p.p/p.gp:0,sv=p.sv*(p.sv<=1?100:1);
+  const rate=p.gp?p[metric]/p.gp:0,ppg=p.gp?p.p/p.gp:0,sv=p.sv*(p.sv<=1?100:1),gpg=p.gp?p.g/p.gp:0,apg=p.gp?p.a/p.gp:0;
   const bars=goalie?[['SV%',fmtDec(sv,1),sv/100],['GAA',p.gaa==null?'–':fmtDec(p.gaa),p.gaa==null?0:1/(1+Number(p.gaa))],['MATCHER',p.gp,p.gp/maxes.gp]]:
+    kind==="points"?[["MÅL/GP",fmtDec(gpg),gpg/maxes.gpg],["ASSIST/GP",fmtDec(apg),apg/maxes.apg],["POÄNG/GP",fmtDec(ppg),ppg/maxes.ppg]]:
     [[label+'/GP',fmtDec(rate),rate/maxes.rate],['POÄNG/GP',fmtDec(ppg),ppg/maxes.ppg],['MATCHER',p.gp,p.gp/maxes.gp]];
   const bx=tx+126,bw=right-bx-66,bh=12*s;
   bars.forEach((b,i)=>{const by=y+(216+i*34)*s;o+=svgText(tx,by+bh-1,b[0],15*s,"#bbc8d3",700)+
@@ -535,7 +537,7 @@ function editorialBoard(kind){
   const rows=kind==="goalies"?goalies().slice(0,3):skaters(kind==="goals"?"g":kind==="assists"?"a":"p").slice(0,3),lm=logos();
   const {w:W,h:H}=format(),m=Math.round(W*.045),top=S.format==="story"?240:190,gap=20;
   const cardH=(H-85-top-gap*2)/3,metric=kind==="goals"?"g":kind==="assists"?"a":"p";
-  const maxes={gp:Math.max(1,...rows.map(p=>p.gp)),rate:Math.max(.01,...rows.map(p=>p.gp?p[metric]/p.gp:0)),ppg:Math.max(.01,...rows.map(p=>p.gp?p.p/p.gp:0))};
+  const maxes={gp:Math.max(1,...rows.map(p=>p.gp)),rate:Math.max(.01,...rows.map(p=>p.gp?p[metric]/p.gp:0)),ppg:Math.max(.01,...rows.map(p=>p.gp?p.p/p.gp:0)),gpg:Math.max(.01,...rows.map(p=>p.gp?p.g/p.gp:0)),apg:Math.max(.01,...rows.map(p=>p.gp?p.a/p.gp:0))};
   let o="";rows.forEach((p,i)=>o+=podiumCard(p,i+1,kind,m,top+i*(cardH+gap),W-m*2,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes));
   if(!rows.length)o+=svgText(W/2,H/2,"Ingen matchstatistik ännu",30,"#a2b6c9",700,'text-anchor="middle"');
   return podiumBase(o);
