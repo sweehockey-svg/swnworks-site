@@ -208,7 +208,7 @@ function mini(x,y,w,h,label,metric,data,lm){
     o+='<rect x="'+x+'" y="'+yy+'" width="'+w+'" height="'+rh+'" fill="'+(i%2?"#061722":"#04121c")+'"/><text x="'+(x+16)+'" y="'+(cy+6)+'" fill="'+(i===0?"#ffbd00":"#e7edf1")+'" font-family="Arial" font-size="18" font-weight="950">'+(i+1)+'</text>';
     if(portrait)o+=portraitImage(portrait,vx,cy-ph/2,pw,ph);
     else o+=img(logo,vx,cy-19,38);
-    o+='<text x="'+(x+(S.logos?96:50))+'" y="'+(cy+5)+'" fill="#fff" font-family="Arial" font-size="15" font-weight="900">'+esc(clip(p.display_gamertag,17))+'</text><text x="'+(x+w-20)+'" y="'+(cy+8)+'" text-anchor="end" fill="#ffbd00" font-family="Arial" font-size="25" font-weight="950">'+p[metric]+'</text>';
+    o+='<text x="'+(x+((portrait||S.logos)?96:50))+'" y="'+(cy+5)+'" fill="#fff" font-family="Arial" font-size="15" font-weight="900">'+esc(clip(p.display_gamertag,17))+'</text><text x="'+(x+w-20)+'" y="'+(cy+8)+'" text-anchor="end" fill="#ffbd00" font-family="Arial" font-size="25" font-weight="950">'+p[metric]+'</text>';
   });
   return o+"</g>";
 }
