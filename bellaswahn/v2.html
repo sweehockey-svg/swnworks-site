@@ -739,7 +739,7 @@
 "use strict";
 
 /*
-  NEXTGAME – MOBIL V5.4
+  NEXTGAME – MOBIL V5.5
 
   API:
   Den här versionen hämtar matcher direkt från ESPN:s öppna scoreboard-endpoints.
@@ -1827,8 +1827,45 @@ async function fetchTeamSeasonEntry(entry, allSoccerCompetitions = false) {
   return remaining;
 }
 
+
+function sameTeamName(a, b) {
+  return String(a || "").trim().toLowerCase() === String(b || "").trim().toLowerCase();
+}
+
+async function fetchTeamSeasonFromLeagues(name, entries) {
+  const sourceIds = [...new Set(entries.map(entry => entry.sourceId).filter(Boolean))];
+  const sources = sourceIds
+    .map(currentSourceById)
+    .filter(source => source && source.kind !== "race");
+
+  const results = await allSettledLimited(
+    sources,
+    3,
+    source => fetchLeagueSeasonDirect(source)
+  );
+
+  const byId = new Map();
+
+  results.forEach((result, index) => {
+    if (result.status !== "fulfilled") return;
+    const source = sources[index];
+
+    result.value.forEach(match => {
+      if (sameTeamName(match.home, name) || sameTeamName(match.away, name)) {
+        byId.set(String(match.id), {
+          ...match,
+          league: match.league || source.name,
+          sport: source.sport
+        });
+      }
+    });
+  });
+
+  return sortSeasonMatches([...byId.values()]);
+}
+
 async function loadTeamSeason(name) {
-  if (teamSeasonCache.has(name) || seasonLoading.has(`team:${name}`)) return;
+  if ((teamSeasonCache.has(name) && teamSeasonCache.get(name)?.length) || seasonLoading.has(`team:${name}`)) return;
 
   seasonLoading.add(`team:${name}`);
   renderMain();
@@ -1841,38 +1878,43 @@ async function loadTeamSeason(name) {
       throw new Error(`Hittade inget lag-ID för ${name}`);
     }
 
-    const uniqueEntries = [];
-    const seen = new Set();
+    let fullSchedule = await fetchTeamSeasonFromLeagues(name, entries);
 
-    entries.forEach(entry => {
-      const source = currentSourceById(entry.sourceId);
-      const key = source?.sport === "Fotboll"
-        ? `soccer:${entry.id}`
-        : `${entry.sourceId}:${entry.id}`;
+    if (!fullSchedule.length) {
+      const uniqueEntries = [];
+      const seen = new Set();
 
-      if (!seen.has(key)) {
-        seen.add(key);
-        uniqueEntries.push(entry);
-      }
-    });
+      entries.forEach(entry => {
+        const source = currentSourceById(entry.sourceId);
+        const key = source?.sport === "Fotboll"
+          ? `soccer:${entry.id}`
+          : `${entry.sourceId}:${entry.id}`;
 
-    const results = await Promise.allSettled(uniqueEntries.map(entry => {
-      const source = currentSourceById(entry.sourceId);
-      return fetchTeamSeasonEntry(entry, source?.sport === "Fotboll");
-    }));
+        if (!seen.has(key)) {
+          seen.add(key);
+          uniqueEntries.push(entry);
+        }
+      });
 
-    const byId = new Map();
-    results.forEach(result => {
-      if (result.status !== "fulfilled") return;
-      result.value.forEach(match => byId.set(String(match.id), match));
-    });
+      const results = await Promise.allSettled(uniqueEntries.map(entry => {
+        const source = currentSourceById(entry.sourceId);
+        return fetchTeamSeasonEntry(entry, source?.sport === "Fotboll");
+      }));
 
-    const fullSchedule = sortSeasonMatches([...byId.values()]);
+      const byId = new Map();
+      results.forEach(result => {
+        if (result.status !== "fulfilled") return;
+        result.value.forEach(match => byId.set(String(match.id), match));
+      });
+
+      fullSchedule = sortSeasonMatches([...byId.values()]);
+    }
+
     console.info(`NextGame upcoming season schedule ${name}: ${fullSchedule.length} events`);
     teamSeasonCache.set(name, fullSchedule);
   } catch (error) {
     console.warn("Kunde inte ladda lagets hela kommande säsongsschema.", error);
-    teamSeasonCache.set(name, []);
+    teamSeasonCache.delete(name);
   } finally {
     seasonLoading.delete(`team:${name}`);
     if (currentView.view === "team" && currentView.name === name) renderMain();
@@ -1934,7 +1976,7 @@ async function allSettledLimited(items, limit, worker) {
 }
 
 async function loadLeagueSeason(name) {
-  if (leagueSeasonCache.has(name) || seasonLoading.has(`league:${name}`)) return;
+  if ((leagueSeasonCache.has(name) && leagueSeasonCache.get(name)?.length) || seasonLoading.has(`league:${name}`)) return;
 
   const source = ESPN_SOURCES.find(item => item.name === name);
   if (!source) return;
@@ -1972,7 +2014,7 @@ async function loadLeagueSeason(name) {
     leagueSeasonCache.set(name, seasonSchedule);
   } catch (error) {
     console.warn("Kunde inte ladda ligans hela kommande säsongsschema.", error);
-    leagueSeasonCache.set(name, []);
+    leagueSeasonCache.delete(name);
   } finally {
     seasonLoading.delete(`league:${name}`);
     if (currentView.view === "league" && currentView.name === name) renderMain();
@@ -2246,7 +2288,7 @@ function renderHome() {
 }
 
 function renderSeasonSchedule(matches, followTarget) {
-  if (!matches.length) return '<div class="empty">Inga matcher hittades för säsongen.</div>';
+  if (!matches.length) return '<div class="empty">Kunde inte visa säsongsschemat just nu. Ladda om sidan och försök igen.</div>';
 
   const grouped = new Map();
   const sorted = sortSeasonMatches(matches);
