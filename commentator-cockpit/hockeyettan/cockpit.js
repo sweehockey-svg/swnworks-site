@@ -2137,7 +2137,18 @@
   }
 
   function localAiBrief(question="") {
-    const facts=buildInsightFacts()
+    const unpinnedEditorial=currentEditorialNotes()
+      .filter((note)=>!note.pinned)
+      .map((note)=>({
+        id:"editorial-fallback-"+note.id,
+        tag:"REDAKTIONELLT · "+noteScopeLabel(note),
+        title:note.title||note.body.slice(0,100),
+        text:note.title?note.body:((note.tags||[]).length?"Taggar: "+note.tags.join(", "):"Egen anteckning."),
+        score:108,
+        story:false,
+        editorial:true
+      }));
+    const facts=[...buildInsightFacts(),...unpinnedEditorial]
       .map((fact)=>({...fact,localRank:Number(fact.score||0)+aiQuestionBonus(fact,question)}))
       .sort((a,b)=>b.localRank-a.localRank)
       .slice(0,3);
@@ -2228,15 +2239,16 @@
   function renderAi() {
     const brief=state.aiBrief||localAiBrief("");
     const serverReady=state.aiBriefSource==="server";
+    const relevantNoteCount=currentEditorialNotes().length;
     const statusText=serverReady
-      ? "Svar från servermodellen, byggt enbart på verifierad officiell data."
+      ? "Svar från servermodellen, byggt på officiell matchdata och relevanta redaktionella NOTES."
       : !state.authUser
         ? "Fallbacken fungerar direkt. Server-AI kräver inloggning, godkänd behörighet och OPENAI_API_KEY."
         : !state.access?.active
           ? "Kontot är inloggat men inte godkänt för server-AI. Fallbacken fungerar fortfarande."
           : "Server-AI är konfigurerad. Om ett anrop misslyckas visas verifierad fallback automatiskt.";
 
-    return '<div class="ai-trust-strip"><span>VERIFIERAD DATA</span><strong>AI:n använder matchdata från databasen. Privata NOTES skickas aldrig till språkmodellen.</strong></div>' +
+    return '<div class="ai-trust-strip"><span>DATA + NOTES</span><strong>AI:n använder officiell matchdata och '+esc(relevantNoteCount)+' relevanta NOTES för aktuell matchkontext. NOTES behandlas som redaktionellt underlag, inte som officiell statistik.</strong></div>' +
       '<div class="ai-status '+(serverReady?"ready":"fallback")+'"><span>'+(serverReady?"SERVER-AI · AKTIV":"FALLBACK · VISAS NU")+'</span><strong>'+esc(statusText)+'</strong></div>' +
       '<form class="ai-form" id="aiForm">' +
         '<label><span>FRÅGA / VINKEL</span><textarea id="aiQuestion" rows="2" maxlength="500" placeholder="T.ex. Vad är mest relevant att säga om lagets powerplay just nu?"></textarea></label>' +
@@ -2270,7 +2282,7 @@
         state.aiError="";
         rememberAiTopics(result.brief);
       }else if(result.reason==="not_authenticated"){
-        state.aiError="Server-AI kräver inloggning. Fallbacken ovan använder bara verifierad cockpit-data.";
+        state.aiError="Server-AI kräver inloggning. Fallbacken ovan använder cockpit-data och relevanta lokala NOTES.";
       }else if(result.reason==="access_not_approved"){
         state.aiError="Kontot är inte godkänt för server-AI ännu. Den verifierade fallbacken används.";
       }else if(String(result.reason||"").includes("ai_not_configured")){
