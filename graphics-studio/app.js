@@ -550,13 +550,13 @@ function measurePortrait(url){
   };
   photo.src=url;
 }
-function normalizedPortrait(url,x,y,w,h,id){
+function normalizedPortrait(url,x,y,w,h,id,framed=false){
   measurePortrait(url);const b=portraitBounds.get(url),sourceW=b?b.sourceW:w,sourceH=b?b.sourceH:h;
   const view=b?[b.left,b.top,b.width,b.height].join(" "):'0 0 '+w+' '+h;
   const left=b?b.left:0,top=b?b.top:0,bw=b?b.width:w,bh=b?b.height:h;
-  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+view+'" preserveAspectRatio="xMidYMax meet">'+
+  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+view+'" preserveAspectRatio="'+(framed?'xMidYMin slice':'xMidYMax meet')+'">'+
     '<defs><linearGradient id="edge-'+id+'"><stop stop-color="white" stop-opacity="0"/><stop offset=".09" stop-color="white"/><stop offset=".91" stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient><linearGradient id="foot-'+id+'" x2="0" y2="1"><stop stop-color="white"/><stop offset=".86" stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient><mask id="edgeMask-'+id+'" maskUnits="userSpaceOnUse" x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'"><rect x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'" fill="url(#edge-'+id+')"/></mask><mask id="footMask-'+id+'" maskUnits="userSpaceOnUse" x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'"><rect x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'" fill="url(#foot-'+id+')"/></mask></defs>'+
-    '<g mask="url(#footMask-'+id+')"><image href="'+esc(url)+'" width="'+sourceW+'" height="'+sourceH+'" preserveAspectRatio="none" mask="url(#edgeMask-'+id+')"/></g></svg>';
+    '<g'+(framed?'':' mask="url(#footMask-'+id+')"')+'><image href="'+esc(url)+'" width="'+sourceW+'" height="'+sourceH+'" preserveAspectRatio="none"'+(framed?'':' mask="url(#edgeMask-'+id+')"')+'/></g></svg>';
 }
 function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
   const goalie=kind==="goalies",key=kind==="goals"?"g":kind==="assists"?"a":"p",label=goalie?"SV%":kind==="goals"?"MÅL":kind==="assists"?"ASSIST":"POÄNG";
@@ -567,7 +567,12 @@ function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
     '<path d="M'+(x+w*.78)+' '+y+' H'+(x+w)+' V'+(y+h)+' H'+(x+w*.62)+' Z" fill="'+accent+'" opacity=".04"/>'+
     svgText(x+24,y+53,String(rank).padStart(2,'0'),29,accent,900)+
     '<rect x="'+(x+24)+'" y="'+(y+70)+'" width="3" height="'+(h-100)+'" fill="'+accent+'" opacity=".65"/>';
-  const portrait=portraitUrl(p);o+=portrait?normalizedPortrait(portrait,px,py,pw,h-14,'player-'+rank):silhouetteSvg(px,py,pw,h-14);
+  const portrait=portraitUrl(p),ph=h-24,frame='M'+(px+20)+' '+py+' H'+(px+pw)+' L'+(px+pw-20)+' '+(py+ph)+' H'+px+' Z';
+  o+='<defs><linearGradient id="portraitBlue-'+rank+'" x2="1" y2="1"><stop stop-color="#16466a"/><stop offset="1" stop-color="#062337"/></linearGradient><clipPath id="portraitFrame-'+rank+'"><path d="'+frame+'"/></clipPath></defs>'+
+    '<g clip-path="url(#portraitFrame-'+rank+')"><rect x="'+px+'" y="'+py+'" width="'+pw+'" height="'+ph+'" fill="url(#portraitBlue-'+rank+')"/>'+
+    (portrait?normalizedPortrait(portrait,px+4,py+6,pw-8,ph-6,'player-'+rank,true):silhouetteSvg(px,py,pw,ph))+'</g>'+
+    '<path d="'+frame+'" fill="none" stroke="'+accent+'" stroke-width="2"/>'+
+    '<path d="M'+(px+20)+' '+py+' L'+px+' '+(py+ph)+' M'+(px+pw)+' '+py+' L'+(px+pw-20)+' '+(py+ph)+'" fill="none" stroke="#e8c84e" stroke-width="3"/>';
   o+=svgText(tx,y+54*scale,clip(p.display_gamertag,32),nameSize,"#fff",900)+svgText(tx,y+81*scale,clip(p.team_name_in_league||"",36),17*scale,"#a6bfce",600);
   if(logo)o+=img(logo,right-62,y+24,62);
   const vy=y+h*.59;
