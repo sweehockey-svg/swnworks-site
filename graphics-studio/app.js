@@ -83,12 +83,18 @@ function base(content){
 }
 function geom(len){const {w:W,h:H}=format(),m=Math.round(W*.052),top=S.format==="story"?380:S.format==="wide"?300:310,bottom=H-90,head=48;return {W,H,m,top,bottom,head,width:W-m*2,row:Math.max(48,Math.min(S.format==="wide"?78:92,(bottom-top-head)/Math.max(1,len)))}}
 function img(url,x,y,s){return S.logos&&url?'<image href="'+esc(url)+'" x="'+x+'" y="'+y+'" width="'+s+'" height="'+s+'" preserveAspectRatio="xMidYMid meet"/>':''}
+function standingMark(i){
+  if(S.league!==527)return null;
+  if(i<3)return {color:"#ffbd00",opacity:i===0?1:.78};
+  if(i<5)return {color:"#4ba5df",opacity:.78};
+  return null;
+}
 function tableSvg(){
   const r=standings(),g=geom(r.length||1),ls=logos(),size=Math.min(50,g.row-18);let o='<g filter="url(#shadow)"><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+(g.head+g.row*r.length)+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.head+'" fill="url(#gold)"/>';
   const labels=[["#",.03],["LAG",.09],["GP",.67],["W",.76],["L",.84],["GD",.91],["PTS",.975]];
   labels.forEach(([t,p])=>o+='<text x="'+(g.m+g.width*p)+'" y="'+(g.top+31)+'" text-anchor="'+(t==="LAG"?"start":"middle")+'" fill="#07121c" font-family="Arial" font-size="12" font-weight="950">'+t+'</text>');
-  r.forEach((x,i)=>{const y=g.top+g.head+i*g.row,cy=y+g.row/2,logo=x.team_logo_in_league||ls.get(String(x.sports_gamer_team_id))||"",tx=g.m+(S.logos?128:72),vals=[n(x.games_played),n(x.total_wins),n(x.losses),(n(x.goal_difference)>0?"+":"")+n(x.goal_difference),n(x.table_points)],xs=[.67,.76,.84,.91,.975];
-    o+='<rect x="'+g.m+'" y="'+y+'" width="'+g.width+'" height="'+g.row+'" fill="'+(i%2?"#061722":"#04121c")+'" fill-opacity=".95"/>'+(i<3?'<rect x="'+g.m+'" y="'+y+'" width="5" height="'+g.row+'" fill="#ffbd00" fill-opacity="'+(i===0?1:.55)+'"/>':'')+'<text x="'+(g.m+28)+'" y="'+(cy+7)+'" fill="'+(i===0?"#ffbd00":"#eef3f6")+'" font-family="Arial" font-size="'+(i===0?24:20)+'" font-weight="950">'+(i+1)+'</text>'+img(logo,g.m+65,cy-size/2,size)+'<text x="'+tx+'" y="'+(cy+7)+'" fill="#fff" font-family="Arial" font-size="'+(S.format==="wide"?22:20)+'" font-weight="900">'+esc(clip(x.team_name_in_league,S.format==="wide"?36:26))+'</text>';
+  r.forEach((x,i)=>{const y=g.top+g.head+i*g.row,cy=y+g.row/2,logo=x.team_logo_in_league||ls.get(String(x.sports_gamer_team_id))||"",tx=g.m+(S.logos?128:72),vals=[n(x.games_played),n(x.total_wins),n(x.losses),(n(x.goal_difference)>0?"+":"")+n(x.goal_difference),n(x.table_points)],xs=[.67,.76,.84,.91,.975],mark=standingMark(i);
+    o+='<rect x="'+g.m+'" y="'+y+'" width="'+g.width+'" height="'+g.row+'" fill="'+(i%2?"#061722":"#04121c")+'" fill-opacity=".95"/>'+(mark?'<rect x="'+g.m+'" y="'+y+'" width="5" height="'+g.row+'" fill="'+mark.color+'" fill-opacity="'+mark.opacity+'"/>':'')+'<text x="'+(g.m+28)+'" y="'+(cy+7)+'" fill="'+(i===0?"#ffbd00":"#eef3f6")+'" font-family="Arial" font-size="'+(i===0?24:20)+'" font-weight="950">'+(i+1)+'</text>'+img(logo,g.m+65,cy-size/2,size)+'<text x="'+tx+'" y="'+(cy+7)+'" fill="#fff" font-family="Arial" font-size="'+(S.format==="wide"?22:20)+'" font-weight="900">'+esc(clip(x.team_name_in_league,S.format==="wide"?36:26))+'</text>';
     vals.forEach((v,k)=>o+='<text x="'+(g.m+g.width*xs[k])+'" y="'+(cy+7)+'" text-anchor="middle" fill="'+(k===4?"#ffbd00":"#e4ebef")+'" font-family="Arial" font-size="'+(k===4?23:19)+'" font-weight="'+(k===4?950:750)+'">'+v+'</text>');
   });return base(o+"</g>");
 }
@@ -99,8 +105,8 @@ function compactTablePanel(rows,x,y,w,h,label){
   o+='<rect x="'+x+'" y="'+hy+'" width="'+w+'" height="'+head+'" fill="#081923" fill-opacity=".96"/>';
   const cols=[["#",.04],["LAG",.10],["GP",.70],["W",.79],["L",.86],["GD",.925],["PTS",.985]];
   cols.forEach(([t,p])=>o+='<text x="'+(x+w*p)+'" y="'+(hy+36)+'" text-anchor="'+(t==="LAG"?"start":"middle")+'" fill="#9cb0bd" font-family="Arial" font-size="11" font-weight="900">'+t+'</text>');
-  rows.forEach((r,i)=>{const ry=hy+head+i*rowH,cy=ry+rowH/2,logo=r.team_logo_in_league||ls.get(String(r.sports_gamer_team_id))||"",tx=x+(S.logos?96:52);
-    o+='<rect x="'+x+'" y="'+ry+'" width="'+w+'" height="'+rowH+'" fill="'+(i%2?"#061722":"#04121c")+'"/>'+(i<3?'<rect x="'+x+'" y="'+ry+'" width="4" height="'+rowH+'" fill="#ffbd00" fill-opacity="'+(i===0?1:.55)+'"/>':'')+
+  rows.forEach((r,i)=>{const ry=hy+head+i*rowH,cy=ry+rowH/2,logo=r.team_logo_in_league||ls.get(String(r.sports_gamer_team_id))||"",tx=x+(S.logos?96:52),mark=standingMark(i);
+    o+='<rect x="'+x+'" y="'+ry+'" width="'+w+'" height="'+rowH+'" fill="'+(i%2?"#061722":"#04121c")+'"/>'+(mark?'<rect x="'+x+'" y="'+ry+'" width="4" height="'+rowH+'" fill="'+mark.color+'" fill-opacity="'+mark.opacity+'"/>':'')+
     '<text x="'+(x+22)+'" y="'+(cy+6)+'" fill="'+(i===0?"#ffbd00":"#eaf0f4")+'" font-family="Arial" font-size="'+(i===0?20:17)+'" font-weight="950">'+(i+1)+'</text>'+
     img(logo,x+50,cy-logoSize/2,logoSize)+
     '<text x="'+tx+'" y="'+(cy+6)+'" fill="#fff" font-family="Arial" font-size="'+(w>700?18:15)+'" font-weight="900">'+esc(clip(r.team_name_in_league,w>700?28:18))+'</text>';
