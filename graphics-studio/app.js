@@ -113,7 +113,7 @@ function groupsSvg(){
   const ids=groupIds().slice(0,2),{w:W,h:H}=format(),m=Math.round(W*.052),top=S.format==="story"?360:315,bottom=H-95,gap=S.format==="wide"?24:18;
   if(ids.length<2)return base('<text x="'+(W/2)+'" y="'+(H/2)+'" text-anchor="middle" fill="#fff" font-family="Arial" font-size="28" font-weight="900">TVÅ GRUPPER SAKNAS</text>');
   const a=standingsForGroup(ids[0]),b=standingsForGroup(ids[1]);let o="";
-  if(S.format==="story"){
+  if(S.format==="story"||S.format==="portrait"){
     const h=(bottom-top-gap)/2;
     o+=compactTablePanel(a,m,top,W-m*2,h,groupName(ids[0]));
     o+=compactTablePanel(b,m,top+h+gap,W-m*2,h,groupName(ids[1]));
