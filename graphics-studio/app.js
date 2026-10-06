@@ -152,26 +152,47 @@ function skaterCardConfig(kind,p,maxes){
 function leaderboardCard(p,rank,kind,x,y,w,h,logo,maxes){
   const portrait=portraitUrl(p),cfg=skaterCardConfig(kind,p,maxes);
   const rankColor=rank===1?"#ffbd00":rank===2?"#d7dee7":"#b77d39";
-  const big=w>=760, rankW=big?78:58, pad=big?18:14;
-  const portraitW=big?174:Math.min(122,w*.24), portraitH=h-pad*2;
-  const px=x+rankW+pad, py=y+pad, tx=px+portraitW+(big?26:18), right=x+w-pad;
-  const logoSize=big?62:46, nameSize=big?30:22, teamSize=big?13:11, mainSize=big?52:40;
-  const barW=Math.max(big?260:135,right-tx), barsY=y+h-(big?68:62);
+  const big=w>=760, rankW=big?70:54, pad=big?18:14;
+  const portraitW=big?190:Math.min(128,w*.25), portraitH=h-pad*2;
+  const px=x+rankW+pad, py=y+pad, tx=px+portraitW+(big?28:18), right=x+w-pad;
+  const logoSize=big?66:46, nameSize=big?34:23, teamSize=big?14:11;
+  const mainSize=big?62:42, labelSize=big?14:11;
+  const contentRight=right-logoSize-18;
+  const statTop=y+(big?106:88), primaryX=tx, colsStart=tx+(big?150:102);
+  const colGap=big?92:64;
+  const barsY=y+h-(big?76:64), barW=Math.max(big?320:150,right-tx);
+  const values=kind==="goals"
+    ? [{l:"GP",v:p.gp},{l:"A",v:p.a},{l:"P",v:p.p}]
+    : kind==="assists"
+      ? [{l:"GP",v:p.gp},{l:"G",v:p.g},{l:"P",v:p.p}]
+      : [{l:"GP",v:p.gp},{l:"G",v:p.g},{l:"A",v:p.a}];
+
   let o='<g filter="url(#shadow)">'+
     '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="18" fill="#081827" stroke="#35516a" stroke-width="1.4"/>'+
-    '<rect x="'+x+'" y="'+y+'" width="'+rankW+'" height="'+h+'" rx="18" fill="'+rankColor+'" fill-opacity="'+(rank===1?".94":".78")+'"/>'+
-    '<rect x="'+(x+rankW-16)+'" y="'+y+'" width="16" height="'+h+'" fill="#081827"/>'+
-    '<text x="'+(x+rankW/2-5)+'" y="'+(y+(big?70:56))+'" text-anchor="middle" fill="#07121c" font-family="Arial Black,Arial" font-size="'+(big?42:30)+'" font-weight="1000">#'+rank+'</text>'+
-    '<rect x="'+px+'" y="'+py+'" width="'+portraitW+'" height="'+portraitH+'" rx="14" fill="#0b1722" stroke="'+rankColor+'" stroke-width="2" stroke-opacity=".78"/>';
+    '<rect x="'+x+'" y="'+y+'" width="'+rankW+'" height="'+h+'" rx="18" fill="'+rankColor+'" fill-opacity="'+(rank===1?".96":".82")+'"/>'+
+    '<rect x="'+(x+rankW-14)+'" y="'+y+'" width="14" height="'+h+'" fill="#081827"/>'+
+    '<text x="'+(x+rankW/2-4)+'" y="'+(y+(big?62:50))+'" text-anchor="middle" fill="#07121c" font-family="Arial Black,Arial" font-size="'+(big?38:28)+'" font-weight="1000">#'+rank+'</text>'+
+    '<rect x="'+px+'" y="'+py+'" width="'+portraitW+'" height="'+portraitH+'" rx="14" fill="#0b1722" stroke="'+rankColor+'" stroke-width="2" stroke-opacity=".80"/>';
   if(portrait)o+=portraitImage(portrait,px+5,py+5,portraitW-10,portraitH-10);
   else o+=silhouetteSvg(px+6,py+6,portraitW-12,portraitH-12);
-  if(logo)o+=img(logo,right-logoSize,y+16,logoSize);
+
+  if(logo)o+=img(logo,right-logoSize,y+18,logoSize);
+
   o+='<text x="'+tx+'" y="'+(y+(big?48:40))+'" fill="#fff" font-family="Arial" font-size="'+nameSize+'" font-weight="1000">'+esc(clip(p.display_gamertag,big?28:20))+'</text>'+
-    '<text x="'+tx+'" y="'+(y+(big?72:60))+'" fill="#92a8b8" font-family="Arial" font-size="'+teamSize+'" font-weight="850">'+esc(clip(p.team_name_in_league||"",30))+'</text>'+
-    '<text x="'+tx+'" y="'+(y+(big?112:94))+'" fill="#9fb3c1" font-family="Arial" font-size="'+(big?14:12)+'" font-weight="950">'+esc(cfg.primaryLabel)+'</text>'+
-    '<text x="'+tx+'" y="'+(y+(big?162:132))+'" fill="#ffbd00" font-family="Arial Black,Arial" font-size="'+mainSize+'" font-weight="1000">'+esc(cfg.primaryValue)+'</text>'+
-    '<text x="'+(tx+(big?96:72))+'" y="'+(y+(big?157:129))+'" fill="#e0e7eb" font-family="Arial" font-size="'+(big?14:11)+'" font-weight="850">'+esc(cfg.meta)+'</text>';
-  cfg.bars.forEach((b,i)=>{o+=statBar(tx,barsY+i*(big?24:21),barW,b.label,b.value,b.ratio)});
+    '<text x="'+tx+'" y="'+(y+(big?73:60))+'" fill="#92a8b8" font-family="Arial" font-size="'+teamSize+'" font-weight="850">'+esc(clip(p.team_name_in_league||"",30))+'</text>'+
+    '<text x="'+primaryX+'" y="'+statTop+'" fill="#9fb3c1" font-family="Arial" font-size="'+labelSize+'" font-weight="950">'+esc(cfg.primaryLabel)+'</text>'+
+    '<text x="'+primaryX+'" y="'+(statTop+(big?52:38))+'" fill="#ffbd00" font-family="Arial Black,Arial" font-size="'+mainSize+'" font-weight="1000">'+esc(cfg.primaryValue)+'</text>';
+
+  values.forEach((s,i)=>{
+    const sx=colsStart+i*colGap;
+    o+='<text x="'+sx+'" y="'+statTop+'" fill="#9fb3c1" font-family="Arial" font-size="'+labelSize+'" font-weight="950">'+s.l+'</text>'+
+      '<text x="'+sx+'" y="'+(statTop+(big?48:36))+'" fill="#f5f7f9" font-family="Arial Black,Arial" font-size="'+(big?32:24)+'" font-weight="1000">'+s.v+'</text>';
+  });
+
+  cfg.bars.forEach((b,i)=>{
+    o+=statBar(tx,barsY+i*(big?25:22),barW,b.label,b.value,b.ratio);
+  });
+
   return o+'</g>';
 }
 function compactLeaderboard(rows,kind,x,y,w,rowH,offset=4){
@@ -209,26 +230,43 @@ function goalieCardConfig(p,maxes){
 function goalieCard(p,rank,x,y,w,h,logo,maxes){
   const portrait=portraitUrl(p),cfg=goalieCardConfig(p,maxes);
   const rankColor=rank===1?"#ffbd00":rank===2?"#d7dee7":"#b77d39";
-  const big=w>=760, rankW=big?78:58, pad=big?18:14;
-  const portraitW=big?174:Math.min(122,w*.24), portraitH=h-pad*2;
-  const px=x+rankW+pad, py=y+pad, tx=px+portraitW+(big?26:18), right=x+w-pad;
-  const logoSize=big?62:46, nameSize=big?30:22, teamSize=big?13:11, mainSize=big?50:38;
-  const barW=Math.max(big?260:135,right-tx), barsY=y+h-(big?68:62);
+  const big=w>=760, rankW=big?70:54, pad=big?18:14;
+  const portraitW=big?190:Math.min(128,w*.25), portraitH=h-pad*2;
+  const px=x+rankW+pad, py=y+pad, tx=px+portraitW+(big?28:18), right=x+w-pad;
+  const logoSize=big?66:46, nameSize=big?34:23, teamSize=big?14:11;
+  const mainSize=big?58:40, labelSize=big?14:11;
+  const statTop=y+(big?106:88), primaryX=tx, colsStart=tx+(big?165:108);
+  const colGap=big?104:72;
+  const barsY=y+h-(big?76:64), barW=Math.max(big?320:150,right-tx);
+  const sv=(p.sv*(p.sv<=1?100:1)), gaa=p.gaa==null?"–":fmtDec(p.gaa);
+  const values=[{l:"GP",v:p.gp},{l:"GAA",v:gaa},{l:"SO",v:p.so}];
+
   let o='<g filter="url(#shadow)">'+
     '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="18" fill="#081827" stroke="#35516a" stroke-width="1.4"/>'+
-    '<rect x="'+x+'" y="'+y+'" width="'+rankW+'" height="'+h+'" rx="18" fill="'+rankColor+'" fill-opacity="'+(rank===1?".94":".78")+'"/>'+
-    '<rect x="'+(x+rankW-16)+'" y="'+y+'" width="16" height="'+h+'" fill="#081827"/>'+
-    '<text x="'+(x+rankW/2-5)+'" y="'+(y+(big?70:56))+'" text-anchor="middle" fill="#07121c" font-family="Arial Black,Arial" font-size="'+(big?42:30)+'" font-weight="1000">#'+rank+'</text>'+
-    '<rect x="'+px+'" y="'+py+'" width="'+portraitW+'" height="'+portraitH+'" rx="14" fill="#0b1722" stroke="'+rankColor+'" stroke-width="2" stroke-opacity=".78"/>';
+    '<rect x="'+x+'" y="'+y+'" width="'+rankW+'" height="'+h+'" rx="18" fill="'+rankColor+'" fill-opacity="'+(rank===1?".96":".82")+'"/>'+
+    '<rect x="'+(x+rankW-14)+'" y="'+y+'" width="14" height="'+h+'" fill="#081827"/>'+
+    '<text x="'+(x+rankW/2-4)+'" y="'+(y+(big?62:50))+'" text-anchor="middle" fill="#07121c" font-family="Arial Black,Arial" font-size="'+(big?38:28)+'" font-weight="1000">#'+rank+'</text>'+
+    '<rect x="'+px+'" y="'+py+'" width="'+portraitW+'" height="'+portraitH+'" rx="14" fill="#0b1722" stroke="'+rankColor+'" stroke-width="2" stroke-opacity=".80"/>';
   if(portrait)o+=portraitImage(portrait,px+5,py+5,portraitW-10,portraitH-10);
   else o+=silhouetteSvg(px+6,py+6,portraitW-12,portraitH-12);
-  if(logo)o+=img(logo,right-logoSize,y+16,logoSize);
+
+  if(logo)o+=img(logo,right-logoSize,y+18,logoSize);
+
   o+='<text x="'+tx+'" y="'+(y+(big?48:40))+'" fill="#fff" font-family="Arial" font-size="'+nameSize+'" font-weight="1000">'+esc(clip(p.display_gamertag,big?28:20))+'</text>'+
-    '<text x="'+tx+'" y="'+(y+(big?72:60))+'" fill="#92a8b8" font-family="Arial" font-size="'+teamSize+'" font-weight="850">'+esc(clip(p.team_name_in_league||"",30))+'</text>'+
-    '<text x="'+tx+'" y="'+(y+(big?112:94))+'" fill="#9fb3c1" font-family="Arial" font-size="'+(big?14:12)+'" font-weight="950">'+cfg.primaryLabel+'</text>'+
-    '<text x="'+tx+'" y="'+(y+(big?162:132))+'" fill="#ffbd00" font-family="Arial Black,Arial" font-size="'+mainSize+'" font-weight="1000">'+cfg.primaryValue+'</text>'+
-    '<text x="'+(tx+(big?112:82))+'" y="'+(y+(big?157:129))+'" fill="#e0e7eb" font-family="Arial" font-size="'+(big?14:11)+'" font-weight="850">'+esc(cfg.meta)+'</text>';
-  cfg.bars.forEach((b,i)=>{o+=statBar(tx,barsY+i*(big?24:21),barW,b.label,b.value,b.ratio)});
+    '<text x="'+tx+'" y="'+(y+(big?73:60))+'" fill="#92a8b8" font-family="Arial" font-size="'+teamSize+'" font-weight="850">'+esc(clip(p.team_name_in_league||"",30))+'</text>'+
+    '<text x="'+primaryX+'" y="'+statTop+'" fill="#9fb3c1" font-family="Arial" font-size="'+labelSize+'" font-weight="950">SV%</text>'+
+    '<text x="'+primaryX+'" y="'+(statTop+(big?52:38))+'" fill="#ffbd00" font-family="Arial Black,Arial" font-size="'+mainSize+'" font-weight="1000">'+fmtDec(sv,1)+'</text>';
+
+  values.forEach((s,i)=>{
+    const sx=colsStart+i*colGap;
+    o+='<text x="'+sx+'" y="'+statTop+'" fill="#9fb3c1" font-family="Arial" font-size="'+labelSize+'" font-weight="950">'+s.l+'</text>'+
+      '<text x="'+sx+'" y="'+(statTop+(big?48:36))+'" fill="#f5f7f9" font-family="Arial Black,Arial" font-size="'+(big?30:22)+'" font-weight="1000">'+s.v+'</text>';
+  });
+
+  cfg.bars.forEach((b,i)=>{
+    o+=statBar(tx,barsY+i*(big?25:22),barW,b.label,b.value,b.ratio);
+  });
+
   return o+'</g>';
 }
 function compactGoalies(rows,x,y,w,rowH,offset=4){
@@ -307,7 +345,7 @@ function board(kind){
     rows.forEach((p,i)=>{o+=leaderboardCard(p,i+1,kind,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
   }else{
     const gap=S.format==="story"?26:18, cardW=W-m*2;
-    const cardH=S.format==="story"?370:S.format==="square"?215:270;
+    const cardH=S.format==="story"?390:S.format==="square"?225:286;
     let y=top;
     rows.forEach((p,i)=>{o+=leaderboardCard(p,i+1,kind,m,y,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes);y+=cardH+gap});
   }
@@ -324,7 +362,7 @@ function goalieSvg(){
     rows.forEach((p,i)=>{o+=goalieCard(p,i+1,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
   }else{
     const gap=S.format==="story"?26:18, cardW=W-m*2;
-    const cardH=S.format==="story"?370:S.format==="square"?215:270;
+    const cardH=S.format==="story"?390:S.format==="square"?225:286;
     let y=top;
     rows.forEach((p,i)=>{o+=goalieCard(p,i+1,m,y,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes);y+=cardH+gap});
   }
