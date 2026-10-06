@@ -533,14 +533,46 @@ function podiumCard(p,rank,kind,x,y,w,h,logo,maxes){
     '<rect x="'+bx+'" y="'+by+'" width="'+Math.max(0,bw*clamp01(b[2]))+'" height="'+bh+'" rx="'+bh/2+'" fill="url(#gold)"/>'+svgText(right,by+bh,b[1],18*s,"#fff",800,'text-anchor="end"')});
   return o+'</g>';
 }
+function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
+  const goalie=kind==="goalies",key=kind==="goals"?"g":kind==="assists"?"a":"p",label=goalie?"SV%":kind==="goals"?"MÅL":kind==="assists"?"ASSIST":"POÄNG";
+  const value=goalie?fmtDec(p.sv*(p.sv<=1?100:1),1):p[key],gold=rank===1,accent=gold?"#ffda55":"#bdd4e5";
+  const pw=Math.min(210,h*.72),px=x+72,py=y+20,tx=px+pw+30,right=x+w-32,scale=Math.min(1.25,h/290);
+  const nameSize=Math.min(40,(right-tx-125)/Math.max(1,String(p.display_gamertag||"").length)*1.6);
+  let o='<g><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="12" fill="'+(gold?'#132d3c':'#0b1d2c')+'" stroke="'+(gold?'#dfb742':'#294355')+'" stroke-width="'+(gold?2:1)+'"/>'+
+    '<path d="M'+(x+w*.78)+' '+y+' H'+(x+w)+' V'+(y+h)+' H'+(x+w*.62)+' Z" fill="'+accent+'" opacity=".04"/>'+
+    svgText(x+24,y+53,String(rank).padStart(2,'0'),29,accent,900)+
+    '<rect x="'+(x+24)+'" y="'+(y+70)+'" width="3" height="'+(h-100)+'" fill="'+accent+'" opacity=".65"/>';
+  const portrait=portraitUrl(p);o+=silhouetteSvg(px,py,pw,h-30);if(portrait)o+=portraitImage(portrait,px,py,pw,h-30);
+  o+=svgText(tx,y+54*scale,clip(p.display_gamertag,32),nameSize,"#fff",900)+svgText(tx,y+81*scale,clip(p.team_name_in_league||"",36),17*scale,"#a6bfce",600);
+  if(logo)o+=img(logo,right-62,y+24,62);
+  const vy=y+h*.59;
+  o+=svgText(tx,vy-52*scale,label,13*scale,accent,800,'letter-spacing="2"')+svgText(tx-4,vy+25*scale,value,(goalie?75:98)*scale,accent,900,'letter-spacing="-4"');
+  const values=goalie?[['MATCHER',p.gp],['GAA',p.gaa==null?'–':fmtDec(p.gaa)],['NOLLOR',p.so]]:kind==="goals"?[['MATCHER',p.gp],['ASSIST',p.a],['POÄNG',p.p]]:kind==="assists"?[['MATCHER',p.gp],['MÅL',p.g],['POÄNG',p.p]]:[['MATCHER',p.gp],['MÅL',p.g],['ASSIST',p.a]];
+  const sx=tx+(goalie?220:190),step=(right-sx)/3;
+  values.forEach((v,i)=>o+=svgText(sx+i*step,vy-32*scale,v[0],11*scale,"#a6bfce",700,'letter-spacing="1"')+svgText(sx+i*step,vy+14*scale,v[1],34*scale,"#fff",800));
+  const footer=goalie?'RÄDDNINGSPROCENT':label+' PER MATCH',rate=goalie?fmtDec(p.sv*(p.sv<=1?100:1),1)+' %':fmtDec(p.gp?p[key]/p.gp:0);
+  o+='<line x1="'+tx+'" y1="'+(y+h-57)+'" x2="'+right+'" y2="'+(y+h-57)+'" stroke="#345062"/>'+svgText(tx,y+h-28,footer,12,"#a6bfce",700,'letter-spacing="1.2"')+svgText(right,y+h-26,rate,22,accent,800,'text-anchor="end"');
+  return o+'</g>';
+}
+function modernPodiumBase(content){
+  const {w:W,h:H}=format(),m=Math.round(W*.052),c=comp(),ts=Math.min(W>1400?100:86,(W-m*2)/Math.max(1,title().length)*1.55);
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+defs()+'<rect width="'+W+'" height="'+H+'" fill="#05121c"/>'+background(W,H)+'<rect width="'+W+'" height="'+H+'" fill="#05121c" opacity=".85"/>'+
+    '<path d="M'+W*.72+' 0 H'+W+' L'+W*.28+' '+H+' H'+W*.12+' Z" fill="#83bdde" opacity=".045"/>'+
+    (c.logo?'<image href="'+esc(c.logo)+'" x="'+m+'" y="32" width="76" height="76" preserveAspectRatio="xMidYMid meet"/>':'')+
+    svgText(m+94,65,c.label,25,"#fff",900)+svgText(m+94,90,"SVENSK eHOCKEY",11,"#a6bfce",700,'letter-spacing="2"')+
+    svgText(W-m,70,"TOPP 03",16,"#ffda55",800,'text-anchor="end" letter-spacing="3"')+
+    svgText(m,151,subtitle(),14,"#ffda55",700,'letter-spacing="3"')+svgText(m-3,236,title(),ts,"#fff",900,'letter-spacing="-3"')+
+    '<rect x="'+m+'" y="261" width="64" height="5" fill="#ffda55"/>'+content+
+    svgText(m,H-31,"SVENSK eHOCKEY / "+c.label,12,"#a6bfce",700,'letter-spacing="1"')+svgText(W-m,H-31,"SWNWORKS",12,"#a6bfce",700,'text-anchor="end" letter-spacing="2"')+'</svg>';
+}
 function editorialBoard(kind){
   const rows=kind==="goalies"?goalies().slice(0,3):skaters(kind==="goals"?"g":kind==="assists"?"a":"p").slice(0,3),lm=logos();
-  const {w:W,h:H}=format(),m=Math.round(W*.045),top=S.format==="story"?240:190,gap=20;
+  const {w:W,h:H}=format(),m=Math.round(W*.052),top=300,gap=20;
   const cardH=(H-85-top-gap*2)/3,metric=kind==="goals"?"g":kind==="assists"?"a":"p";
   const maxes={gp:Math.max(1,...rows.map(p=>p.gp)),rate:Math.max(.01,...rows.map(p=>p.gp?p[metric]/p.gp:0)),ppg:Math.max(.01,...rows.map(p=>p.gp?p.p/p.gp:0)),gpg:Math.max(.01,...rows.map(p=>p.gp?p.g/p.gp:0)),apg:Math.max(.01,...rows.map(p=>p.gp?p.a/p.gp:0))};
-  let o="";rows.forEach((p,i)=>o+=podiumCard(p,i+1,kind,m,top+i*(cardH+gap),W-m*2,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes));
+  let o="";rows.forEach((p,i)=>o+=modernPodiumCard(p,i+1,kind,m,top+i*(cardH+gap),W-m*2,cardH,lm.get(String(p.sports_gamer_team_id))||""));
   if(!rows.length)o+=svgText(W/2,H/2,"Ingen matchstatistik ännu",30,"#a2b6c9",700,'text-anchor="middle"');
-  return podiumBase(o);
+  return modernPodiumBase(o);
 }
 function board(kind){return editorialBoard(kind)}
 function goalieSvg(){return editorialBoard("goalies")}
