@@ -2731,3 +2731,14 @@ body[data-background="gamenight"] .background-package-layer{
   width:34px;
   height:34px;
 }
+
+
+/* v146: standings vertical rhythm + fixed visual group order. */
+/* Single-group table: lift the whole composition slightly. */
+.table:not(.table-dual-mode){
+  padding-top:104px!important;
+}
+/* Two-group table: give the title/panels a little more breathing room from the header. */
+.table.table-dual-mode{
+  padding-top:132px!important;
+}

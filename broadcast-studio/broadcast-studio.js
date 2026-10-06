@@ -258,12 +258,16 @@
     const scene=box.closest(".scene.table");
 
     if(splitGroups){
-      const homeRows=regular.filter(r=>groupId(r)===homeGroup);
-      const awayRows=regular.filter(r=>groupId(r)===awayGroup);
+      // Keep group order stable on-air: Group 1 is always left, Group 2 right,
+      // regardless of which selected team happens to be home or away.
+      const orderedGroups=[homeGroup,awayGroup].sort((a,b)=>groupIds.indexOf(a)-groupIds.indexOf(b));
+      const leftGroup=orderedGroups[0], rightGroup=orderedGroups[1];
+      const leftRows=regular.filter(r=>groupId(r)===leftGroup);
+      const rightRows=regular.filter(r=>groupId(r)===rightGroup);
       box.className="broadcast-table bt-dual";
       box.innerHTML=
-        '<section class="bt-panel"><div class="bt-panel-title">'+esc(groupLabel(homeGroup))+'</div><div class="bt-table-inner">'+tableMarkup(homeRows)+'</div></section>'+
-        '<section class="bt-panel"><div class="bt-panel-title">'+esc(groupLabel(awayGroup))+'</div><div class="bt-table-inner">'+tableMarkup(awayRows)+'</div></section>';
+        '<section class="bt-panel"><div class="bt-panel-title">'+esc(groupLabel(leftGroup))+'</div><div class="bt-table-inner">'+tableMarkup(leftRows)+'</div></section>'+
+        '<section class="bt-panel"><div class="bt-panel-title">'+esc(groupLabel(rightGroup))+'</div><div class="bt-table-inner">'+tableMarkup(rightRows)+'</div></section>';
       scene?.classList.add("table-dual-mode","table-dense-mode");
       if($("#tableKicker"))$("#tableKicker").textContent=competition().label+" · "+tx("playoffs")+" · "+tx("groupTables");
       return;
