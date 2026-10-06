@@ -12,7 +12,7 @@ const C={
   529:{label:"FCL 27",code:"FCL",logo:"https://sportsgamer.gg/community/gallery/image/374-fcl_logopng/?do=download"}
 };
 const F={portrait:{w:1080,h:1350,label:"1080 × 1350"},square:{w:1080,h:1080,label:"1080 × 1080"},story:{w:1080,h:1920,label:"1080 × 1920"},wide:{w:1920,h:1080,label:"1920 × 1080"}};
-const TIT={table:"TABELLEN",goals:"SKYTTELIGAN",points:"POÄNGLIGAN",assists:"ASSISTLIGAN",goalies:"MÅLVAKTSLIGAN",leaders:"LIGATOPPAR"};
+const TIT={table:"TABELLEN",groups:"GRUPPTABELLER",goals:"SKYTTELIGAN",points:"POÄNGLIGAN",assists:"ASSISTLIGAN",goalies:"MÅLVAKTSLIGAN",leaders:"LIGATOPPAR"};
 const S={kind:"table",league:527,stage:"regular",group:null,count:8,format:"portrait",bg:"gamenight",logos:true,teams:[],players:[]};
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const n=v=>v!==null&&v!==undefined&&v!==""&&Number.isFinite(Number(v))?Number(v):0;
@@ -40,7 +40,8 @@ function groups(){
   $("#group").innerHTML=ids.map(id=>'<option value="'+id+'"'+(id===S.group?' selected':'')+'>'+groupName(id)+'</option>').join("");
 }
 function logos(){const m=new Map();S.teams.forEach(t=>{const k=String(t.sports_gamer_team_id);if(t.team_logo_in_league&&!m.has(k))m.set(k,t.team_logo_in_league)});return m}
-function standings(){return S.teams.filter(x=>x.statistics_stage==="regular"&&Number(x.effective_group_id)===Number(S.group)).sort((a,b)=>n(b.table_points)-n(a.table_points)||n(b.goal_difference)-n(a.goal_difference)||n(b.goals_for)-n(a.goals_for)||String(a.team_name_in_league||"").localeCompare(String(b.team_name_in_league||""),"sv"))}
+function standingsForGroup(groupId){return S.teams.filter(x=>x.statistics_stage==="regular"&&Number(x.effective_group_id)===Number(groupId)).sort((a,b)=>n(b.table_points)-n(a.table_points)||n(b.goal_difference)-n(a.goal_difference)||n(b.goals_for)-n(a.goals_for)||String(a.team_name_in_league||"").localeCompare(String(b.team_name_in_league||""),"sv"))}
+function standings(){return standingsForGroup(S.group)}
 function ps(p,key){if(S.stage==="regular")return n(p["regular_"+key]);if(S.stage==="playoffs")return n(p["playoff_"+key]);return n(p["regular_"+key])+n(p["playoff_"+key])}
 function skaters(metric){
   return S.players.map(p=>({...p,gp:ps(p,"skater_games"),g:ps(p,"goals"),a:ps(p,"assists"),p:ps(p,"points")})).filter(p=>p.gp>0).sort((a,b)=>b[metric]-a[metric]||b.p-a.p||b.g-a.g||String(a.display_gamertag||"").localeCompare(String(b.display_gamertag||""),"sv")).slice(0,S.count);
@@ -58,7 +59,7 @@ function goalies(){
 function stageName(){return S.stage==="regular"?"GRUPPSPEL":S.stage==="playoffs"?"SLUTSPEL":"TOTALT"}
 function sync(){S.league=Number($("#league").value||527);S.stage=$("#stage").value;S.group=$("#group").value?Number($("#group").value):S.group;S.count=Number($("#count").value||8);S.format=$("#format").value;S.bg=$("#bg").value;S.logos=$("#logos").checked}
 function title(){return ($("#title").value||TIT[S.kind]).trim().toUpperCase()}
-function subtitle(){return ($("#subtitle").value||(S.kind==="table"?stageName()+" · "+groupName(S.group):stageName()+" · LIVE DATA")).trim().toUpperCase()}
+function subtitle(){return ($("#subtitle").value||(S.kind==="table"?stageName()+" · "+groupName(S.group):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · LIVE DATA")).trim().toUpperCase()}
 function defs(){return '<defs><linearGradient id="silver" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#edf1f4"/><stop offset=".8" stop-color="#a2adb6"/><stop offset="1" stop-color="#fff"/></linearGradient><linearGradient id="gold"><stop stop-color="#ffd95f"/><stop offset=".5" stop-color="#ffbd00"/><stop offset="1" stop-color="#d88700"/></linearGradient><linearGradient id="panel" x2="1" y2="1"><stop stop-color="#071d2c" stop-opacity=".97"/><stop offset="1" stop-color="#020b12" stop-opacity=".98"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#000" flood-opacity=".58"/></filter></defs>'}
 function background(W,H){
   if(S.bg==="gamenight"){
@@ -91,6 +92,38 @@ function tableSvg(){
     vals.forEach((v,k)=>o+='<text x="'+(g.m+g.width*xs[k])+'" y="'+(cy+7)+'" text-anchor="middle" fill="'+(k===4?"#ffbd00":"#e4ebef")+'" font-family="Arial" font-size="'+(k===4?23:19)+'" font-weight="'+(k===4?950:750)+'">'+v+'</text>');
   });return base(o+"</g>");
 }
+function compactTablePanel(rows,x,y,w,h,label){
+  const head=58,titleH=52,rowH=Math.max(42,Math.min(60,(h-titleH-head)/Math.max(1,rows.length))),ls=logos(),logoSize=Math.min(34,rowH-12);
+  let o='<g filter="url(#shadow)"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+titleH+'" fill="url(#gold)"/><text x="'+(x+w/2)+'" y="'+(y+34)+'" text-anchor="middle" fill="#07121c" font-family="Arial" font-size="18" font-weight="950" letter-spacing="2">'+esc(label)+'</text>';
+  const hy=y+titleH;
+  o+='<rect x="'+x+'" y="'+hy+'" width="'+w+'" height="'+head+'" fill="#081923" fill-opacity=".96"/>';
+  const cols=[["#",.04],["LAG",.10],["GP",.70],["W",.79],["L",.86],["GD",.925],["PTS",.985]];
+  cols.forEach(([t,p])=>o+='<text x="'+(x+w*p)+'" y="'+(hy+36)+'" text-anchor="'+(t==="LAG"?"start":"middle")+'" fill="#9cb0bd" font-family="Arial" font-size="11" font-weight="900">'+t+'</text>');
+  rows.forEach((r,i)=>{const ry=hy+head+i*rowH,cy=ry+rowH/2,logo=r.team_logo_in_league||ls.get(String(r.sports_gamer_team_id))||"",tx=x+(S.logos?96:52);
+    o+='<rect x="'+x+'" y="'+ry+'" width="'+w+'" height="'+rowH+'" fill="'+(i%2?"#061722":"#04121c")+'"/>'+(i<3?'<rect x="'+x+'" y="'+ry+'" width="4" height="'+rowH+'" fill="#ffbd00" fill-opacity="'+(i===0?1:.55)+'"/>':'')+
+    '<text x="'+(x+22)+'" y="'+(cy+6)+'" fill="'+(i===0?"#ffbd00":"#eaf0f4")+'" font-family="Arial" font-size="'+(i===0?20:17)+'" font-weight="950">'+(i+1)+'</text>'+
+    img(logo,x+50,cy-logoSize/2,logoSize)+
+    '<text x="'+tx+'" y="'+(cy+6)+'" fill="#fff" font-family="Arial" font-size="'+(w>700?18:15)+'" font-weight="900">'+esc(clip(r.team_name_in_league,w>700?28:18))+'</text>';
+    const vals=[n(r.games_played),n(r.total_wins),n(r.losses),(n(r.goal_difference)>0?"+":"")+n(r.goal_difference),n(r.table_points)],xs=[.70,.79,.86,.925,.985];
+    vals.forEach((v,k)=>o+='<text x="'+(x+w*xs[k])+'" y="'+(cy+6)+'" text-anchor="middle" fill="'+(k===4?"#ffbd00":"#e3eaee")+'" font-family="Arial" font-size="'+(k===4?19:15)+'" font-weight="'+(k===4?950:750)+'">'+v+'</text>');
+  });
+  return o+'</g>';
+}
+function groupsSvg(){
+  const ids=groupIds().slice(0,2),{w:W,h:H}=format(),m=Math.round(W*.052),top=S.format==="story"?360:315,bottom=H-95,gap=S.format==="wide"?24:18;
+  if(ids.length<2)return base('<text x="'+(W/2)+'" y="'+(H/2)+'" text-anchor="middle" fill="#fff" font-family="Arial" font-size="28" font-weight="900">TVÅ GRUPPER SAKNAS</text>');
+  const a=standingsForGroup(ids[0]),b=standingsForGroup(ids[1]);let o="";
+  if(S.format==="story"){
+    const h=(bottom-top-gap)/2;
+    o+=compactTablePanel(a,m,top,W-m*2,h,groupName(ids[0]));
+    o+=compactTablePanel(b,m,top+h+gap,W-m*2,h,groupName(ids[1]));
+  }else{
+    const w=(W-m*2-gap)/2,h=bottom-top;
+    o+=compactTablePanel(a,m,top,w,h,groupName(ids[0]));
+    o+=compactTablePanel(b,m+w+gap,top,w,h,groupName(ids[1]));
+  }
+  return base(o);
+}
 function board(kind){
   const metric=kind==="goals"?"g":kind==="assists"?"a":"p",r=skaters(metric),g=geom(r.length||1),ls=logos(),size=Math.min(46,g.row-18),main=kind==="goals"?"G":kind==="assists"?"A":"P";let o='<g filter="url(#shadow)"><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+(g.head+g.row*r.length)+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.head+'" fill="url(#gold)"/>';
   [["#",.03],["SPELARE",.09],["GP",.72],["G",.81],["A",.89],["P",.97]].forEach(([t,p])=>o+='<text x="'+(g.m+g.width*p)+'" y="'+(g.top+31)+'" text-anchor="'+(t==="SPELARE"?"start":"middle")+'" fill="#07121c" font-family="Arial" font-size="12" font-weight="950">'+t+'</text>');
@@ -116,10 +149,10 @@ function leadersSvg(){
   else{const gap=18,h=(bottom-top-gap*2)/3;o+=mini(m,top,W-m*2,h,"MÅL","g",a,lm)+mini(m,top+h+gap,W-m*2,h,"ASSISTS","a",b,lm)+mini(m,top+(h+gap)*2,W-m*2,h,"POÄNG","p",c,lm)}
   return base(o);
 }
-function build(){return S.kind==="table"?tableSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind)}
+function build(){return S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind)}
 function render(){
   sync();$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=TIT[S.kind];
-  $("#stageField").hidden=S.kind==="table";$("#groupField").hidden=S.kind!=="table";$("#countField").hidden=S.kind==="table"||S.kind==="leaders";
+  $("#stageField").hidden=S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table";$("#countField").hidden=S.kind==="table"||S.kind==="groups"||S.kind==="leaders";
 }
 function safe(){return (comp().code+"-"+TIT[S.kind]).toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1200)}
