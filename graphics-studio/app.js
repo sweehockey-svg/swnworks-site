@@ -533,16 +533,41 @@ function podiumCard(p,rank,kind,x,y,w,h,logo,maxes){
     '<rect x="'+bx+'" y="'+by+'" width="'+Math.max(0,bw*clamp01(b[2]))+'" height="'+bh+'" rx="'+bh/2+'" fill="url(#gold)"/>'+svgText(right,by+bh,b[1],18*s,"#fff",800,'text-anchor="end"')});
   return o+'</g>';
 }
+const portraitBounds=new Map();
+function measurePortrait(url){
+  if(!url||portraitBounds.has(url))return;
+  portraitBounds.set(url,null);
+  const photo=new Image();photo.crossOrigin="anonymous";
+  photo.onload=()=>{
+    try{
+      const canvas=document.createElement("canvas");canvas.width=photo.naturalWidth;canvas.height=photo.naturalHeight;
+      const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(photo,0,0);
+      const {data}=ctx.getImageData(0,0,canvas.width,canvas.height);let left=canvas.width,top=canvas.height,right=0,bottom=0;
+      for(let y=0;y<canvas.height;y+=2)for(let x=0;x<canvas.width;x+=2)if(data[(y*canvas.width+x)*4+3]>24){left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x);bottom=Math.max(bottom,y)}
+      if(right>left&&bottom>top)portraitBounds.set(url,{left,top,width:Math.min(canvas.width-left,right-left+2),height:Math.min(canvas.height-top,bottom-top+2),sourceW:canvas.width,sourceH:canvas.height});
+      render();
+    }catch(e){console.warn("Porträtt visas med standardproportioner",url)}
+  };
+  photo.src=url;
+}
+function normalizedPortrait(url,x,y,w,h,id){
+  measurePortrait(url);const b=portraitBounds.get(url),sourceW=b?b.sourceW:w,sourceH=b?b.sourceH:h;
+  const view=b?[b.left,b.top,b.width,b.height].join(" "):'0 0 '+w+' '+h;
+  const left=b?b.left:0,top=b?b.top:0,bw=b?b.width:w,bh=b?b.height:h;
+  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+view+'" preserveAspectRatio="xMidYMax meet">'+
+    '<defs><linearGradient id="edge-'+id+'"><stop stop-color="white" stop-opacity="0"/><stop offset=".09" stop-color="white"/><stop offset=".91" stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient><linearGradient id="foot-'+id+'" x2="0" y2="1"><stop stop-color="white"/><stop offset=".86" stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient><mask id="edgeMask-'+id+'" maskUnits="userSpaceOnUse" x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'"><rect x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'" fill="url(#edge-'+id+')"/></mask><mask id="footMask-'+id+'" maskUnits="userSpaceOnUse" x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'"><rect x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'" fill="url(#foot-'+id+')"/></mask></defs>'+
+    '<g mask="url(#footMask-'+id+')"><image href="'+esc(url)+'" width="'+sourceW+'" height="'+sourceH+'" preserveAspectRatio="none" mask="url(#edgeMask-'+id+')"/></g></svg>';
+}
 function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
   const goalie=kind==="goalies",key=kind==="goals"?"g":kind==="assists"?"a":"p",label=goalie?"SV%":kind==="goals"?"MÅL":kind==="assists"?"ASSIST":"POÄNG";
   const value=goalie?fmtDec(p.sv*(p.sv<=1?100:1),1):p[key],gold=rank===1,accent=gold?"#ffda55":"#bdd4e5";
-  const pw=Math.min(210,h*.72),px=x+72,py=y+20,tx=px+pw+30,right=x+w-32,scale=Math.min(1.25,h/290);
+  const pw=Math.min(250,h*.90),px=x+62,py=y+12,tx=px+pw+26,right=x+w-32,scale=Math.min(1.25,h/290);
   const nameSize=Math.min(40,(right-tx-125)/Math.max(1,String(p.display_gamertag||"").length)*1.6);
   let o='<g><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="12" fill="'+(gold?'#132d3c':'#0b1d2c')+'" stroke="'+(gold?'#dfb742':'#294355')+'" stroke-width="'+(gold?2:1)+'"/>'+
     '<path d="M'+(x+w*.78)+' '+y+' H'+(x+w)+' V'+(y+h)+' H'+(x+w*.62)+' Z" fill="'+accent+'" opacity=".04"/>'+
     svgText(x+24,y+53,String(rank).padStart(2,'0'),29,accent,900)+
     '<rect x="'+(x+24)+'" y="'+(y+70)+'" width="3" height="'+(h-100)+'" fill="'+accent+'" opacity=".65"/>';
-  const portrait=portraitUrl(p);o+=silhouetteSvg(px,py,pw,h-30);if(portrait)o+=portraitImage(portrait,px,py,pw,h-30);
+  const portrait=portraitUrl(p);o+=portrait?normalizedPortrait(portrait,px,py,pw,h-14,'player-'+rank):silhouetteSvg(px,py,pw,h-14);
   o+=svgText(tx,y+54*scale,clip(p.display_gamertag,32),nameSize,"#fff",900)+svgText(tx,y+81*scale,clip(p.team_name_in_league||"",36),17*scale,"#a6bfce",600);
   if(logo)o+=img(logo,right-62,y+24,62);
   const vy=y+h*.59;
