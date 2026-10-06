@@ -739,7 +739,7 @@
 "use strict";
 
 /*
-  NEXTGAME – MOBIL V5.3
+  NEXTGAME – MOBIL V5.4
 
   API:
   Den här versionen hämtar matcher direkt från ESPN:s öppna scoreboard-endpoints.
@@ -881,6 +881,7 @@ const DEMO_DATA = [
 let leaguesData = [];
 let teamsData = [];
 let teamCatalog = [];
+let teamCatalogReadyPromise = null;
 const teamSeasonCache = new Map();
 const leagueSeasonCache = new Map();
 const seasonLoading = new Set();
@@ -1264,6 +1265,22 @@ async function loadTeamCatalog() {
 
   const searchValue = document.getElementById("searchInput")?.value || "";
   if (searchValue.trim()) renderSearch(searchValue);
+
+  return teamCatalog;
+}
+
+async function ensureTeamCatalogReady() {
+  if (teamCatalog.length) return teamCatalog;
+
+  if (!teamCatalogReadyPromise) {
+    teamCatalogReadyPromise = loadTeamCatalog().catch(error => {
+      console.warn("Kunde inte ladda lagkatalogen.", error);
+      return [];
+    });
+  }
+
+  await teamCatalogReadyPromise;
+  return teamCatalog;
 }
 
 function saveApiCache(data) {
@@ -1393,9 +1410,13 @@ async function fetchEspnLeague(source, range) {
 }
 
 async function loadData() {
-  const teamCatalogPromise = loadTeamCatalog().catch(error => {
-    console.warn("Kunde inte ladda lagkatalogen.", error);
-  });
+  if (!teamCatalogReadyPromise) {
+    teamCatalogReadyPromise = loadTeamCatalog().catch(error => {
+      console.warn("Kunde inte ladda lagkatalogen.", error);
+      return [];
+    });
+  }
+  const teamCatalogPromise = teamCatalogReadyPromise;
 
   const cached = readApiCache();
 
@@ -1678,6 +1699,101 @@ function sortSeasonMatches(matches) {
     .sort((a,b) => new Date(a.startTime) - new Date(b.startTime));
 }
 
+function seasonDateWindow(source) {
+  const season = seasonYearForSource(source);
+
+  if (source.id === "allsvenskan" || source.id === "f1") {
+    return {
+      start: new Date(`${season}-01-01T00:00:00Z`).getTime(),
+      end: new Date(`${season}-12-31T23:59:59Z`).getTime()
+    };
+  }
+
+  if (source.sport === "Fotboll") {
+    return {
+      start: new Date(`${season}-07-01T00:00:00Z`).getTime(),
+      end: new Date(`${season + 1}-06-30T23:59:59Z`).getTime()
+    };
+  }
+
+  if (source.id === "nba" || source.id === "nhl") {
+    return {
+      start: new Date(`${season - 1}-07-01T00:00:00Z`).getTime(),
+      end: new Date(`${season}-06-30T23:59:59Z`).getTime()
+    };
+  }
+
+  if (source.id === "nfl") {
+    return {
+      start: new Date(`${season}-07-01T00:00:00Z`).getTime(),
+      end: new Date(`${season + 1}-03-15T23:59:59Z`).getTime()
+    };
+  }
+
+  return { start: 0, end: Number.MAX_SAFE_INTEGER };
+}
+
+function remainingSeasonMatches(matches, source) {
+  const now = Date.now() - 5 * 60 * 1000;
+  const { start, end } = seasonDateWindow(source);
+
+  return sortSeasonMatches(matches).filter(match => {
+    const ts = new Date(match.startTime).getTime();
+    if (!Number.isFinite(ts) || ts < now || ts < start || ts > end) return false;
+
+    const status = String(match.status || "").toLowerCase();
+    return !status.includes("final") &&
+      !status.includes("completed") &&
+      !status.includes("cancel") &&
+      !status.includes("canceled");
+  });
+}
+
+function seasonCalendarYears(source) {
+  const season = seasonYearForSource(source);
+
+  if (source.id === "allsvenskan" || source.id === "f1") return [season];
+  if (source.sport === "Fotboll") return [season, season + 1];
+  if (source.id === "nba" || source.id === "nhl") return [season - 1, season];
+  if (source.id === "nfl") return [season, season + 1];
+
+  return [season];
+}
+
+async function fetchLeagueSeasonDirect(source) {
+  if (source.kind === "race") return fetchF1Season();
+
+  const years = seasonCalendarYears(source);
+  const requests = years.map(year => {
+    const separator = source.url.includes("?") ? "&" : "?";
+    return fetchSchedulePayload(
+      `${source.url}${separator}limit=2000&dates=${encodeURIComponent(year)}`
+    );
+  });
+
+  const payloads = await Promise.allSettled(requests);
+  const byId = new Map();
+
+  payloads.forEach(result => {
+    if (result.status !== "fulfilled") return;
+    const parsed = parseEspnSource(source, result.value);
+    parsed.matches.forEach(match => {
+      byId.set(String(match.id), {
+        ...match,
+        league: source.name,
+        sport: source.sport
+      });
+    });
+  });
+
+  const matches = remainingSeasonMatches([...byId.values()], source);
+  if (!matches.length) {
+    throw new Error(`${source.name}: inget återstående säsongsschema hittades`);
+  }
+
+  return matches;
+}
+
 async function fetchTeamSeasonEntry(entry, allSoccerCompetitions = false) {
   const source = currentSourceById(entry.sourceId);
   if (!source || source.kind === "race" || !entry.id) return [];
@@ -1689,62 +1805,57 @@ async function fetchTeamSeasonEntry(entry, allSoccerCompetitions = false) {
     ? `https://site.api.espn.com/apis/site/v2/sports/soccer/all/teams/${encodeURIComponent(entry.id)}/schedule`
     : `${base}/teams/${encodeURIComponent(entry.id)}/schedule`;
 
-  const urls = source.sport === "Fotboll"
-    ? [
-        // Results already played during the season.
-        `${scheduleBase}?season=${season}&limit=500`,
-        // Every published future fixture through the end of the season.
-        `${scheduleBase}?season=${season}&fixture=true&limit=500`
-      ]
-    : [
-        // Full regular-season schedule for NHL / NBA / NFL.
-        `${scheduleBase}?season=${season}&seasontype=2&limit=500`
-      ];
+  const url = source.sport === "Fotboll"
+    ? `${scheduleBase}?season=${season}&fixture=true&limit=500`
+    : `${scheduleBase}?season=${season}&seasontype=2&limit=500`;
 
-  const payloads = await Promise.allSettled(urls.map(fetchSchedulePayload));
-  const byId = new Map();
+  const payload = await fetchSchedulePayload(url);
+  const parsed = parseEspnSource(source, payload);
 
-  payloads.forEach(result => {
-    if (result.status !== "fulfilled") return;
-    const parsed = parseEspnSource(source, result.value);
-    parsed.matches.forEach(match => {
-      byId.set(String(match.id), {
-        ...match,
-        league: match.leagueName || source.name,
-        sport: source.sport
-      });
-    });
-  });
+  const matches = parsed.matches.map(match => ({
+    ...match,
+    league: match.leagueName || source.name,
+    sport: source.sport
+  }));
 
-  if (!byId.size) {
-    throw new Error(`${entry.name} / ${entry.league}: inget säsongsschema hittades`);
+  const remaining = remainingSeasonMatches(matches, source);
+
+  if (!remaining.length) {
+    throw new Error(`${entry.name} / ${entry.league}: inga kommande matcher hittades`);
   }
 
-  return sortSeasonMatches([...byId.values()]);
+  return remaining;
 }
 
 async function loadTeamSeason(name) {
   if (teamSeasonCache.has(name) || seasonLoading.has(`team:${name}`)) return;
 
-  const entries = teamCatalog.filter(entry => entry.name === name);
-  if (!entries.length) return;
-
-  const uniqueEntries = [];
-  const seen = new Set();
-
-  entries.forEach(entry => {
-    const source = currentSourceById(entry.sourceId);
-    const key = source?.sport === "Fotboll" ? `soccer:${entry.id}` : `${entry.sourceId}:${entry.id}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      uniqueEntries.push(entry);
-    }
-  });
-
   seasonLoading.add(`team:${name}`);
   renderMain();
 
   try {
+    await ensureTeamCatalogReady();
+
+    const entries = teamCatalog.filter(entry => entry.name === name);
+    if (!entries.length) {
+      throw new Error(`Hittade inget lag-ID för ${name}`);
+    }
+
+    const uniqueEntries = [];
+    const seen = new Set();
+
+    entries.forEach(entry => {
+      const source = currentSourceById(entry.sourceId);
+      const key = source?.sport === "Fotboll"
+        ? `soccer:${entry.id}`
+        : `${entry.sourceId}:${entry.id}`;
+
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueEntries.push(entry);
+      }
+    });
+
     const results = await Promise.allSettled(uniqueEntries.map(entry => {
       const source = currentSourceById(entry.sourceId);
       return fetchTeamSeasonEntry(entry, source?.sport === "Fotboll");
@@ -1757,15 +1868,10 @@ async function loadTeamSeason(name) {
     });
 
     const fullSchedule = sortSeasonMatches([...byId.values()]);
-    console.info(`NextGame season schedule ${name}: ${fullSchedule.length} season events`, {
-      season: uniqueEntries.map(entry => {
-        const source = currentSourceById(entry.sourceId);
-        return source ? `${source.name}=${seasonYearForSource(source)}` : entry.sourceId;
-      })
-    });
+    console.info(`NextGame upcoming season schedule ${name}: ${fullSchedule.length} events`);
     teamSeasonCache.set(name, fullSchedule);
   } catch (error) {
-    console.warn("Kunde inte ladda lagets säsongsschema.", error);
+    console.warn("Kunde inte ladda lagets hela kommande säsongsschema.", error);
     teamSeasonCache.set(name, []);
   } finally {
     seasonLoading.delete(`team:${name}`);
@@ -1788,11 +1894,11 @@ async function fetchF1Season() {
   if (!response.ok) throw new Error(`Formel 1: HTTP ${response.status}`);
   const parsed = parseEspnSource(source, await response.json());
 
-  return sortSeasonMatches(parsed.matches.map(match => ({
+  return remainingSeasonMatches(parsed.matches.map(match => ({
     ...match,
     league: source.name,
     sport: source.sport
-  })));
+  })), source);
 }
 
 async function allSettledLimited(items, limit, worker) {
@@ -1837,28 +1943,35 @@ async function loadLeagueSeason(name) {
   renderMain();
 
   try {
-    if (source.kind === "race") {
-      leagueSeasonCache.set(name, await fetchF1Season());
-    } else {
+    let seasonSchedule = [];
+
+    try {
+      seasonSchedule = await fetchLeagueSeasonDirect(source);
+    } catch (directError) {
+      console.warn(`${name}: direkt säsongshämtning misslyckades, provar lagvis`, directError);
+
+      await ensureTeamCatalogReady();
       const entries = teamCatalog.filter(entry => entry.league === name);
+
       const results = await allSettledLimited(
         entries,
-        6,
+        5,
         entry => fetchTeamSeasonEntry(entry, false)
       );
-      const byId = new Map();
 
+      const byId = new Map();
       results.forEach(result => {
         if (result.status !== "fulfilled") return;
         result.value.forEach(match => byId.set(String(match.id), match));
       });
 
-      const seasonSchedule = sortSeasonMatches([...byId.values()]);
-      console.info(`NextGame league schedule ${name}: ${seasonSchedule.length} season events`);
-      leagueSeasonCache.set(name, seasonSchedule);
+      seasonSchedule = remainingSeasonMatches([...byId.values()], source);
     }
+
+    console.info(`NextGame upcoming league schedule ${name}: ${seasonSchedule.length} events`);
+    leagueSeasonCache.set(name, seasonSchedule);
   } catch (error) {
-    console.warn("Kunde inte ladda ligans säsongsschema.", error);
+    console.warn("Kunde inte ladda ligans hela kommande säsongsschema.", error);
     leagueSeasonCache.set(name, []);
   } finally {
     seasonLoading.delete(`league:${name}`);
@@ -2200,7 +2313,7 @@ function renderLeaguePage(name) {
           <div>
             <div class="profile-icon">${league.name === "Formel 1" ? "🏎️" : "🏆"}</div>
             <h2>${escapeHtml(league.name)}</h2>
-            <p>${escapeHtml(league.sport)} • Hela säsongen${seasonMatches ? ` • ${matches.length} event` : ""}</p>
+            <p>${escapeHtml(league.sport)} • Alla kommande matcher i säsongen${seasonMatches ? ` • ${matches.length} event` : ""}</p>
           </div>
           <button class="btn ${followed ? "following" : ""}" onclick='toggleFollow(${safeJs(league.name)}, event)'>
             ${followed ? "✓ Följer" : "+ Följ"}
@@ -2237,7 +2350,7 @@ function renderTeamPage(name) {
           <div>
             <div class="profile-icon">${sportIcon(team.sport)}</div>
             <h2>${escapeHtml(team.name)}</h2>
-            <p>${escapeHtml(team.leagues.join(" • "))} • Hela säsongen${seasonMatches ? ` • ${matches.length} matcher` : ""}</p>
+            <p>${escapeHtml(team.leagues.join(" • "))} • Alla kommande matcher i säsongen${seasonMatches ? ` • ${matches.length} matcher` : ""}</p>
           </div>
           <button class="btn ${followed ? "following" : ""}" onclick='toggleFollow(${safeJs(team.name)}, event)'>
             ${followed ? "✓ Följer" : "+ Följ"}
