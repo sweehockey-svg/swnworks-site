@@ -152,13 +152,13 @@ function skaterCardConfig(kind,p,maxes){
 function leaderboardCard(p,rank,kind,x,y,w,h,logo,maxes){
   const portrait=portraitUrl(p),cfg=skaterCardConfig(kind,p,maxes);
   const rankColor=rank===1?"#ffbd00":rank===2?"#d7dee7":"#b77d39";
-  const big=w>=760, pad=big?18:14, accentW=big?8:6;
+  const big=w>=760&&h>=270, pad=big?18:14, accentW=big?8:6;
   const portraitW=big?205:Math.min(138,w*.27), portraitH=h-pad*2;
   const px=x+pad, py=y+pad, tx=px+portraitW+(big?28:18), right=x+w-pad;
   const logoSize=big?66:46, nameSize=big?34:23, teamSize=big?14:11;
   const mainSize=big?62:42, labelSize=big?14:11;
   const statTop=y+(big?112:92), primaryX=tx, colsStart=tx+(big?150:102), colGap=big?92:64;
-  const barsY=y+h-(big?82:70), barW=Math.max(big?320:150,right-tx);
+  const barsY=y+h-(big?82:58), barW=Math.max(big?320:150,right-tx);
 
   const values=kind==="goals"
     ? [{l:"GP",v:p.gp},{l:"A",v:p.a},{l:"P",v:p.p}]
@@ -225,13 +225,13 @@ function goalieCardConfig(p,maxes){
 function goalieCard(p,rank,x,y,w,h,logo,maxes){
   const portrait=portraitUrl(p),cfg=goalieCardConfig(p,maxes);
   const rankColor=rank===1?"#ffbd00":rank===2?"#d7dee7":"#b77d39";
-  const big=w>=760, pad=big?18:14, accentW=big?8:6;
+  const big=w>=760&&h>=270, pad=big?18:14, accentW=big?8:6;
   const portraitW=big?205:Math.min(138,w*.27), portraitH=h-pad*2;
   const px=x+pad, py=y+pad, tx=px+portraitW+(big?28:18), right=x+w-pad;
   const logoSize=big?66:46, nameSize=big?34:23, teamSize=big?14:11;
   const mainSize=big?58:40, labelSize=big?14:11;
   const statTop=y+(big?112:92), primaryX=tx, colsStart=tx+(big?165:108), colGap=big?104:72;
-  const barsY=y+h-(big?82:70), barW=Math.max(big?320:150,right-tx);
+  const barsY=y+h-(big?82:58), barW=Math.max(big?320:150,right-tx);
   const sv=(p.sv*(p.sv<=1?100:1)), gaa=p.gaa==null?"–":fmtDec(p.gaa);
   const values=[{l:"GP",v:p.gp},{l:"GAA",v:gaa},{l:"SO",v:p.so}];
 
