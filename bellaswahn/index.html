@@ -669,6 +669,309 @@
             border-color: var(--accent);
             background: var(--card-hover);
         }
+    
+        /* NextWeek V2 overrides */
+        header{
+            max-width:650px;
+            margin:0 auto;
+            width:100%;
+            border-bottom:1px solid var(--border);
+        }
+        .header-left{gap:10px}
+        .header-title-wrapper h1{font-size:20px}
+        .header-search-btn{
+            width:42px;
+            height:42px;
+            border-radius:12px;
+            border:1px solid var(--border);
+            background:var(--card-bg);
+            color:var(--text-main);
+            display:grid;
+            place-items:center;
+            cursor:pointer;
+        }
+        .header-search-btn svg{width:20px;height:20px}
+        .week-nav-info{flex:1}
+        .week-nav-subtitle{display:none!important}
+
+        .item{
+            cursor:grab;
+            touch-action:pan-y;
+            user-select:none;
+            -webkit-user-select:none;
+        }
+        .item.drag-source{opacity:.25}
+        .day-card.drag-target{
+            outline:2px solid var(--accent);
+            outline-offset:2px;
+        }
+        .drag-ghost{
+            position:fixed;
+            z-index:3000;
+            pointer-events:none;
+            width:min(560px, calc(100vw - 40px));
+            opacity:.94;
+            transform:rotate(1.5deg) scale(1.015);
+            box-shadow:0 18px 50px rgba(0,0,0,.55);
+        }
+        body.nw-dragging{user-select:none;-webkit-user-select:none}
+
+        .menu-dropdown{
+            border:none;
+            border-radius:10px;
+            background:rgba(17,17,24,.96);
+            box-shadow:0 12px 35px rgba(0,0,0,.55);
+            padding:6px 0;
+            width:170px;
+            overflow:visible;
+        }
+        .menu-item{
+            border:0!important;
+            background:transparent!important;
+            padding:9px 14px;
+            color:var(--text-main);
+        }
+        .menu-item:last-child{color:#ff6b64}
+        .menu-item:hover{color:var(--accent)}
+
+        .section-heading-row{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:16px;
+        }
+        .page-heading{font-size:24px;font-weight:800}
+        .page-subheading{margin-top:3px;font-size:13px;color:var(--text-muted)}
+
+        .media-grid{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:14px;
+        }
+        .media-card{
+            position:relative;
+            background:var(--card-bg);
+            border:1px solid var(--border);
+            border-radius:16px;
+            overflow:hidden;
+            cursor:pointer;
+            min-width:0;
+        }
+        .media-poster{
+            width:100%;
+            aspect-ratio:2/3;
+            object-fit:cover;
+            background:#111;
+            display:block;
+        }
+        .media-poster-placeholder{
+            aspect-ratio:2/3;
+            display:grid;
+            place-items:center;
+            font-size:42px;
+            background:linear-gradient(145deg,#151522,#0d0d12);
+        }
+        .media-card-body{padding:10px}
+        .media-title{
+            font-size:13px;
+            font-weight:750;
+            line-height:1.25;
+            display:-webkit-box;
+            -webkit-line-clamp:2;
+            -webkit-box-orient:vertical;
+            overflow:hidden;
+        }
+        .media-meta{font-size:11px;color:var(--text-muted);margin-top:4px}
+        .heart-btn{
+            position:absolute;
+            top:8px;
+            right:8px;
+            z-index:2;
+            width:34px;
+            height:34px;
+            display:grid;
+            place-items:center;
+            border:0;
+            border-radius:50%;
+            background:rgba(8,8,12,.82);
+            color:#fff;
+            font-size:18px;
+            cursor:pointer;
+        }
+        .heart-btn.on{color:#ff4d62}
+
+        .sport-grid{
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:12px;
+        }
+        .sport-league-card{
+            position:relative;
+            padding:18px 12px;
+            min-height:155px;
+        }
+        .league-logo-wrap{
+            height:58px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            margin-bottom:10px;
+        }
+        .league-logo{
+            max-width:76px;
+            max-height:58px;
+            object-fit:contain;
+        }
+        .league-logo-fallback{font-size:38px}
+        .league-sport{
+            color:var(--text-muted);
+            font-size:12px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:5px;
+        }
+
+        .schedule-card{
+            background:var(--card-bg);
+            border:1px solid var(--border);
+            border-radius:14px;
+            padding:14px;
+            display:grid;
+            gap:10px;
+        }
+        .schedule-top{
+            display:flex;
+            justify-content:space-between;
+            gap:12px;
+            align-items:flex-start;
+        }
+        .schedule-title{
+            font-size:14px;
+            font-weight:750;
+            line-height:1.3;
+        }
+        .team-link{
+            cursor:pointer;
+            color:var(--text-main);
+        }
+        .team-link:hover{color:var(--accent)}
+        .schedule-time{
+            flex:0 0 auto;
+            color:var(--accent);
+            font-size:12px;
+            font-weight:800;
+        }
+        .schedule-meta{
+            color:var(--text-muted);
+            font-size:12px;
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            align-items:center;
+        }
+        .schedule-actions{
+            display:flex;
+            gap:8px;
+            justify-content:flex-end;
+            align-items:center;
+        }
+        .add-plus-btn{
+            background:#252534;
+            color:#fff;
+            border:1px solid #343447;
+        }
+        .add-plus-btn.added{
+            background:#218a4a;
+            border-color:#2eaf62;
+            color:#fff;
+        }
+        .inline-heart{
+            width:36px;
+            height:36px;
+            border-radius:10px;
+            border:1px solid #343447;
+            background:#20202d;
+            color:#fff;
+            cursor:pointer;
+            font-size:17px;
+        }
+        .inline-heart.on{color:#ff4d62}
+
+        .detail-title-row{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+        }
+        .detail-logo{
+            width:58px;
+            height:58px;
+            object-fit:contain;
+            border-radius:12px;
+            background:#fff;
+            padding:4px;
+        }
+        .provider-chip{
+            display:inline-flex;
+            padding:3px 7px;
+            border-radius:6px;
+            background:#252536;
+            color:#c8c8cf;
+            font-size:10px;
+            margin-right:4px;
+        }
+        .loading-card,.error-card{
+            padding:28px 16px;
+            text-align:center;
+            color:var(--text-muted);
+            border:1px dashed var(--border);
+            border-radius:14px;
+        }
+        .error-card{color:#ff7168}
+
+        .favorite-grid{
+            display:grid;
+            gap:10px;
+        }
+        .favorite-card{
+            display:grid;
+            grid-template-columns:46px minmax(0,1fr) auto;
+            gap:10px;
+            align-items:center;
+            padding:12px;
+            border-radius:14px;
+            background:var(--card-bg);
+            border:1px solid var(--border);
+            cursor:pointer;
+        }
+        .favorite-icon{
+            width:46px;height:46px;
+            border-radius:10px;
+            object-fit:contain;
+            background:#11131a;
+            display:grid;
+            place-items:center;
+            font-size:24px;
+        }
+        .favorite-name{font-weight:750;font-size:14px}
+        .favorite-sub{font-size:11px;color:var(--text-muted);margin-top:3px}
+        .favorite-remove{
+            border:0;background:transparent;color:#ff6b64;
+            font-size:20px;padding:8px;cursor:pointer;
+        }
+
+        @media(max-width:430px){
+            header{padding:12px 14px}
+            .container{padding:16px 12px}
+            .day-card{padding:13px}
+            .week-nav-bar{margin-bottom:14px}
+            .bottom-nav{padding-bottom:max(9px, env(safe-area-inset-bottom))}
+            .nav-item{font-size:10px}
+            .nav-icon{font-size:19px}
+            .modal-overlay{padding-top:35px}
+            .modal-content{width:94%;padding:16px}
+        }
+
     </style>
 </head>
 <body>
@@ -678,13 +981,15 @@
             <div class="logo-icon">📅</div>
             <div class="header-title-wrapper">
                 <h1>NextWeek</h1>
-                <p>Veckoöversikt & Sport</p>
             </div>
         </div>
         <div class="header-right">
-            <button class="action-btn" onclick="openSearchModal()">🔍 Sök</button>
-            <button class="action-btn" onclick="scrollToToday()">Idag i fokus</button>
-            <button class="action-btn primary" onclick="openSearchModal()">+ Ny aktivitet</button>
+            <button class="header-search-btn" onclick="openSearchModal()" aria-label="Sök" title="Sök">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="m20 20-3.2-3.2"></path>
+                </svg>
+            </button>
         </div>
     </header>
 
@@ -694,7 +999,6 @@
             <button class="week-nav-btn" onclick="changeWeek(-1)">❮</button>
             <div class="week-nav-info">
                 <div class="week-nav-title" id="week-title-label">Vecka</div>
-                <div class="week-nav-subtitle">Dra och släpp eller använd ••• för att flytta poster</div>
             </div>
             <button class="week-nav-btn" onclick="changeWeek(1)">❯</button>
         </div>
@@ -720,6 +1024,28 @@
         <div class="detail-list" id="detail-items-container"></div>
     </div>
 
+    <!-- FILMVY -->
+    <div class="container" id="movie-view" style="display:none;">
+        <div class="section-heading-row">
+            <div>
+                <h2 class="page-heading">Film</h2>
+                <p class="page-subheading">Trendar just nu</p>
+            </div>
+        </div>
+        <div id="movie-content-container" class="media-grid"></div>
+    </div>
+
+    <!-- SERIEVY -->
+    <div class="container" id="series-view" style="display:none;">
+        <div class="section-heading-row">
+            <div>
+                <h2 class="page-heading">Serier</h2>
+                <p class="page-subheading">Trendar just nu</p>
+            </div>
+        </div>
+        <div id="series-content-container" class="media-grid"></div>
+    </div>
+
     <!-- SPORTVY: Ligor & Lag -->
     <div class="container" id="sport-view">
         <div class="detail-header-card">
@@ -740,7 +1066,7 @@
             <h2>Favoriter</h2>
             <p class="detail-subtitle">Dina sparade favoritlag och serier</p>
         </div>
-        <div class="empty-day">Inga favoriter tillagda ännu.</div>
+        <div id="favorites-content-container"></div>
     </div>
 
     <!-- Fast bottenmeny -->
@@ -751,7 +1077,11 @@
         </button>
         <button class="nav-item" id="nav-film-btn" onclick="switchTab('film')">
             <span class="nav-icon">🎬</span>
-            <span>Film/Serie</span>
+            <span>Film</span>
+        </button>
+        <button class="nav-item" id="nav-serie-btn" onclick="switchTab('serie')">
+            <span class="nav-icon">📺</span>
+            <span>Serie</span>
         </button>
         <button class="nav-item" id="nav-sport-btn" onclick="switchTab('sport')">
             <span class="nav-icon">⚽</span>
@@ -764,8 +1094,8 @@
     </nav>
 
     <!-- Sök & Lägg till Modal -->
-    <div class="modal-overlay" id="search-modal">
-        <div class="modal-content">
+    <div class="modal-overlay" id="search-modal" onclick="nwOverlayClose(event, 'search-modal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h2>Sök filmer, serier och sport</h2>
                 <button class="close-modal" onclick="closeSearchModal()">✕</button>
@@ -778,8 +1108,8 @@
     </div>
 
     <!-- Datumväljare Modal -->
-    <div class="modal-overlay" id="date-modal">
-        <div class="modal-content">
+    <div class="modal-overlay" id="date-modal" onclick="nwOverlayClose(event, 'date-modal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h2>Välj ett nytt datum</h2>
                 <button class="close-modal" onclick="closeDateModal()">✕</button>
