@@ -89,6 +89,23 @@ function standingMark(i){
   if(i<5)return {color:"#4ba5df",opacity:.78};
   return null;
 }
+function portraitUrl(p){
+  const id=Number(p&&p.sports_gamer_player_id), file=Number.isFinite(id)?id+".png":"";
+  const approved=Array.isArray(window.SEH_PLAYER_IMAGE_FILES)&&window.SEH_PLAYER_IMAGE_FILES.includes(file);
+  if(approved)return "https://www.svenskehockey.se/players/"+file;
+  return p&&p.player_image?String(p.player_image):"";
+}
+function portraitImage(url,x,y,w,h){
+  return url?'<image href="'+esc(url)+'" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" preserveAspectRatio="xMidYMid meet"/>':"";
+}
+function leaderboardGeometry(len){
+  const {w:W,h:H}=format(),m=Math.round(W*.052),top=S.format==="story"?380:S.format==="wide"?300:310,bottom=H-90,head=48;
+  const topH=S.format==="story"?130:S.format==="portrait"?108:S.format==="wide"?86:82;
+  const restH=S.format==="story"?90:S.format==="portrait"?72:S.format==="wide"?55:54;
+  const rowHeights=Array.from({length:len},(_,i)=>i<3?topH:restH);
+  const total=head+rowHeights.reduce((a,b)=>a+b,0);
+  return {W,H,m,top,bottom,head,width:W-m*2,rowHeights,total};
+}
 function tableSvg(){
   const r=standings(),g=geom(r.length||1),ls=logos(),size=Math.min(50,g.row-18);let o='<g filter="url(#shadow)"><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+(g.head+g.row*r.length)+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.head+'" fill="url(#gold)"/>';
   const labels=[["#",.03],["LAG",.09],["GP",.67],["W",.76],["L",.84],["GD",.91],["PTS",.975]];
@@ -131,23 +148,69 @@ function groupsSvg(){
   return base(o);
 }
 function board(kind){
-  const metric=kind==="goals"?"g":kind==="assists"?"a":"p",r=skaters(metric),g=geom(r.length||1),ls=logos(),size=Math.min(46,g.row-18),main=kind==="goals"?"G":kind==="assists"?"A":"P";let o='<g filter="url(#shadow)"><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+(g.head+g.row*r.length)+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.head+'" fill="url(#gold)"/>';
+  const metric=kind==="goals"?"g":kind==="assists"?"a":"p",r=skaters(metric),g=leaderboardGeometry(r.length||1),ls=logos(),main=kind==="goals"?"G":kind==="assists"?"A":"P";
+  let o='<g filter="url(#shadow)"><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.total+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.head+'" fill="url(#gold)"/>';
   [["#",.03],["SPELARE",.09],["GP",.72],["G",.81],["A",.89],["P",.97]].forEach(([t,p])=>o+='<text x="'+(g.m+g.width*p)+'" y="'+(g.top+31)+'" text-anchor="'+(t==="SPELARE"?"start":"middle")+'" fill="#07121c" font-family="Arial" font-size="12" font-weight="950">'+t+'</text>');
-  r.forEach((x,i)=>{const y=g.top+g.head+i*g.row,cy=y+g.row/2,logo=ls.get(String(x.sports_gamer_team_id))||"",tx=g.m+(S.logos?126:70);o+='<rect x="'+g.m+'" y="'+y+'" width="'+g.width+'" height="'+g.row+'" fill="'+(i%2?"#061722":"#04121c")+'"/>'+(i<3?'<rect x="'+g.m+'" y="'+y+'" width="5" height="'+g.row+'" fill="#ffbd00" fill-opacity="'+(i===0?1:.55)+'"/>':'')+'<text x="'+(g.m+27)+'" y="'+(cy+7)+'" fill="'+(i===0?"#ffbd00":"#eef3f6")+'" font-family="Arial" font-size="'+(i===0?24:20)+'" font-weight="950">'+(i+1)+'</text>'+img(logo,g.m+64,cy-size/2,size)+'<text x="'+tx+'" y="'+(cy-3)+'" fill="#fff" font-family="Arial" font-size="19" font-weight="900">'+esc(clip(x.display_gamertag,23))+'</text><text x="'+tx+'" y="'+(cy+18)+'" fill="#8299aa" font-family="Arial" font-size="11" font-weight="700">'+esc(clip(x.team_name_in_league,27))+'</text>';
+  let y=g.top+g.head;
+  r.forEach((x,i)=>{
+    const rh=g.rowHeights[i],cy=y+rh/2,logo=ls.get(String(x.sports_gamer_team_id))||"",portrait=i<3?portraitUrl(x):"",hasPortrait=Boolean(portrait);
+    const portraitW=Math.min(S.format==="story"?82:S.format==="portrait"?72:60,rh-12),portraitH=Math.min(rh-6,portraitW*1.28);
+    const visualX=g.m+64,visualY=cy-portraitH/2;
+    const tx=g.m+(hasPortrait?visualX-g.m+portraitW+24:(S.logos?126:70));
+    o+='<rect x="'+g.m+'" y="'+y+'" width="'+g.width+'" height="'+rh+'" fill="'+(i%2?"#061722":"#04121c")+'"/>'+(i<3?'<rect x="'+g.m+'" y="'+y+'" width="5" height="'+rh+'" fill="#ffbd00" fill-opacity="'+(i===0?1:.68)+'"/>':'')+
+      '<text x="'+(g.m+27)+'" y="'+(cy+7)+'" fill="'+(i===0?"#ffbd00":"#eef3f6")+'" font-family="Arial" font-size="'+(i===0?24:20)+'" font-weight="950">'+(i+1)+'</text>';
+    if(hasPortrait){
+      o+='<rect x="'+(visualX-5)+'" y="'+(visualY+4)+'" width="'+(portraitW+10)+'" height="'+(portraitH-4)+'" rx="7" fill="#071722" stroke="#ffbd00" stroke-opacity="'+(i===0?".62":".34")+'"/>'+
+         portraitImage(portrait,visualX,visualY,portraitW,portraitH);
+    }else{
+      const size=Math.min(46,rh-18);
+      o+=img(logo,g.m+64,cy-size/2,size);
+    }
+    o+='<text x="'+tx+'" y="'+(cy-5)+'" fill="#fff" font-family="Arial" font-size="'+(i<3?21:19)+'" font-weight="900">'+esc(clip(x.display_gamertag,S.format==="wide"?28:23))+'</text>'+
+       '<text x="'+tx+'" y="'+(cy+18)+'" fill="#8299aa" font-family="Arial" font-size="11" font-weight="700">'+esc(clip(x.team_name_in_league,27))+'</text>';
+    if(hasPortrait&&S.logos&&logo)o+=img(logo,tx-2,cy+23,22);
     [[x.gp,.72,"GP"],[x.g,.81,"G"],[x.a,.89,"A"],[x.p,.97,"P"]].forEach(([v,p,l])=>o+='<text x="'+(g.m+g.width*p)+'" y="'+(cy+7)+'" text-anchor="middle" fill="'+(l===main?"#ffbd00":"#e3e9ed")+'" font-family="Arial" font-size="'+(l===main?25:19)+'" font-weight="'+(l===main?950:750)+'">'+v+'</text>');
-  });return base(o+"</g>");
+    y+=rh;
+  });
+  return base(o+"</g>");
 }
 function goalieSvg(){
-  const r=goalies(),g=geom(r.length||1),ls=logos(),size=Math.min(46,g.row-18);let o='<g filter="url(#shadow)"><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+(g.head+g.row*r.length)+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.head+'" fill="url(#gold)"/>';
+  const r=goalies(),g=leaderboardGeometry(r.length||1),ls=logos();
+  let o='<g filter="url(#shadow)"><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.total+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.head+'" fill="url(#gold)"/>';
   [["#",.03],["MÅLVAKT",.09],["GP",.72],["SV%",.82],["GAA",.91],["SO",.975]].forEach(([t,p])=>o+='<text x="'+(g.m+g.width*p)+'" y="'+(g.top+31)+'" text-anchor="'+(t==="MÅLVAKT"?"start":"middle")+'" fill="#07121c" font-family="Arial" font-size="12" font-weight="950">'+t+'</text>');
-  r.forEach((x,i)=>{const y=g.top+g.head+i*g.row,cy=y+g.row/2,logo=ls.get(String(x.sports_gamer_team_id))||"",tx=g.m+(S.logos?126:70),sv=(x.sv*(x.sv<=1?100:1)).toFixed(1).replace(".",",");
-    o+='<rect x="'+g.m+'" y="'+y+'" width="'+g.width+'" height="'+g.row+'" fill="'+(i%2?"#061722":"#04121c")+'"/>'+(i<3?'<rect x="'+g.m+'" y="'+y+'" width="5" height="'+g.row+'" fill="#ffbd00" fill-opacity="'+(i===0?1:.55)+'"/>':'')+'<text x="'+(g.m+27)+'" y="'+(cy+7)+'" fill="'+(i===0?"#ffbd00":"#eef3f6")+'" font-family="Arial" font-size="'+(i===0?24:20)+'" font-weight="950">'+(i+1)+'</text>'+img(logo,g.m+64,cy-size/2,size)+'<text x="'+tx+'" y="'+(cy-3)+'" fill="#fff" font-family="Arial" font-size="19" font-weight="900">'+esc(clip(x.display_gamertag,23))+'</text><text x="'+tx+'" y="'+(cy+18)+'" fill="#8299aa" font-family="Arial" font-size="11" font-weight="700">'+esc(clip(x.team_name_in_league,27))+'</text>';
+  let y=g.top+g.head;
+  r.forEach((x,i)=>{
+    const rh=g.rowHeights[i],cy=y+rh/2,logo=ls.get(String(x.sports_gamer_team_id))||"",portrait=i<3?portraitUrl(x):"",hasPortrait=Boolean(portrait),sv=(x.sv*(x.sv<=1?100:1)).toFixed(1).replace(".",",");
+    const portraitW=Math.min(S.format==="story"?82:S.format==="portrait"?72:60,rh-12),portraitH=Math.min(rh-6,portraitW*1.28),visualX=g.m+64,visualY=cy-portraitH/2;
+    const tx=g.m+(hasPortrait?visualX-g.m+portraitW+24:(S.logos?126:70));
+    o+='<rect x="'+g.m+'" y="'+y+'" width="'+g.width+'" height="'+rh+'" fill="'+(i%2?"#061722":"#04121c")+'"/>'+(i<3?'<rect x="'+g.m+'" y="'+y+'" width="5" height="'+rh+'" fill="#ffbd00" fill-opacity="'+(i===0?1:.68)+'"/>':'')+
+      '<text x="'+(g.m+27)+'" y="'+(cy+7)+'" fill="'+(i===0?"#ffbd00":"#eef3f6")+'" font-family="Arial" font-size="'+(i===0?24:20)+'" font-weight="950">'+(i+1)+'</text>';
+    if(hasPortrait){
+      o+='<rect x="'+(visualX-5)+'" y="'+(visualY+4)+'" width="'+(portraitW+10)+'" height="'+(portraitH-4)+'" rx="7" fill="#071722" stroke="#ffbd00" stroke-opacity="'+(i===0?".62":".34")+'"/>'+
+         portraitImage(portrait,visualX,visualY,portraitW,portraitH);
+    }else{
+      const size=Math.min(46,rh-18);
+      o+=img(logo,g.m+64,cy-size/2,size);
+    }
+    o+='<text x="'+tx+'" y="'+(cy-5)+'" fill="#fff" font-family="Arial" font-size="'+(i<3?21:19)+'" font-weight="900">'+esc(clip(x.display_gamertag,S.format==="wide"?28:23))+'</text>'+
+       '<text x="'+tx+'" y="'+(cy+18)+'" fill="#8299aa" font-family="Arial" font-size="11" font-weight="700">'+esc(clip(x.team_name_in_league,27))+'</text>';
+    if(hasPortrait&&S.logos&&logo)o+=img(logo,tx-2,cy+23,22);
     [[x.gp,.72,false],[sv,.82,true],[x.gaa==null?"–":x.gaa.toFixed(2).replace(".",","),.91,false],[x.so,.975,false]].forEach(([v,p,hi])=>o+='<text x="'+(g.m+g.width*p)+'" y="'+(cy+7)+'" text-anchor="middle" fill="'+(hi?"#ffbd00":"#e3e9ed")+'" font-family="Arial" font-size="'+(hi?24:18)+'" font-weight="'+(hi?950:750)+'">'+v+'</text>');
-  });return base(o+"</g>");
+    y+=rh;
+  });
+  return base(o+"</g>");
 }
 function mini(x,y,w,h,label,metric,data,lm){
-  const hh=52,rh=(h-hh)/3;let o='<g filter="url(#shadow)"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+hh+'" fill="url(#gold)"/><text x="'+(x+18)+'" y="'+(y+34)+'" fill="#07121c" font-family="Arial" font-size="15" font-weight="950" letter-spacing="1.5">'+label+'</text>';
-  data.slice(0,3).forEach((p,i)=>{const yy=y+hh+i*rh,cy=yy+rh/2,logo=lm.get(String(p.sports_gamer_team_id))||"";o+='<rect x="'+x+'" y="'+yy+'" width="'+w+'" height="'+rh+'" fill="'+(i%2?"#061722":"#04121c")+'"/><text x="'+(x+16)+'" y="'+(cy+6)+'" fill="'+(i===0?"#ffbd00":"#e7edf1")+'" font-family="Arial" font-size="18" font-weight="950">'+(i+1)+'</text>'+img(logo,x+43,cy-19,38)+'<text x="'+(x+(S.logos?90:44))+'" y="'+(cy+5)+'" fill="#fff" font-family="Arial" font-size="15" font-weight="900">'+esc(clip(p.display_gamertag,17))+'</text><text x="'+(x+w-20)+'" y="'+(cy+8)+'" text-anchor="end" fill="#ffbd00" font-family="Arial" font-size="25" font-weight="950">'+p[metric]+'</text>'});return o+"</g>";
+  const hh=52,rh=(h-hh)/3;
+  let o='<g filter="url(#shadow)"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+hh+'" fill="url(#gold)"/><text x="'+(x+18)+'" y="'+(y+34)+'" fill="#07121c" font-family="Arial" font-size="15" font-weight="950" letter-spacing="1.5">'+label+'</text>';
+  data.slice(0,3).forEach((p,i)=>{
+    const yy=y+hh+i*rh,cy=yy+rh/2,logo=lm.get(String(p.sports_gamer_team_id))||"",portrait=portraitUrl(p),pw=Math.min(42,rh-8),ph=Math.min(rh-4,pw*1.25),vx=x+43;
+    o+='<rect x="'+x+'" y="'+yy+'" width="'+w+'" height="'+rh+'" fill="'+(i%2?"#061722":"#04121c")+'"/><text x="'+(x+16)+'" y="'+(cy+6)+'" fill="'+(i===0?"#ffbd00":"#e7edf1")+'" font-family="Arial" font-size="18" font-weight="950">'+(i+1)+'</text>';
+    if(portrait)o+=portraitImage(portrait,vx,cy-ph/2,pw,ph);
+    else o+=img(logo,vx,cy-19,38);
+    o+='<text x="'+(x+(S.logos?96:50))+'" y="'+(cy+5)+'" fill="#fff" font-family="Arial" font-size="15" font-weight="900">'+esc(clip(p.display_gamertag,17))+'</text><text x="'+(x+w-20)+'" y="'+(cy+8)+'" text-anchor="end" fill="#ffbd00" font-family="Arial" font-size="25" font-weight="950">'+p[metric]+'</text>';
+  });
+  return o+"</g>";
 }
 function leadersSvg(){
   const {w:W,h:H}=format(),m=Math.round(W*.052),top=S.format==="story"?380:315,bottom=H-95,lm=logos(),a=skaters("g"),b=skaters("a"),c=skaters("p");let o="";
