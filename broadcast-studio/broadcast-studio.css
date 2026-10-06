@@ -2734,11 +2734,15 @@ body[data-background="gamenight"] .background-package-layer{
 
 
 /* v146: standings vertical rhythm + fixed visual group order. */
-/* Single-group table: lift the whole composition slightly. */
-.table:not(.table-dual-mode){
-  padding-top:104px!important;
+.table{padding-top:118px!important}
+
+/* v147: use explicit visual offsets. Padding on the scene was too easy to neutralize
+   in the existing scene layout, so move the actual title/table blocks instead. */
+.table:not(.table-dual-mode) .scene-title,
+.table:not(.table-dual-mode) .broadcast-table{
+  transform:translateY(-22px)!important;
 }
-/* Two-group table: give the title/panels a little more breathing room from the header. */
-.table.table-dual-mode{
-  padding-top:132px!important;
+.table.table-dual-mode .scene-title,
+.table.table-dual-mode .broadcast-table{
+  transform:translateY(24px)!important;
 }

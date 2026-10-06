@@ -260,7 +260,7 @@
     if(splitGroups){
       // Keep group order stable on-air: Group 1 is always left, Group 2 right,
       // regardless of which selected team happens to be home or away.
-      const orderedGroups=[homeGroup,awayGroup].sort((a,b)=>groupIds.indexOf(a)-groupIds.indexOf(b));
+      const orderedGroups=groupIds.filter(id=>id===homeGroup||id===awayGroup);
       const leftGroup=orderedGroups[0], rightGroup=orderedGroups[1];
       const leftRows=regular.filter(r=>groupId(r)===leftGroup);
       const rightRows=regular.filter(r=>groupId(r)===rightGroup);
