@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#071019">
+<title>Graphics Studio · SWNWORKS</title>
+<link rel="icon" href="../assets/swnworks-logo.svg" type="image/svg+xml">
+<style>
+:root{--bg:#060c12;--panel:#0a141d;--line:#263a49;--muted:#7790a3;--text:#f5f8fa;--gold:#ffbd00}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font:14px/1.4 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}
+.top{height:66px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #20313f;background:#081119;position:sticky;top:0;z-index:10}
+.brand{display:flex;align-items:center;gap:11px;color:#fff;text-decoration:none}.brand img{width:42px;height:42px}.brand span{display:flex;flex-direction:column;line-height:1}.brand strong{font-size:16px;letter-spacing:.08em}.brand small{margin-top:5px;color:#7b96ad;font-size:9px;font-weight:900;letter-spacing:.13em}
+.live{font-size:10px;font-weight:900;letter-spacing:.13em;color:#b0c2cf}.live:before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:#55d58e;box-shadow:0 0 12px #55d58e88}
+.layout{display:grid;grid-template-columns:minmax(340px,430px) minmax(0,1fr);min-height:calc(100vh - 66px)}
+.controls{padding:22px;border-right:1px solid #213440;background:linear-gradient(180deg,#09131c,#071019);overflow:auto}.hero{padding-bottom:19px;border-bottom:1px solid #233642}.eyebrow{color:var(--gold);font-size:10px;font-weight:950;letter-spacing:.18em}.hero h1{margin:5px 0 4px;font-size:28px;letter-spacing:-.035em}.hero p{margin:0;color:#8199aa;font-size:12px}
+.block{padding:19px 0;border-bottom:1px solid #233642}.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.head b{font-size:10px;letter-spacing:.15em}.head span{color:#688398;font-size:9px;font-weight:800}
+.kinds{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kind{min-height:60px;padding:10px;text-align:left;border:1px solid #293e4d;border-radius:9px;background:#0b151e;color:#eaf0f4;cursor:pointer}.kind b,.kind small{display:block}.kind small{margin-top:3px;color:#70889a;font-size:9px}.kind.active{border-color:#b98b10;background:linear-gradient(145deg,#33260066,#0c171f);box-shadow:0 0 0 2px #ffbd0012}.kind.active small{color:#c7a95d}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid .full{grid-column:1/-1}label>span{display:block;margin-bottom:5px;color:#91a6b7;font-size:8px;font-weight:900;letter-spacing:.12em}select,input{width:100%;height:39px;border:1px solid #2c4050;border-radius:8px;background:#0b151e;color:#f3f7fa;padding:0 10px;outline:0}select:focus,input:focus{border-color:#9c7b17;box-shadow:0 0 0 2px #ffbd0012}
+.refresh{width:100%;height:36px;margin-top:10px;border:1px solid #2e485a;border-radius:8px;background:#0b1822;color:#a4bdce;font-size:10px;font-weight:850;cursor:pointer}.toggle{margin-top:11px;padding:9px 10px;display:flex;justify-content:space-between;align-items:center;border:1px solid #293e4d;border-radius:9px;background:#0b151e}.toggle b,.toggle small{display:block}.toggle b{font-size:11px}.toggle small{margin-top:2px;color:#70899a;font-size:9px}.toggle input{width:18px;height:18px;accent-color:var(--gold)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:17px}.actions button{height:42px;border:0;border-radius:9px;background:var(--gold);color:#071019;font-weight:950;cursor:pointer}.actions .secondary{background:#162631;color:#eef4f7;border:1px solid #30495a}.note{margin:11px 2px 0;color:#637f93;font-size:9px;line-height:1.5}
+.preview{min-width:0;padding:22px;background:radial-gradient(circle at 60% 12%,#102838 0,#08131c 38%,#050b10 76%)}.toolbar{max-width:1500px;margin:0 auto 12px;display:flex;align-items:flex-end;justify-content:space-between}.toolbar div:first-child{display:flex;flex-direction:column}.toolbar span{color:#6689a5;font-size:9px;font-weight:900;letter-spacing:.14em}.toolbar strong{margin-top:2px;font-size:12px}.badges{display:flex;gap:7px}.badges span{padding:5px 8px;border:1px solid #294354;border-radius:6px;background:#08151e;color:#8aa6ba}
+.stage{height:calc(100vh - 150px);min-height:560px;max-width:1500px;margin:0 auto;display:grid;place-items:center;border:1px solid #203847;border-radius:14px;overflow:hidden;position:relative;background-color:#02070b;background-image:linear-gradient(45deg,#ffffff07 25%,transparent 25%),linear-gradient(-45deg,#ffffff07 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ffffff07 75%),linear-gradient(-45deg,transparent 75%,#ffffff07 75%);background-size:28px 28px;background-position:0 0,0 14px,14px -14px,-14px 0}
+#preview{display:grid;place-items:center;max-width:96%;max-height:96%;filter:drop-shadow(0 18px 28px #000a)}#preview svg{display:block;max-width:100%;max-height:calc(100vh - 180px);width:auto;height:auto}.hint{max-width:1500px;margin:8px auto 0;color:#557286;text-align:center;font-size:9px}
+[hidden]{display:none!important}
+@media(max-width:980px){.layout{grid-template-columns:1fr}.controls{border-right:0;border-bottom:1px solid #213440}.preview{padding:16px}.stage{height:auto;min-height:520px;padding:18px}#preview svg{max-height:760px}}
+@media(max-width:560px){.top{padding:0 14px}.live{display:none}.controls{padding:18px 14px}.grid{grid-template-columns:1fr}.grid .full{grid-column:auto}.preview{padding:14px}.badges{display:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="../"><img src="../assets/swnworks-logo.svg" alt=""><span><strong>SWNWORKS</strong><small>GRAPHICS STUDIO · ADMIN</small></span></a>
+  <div class="live" id="topStatus">LIVE DATA</div>
+</header>
+<main class="layout">
+  <aside class="controls">
+    <div class="hero"><span class="eyebrow">CONTENT DESK</span><h1>Social Graphics</h1><p>Broadcast Studio-data möter bildgeneratorn. Välj innehåll och exportera färdig grafik.</p></div>
+
+    <section class="block">
+      <div class="head"><b>INNEHÅLL</b><span>6 MALLAR</span></div>
+      <div class="kinds">
+        <button class="kind active" data-kind="table"><b>Tabell</b><small>Aktuell grupp</small></button>
+        <button class="kind" data-kind="goals"><b>Skytteliga</b><small>Flest mål</small></button>
+        <button class="kind" data-kind="points"><b>Poängliga</b><small>Flest poäng</small></button>
+        <button class="kind" data-kind="assists"><b>Assistliga</b><small>Flest assist</small></button>
+        <button class="kind" data-kind="goalies"><b>Målvaktsliga</b><small>SV% · GAA</small></button>
+        <button class="kind" data-kind="leaders"><b>Ligatoppar</b><small>Mål · assist · poäng</small></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="head"><b>DATA</b><span id="dataStatus">HÄMTAR…</span></div>
+      <div class="grid">
+        <label><span>TURNERING</span><select id="league"><option value="527" selected>SCL 27</option><option value="529">FCL 27</option><option value="523">WECL</option><option value="524">GCL 13 · Div I</option><option value="525">GCL 13 · Div II</option><option value="526">GCL 13 · Pokal</option><option value="520">SEC 21</option></select></label>
+        <label id="stageField"><span>PERIOD</span><select id="stage"><option value="regular">Gruppspel</option><option value="playoffs">Slutspel</option><option value="total">Totalt</option></select></label>
+        <label id="groupField"><span>GRUPP</span><select id="group"><option>Hämtar…</option></select></label>
+        <label id="countField"><span>ANTAL</span><select id="count"><option value="5">Top 5</option><option value="8" selected>Top 8</option><option value="10">Top 10</option></select></label>
+      </div>
+      <button class="refresh" id="refresh">↻ Uppdatera live-data</button>
+    </section>
+
+    <section class="block">
+      <div class="head"><b>DESIGN</b><span>SOCIAL + BROADCAST</span></div>
+      <div class="grid">
+        <label><span>FORMAT</span><select id="format"><option value="portrait">Instagram 4:5 · 1080×1350</option><option value="square">Kvadrat · 1080×1080</option><option value="story">Story · 1080×1920</option><option value="wide">16:9 · 1920×1080</option></select></label>
+        <label><span>BAKGRUND</span><select id="bg"><option value="gamenight">Game Night</option><option value="blue">Studio Blue</option><option value="ice">Ice</option><option value="smoke">Smoke</option></select></label>
+        <label class="full"><span>EGEN RUBRIK · VALFRITT</span><input id="title" placeholder="Automatisk rubrik" maxlength="34"></label>
+        <label class="full"><span>UNDERRUBRIK · VALFRITT</span><input id="subtitle" placeholder="Automatisk underrubrik" maxlength="64"></label>
+      </div>
+      <label class="toggle"><span><b>Visa lagloggor</b><small>Tabell och topplistor</small></span><input id="logos" type="checkbox" checked></label>
+    </section>
+
+    <div class="actions"><button id="png">Ladda ner PNG</button><button id="svg" class="secondary">SVG · Redigerbar</button></div>
+    <p class="note">Läser samma publika turneringsdata som Broadcast Studio. Ingen statistik skrivs tillbaka, för vi behöver inte låta en bildgenerator få storhetsvansinne.</p>
+  </aside>
+
+  <section class="preview">
+    <div class="toolbar"><div><span>PROGRAM PREVIEW</span><strong id="sizeLabel">1080 × 1350</strong></div><div class="badges"><span id="kindLabel">TABELL</span><span>PNG / SVG</span></div></div>
+    <div class="stage"><div id="preview"></div></div>
+    <div class="hint">Förhandsvisningen skalar. Exporten använder alltid full upplösning.</div>
+  </section>
+</main>
+<script src="../broadcast-studio/broadcast-config.js?v=2"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>
