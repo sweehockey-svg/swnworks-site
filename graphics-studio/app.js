@@ -190,6 +190,78 @@ function leaderboardCard(p,rank,kind,x,y,w,h,logo,maxes){
   cfg.bars.forEach((b,i)=>{o+=statBar(tx,barsY+i*(big?27:24),barW,b.label,b.value,b.ratio)});
   return o+'</g>';
 }
+function leaderboardWideCard(p,rank,kind,x,y,w,h,logo,maxes){
+  const portrait=portraitUrl(p), cfg=skaterCardConfig(kind,p,maxes);
+  const rankColor=rank===1?"#ffbd00":rank===2?"#d7dee7":"#b77d39";
+  const pad=20, portraitW=170, portraitH=238, px=x+pad, py=y+92;
+  const tx=px+portraitW+22, right=x+w-pad, logoSize=58;
+  const statLabelY=y+116, statValueY=y+164, miniY=y+220;
+  const barsX=x+pad, barsW=w-pad*2, barsY=y+h-92;
+
+  const values=kind==="goals"
+    ? [{l:"GP",v:p.gp},{l:"A",v:p.a},{l:"P",v:p.p}]
+    : kind==="assists"
+      ? [{l:"GP",v:p.gp},{l:"G",v:p.g},{l:"P",v:p.p}]
+      : [{l:"GP",v:p.gp},{l:"G",v:p.g},{l:"A",v:p.a}];
+
+  let o='<g filter="url(#shadow)">'+
+    '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="18" fill="#081827" stroke="#35516a" stroke-width="1.4"/>'+
+    '<rect x="'+x+'" y="'+y+'" width="7" height="'+h+'" rx="3.5" fill="'+rankColor+'"/>'+
+    '<text x="'+(x+20)+'" y="'+(y+31)+'" fill="'+rankColor+'" font-family="Arial" font-size="15" font-weight="1000">#'+rank+'</text>'+
+    '<text x="'+(x+20)+'" y="'+(y+61)+'" fill="#fff" font-family="Arial" font-size="28" font-weight="1000">'+esc(clip(p.display_gamertag,22))+'</text>'+
+    '<text x="'+(x+20)+'" y="'+(y+80)+'" fill="#92a8b8" font-family="Arial" font-size="11" font-weight="850">'+esc(clip(p.team_name_in_league||"",26))+'</text>'+
+    '<rect x="'+px+'" y="'+py+'" width="'+portraitW+'" height="'+portraitH+'" rx="14" fill="#0b1722" stroke="'+rankColor+'" stroke-width="2" stroke-opacity=".80"/>';
+  if(portrait)o+=portraitImage(portrait,px+5,py+5,portraitW-10,portraitH-10);
+  else o+=silhouetteSvg(px+6,py+6,portraitW-12,portraitH-12);
+  if(logo)o+=img(logo,right-logoSize,y+20,logoSize);
+
+  o+='<text x="'+tx+'" y="'+statLabelY+'" fill="#9fb3c1" font-family="Arial" font-size="13" font-weight="950">'+esc(cfg.primaryLabel)+'</text>'+
+    '<text x="'+tx+'" y="'+statValueY+'" fill="#ffbd00" font-family="Arial Black,Arial" font-size="50" font-weight="1000">'+esc(cfg.primaryValue)+'</text>';
+
+  values.forEach((s,i)=>{
+    const sx=tx+(i%2)*100, sy=miniY+Math.floor(i/2)*72;
+    o+='<text x="'+sx+'" y="'+sy+'" fill="#9fb3c1" font-family="Arial" font-size="12" font-weight="950">'+s.l+'</text>'+
+      '<text x="'+sx+'" y="'+(sy+31)+'" fill="#f5f7f9" font-family="Arial Black,Arial" font-size="26" font-weight="1000">'+s.v+'</text>';
+  });
+
+  cfg.bars.forEach((b,i)=>{o+=statBar(barsX,barsY+i*24,barsW,b.label,b.value,b.ratio)});
+  return o+'</g>';
+}
+
+function goalieWideCard(p,rank,x,y,w,h,logo,maxes){
+  const portrait=portraitUrl(p), cfg=goalieCardConfig(p,maxes);
+  const rankColor=rank===1?"#ffbd00":rank===2?"#d7dee7":"#b77d39";
+  const pad=20, portraitW=170, portraitH=238, px=x+pad, py=y+92;
+  const tx=px+portraitW+22, right=x+w-pad, logoSize=58;
+  const statLabelY=y+116, statValueY=y+164, miniY=y+220;
+  const barsX=x+pad, barsW=w-pad*2, barsY=y+h-92;
+  const sv=(p.sv*(p.sv<=1?100:1)), gaa=p.gaa==null?"–":fmtDec(p.gaa);
+  const values=[{l:"GP",v:p.gp},{l:"GAA",v:gaa},{l:"SO",v:p.so}];
+
+  let o='<g filter="url(#shadow)">'+
+    '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="18" fill="#081827" stroke="#35516a" stroke-width="1.4"/>'+
+    '<rect x="'+x+'" y="'+y+'" width="7" height="'+h+'" rx="3.5" fill="'+rankColor+'"/>'+
+    '<text x="'+(x+20)+'" y="'+(y+31)+'" fill="'+rankColor+'" font-family="Arial" font-size="15" font-weight="1000">#'+rank+'</text>'+
+    '<text x="'+(x+20)+'" y="'+(y+61)+'" fill="#fff" font-family="Arial" font-size="28" font-weight="1000">'+esc(clip(p.display_gamertag,22))+'</text>'+
+    '<text x="'+(x+20)+'" y="'+(y+80)+'" fill="#92a8b8" font-family="Arial" font-size="11" font-weight="850">'+esc(clip(p.team_name_in_league||"",26))+'</text>'+
+    '<rect x="'+px+'" y="'+py+'" width="'+portraitW+'" height="'+portraitH+'" rx="14" fill="#0b1722" stroke="'+rankColor+'" stroke-width="2" stroke-opacity=".80"/>';
+  if(portrait)o+=portraitImage(portrait,px+5,py+5,portraitW-10,portraitH-10);
+  else o+=silhouetteSvg(px+6,py+6,portraitW-12,portraitH-12);
+  if(logo)o+=img(logo,right-logoSize,y+20,logoSize);
+
+  o+='<text x="'+tx+'" y="'+statLabelY+'" fill="#9fb3c1" font-family="Arial" font-size="13" font-weight="950">SV%</text>'+
+    '<text x="'+tx+'" y="'+statValueY+'" fill="#ffbd00" font-family="Arial Black,Arial" font-size="46" font-weight="1000">'+fmtDec(sv,1)+'</text>';
+
+  values.forEach((s,i)=>{
+    const sx=tx+(i%2)*100, sy=miniY+Math.floor(i/2)*72;
+    o+='<text x="'+sx+'" y="'+sy+'" fill="#9fb3c1" font-family="Arial" font-size="12" font-weight="950">'+s.l+'</text>'+
+      '<text x="'+sx+'" y="'+(sy+31)+'" fill="#f5f7f9" font-family="Arial Black,Arial" font-size="24" font-weight="1000">'+s.v+'</text>';
+  });
+
+  cfg.bars.forEach((b,i)=>{o+=statBar(barsX,barsY+i*24,barsW,b.label,b.value,b.ratio)});
+  return o+'</g>';
+}
+
 function compactLeaderboard(rows,kind,x,y,w,rowH,offset=4){
   if(!rows.length)return "";
   const main=kind==="goals"?"G":kind==="assists"?"A":"P";
@@ -331,8 +403,8 @@ function board(kind){
   };
   let o="";
   if(S.format==="wide"){
-    const gap=24, cardW=(W-m*2-gap*2)/3, cardH=420;
-    rows.forEach((p,i)=>{o+=leaderboardCard(p,i+1,kind,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
+    const gap=24, cardW=(W-m*2-gap*2)/3, cardH=540;
+    rows.forEach((p,i)=>{o+=leaderboardWideCard(p,i+1,kind,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
   }else{
     const gap=S.format==="story"?26:18, cardW=W-m*2;
     const cardH=S.format==="story"?390:S.format==="square"?225:298;
@@ -348,8 +420,8 @@ function goalieSvg(){
   const maxes={sv:Math.max(1,...svs),gp:Math.max(1,...rows.map(p=>p.gp)),maxGaa:Math.max(1,...gaas)};
   let o="";
   if(S.format==="wide"){
-    const gap=24, cardW=(W-m*2-gap*2)/3, cardH=420;
-    rows.forEach((p,i)=>{o+=goalieCard(p,i+1,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
+    const gap=24, cardW=(W-m*2-gap*2)/3, cardH=540;
+    rows.forEach((p,i)=>{o+=goalieWideCard(p,i+1,m+i*(cardW+gap),top,cardW,cardH,lm.get(String(p.sports_gamer_team_id))||"",maxes)});
   }else{
     const gap=S.format==="story"?26:18, cardW=W-m*2;
     const cardH=S.format==="story"?390:S.format==="square"?225:298;
