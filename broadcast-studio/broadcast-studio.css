@@ -2717,3 +2717,17 @@ body[data-background="gamenight"] .background-package-layer{
   background-size:cover!important;
   background-repeat:no-repeat!important;
 }
+
+
+/* v145: keep 8-team standings inside the broadcast safe area with breathing room at the bottom. */
+.table .broadcast-table:not(.bt-dense):not(.bt-xdense):not(.bt-dual) .bt-head,
+.table .broadcast-table:not(.bt-dense):not(.bt-xdense):not(.bt-dual) .bt-row{
+  min-height:46px;
+}
+.table .broadcast-table:not(.bt-dense):not(.bt-xdense):not(.bt-dual) .bt-head{
+  min-height:34px;
+}
+.table .broadcast-table:not(.bt-dense):not(.bt-xdense):not(.bt-dual) .bt-team img{
+  width:34px;
+  height:34px;
+}
