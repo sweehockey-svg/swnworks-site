@@ -1042,6 +1042,117 @@
       '</div><p id="noteTagStatus" role="status" aria-live="polite">Välj upp till 8 taggar. Egna taggar kan skrivas i fältet nedan.</p></fieldset>';
   }
 
+  function reportImportState() {
+    const owner=state.authUser?.id||"local";
+    if(!state.reportImport||state.reportImport.owner!==owner){
+      state.reportImport={owner,text:"",source:"",points:[],busy:false,error:"",gameId:null};
+    }
+    return state.reportImport;
+  }
+
+  function reportNoteBody(body,source,excerpt) {
+    return String(body||"").trim().slice(0,500)+"\n\nKälla: "+String(source||"Inklistrat referat").trim().slice(0,160)+
+      '\nReferatutdrag: "'+String(excerpt||"").trim().slice(0,400)+'"';
+  }
+
+  function reportImportHtml() {
+    const draft=reportImportState();
+    const available=Boolean(client&&state.authUser&&state.nextGame&&state.focusTeam&&canAccessTeam(state.focusTeam.id));
+    const sameGame=draft.gameId===state.nextGame?.id;
+    return '<details class="report-import" '+(draft.points.length||draft.busy||draft.error?'open':'')+'><summary>REFERAT → PRATPUNKTER</summary>'+
+      '<p>Klistra in ett referat. AI föreslår observationer och taggar. Granska förslagen innan du sparar dem i NOTES.</p>'+
+      '<form id="reportImportForm">'+
+        '<label><span>KÄLLA / REFERATETS NAMN</span><input id="reportSource" maxlength="160" placeholder="T.ex. klubbens referat, 8 oktober" value="'+esc(draft.source)+'"></label>'+
+        '<label><span>REFERAT</span><textarea id="reportText" rows="6" minlength="40" maxlength="12000" required placeholder="Klistra in referatet här…">'+esc(draft.text)+'</textarea></label>'+
+        '<button type="submit" class="primary" '+(!available||draft.busy?'disabled':'')+'>'+(draft.busy?'LÄSER REFERATET…':'FÖRESLÅ PRATPUNKTER')+'</button>'+
+        '<small>'+(available?'Förslagen sparas först när du väljer SPARA I NOTES.':'Logga in med godkänd behörighet och välj en match för att använda referat-AI.')+'</small>'+
+        '<div role="status">'+esc(draft.error)+'</div>'+
+      '</form>'+
+      (draft.points.length?'<div class="report-drafts"><p>Granska och ändra varje förslag. Underlaget är ett referat, inte officiell statistik.</p>'+
+        (!sameGame?'<p>Du har bytt match. Välj matchen som förslagen skapades för eller analysera referatet igen.</p>':'')+
+        draft.points.map((point,index)=>'<form class="report-draft" data-report-draft="'+index+'">'+
+          '<label><span>RUBRIK</span><input name="title" maxlength="120" value="'+esc(point.title)+'"></label>'+
+          '<label><span>PRATPUNKT</span><textarea name="body" rows="3" maxlength="500" required>'+esc(point.body)+'</textarea></label>'+
+          '<label><span>TAGGAR</span><input name="tags" maxlength="320" value="'+esc((point.tags||[]).join(", "))+'"></label>'+
+          '<label><span>KOPPLA TILL</span><select name="scope">'+noteScopeOptionsHtml(point.scope||"match|"+draft.gameId)+'</select></label>'+
+          '<blockquote><strong>Utdrag · '+esc(draft.resultSource||"Inklistrat referat")+'</strong><p>'+esc(point.source_excerpt)+'</p></blockquote>'+
+          '<div class="note-form-actions"><button type="button" data-report-discard="'+index+'">TA BORT FÖRSLAG</button>'+
+          '<button type="submit" class="primary" '+(!sameGame?'disabled':'')+'>SPARA I NOTES</button></div></form>').join("")+'</div>':'')+
+      '</details>';
+  }
+
+  function rerenderNotesWithDraft() {
+    const ids=["noteEditId","noteTitle","noteBody","noteTags","noteScope"];
+    const values=Object.fromEntries(ids.map((id)=>[id,document.getElementById(id)?.value||""]));
+    const pinned=document.getElementById("notePinned")?.checked;
+    renderDrawer("notes");
+    for(const id of ids) if(document.getElementById(id)) document.getElementById(id).value=values[id];
+    if(pinned!==undefined) document.getElementById("notePinned").checked=pinned;
+    document.getElementById("noteTags")?.dispatchEvent(new Event("input"));
+  }
+
+  function bindReportImport() {
+    const form=document.getElementById("reportImportForm");
+    if(!form) return;
+    const draft=reportImportState();
+    document.getElementById("reportText").addEventListener("input",(event)=>{draft.text=event.target.value;});
+    document.getElementById("reportSource").addEventListener("input",(event)=>{draft.source=event.target.value;});
+    form.addEventListener("submit",async(event)=>{
+      event.preventDefault();
+      if(draft.busy||!state.nextGame||!state.focusTeam||!canAccessTeam(state.focusTeam.id)) return;
+      const gameId=state.nextGame.id,teamId=state.focusTeam.id,owner=state.authUser?.id;
+      const text=draft.text.trim(),source=draft.source.trim();
+      if(text.length<40||text.length>12000) return;
+      draft.busy=true;draft.error="";
+      rerenderNotesWithDraft();
+      try{
+        const {data:{session}}=await client.auth.getSession();
+        if(!session?.access_token) throw new Error("Logga in igen för att analysera referatet.");
+        if(state.authUser?.id!==owner||state.nextGame?.id!==gameId||state.focusTeam?.id!==teamId) return;
+        const {data,error}=await client.functions.invoke("commentator-ai",{body:{
+          action:"extract_report",game_id:gameId,team_id:teamId,report:text,mode:aiMode()
+        }});
+        if(error||!data?.ok) throw new Error("Referatet kunde inte analyseras. Försök igen om en stund.");
+        if(state.authUser?.id!==owner||state.nextGame?.id!==gameId||state.focusTeam?.id!==teamId) return;
+        draft.points=(data.points||[]).slice(0,5);
+        draft.gameId=gameId;draft.resultSource=source;
+        draft.error=draft.points.length?"":"Inga förslag med ett styrkt referatutdrag hittades. Prova ett mer konkret referat.";
+      }catch(error){
+        draft.error=error.message||"Referatet kunde inte analyseras.";
+      }finally{
+        draft.busy=false;
+        if(state.reportImport===draft&&activeButton?.dataset.panel==="notes") rerenderNotesWithDraft();
+      }
+    });
+    drawerBody.querySelectorAll("[data-report-draft]").forEach((pointForm)=>{
+      const point=draft.points[Number(pointForm.dataset.reportDraft)];
+      pointForm.elements.scope.addEventListener("change",(event)=>{point.scope=event.target.value;});
+      for(const name of ["title","body","tags"]){
+        pointForm.elements[name].addEventListener("input",(event)=>{
+          point[name]=name==="tags"?parseNoteTags(event.target.value):event.target.value;
+        });
+      }
+      pointForm.addEventListener("submit",(event)=>{
+        event.preventDefault();
+        if(draft.owner!==(state.authUser?.id||"local")||draft.gameId!==state.nextGame?.id) return;
+        const body=pointForm.elements.body.value.trim();
+        if(!body) return;
+        const now=new Date().toISOString();
+        state.notes=[{
+          id:noteId(),...parseNoteScope(pointForm.elements.scope.value),
+          title:pointForm.elements.title.value.trim().slice(0,120),
+          body:reportNoteBody(body,draft.resultSource,point.source_excerpt),
+          tags:parseNoteTags(pointForm.elements.tags.value),pinned:true,is_active:true,created_at:now,updated_at:now
+        },...state.notes];
+        draft.points=draft.points.filter((item)=>item!==point);
+        saveNotes();renderFacts();rerenderNotesWithDraft();
+      });
+    });
+    drawerBody.querySelectorAll("[data-report-discard]").forEach((button)=>button.addEventListener("click",()=>{
+      draft.points.splice(Number(button.dataset.reportDiscard),1);rerenderNotesWithDraft();
+    }));
+  }
+
   function renderNotes() {
     const notes=currentEditorialNotes();
     const playerCount=state.seasonPlayerStats.filter((row)=>row.player_id).length;
@@ -1074,6 +1185,7 @@
         ? "Du är inloggad, men kontot måste godkännas innan NOTES får skrivas till Supabase."
         : "Anteckningar ligger bara i den här webbläsaren tills du loggar in med ett godkänt konto.";
     return '<article class="drawer-card notes-storage-info"><strong>'+esc(storageTitle)+'</strong><span>'+esc(storageText)+'</span></article>' +
+      reportImportHtml() +
       '<form class="note-form" id="noteForm">' +
         '<input type="hidden" id="noteEditId" value="">' +
         '<label><span>KOPPLA TILL</span><select id="noteScope">'+noteScopeOptionsHtml(state.nextGame?"match|"+state.nextGame.id:"general|")+'</select></label>' +
@@ -1089,6 +1201,7 @@
   }
 
   function bindNotesUi() {
+    bindReportImport();
     const form=document.getElementById("noteForm");
     if(!form) return;
     const tagsInput=document.getElementById("noteTags");
@@ -2112,6 +2225,7 @@
         score:scopeScore,
         tags:Array.isArray(note.tags)?note.tags:[],
         story:true,
+        noteId:note.id,
         editorial:true
       });
     }
@@ -2228,6 +2342,7 @@
         score:108,
         tags:Array.isArray(note.tags)?note.tags:[],
         story:false,
+        noteId:note.id,
         editorial:true
       }));
     const facts=[...buildInsightFacts(),...unpinnedEditorial]
@@ -2245,7 +2360,13 @@
         why_now:fact.editorial
           ? "Redaktionell anteckning för den aktuella matchkontexten."
           : "Hög relevans i den verifierade matchkontexten.",
-        source_refs:[fact.editorial?"editorial_notes":"verified_stats"]
+        source_refs:[fact.editorial?"editorial_notes":"verified_stats"],
+        sources:fact.editorial
+          ? currentEditorialNotes().filter((note)=>note.id===fact.noteId).map((note)=>({
+              label:"Egen anteckning · "+noteScopeLabel(note),category:"editorial_notes",
+              record:{title:note.title,body:note.body,tags:note.tags,updated_at:note.updated_at}
+            }))
+          : [{label:"Beräknad observation · "+fact.tag,category:"verified_stats",record:{observation:fact.title,detail:fact.text}}]
       })),
       caution:"Regelbaserad fallback. Ingen extern språkmodell har använts."
     };
@@ -2297,6 +2418,49 @@
     return {used:true,brief:data.brief,model:data.model||"gpt-6-luna"};
   }
 
+  function aiSourcesHtml(point) {
+    const labels={
+      game:"Matchöversikt",standings:"Tabell",form_last_5:"Senaste fem matcherna",h2h:"Inbördes möten",
+      special_teams:"Special teams",top_skaters:"Spelarstatistik",goalies:"Målvaktsstatistik",
+      current_match_stats:"Aktuell matchstatistik",current_events:"Matchhändelser",
+      editorial_notes:"Egna anteckningar",verified_stats:"Matchunderlag"
+    };
+    const fields={
+      title:"Rubrik",body:"Anteckning",tags:"Taggar",updated_at:"Uppdaterad",observation:"Observation",detail:"Underlag",
+      rank:"Placering",games_played:"Matcher",wins:"Vinster",ties:"Oavgjorda",losses:"Förluster",
+      goals_for:"Gjorda mål",goals_against:"Insläppta mål",goal_diff:"Målskillnad",points:"Poäng",
+      source_name:"Spelare",jersey_number:"Nummer",position:"Position",goals:"Mål",assists:"Assist",
+      shots:"Skott",saves:"Räddningar",save_pct:"Räddningsprocent",gaa:"Insläppta per match",shutouts:"Nollor",
+      pp_pct:"Powerplay %",pk_pct:"Boxplay %",pp_goals:"Powerplaymål",pp_opportunities:"Powerplaytillfällen",
+      pk_opportunities:"Boxplaytillfällen",pk_goals_against:"Insläppta i boxplay",pim:"Utvisningsminuter",
+      date:"Datum",scheduled_start:"Matchstart",opponent:"Motståndare",gf:"Gjorda mål",ga:"Insläppta mål",
+      home:"Hemma",away:"Borta",score:"Resultat",venue:"Arena",status:"Status",period:"Period",clock:"Klocka",
+      clock_display:"Klocka",event_type:"Händelse",description:"Beskrivning",strength:"Spelform",
+      home_score:"Hemmalagets mål",away_score:"Bortalagets mål",team:"Lag",pinned:"Pinnad",scope_type:"Koppling"
+    };
+    const valueText=(key,value)=>{
+      if(typeof value==="boolean") return value?"Ja":"Nej";
+      if(["date","updated_at","scheduled_start"].includes(key)&&!Number.isNaN(Date.parse(value))){
+        return new Date(value).toLocaleString("sv-SE",{dateStyle:"short",timeStyle:"short"});
+      }
+      if(key==="scope_type") return ({match:"Match",team:"Lag",player:"Spelare",general:"Allmänt"})[value]||value;
+      return Array.isArray(value)?value.join(", "):typeof value==="object"?JSON.stringify(value):String(value);
+    };
+    const evidence=(record)=>Object.entries(record||{}).filter(([key,value])=>
+      value!==null&&value!==undefined&&value!==""&&!/(^id$|_id$)/.test(key)
+    ).map(([key,value])=>'<div><dt>'+esc(fields[key]||key.replace(/_/g," "))+'</dt><dd>'+
+      esc(valueText(key,value))+'</dd></div>').join("");
+    const sources=Array.isArray(point.sources)?point.sources.slice(0,5):[];
+    if(sources.length){
+      return '<details class="ai-sources"><summary>VISA KÄLLA'+(sources.length>1?' · '+sources.length:'')+'</summary>'+
+        sources.map((source)=>'<section><strong>'+esc(source.label||labels[source.category]||"Underlag")+'</strong>'+
+          (source.category==="editorial_notes"?'<p>Redaktionell anteckning · kontrollera mot originalkällan.</p>':'')+
+          '<dl>'+evidence(source.record)+'</dl></section>').join("")+'</details>';
+    }
+    const refs=Array.isArray(point.source_refs)?point.source_refs:[];
+    return refs.length?'<small>Källkategori: '+esc(refs.map((ref)=>labels[ref]||ref).join(" · "))+'</small>':"";
+  }
+
   function aiBriefHtml(brief,source) {
     if(!brief?.talking_points?.length){
       return '<div class="notes-empty"><strong>Inga talking points ännu.</strong><span>Matchkontexten är för tunn.</span></div>';
@@ -2309,9 +2473,7 @@
           '<div><span>'+esc(point.label||"TALKING POINT")+'</span>' +
           '<strong>'+esc(point.text||"")+'</strong>' +
           '<p>'+esc(point.why_now||"")+'</p>' +
-          (Array.isArray(point.source_refs)&&point.source_refs.length
-            ? '<small>'+esc(point.source_refs.join(" · "))+'</small>'
-            : "")+
+          aiSourcesHtml(point)+
           '</div>' +
         '</article>'
       ).join("")+'</div>' +

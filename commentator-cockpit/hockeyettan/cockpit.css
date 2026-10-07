@@ -4867,3 +4867,26 @@ html[data-theme="light"] .note-tag-picker{border-color:#b8cbd5}
 html[data-theme="light"] .note-tag-picker legend,html[data-theme="light"] .note-tag-picker p{color:#415c6c}
 html[data-theme="light"] .note-tag-options button{background:#edf4f7;color:#274553;border-color:#aec3ce}
 html[data-theme="light"] .note-tag-options button[aria-pressed="true"]{background:var(--yellow);color:#07111a;border-color:#a47b14}
+/* Report drafts and source evidence */
+.report-import{margin:0 0 18px;border:1px solid var(--line, #c8cdd3);border-radius:12px;padding:14px}
+.report-import summary,.ai-sources summary{cursor:pointer;font-size:12px;font-weight:800;letter-spacing:.06em}
+.report-import>p,.report-drafts>p{font-size:13px;line-height:1.5;opacity:.8}
+.report-import form{display:grid;gap:12px}
+.report-import label{display:grid;gap:6px;min-width:0}
+.report-import label>span{font-size:10px;font-weight:800;letter-spacing:.08em}
+.report-import input,.report-import textarea,.report-import select{width:100%;box-sizing:border-box;min-width:0;border:1px solid var(--line);border-radius:6px;padding:10px;background:var(--panel);color:var(--text);font:inherit;font-size:12px}
+.report-import textarea{resize:vertical}
+.report-import button{border:1px solid #a4aab4;border-radius:6px;padding:10px;background:transparent;color:inherit;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+.report-import button.primary{background:var(--yellow);color:#17220a;border-color:var(--yellow)}
+.report-import button:disabled{opacity:.45;cursor:wait}
+.report-import small,.report-import [role="status"]{font-size:12px;line-height:1.5}
+.report-draft{margin-top:16px;padding-top:16px;border-top:1px solid #a4aab4}
+.report-draft blockquote{margin:0;padding:12px;border-left:3px solid var(--yellow);background:rgba(128,128,128,.08);font-size:12px;overflow-wrap:anywhere}
+.report-draft blockquote p{margin:6px 0 0;line-height:1.6}
+.ai-sources{margin-top:12px;border-top:1px solid #a4aab4;padding-top:10px}
+.ai-sources section{padding:12px 0;font-size:12px}
+.ai-sources section>strong{font-size:12px}
+.ai-sources dl{display:grid;gap:6px;margin-bottom:0}
+.ai-sources dl>div{display:grid;grid-template-columns:minmax(80px,30%) minmax(0,1fr);gap:8px}
+.ai-sources dt{opacity:.7}
+.ai-sources dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
