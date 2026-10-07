@@ -739,7 +739,7 @@
 "use strict";
 
 /*
-  NEXTGAME – MOBIL V5.6
+  NEXTGAME – MOBIL V5.7
 
   API:
   Den här versionen hämtar matcher direkt från ESPN:s öppna scoreboard-endpoints.
@@ -2467,7 +2467,7 @@ function renderTeamPage(name) {
     </div>`;
 
   if (loading && !seasonMatches) {
-    html += '<div class="empty">Laddar kommande 30 dagar…</div>';
+    html += '<div class="empty">Laddar nästa matcher…</div>';
   } else {
     html += renderSeasonSchedule(matches, team.name);
   }
