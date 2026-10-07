@@ -82,7 +82,7 @@ function gv(p,key){
   if(S.stage==="regular")return key==="gp"?rg:(p["regular_goalie_"+key]==null?null:Number(p["regular_goalie_"+key]));
   if(S.stage==="playoffs")return key==="gp"?pg:(p["playoff_goalie_"+key]==null?null:Number(p["playoff_goalie_"+key]));
   if(key==="gp")return rg+pg;if(key==="shutouts")return n(p.regular_goalie_shutouts)+n(p.playoff_goalie_shutouts);
-  const a=p["regular_goalie_"+key],b=p["playoff_goalie_"+key],d=rg+pg;return d?((a==null?0:Number(a))*rg+(b==null?0:Number(b))*pg)/d:null;
+  const a=p["regular_goalie_"+key],b=p["playoff_goalie_"+key],d=rg+pg;if((rg>0&&a==null)||(pg>0&&b==null))return null;return d?((a==null?0:Number(a))*rg+(b==null?0:Number(b))*pg)/d:null;
 }
 function goalies(){
   return S.players.map(p=>({...p,gp:gv(p,"gp"),teamGames:teamGamesFor(p),sv:gv(p,"save_percentage"),gaa:gv(p,"goals_against_average"),so:gv(p,"shutouts")})).filter(p=>p.gp>0&&p.teamGames>0&&p.gp*2>=p.teamGames&&p.sv!=null&&Number.isFinite(p.sv)).sort((a,b)=>b.sv-a.sv||(a.gaa??99)-(b.gaa??99)||b.gp-a.gp).slice(0,S.count);
