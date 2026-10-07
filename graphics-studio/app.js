@@ -629,9 +629,22 @@ function render(){
 function safe(){return (comp().code+"-"+TIT[S.kind]).toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1200)}
 function dataUrl(blob){return new Promise((ok,no)=>{const f=new FileReader();f.onload=()=>ok(f.result);f.onerror=no;f.readAsDataURL(blob)})}
+let logoAssetsPromise;
 async function inline(svg){
+  logoAssetsPromise ||= fetch('logo-assets.json?v=20261007-24',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Loggorna kunde inte laddas. Uppdatera sidan och försök igen.');return r.json()});
+  const logoAssets=await logoAssetsPromise;
   const d=new DOMParser().parseFromString(svg,"image/svg+xml"),ims=[...d.querySelectorAll("image")];
-  await Promise.all(ims.map(async el=>{const h=el.getAttribute("href")||"";if(!h||h.startsWith("data:"))return;try{const r=await fetch(h,{mode:"cors",cache:"no-store",signal:AbortSignal.timeout(8000)});if(!r.ok)throw 0;el.setAttribute("href",await dataUrl(await r.blob()))}catch(e){console.warn("Bild kunde inte bäddas in",h);el.remove()}}));
+  const images=new Map();
+  await Promise.all(ims.map(async el=>{
+    const h=el.getAttribute('href')||'';if(!h||h.startsWith('data:'))return;
+    if(!images.has(h))images.set(h,(async()=>{
+      const r=await fetch(logoAssets[h]||h,{mode:'cors',cache:'no-store',signal:AbortSignal.timeout(15000)});
+      if(!r.ok)throw new Error('En bild kunde inte exporteras. Uppdatera sidan och försök igen.');
+      return dataUrl(await r.blob());
+    })());
+    // Never silently remove images: an incomplete export is not a success.
+    el.setAttribute('href',await images.get(h));
+  }));
   return new XMLSerializer().serializeToString(d.documentElement);
 }
 async function expSvg(){const s=await inline(build());dl(new Blob([s],{type:"image/svg+xml;charset=utf-8"}),safe()+".svg")}
