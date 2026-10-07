@@ -840,7 +840,29 @@
     }
   }
 
-  async function syncNotesWithCloud({includeGuest=false}={}) {
+  let notesSyncPromise=null;
+  let notesSyncRequested=false;
+  let notesSyncIncludeGuest=false;
+
+  function syncNotesWithCloud({includeGuest=false}={}) {
+    notesSyncRequested=true;
+    notesSyncIncludeGuest ||= includeGuest;
+    if(notesSyncPromise) return notesSyncPromise;
+    // Defer the first pass so the shared promise exists before work starts.
+    notesSyncPromise=Promise.resolve().then(async()=>{
+      let result=false;
+      while(notesSyncRequested){
+        notesSyncRequested=false;
+        const guest=notesSyncIncludeGuest;
+        notesSyncIncludeGuest=false;
+        result=await syncNotesPass({includeGuest:guest});
+      }
+      return result;
+    }).finally(()=>{notesSyncPromise=null;});
+    return notesSyncPromise;
+  }
+
+  async function syncNotesPass({includeGuest=false}={}) {
     if(!client||!state.authUser||!state.selectedTeam||!canAccessTeam(state.selectedTeam.id)){
       state.cloudSyncState=state.authUser?"blocked":"local";
       state.cloudSyncMessage=state.authUser
@@ -853,7 +875,10 @@
     state.cloudSyncMessage="Synkar anteckningar…";
     updateAuthButton();
 
-    const userKey=noteStorageKey(state.authUser.id);
+    const userId=state.authUser.id;
+    const teamId=state.selectedTeam.id;
+    const stillAuthorized=()=>state.authUser?.id===userId&&canAccessTeam(teamId);
+    const userKey=noteStorageKey(userId);
     const userLocal=readNotesFromStorage(userKey);
     const guestLocal=includeGuest?readNotesFromStorage(noteStorageKey(null)):[];
     const localMerged=mergeNoteSets(state.notes,userLocal,guestLocal);
@@ -868,7 +893,8 @@
       return false;
     }
 
-    const merged=mergeNoteSets(cloud||[],localMerged);
+    if(!stillAuthorized()) return false;
+    const merged=mergeNoteSets(cloud||[],localMerged,readNotesFromStorage(userKey),state.notes);
     if(merged.length){
       const {error:writeError}=await client.from("commentator_notes")
         .upsert(merged.map(noteCloudPayload),{onConflict:"id"});
@@ -880,9 +906,11 @@
       }
     }
 
-    state.notes=merged;
+    if(!stillAuthorized()) return false;
+    // Edits made while the request was in flight remain local for the queued pass.
+    state.notes=mergeNoteSets(merged,readNotesFromStorage(userKey),state.notes);
     try{
-      localStorage.setItem(userKey,JSON.stringify(merged));
+      localStorage.setItem(userKey,JSON.stringify(state.notes));
       if(includeGuest) localStorage.removeItem(noteStorageKey(null));
     }catch{}
 
@@ -1417,15 +1445,21 @@
     }
   }
 
+  let baseDataLoadPromise=null;
+
   async function ensureLeagueBaseData() {
     if(!state.authUser||!canAccessLeague()||state.baseDataLoaded) return false;
+    if(baseDataLoadPromise) return baseDataLoadPromise;
     setRouteScreen("home");
     const grid=document.getElementById("teamGrid");
     if(grid) grid.innerHTML='<div class="home-loading">Laddar '+esc(league.displayName)+'…</div>';
     setSyncStatus("working","Laddar "+league.displayName+"-data…");
-    await loadBaseData();
-    state.baseDataLoaded=true;
-    return true;
+    baseDataLoadPromise=Promise.resolve().then(async()=>{
+      await loadBaseData();
+      state.baseDataLoaded=true;
+      return true;
+    }).finally(()=>{baseDataLoadPromise=null;});
+    return baseDataLoadPromise;
   }
 
   async function handleAuthSession(session) {
@@ -3449,8 +3483,61 @@
       return;
     }
 
+    if(!state.nextGame){
+      renderNoMatchWorkspace();
+      return;
+    }
     showCockpit();
     render();
+  }
+
+  async function selectTeamMatch(competitionId,teamId) {
+    const fields="id,scheduled_start,home_team_id,away_team_id,venue_name,status,period,clock_display,home_score,away_score,source_game_id,source_event_game_id,game_number,updated_at";
+    const {data:upcoming,error}=await client.from("games").select(fields)
+      .eq("competition_id",competitionId).neq("status","final")
+      .or("home_team_id.eq."+teamId+",away_team_id.eq."+teamId)
+      .gte("scheduled_start",new Date(Date.now()-8*60*60*1000).toISOString())
+      .order("scheduled_start",{ascending:true}).limit(5);
+    if(error) throw error;
+    if(upcoming?.length) return {game:upcoming[0],upcoming};
+    const {data:latest,error:latestError}=await client.from("games").select(fields)
+      .eq("competition_id",competitionId).eq("status","final")
+      .or("home_team_id.eq."+teamId+",away_team_id.eq."+teamId)
+      .order("scheduled_start",{ascending:false}).limit(1).maybeSingle();
+    if(latestError) throw latestError;
+    return {game:latest||null,upcoming:[]};
+  }
+
+  async function loadNoMatchTeamData() {
+    const teamId=state.focusTeam.id;
+    const competitionId=state.competition.id;
+    const [players,goalies,special]=await Promise.all([
+      client.from("player_season_stats").select("team_id,player_id,source_name,jersey_number,position,games_played,goals,assists,points").eq("competition_id",competitionId).eq("team_id",teamId),
+      client.from("goalie_season_stats").select("team_id,player_id,source_name,jersey_number,games_played,save_pct,gaa").eq("competition_id",competitionId).eq("team_id",teamId),
+      client.from("team_special_teams_stats").select("team_id,games_played,pp_pct,pk_pct").eq("competition_id",competitionId).eq("team_id",teamId)
+    ]);
+    state.seasonPlayerStats=optionalData(players,"Spelarstatistik",[]);
+    state.seasonGoalieStats=optionalData(goalies,"Målvaktsstatistik",[]);
+    state.seasonSpecialTeams=optionalData(special,"Special teams",[]);
+    state.opponent=null;
+    state.teamDataLoaded=true;
+    state.teamLoading=false;
+    renderNoMatchWorkspace();
+  }
+
+  function renderNoMatchWorkspace() {
+    setRouteScreen("home");
+    removeTeamToolbar();
+    document.title=state.focusTeam.canonical_name+" · Commentator Cockpit";
+    document.querySelector(".league-home-hero h2").textContent=state.focusTeam.canonical_name;
+    document.querySelector(".league-home-hero p").textContent="Ingen match är importerad för laget i den här serien ännu. Anteckningar och tillgänglig säsongsstatistik kan användas som vanligt.";
+    const rows=state.seasonPlayerStats.map((row)=>'<article class="drawer-card"><strong>'+esc(humanSourceName(row.source_name))+'</strong><span>'+esc(row.games_played??"–")+' matcher · '+esc(row.goals??"–")+' mål · '+esc(row.assists??"–")+' assist · '+esc(row.points??"–")+' poäng</span></article>').join("");
+    const goalies=state.seasonGoalieStats.map((row)=>'<article class="drawer-card"><strong>'+esc(humanSourceName(row.source_name))+'</strong><span>'+esc(row.games_played??"–")+' matcher · SV% '+esc(formatPct(row.save_pct))+' · GAA '+esc(row.gaa??"–")+'</span></article>').join("");
+    const special=state.seasonSpecialTeams.map((row)=>'<article class="drawer-card"><strong>Special teams</strong><span>PP '+esc(formatPct(row.pp_pct))+' · BP '+esc(formatPct(row.pk_pct))+'</span></article>').join("");
+    document.getElementById("teamGrid").innerHTML='<section class="league-access-gate"><span>LAGARBETSYTA</span><strong>Ingen kommande match</strong><div class="league-gate-actions"><button type="button" id="noMatchNotes">ÖPPNA ANTECKNINGAR</button><button type="button" id="noMatchReload">UPPDATERA MATCHER</button></div>'+rows+goalies+special+(!rows&&!goalies&&!special?'<p>Ingen säsongsstatistik är importerad ännu.</p>':'')+'</section>';
+    document.getElementById("noMatchNotes").addEventListener("click",()=>renderDrawer("notes"));
+    document.getElementById("noMatchReload").addEventListener("click",()=>window.location.reload());
+    setSyncStatus(state.loadWarnings.length?"warn":"ok","Lagarbetsyta · ingen match importerad");
   }
 
   async function loadData() {
@@ -3475,19 +3562,13 @@
       : null;
     if (!state.focusTeam) throw new Error("Valt lag saknas i importerad data.");
 
-    const activeWindowStart = new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString();
-    const { data: nextGames, error: nextError } = await client.from("games")
-      .select("id,scheduled_start,home_team_id,away_team_id,venue_name,status,period,clock_display,home_score,away_score,source_game_id,source_event_game_id,game_number,updated_at")
-      .eq("competition_id", competition.id)
-      .neq("status", "final")
-      .or("home_team_id.eq." + state.focusTeam.id + ",away_team_id.eq." + state.focusTeam.id)
-      .gte("scheduled_start", activeWindowStart)
-      .order("scheduled_start", { ascending: true })
-      .limit(5);
-    if (nextError) throw nextError;
-    state.upcomingGames = nextGames || [];
-    state.nextGame = state.upcomingGames[0] || null;
-    if (!state.nextGame) throw new Error("Ingen kommande match hittades för "+state.focusTeam.canonical_name+".");
+    const matchSelection=await selectTeamMatch(competition.id,state.focusTeam.id);
+    state.upcomingGames=matchSelection.upcoming;
+    state.nextGame=matchSelection.game;
+    if(!state.nextGame){
+      await loadNoMatchTeamData();
+      return;
+    }
 
     const opponentId = state.nextGame.home_team_id === state.focusTeam.id
       ? state.nextGame.away_team_id
@@ -3987,6 +4068,7 @@
       target.closest("#lockLoginButton") ||
       target.closest("#leagueLoginButton") ||
       target.closest("#leagueAccountButton") ||
+      target.closest("#noMatchNotes") ||
       target.closest("#aiButton")
     ) return;
 
