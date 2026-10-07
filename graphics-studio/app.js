@@ -558,11 +558,19 @@ function normalizedPortrait(url,x,y,w,h,id,framed=false){
     '<defs><linearGradient id="edge-'+id+'"><stop stop-color="white" stop-opacity="0"/><stop offset=".09" stop-color="white"/><stop offset=".91" stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient><linearGradient id="foot-'+id+'" x2="0" y2="1"><stop stop-color="white"/><stop offset=".86" stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient><mask id="edgeMask-'+id+'" maskUnits="userSpaceOnUse" x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'"><rect x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'" fill="url(#edge-'+id+')"/></mask><mask id="footMask-'+id+'" maskUnits="userSpaceOnUse" x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'"><rect x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'" fill="url(#foot-'+id+')"/></mask></defs>'+
     '<g'+(framed?'':' mask="url(#footMask-'+id+')"')+'><image href="'+esc(url)+'" width="'+sourceW+'" height="'+sourceH+'" preserveAspectRatio="none"'+(framed?'':' mask="url(#edgeMask-'+id+')"')+'/></g></svg>';
 }
+function nationFlag(p,x,y,width=36){
+  const aliases={SWE:'se',FIN:'fi',NOR:'no',DNK:'dk',DEN:'dk',DEU:'de',GER:'de',USA:'us',CAN:'ca',GBR:'gb',UK:'gb',CZE:'cz',CHE:'ch',SUI:'ch',FRA:'fr',SVK:'sk',LVA:'lv',EST:'ee'};
+  const raw=String(p.player_country||p.country_code||'').trim().toUpperCase(),code=aliases[raw]||raw.toLowerCase();
+  if(!/^[a-z]{2}$/.test(code))return '';
+  const height=width*.75;
+  return '<g><title>'+esc(raw)+'</title><rect x="'+(x-1)+'" y="'+(y-1)+'" width="'+(width+2)+'" height="'+(height+2)+'" rx="3" fill="#b7d0df" fill-opacity=".4"/><image href="https://flagcdn.com/w80/'+code+'.png" x="'+x+'" y="'+y+'" width="'+width+'" height="'+height+'" preserveAspectRatio="xMidYMid meet"/></g>';
+}
 function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
   const goalie=kind==="goalies",key=kind==="goals"?"g":kind==="assists"?"a":"p",label=goalie?"SV%":kind==="goals"?"MÅL":kind==="assists"?"ASSIST":"POÄNG";
   const value=goalie?fmtDec(p.sv*(p.sv<=1?100:1),1):p[key],gold=rank===1,accent=gold?"#ffda55":"#bdd4e5";
   const pw=Math.min(250,h*.90),px=x+62,py=y+12,tx=px+pw+26,right=x+w-32,scale=Math.min(1.25,h/290);
-  const nameSize=Math.min(40,(right-tx-125)/Math.max(1,String(p.display_gamertag||"").length)*1.6);
+  const flag=nationFlag(p,tx,y+54*scale-27*scale,36*scale),nameX=tx+(flag?48*scale:0),logoSize=92*scale;
+  const nameSize=Math.min(40,(right-nameX-logoSize-24)/Math.max(1,String(p.display_gamertag||"").length)*1.6);
   let o='<g><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="12" fill="'+(gold?'#132d3c':'#0b1d2c')+'" stroke="'+(gold?'#dfb742':'#294355')+'" stroke-width="'+(gold?2:1)+'"/>'+
     '<path d="M'+(x+w*.78)+' '+y+' H'+(x+w)+' V'+(y+h)+' H'+(x+w*.62)+' Z" fill="'+accent+'" opacity=".04"/>'+
     svgText(x+24,y+53,String(rank).padStart(2,'0'),29,accent,900)+
@@ -573,8 +581,8 @@ function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
     (portrait?normalizedPortrait(portrait,px+4,py+6,pw-8,ph-6,'player-'+rank,true):silhouetteSvg(px,py,pw,ph))+'</g>'+
     '<path d="'+frame+'" fill="none" stroke="'+accent+'" stroke-width="2"/>'+
     '<path d="M'+(px+20)+' '+py+' L'+px+' '+(py+ph)+' M'+(px+pw)+' '+py+' L'+(px+pw-20)+' '+(py+ph)+'" fill="none" stroke="#e8c84e" stroke-width="3"/>';
-  o+=svgText(tx,y+54*scale,clip(p.display_gamertag,32),nameSize,"#fff",900)+svgText(tx,y+81*scale,clip(p.team_name_in_league||"",36),17*scale,"#a6bfce",600);
-  if(logo)o+=img(logo,right-62,y+24,62);
+  o+=flag+svgText(nameX,y+54*scale,clip(p.display_gamertag,32),nameSize,"#fff",900)+svgText(tx,y+81*scale,clip(p.team_name_in_league||"",36),17*scale,"#a6bfce",600);
+  if(logo)o+=img(logo,right-logoSize,y+16*scale,logoSize);
   const vy=y+h*.59;
   o+=svgText(tx,vy-52*scale,label,13*scale,accent,800,'letter-spacing="2"')+svgText(tx-4,vy+25*scale,value,(goalie?75:98)*scale,accent,900,'letter-spacing="-4"');
   const values=goalie?[['MATCHER',p.gp],['GAA',p.gaa==null?'–':fmtDec(p.gaa)],['NOLLOR',p.so]]:kind==="goals"?[['MATCHER',p.gp],['ASSIST',p.a],['POÄNG',p.p]]:kind==="assists"?[['MATCHER',p.gp],['MÅL',p.g],['POÄNG',p.p]]:[['MATCHER',p.gp],['MÅL',p.g],['ASSIST',p.a]];
