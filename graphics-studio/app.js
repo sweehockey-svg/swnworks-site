@@ -12,7 +12,7 @@ const C={
   529:{label:"FCL 27",code:"FCL",logo:"https://sportsgamer.gg/community/gallery/image/374-fcl_logopng/?do=download"}
 };
 const F={portrait:{w:1080,h:1350,label:"1080 × 1350"},square:{w:1080,h:1080,label:"1080 × 1080"},story:{w:1080,h:1920,label:"1080 × 1920"},wide:{w:1920,h:1080,label:"1920 × 1080"}};
-const TIT={table:"TABELLEN",groups:"GRUPPTABELLER",goals:"SKYTTELIGAN",points:"POÄNGLIGAN",assists:"ASSISTLIGAN",goalies:"MÅLVAKTSLIGAN",leaders:"LIGATOPPAR"};
+const TIT={table:"TABELLEN",groups:"GRUPPTABELLER",goals:"SKYTTELIGAN",points:"POÄNGLIGAN",assists:"ASSISTLIGAN",defender_points:"BACKLIGAN · POÄNG",defender_goals:"BACKLIGAN · MÅL",defender_assists:"BACKLIGAN · ASSIST",goalies:"MÅLVAKTSLIGAN",leaders:"LIGATOPPAR"};
 const S={kind:"table",league:527,stage:"regular",group:null,count:8,format:"portrait",bg:"gamenight",logos:true,teams:[],players:[]};
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const n=v=>v!==null&&v!==undefined&&v!==""&&Number.isFinite(Number(v))?Number(v):0;
@@ -43,8 +43,13 @@ function logos(){const m=new Map();S.teams.forEach(t=>{const k=String(t.sports_g
 function standingsForGroup(groupId){return S.teams.filter(x=>x.statistics_stage==="regular"&&Number(x.effective_group_id)===Number(groupId)).sort((a,b)=>n(b.table_points)-n(a.table_points)||n(b.goal_difference)-n(a.goal_difference)||n(b.goals_for)-n(a.goals_for)||String(a.team_name_in_league||"").localeCompare(String(b.team_name_in_league||""),"sv"))}
 function standings(){return standingsForGroup(S.group)}
 function ps(p,key){if(S.stage==="regular")return n(p["regular_"+key]);if(S.stage==="playoffs")return n(p["playoff_"+key]);return n(p["regular_"+key])+n(p["playoff_"+key])}
-function skaters(metric){
-  return S.players.map(p=>({...p,gp:ps(p,"skater_games"),g:ps(p,"goals"),a:ps(p,"assists"),p:ps(p,"points")})).filter(p=>p.gp>0).sort((a,b)=>b[metric]-a[metric]||b.p-a.p||b.g-a.g||String(a.display_gamertag||"").localeCompare(String(b.display_gamertag||""),"sv")).slice(0,S.count);
+function isDefender(p){
+  const stage=S.stage==='total'?(n(p.playoff_skater_games)>n(p.regular_skater_games)?'playoff':'regular'):S.stage==='playoffs'?'playoff':'regular';
+  const position=p[stage+'_skater_position_abbreviation']||p.roster_preferred_position_abbreviation||p.global_preferred_position_abbreviation||'';
+  return /^(LD|RD|D)$/i.test(String(position).trim());
+}
+function skaters(metric,defendersOnly=false){
+  return S.players.filter(p=>!defendersOnly||isDefender(p)).map(p=>({...p,gp:ps(p,"skater_games"),g:ps(p,"goals"),a:ps(p,"assists"),p:ps(p,"points")})).filter(p=>p.gp>0).sort((a,b)=>b[metric]-a[metric]||b.p-a.p||b.g-a.g||String(a.display_gamertag||"").localeCompare(String(b.display_gamertag||""),"sv")).slice(0,S.count);
 }
 function gv(p,key){
   const rg=n(p.regular_goalie_games),pg=n(p.playoff_goalie_games);
@@ -604,7 +609,9 @@ function modernPodiumBase(content){
     svgText(m,H-31,"SVENSK eHOCKEY / "+c.label,12,"#a6bfce",700,'letter-spacing="1"')+svgText(W-m,H-31,"SWNWORKS",12,"#a6bfce",700,'text-anchor="end" letter-spacing="2"')+'</svg>';
 }
 function editorialBoard(kind){
-  const rows=kind==="goalies"?goalies().slice(0,3):skaters(kind==="goals"?"g":kind==="assists"?"a":"p").slice(0,3),lm=logos();
+  const defendersOnly=kind.startsWith('defender_');
+  kind=kind.replace(/^defender_/,'');
+  const rows=kind==="goalies"?goalies().slice(0,3):skaters(kind==="goals"?"g":kind==="assists"?"a":"p",defendersOnly).slice(0,3),lm=logos();
   const {w:W,h:H}=format(),m=Math.round(W*.052),top=300,gap=20;
   const cardH=(H-85-top-gap*2)/3,metric=kind==="goals"?"g":kind==="assists"?"a":"p";
   const maxes={gp:Math.max(1,...rows.map(p=>p.gp)),rate:Math.max(.01,...rows.map(p=>p.gp?p[metric]/p.gp:0)),ppg:Math.max(.01,...rows.map(p=>p.gp?p.p/p.gp:0)),gpg:Math.max(.01,...rows.map(p=>p.gp?p.g/p.gp:0)),apg:Math.max(.01,...rows.map(p=>p.gp?p.a/p.gp:0))};
