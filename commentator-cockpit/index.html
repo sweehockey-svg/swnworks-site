@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#06111a">
-  <meta name="description" content="SWNWORKS Commentator Cockpit · välj liga eller turnering.">
+  <meta name="description" content="Commentator Cockpit samlar matchdata, research och pratpunkter för kommentatorer. Läs om verktyget och välj liga i den privata betan.">
   <title>Commentator Cockpit · SWNWORKS</title>
-  <link rel="stylesheet" href="selector.css?v=9">
+  <link rel="stylesheet" href="selector.css?v=10">
 </head>
 <body>
   <div class="selector-shell">
@@ -33,26 +33,40 @@
       <section class="selector-hero">
         <div>
           <span class="kicker">SWNWORKS · COMMENTATOR COCKPIT</span>
-          <h1>Välj liga eller turnering.</h1>
-          <p>Ett arbetsverktyg för kommentatorer. Välj liga för matchdata, research, livehändelser, storylines och AI-stöd.</p>
+          <h1>Mer koll.<br>Bättre pratpunkter.</h1>
+          <p>Commentator Cockpit samlar matchdata, research och livehändelser i ett arbetsverktyg för kommentatorer. Förbered dig före matchen och ha informationen nära till hands under sändningen.</p>
+          <div class="intro-actions">
+            <a class="intro-button" href="#competitionTitle">Välj liga <span aria-hidden="true">→</span></a>
+            <a class="intro-contact" href="mailto:info@swnworks.se?subject=Beta%C3%A5tkomst%20till%20Commentator%20Cockpit">Fråga om betaåtkomst <span aria-hidden="true">↗</span></a>
+          </div>
         </div>
         <aside class="selector-status" aria-label="Produktstatus">
           <div class="selector-status-top">
             <span>COMMENTATOR COCKPIT</span>
             <span class="selector-status-live"><i></i> AKTIV</span>
           </div>
-          <strong>Broadcast workspace</strong>
+          <strong>Din plats för matchen</strong>
           <small>Matchförberedelse · live · research · AI-stöd</small>
           <div class="selector-status-meta">
-            <span><b>ÅTKOMST</b> Konto krävs</span>
+            <span><b>ÅTKOMST</b> Godkänd inloggning krävs</span>
             <span><b>STATUS</b> Privat beta</span>
           </div>
         </aside>
       </section>
 
+      <section class="product-intro" aria-labelledby="productIntroTitle">
+        <div class="section-head"><span>01</span><h2 id="productIntroTitle">Före och under sändningen</h2></div>
+        <div class="intro-features">
+          <article><span class="intro-number">FÖRE MATCH</span><h3>Bygg din research</h3><p>Samla laguppställningar, statistik och bakgrund inför nedsläpp.</p></article>
+          <article><span class="intro-number">UNDER MATCH</span><h3>Följ det som händer</h3><p>Ha matchdata och livehändelser samlade medan du kommenterar.</p></article>
+          <article><span class="intro-number">NÄSTA PRATPUNKT</span><h3>Hitta en ny vinkel</h3><p>Använd pratpunkter och AI-stöd som underlag för din egen analys.</p></article>
+        </div>
+        <p class="beta-guidance">Verktyget är i privat beta. För att använda en liga behöver du ett konto med godkänd åtkomst. Kontakta SWNWORKS om du vill testa.</p>
+      </section>
+
       <section class="competition-section" aria-labelledby="competitionTitle">
         <div class="section-head">
-          <span>01</span>
+          <span>02</span>
           <h2 id="competitionTitle">Ligor & turneringar</h2>
         </div>
 
@@ -63,7 +77,8 @@
               <span class="arrow">↗</span>
             </div>
             <div class="logo-stage">
-              <div class="league-logo">
+              <div class="league-logo" data-league-logo>
+                <span class="league-logo-fallback" aria-hidden="true">Hockeyettan</span>
                 <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Logo_Hockeyettan.svg" alt="Hockeyettan">
               </div>
             </div>
@@ -85,7 +100,7 @@
               <span class="arrow">↗</span>
             </div>
             <div class="logo-stage">
-              <div class="league-logo hockeytvaan-league-logo"><img src="https://pqaymcvlwsruxvekvvtl.supabase.co/storage/v1/object/public/team-logos/leagues/hockeytvaan.jpg" alt="Hockeytvåan"></div>
+              <div class="league-logo hockeytvaan-league-logo" data-league-logo><span class="league-logo-fallback" aria-hidden="true">Hockeytvåan</span><img src="https://pqaymcvlwsruxvekvvtl.supabase.co/storage/v1/object/public/team-logos/leagues/hockeytvaan.jpg" alt="Hockeytvåan"></div>
             </div>
             <div class="card-copy">
               <small>ISHOCKEY · SVERIGE</small>
@@ -105,7 +120,7 @@
               <span class="arrow">↗</span>
             </div>
             <div class="logo-stage">
-              <div class="league-logo suomi-logo"><img src="https://pqaymcvlwsruxvekvvtl.supabase.co/storage/v1/object/public/team-logos/leagues/suomi-sarja.jpg" alt="Suomi-sarja"></div>
+              <div class="league-logo suomi-logo" data-league-logo><span class="league-logo-fallback" aria-hidden="true">Suomi-sarja</span><img src="https://pqaymcvlwsruxvekvvtl.supabase.co/storage/v1/object/public/team-logos/leagues/suomi-sarja.jpg" alt="Suomi-sarja"></div>
             </div>
             <div class="card-copy">
               <small>ISHOCKEY · FINLAND</small>
@@ -141,6 +156,7 @@
     <div class="selector-auth-body" id="selectorAuthBody"></div>
   </aside>
 
+  <script src="public-intro.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="selector.js?v=1"></script>
 </body>

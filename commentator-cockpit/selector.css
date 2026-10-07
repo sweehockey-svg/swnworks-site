@@ -1,4 +1,5 @@
 :root{
+  scroll-behavior:smooth;
   color-scheme:dark;
   --bg:#04101a;
   --panel:#091a26;
@@ -1009,3 +1010,29 @@ body.selector-auth-open{overflow:hidden}
   .selector-account-button small{display:none}
   .contact{display:none}
 }
+
+/* Public product introduction and resilient league images */
+.intro-actions{display:flex;align-items:center;flex-wrap:wrap;gap:20px;margin-top:24px}
+.intro-button{display:inline-flex;align-items:center;gap:28px;padding:13px 18px;background:var(--yellow);color:#071018;font-size:13px;font-weight:850;text-decoration:none;border-radius:4px}
+.intro-button:hover{background:var(--yellow2)}
+.intro-contact{font-size:13px;color:var(--text);text-decoration:none;border-bottom:1px solid #50636e;padding:8px 0}
+.intro-contact:hover{color:var(--yellow)}
+.product-intro{padding-bottom:40px}
+.intro-features{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.intro-features article{padding:20px 0;border-bottom:1px solid var(--line)}
+.intro-number{color:var(--yellow);font-size:9px;font-weight:850;letter-spacing:.12em}
+.intro-features h3{margin:12px 0 8px;font-size:21px;letter-spacing:-.025em}
+.intro-features p,.beta-guidance{margin:0;color:#a8b7bf;font-size:13px;line-height:1.7}
+.beta-guidance{margin-top:22px;padding:16px 20px;border-left:2px solid var(--yellow);background:rgba(246,181,31,.04)}
+.league-logo[data-league-logo]{position:relative;background:#0c202c;border:1px solid #385161;overflow:hidden}
+.league-logo-fallback{display:flex;align-items:center;justify-content:center;position:absolute;inset:0;color:var(--text);font-size:20px;font-weight:850;text-align:center;padding:8px;line-height:1.2;overflow-wrap:anywhere}
+.league-logo[data-league-logo] img{visibility:hidden}
+.league-logo.logo-loaded{background:#fff}
+.league-logo.hockeytvaan-league-logo.logo-loaded{background:#6d0806}
+.league-logo.logo-loaded img{visibility:visible}
+.league-logo.logo-loaded .league-logo-fallback{display:none}
+#competitionTitle{scroll-margin-top:24px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--yellow);outline-offset:5px}
+@media(max-width:900px){.intro-features{grid-template-columns:1fr;gap:0}.product-intro{padding-bottom:32px}}
+@media(max-width:420px){.selector-topbar{height:auto;min-height:76px;flex-wrap:wrap;gap:14px;padding-block:16px}.topbar-actions{width:100%;justify-content:space-between}.intro-actions{gap:12px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
