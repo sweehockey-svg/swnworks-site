@@ -1019,6 +1019,29 @@
     };
   }
 
+  const EDITORIAL_TAGS=Object.freeze([
+    "Momentum","Målfarliga chanser","Nyckelspelare","Special teams","Story","Anfallare","Målvakt",
+    "Vändpunkt","Försvarsspel","Disciplin","Matchbild","Milstolpe","Trend","Citat"
+  ]);
+  const MAX_NOTE_TAGS=8;
+
+  function parseNoteTags(value) {
+    const labels=new Map(EDITORIAL_TAGS.map((tag)=>[tag.toLocaleLowerCase("sv-SE"),tag]));
+    const seen=new Set();
+    return String(value||"").split(",").map((tag)=>tag.trim()).filter((tag)=>{
+      const key=tag.toLocaleLowerCase("sv-SE");
+      if(!key||seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    }).map((tag)=>labels.get(tag.toLocaleLowerCase("sv-SE"))||tag).slice(0,MAX_NOTE_TAGS);
+  }
+
+  function editorialTagButtons() {
+    return '<fieldset class="note-tag-picker wide"><legend>VÄLJ TAGGAR</legend><div class="note-tag-options">'+
+      EDITORIAL_TAGS.map((tag)=>'<button type="button" data-note-tag="'+esc(tag)+'" aria-pressed="false">'+esc(tag)+'</button>').join("")+
+      '</div><p id="noteTagStatus" role="status" aria-live="polite">Välj upp till 8 taggar. Egna taggar kan skrivas i fältet nedan.</p></fieldset>';
+  }
+
   function renderNotes() {
     const notes=currentEditorialNotes();
     const playerCount=state.seasonPlayerStats.filter((row)=>row.player_id).length;
@@ -1056,7 +1079,8 @@
         '<label><span>KOPPLA TILL</span><select id="noteScope">'+noteScopeOptionsHtml(state.nextGame?"match|"+state.nextGame.id:"general|")+'</select></label>' +
         '<label><span>RUBRIK</span><input id="noteTitle" maxlength="120" placeholder="T.ex. återvänder till moderklubben"></label>' +
         '<label class="wide"><span>ANTECKNING</span><textarea id="noteBody" rows="4" maxlength="1200" placeholder="Skriv fakta, bakgrund eller en talking point du vill kunna använda i sändningen."></textarea></label>' +
-        '<label><span>TAGGAR</span><input id="noteTags" maxlength="160" placeholder="bakgrund, comeback, lokal"></label>' +
+        editorialTagButtons() +
+        '<label class="wide"><span>VALDA OCH EGNA TAGGAR</span><input id="noteTags" maxlength="160" aria-describedby="noteTagStatus" placeholder="Momentum, Vändpunkt, egen tagg"></label>' +
         '<label class="note-pin-control"><input type="checkbox" id="notePinned" checked><span>PINNA TILL STORY / SNABBFAKTA</span></label>' +
         '<div class="note-form-actions"><button type="button" id="noteCancelEdit">RENSA</button><button type="submit" class="primary">SPARA ANTECKNING</button></div>' +
       '</form>' +
@@ -1067,12 +1091,34 @@
   function bindNotesUi() {
     const form=document.getElementById("noteForm");
     if(!form) return;
+    const tagsInput=document.getElementById("noteTags");
+    const tagButtons=form.querySelectorAll("[data-note-tag]");
+    const tagStatus=document.getElementById("noteTagStatus");
+    const updateTagButtons=()=>{
+      const tags=parseNoteTags(tagsInput.value);
+      tagButtons.forEach((button)=>button.setAttribute("aria-pressed",String(tags.includes(button.dataset.noteTag))));
+      tagStatus.textContent=tags.length+" av "+MAX_NOTE_TAGS+" taggar valda. Egna taggar kan skrivas i fältet nedan.";
+    };
+    tagsInput.addEventListener("input",updateTagButtons);
+    tagButtons.forEach((button)=>button.addEventListener("click",()=>{
+      const tags=parseNoteTags(tagsInput.value);
+      const tag=button.dataset.noteTag;
+      const selected=tags.includes(tag);
+      if(!selected&&tags.length>=MAX_NOTE_TAGS){
+        tagStatus.textContent="Du kan välja högst "+MAX_NOTE_TAGS+" taggar. Ta bort en tagg först.";
+        return;
+      }
+      tagsInput.value=(selected?tags.filter((item)=>item!==tag):[...tags,tag]).join(", ");
+      updateTagButtons();
+    }));
+    updateTagButtons();
 
     const resetForm=()=>{
       document.getElementById("noteEditId").value="";
       document.getElementById("noteTitle").value="";
       document.getElementById("noteBody").value="";
       document.getElementById("noteTags").value="";
+      updateTagButtons();
       document.getElementById("notePinned").checked=true;
       document.getElementById("noteScope").value=state.nextGame?"match|"+state.nextGame.id:"general|";
     };
@@ -1090,8 +1136,7 @@
         ...scope,
         title:String(document.getElementById("noteTitle").value||"").trim(),
         body,
-        tags:String(document.getElementById("noteTags").value||"")
-          .split(",").map((tag)=>tag.trim()).filter(Boolean).slice(0,8),
+        tags:parseNoteTags(document.getElementById("noteTags").value),
         pinned:Boolean(document.getElementById("notePinned").checked),
         is_active:true,
         created_at:existing?.created_at||now,
@@ -1141,6 +1186,7 @@
         document.getElementById("noteTitle").value=note.title||"";
         document.getElementById("noteBody").value=note.body||"";
         document.getElementById("noteTags").value=(note.tags||[]).join(", ");
+        updateTagButtons();
         document.getElementById("notePinned").checked=Boolean(note.pinned);
         const value=note.scope_type+"|"+(note.game_id||note.team_id||note.player_id||"");
         const scope=document.getElementById("noteScope");
@@ -2064,6 +2110,7 @@
         title:note.title||note.body.slice(0,100),
         text:note.title?note.body:((note.tags||[]).length?"Taggar: "+note.tags.join(", "):"Egen anteckning."),
         score:scopeScore,
+        tags:Array.isArray(note.tags)?note.tags:[],
         story:true,
         editorial:true
       });
@@ -2150,7 +2197,7 @@
   function aiQuestionBonus(fact,question) {
     const q=String(question||"").toLocaleLowerCase("sv-SE");
     if(!q) return 0;
-    const hay=(fact.id+" "+fact.tag+" "+fact.title+" "+fact.text).toLocaleLowerCase("sv-SE");
+    const hay=(fact.id+" "+fact.tag+" "+fact.title+" "+fact.text+" "+(fact.tags||[]).join(" ")).toLocaleLowerCase("sv-SE");
     const groups=[
       [["pp","powerplay","bp","boxplay","utvis"],80],
       [["mål","goal","gör mål","poäng"],55],
@@ -2161,7 +2208,7 @@
       [["kedja","lineup","uppställning"],70],
       [["spelare","poängliga"],45]
     ];
-    let bonus=0;
+    let bonus=(fact.tags||[]).some((tag)=>q.includes(String(tag).toLocaleLowerCase("sv-SE")))?90:0;
     for(const [terms,score] of groups){
       if(terms.some((term)=>q.includes(term))&&terms.some((term)=>hay.includes(term))){
         bonus=Math.max(bonus,score);
@@ -2179,6 +2226,7 @@
         title:note.title||note.body.slice(0,100),
         text:note.title?note.body:((note.tags||[]).length?"Taggar: "+note.tags.join(", "):"Egen anteckning."),
         score:108,
+        tags:Array.isArray(note.tags)?note.tags:[],
         story:false,
         editorial:true
       }));
@@ -2195,7 +2243,7 @@
         label:fact.tag,
         text:fact.title+(fact.text?" "+fact.text:""),
         why_now:fact.editorial
-          ? "Pinnad redaktionell anteckning för den aktuella matchkontexten."
+          ? "Redaktionell anteckning för den aktuella matchkontexten."
           : "Hög relevans i den verifierade matchkontexten.",
         source_refs:[fact.editorial?"editorial_notes":"verified_stats"]
       })),
