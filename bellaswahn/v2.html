@@ -1892,7 +1892,7 @@ async function fetchTeamSeasonEntry(entry, allSoccerCompetitions = false) {
     sport: source.sport
   }));
 
-  return next30DaysMatches(matches);
+  return remainingSeasonMatches(matches, source);
 }
 
 
@@ -1933,7 +1933,7 @@ async function fetchTeamSeasonFromLeagues(name, entries) {
 }
 
 async function loadTeamSeason(name) {
-  if (teamSeasonCache.has(name) || seasonLoading.has("team:" + name)) return;
+  if ((teamSeasonCache.has(name) && teamSeasonCache.get(name)?.length) || seasonLoading.has("team:" + name)) return;
 
   seasonLoading.add("team:" + name);
   renderMain();
@@ -1961,7 +1961,8 @@ async function loadTeamSeason(name) {
       }
     });
 
-    const results = await allSettledLimited(
+    // Primary source: each team's own ESPN schedule endpoint.
+    const directResults = await allSettledLimited(
       uniqueEntries,
       4,
       entry => {
@@ -1972,17 +1973,37 @@ async function loadTeamSeason(name) {
 
     const byId = new Map();
 
-    results.forEach(result => {
+    directResults.forEach(result => {
       if (result.status !== "fulfilled") return;
       result.value.forEach(match => byId.set(String(match.id), match));
     });
 
-    const schedule = next30DaysMatches([...byId.values()]);
-    console.info("NextGame " + name + ": " + schedule.length + " matcher kommande 30 dagar");
-    teamSeasonCache.set(name, schedule);
+    let schedule = sortSeasonMatches([...byId.values()])
+      .filter(match => new Date(match.startTime).getTime() >= Date.now() - 5 * 60 * 1000);
+
+    // Fallback: derive this team from complete league schedules if team endpoint
+    // returned fewer than five. This keeps the team page useful even if one ESPN
+    // endpoint gets moody.
+    if (schedule.length < 5) {
+      try {
+        const leagueSchedule = await fetchTeamSeasonFromLeagues(name, entries);
+        leagueSchedule.forEach(match => byId.set(String(match.id), match));
+        schedule = sortSeasonMatches([...byId.values()])
+          .filter(match => new Date(match.startTime).getTime() >= Date.now() - 5 * 60 * 1000);
+      } catch (fallbackError) {
+        console.warn("Lagfallback misslyckades för " + name, fallbackError);
+      }
+    }
+
+    // The team page deliberately shows the next five games. Five is enough to
+    // always be useful on mobile without making the page depend on a huge season fetch.
+    const nextFive = schedule.slice(0, 5);
+
+    console.info("NextGame " + name + ": " + nextFive.length + " kommande matcher");
+    teamSeasonCache.set(name, nextFive);
   } catch (error) {
-    console.warn("Kunde inte ladda lagets kommande 30 dagar.", error);
-    teamSeasonCache.set(name, []);
+    console.warn("Kunde inte ladda lagets kommande matcher.", error);
+    teamSeasonCache.delete(name);
   } finally {
     seasonLoading.delete("team:" + name);
     if (currentView.view === "team" && currentView.name === name) renderMain();
@@ -2332,7 +2353,7 @@ function renderHome() {
 }
 
 function renderSeasonSchedule(matches, followTarget) {
-  if (!matches.length) return '<div class="empty">Inga kommande matcher de närmaste 30 dagarna.</div>';
+  if (!matches.length) return '<div class="empty">Kunde inte hämta kommande matcher just nu.</div>';
 
   const grouped = new Map();
   const sorted = sortSeasonMatches(matches);
@@ -2409,7 +2430,7 @@ function renderLeaguePage(name) {
     </div>`;
 
   if (loading && !seasonMatches) {
-    html += '<div class="empty">Laddar kommande 30 dagar…</div>';
+    html += '<div class="empty">Laddar nästa matcher…</div>';
   } else {
     html += renderSeasonSchedule(matches, match => match.home || league.name);
   }
@@ -2436,7 +2457,7 @@ function renderTeamPage(name) {
           <div>
             <div class="profile-icon">${sportIcon(team.sport)}</div>
             <h2>${escapeHtml(team.name)}</h2>
-            <p>${escapeHtml(team.leagues.join(" • "))} • Kommande 30 dagar${seasonMatches ? ` • ${matches.length} matcher` : ""}</p>
+            <p>${escapeHtml(team.leagues.join(" • "))} • Nästa 5 matcher${seasonMatches ? ` • ${matches.length} matcher` : ""}</p>
           </div>
           <button class="btn ${followed ? "following" : ""}" onclick='toggleFollow(${safeJs(team.name)}, event)'>
             ${followed ? "✓ Följer" : "+ Följ"}
