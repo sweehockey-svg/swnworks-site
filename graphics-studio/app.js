@@ -85,7 +85,7 @@ function gv(p,key){
   const a=p["regular_goalie_"+key],b=p["playoff_goalie_"+key],d=rg+pg;return d?((a==null?0:Number(a))*rg+(b==null?0:Number(b))*pg)/d:null;
 }
 function goalies(){
-  return S.players.map(p=>({...p,gp:gv(p,"gp"),sv:gv(p,"save_percentage"),gaa:gv(p,"goals_against_average"),so:gv(p,"shutouts")})).filter(p=>p.gp>0&&p.sv!=null&&Number.isFinite(p.sv)).sort((a,b)=>b.sv-a.sv||(a.gaa??99)-(b.gaa??99)||b.gp-a.gp).slice(0,S.count);
+  return S.players.map(p=>({...p,gp:gv(p,"gp"),teamGames:teamGamesFor(p),sv:gv(p,"save_percentage"),gaa:gv(p,"goals_against_average"),so:gv(p,"shutouts")})).filter(p=>p.gp>0&&p.teamGames>0&&p.gp*2>=p.teamGames&&p.sv!=null&&Number.isFinite(p.sv)).sort((a,b)=>b.sv-a.sv||(a.gaa??99)-(b.gaa??99)||b.gp-a.gp).slice(0,S.count);
 }
 function stageName(){return S.stage==="regular"?"GRUPPSPEL":S.stage==="playoffs"?"SLUTSPEL":"TOTALT"}
 function sync(){S.league=Number($("#league").value||527);S.stage=$("#stage").value;S.group=$("#group").value?Number($("#group").value):S.group;S.count=Number($("#count").value||8);S.format=$("#format").value;S.bg=$("#bg").value;S.logos=$("#logos").checked}
@@ -625,7 +625,7 @@ function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
   const sx=tx+(goalie||dim||average?220:190),step=Math.min(200,(right-sx)/3);
   (extra?[['MATCHER',p.gp],['POÄNG',p.p],[average?'MÅL':'ASSIST',average?p.g:p.a]]:dim?[['TA',p.ta],['INT',p.it],['BS',p.bs]]:values).forEach((v,i)=>o+=svgText(sx+i*step,vy-32*scale,v[0],11*scale,"#a6bfce",700,'letter-spacing="1"')+svgText(sx+i*step,vy+14*scale,v[1],34*scale,"#fff",800));
   const footer=goalie?'RÄDDNINGSPROCENT':label+' PER MATCH',rate=goalie?fmtDec(p.sv*(p.sv<=1?100:1),1)+' %':fmtDec(p.gp?p[key]/p.gp:0);
-  o+='<line x1="'+tx+'" y1="'+(y+h-57)+'" x2="'+right+'" y2="'+(y+h-57)+'" stroke="#345062"/>'+svgText(tx,y+h-28,dim||average?'MATCHER · MINST 50 %':extra?(kind==='penalties'?'UTVISNINGSMINUTER':'TACKLINGAR')+' PER MATCH':footer,12,"#a6bfce",700,'letter-spacing="1.2"')+svgText(right,y+h-26,dim||average?p.gp+' / '+p.teamGames:extra?fmtDec(p.score/p.gp):rate,22,accent,800,'text-anchor="end"');
+  o+='<line x1="'+tx+'" y1="'+(y+h-57)+'" x2="'+right+'" y2="'+(y+h-57)+'" stroke="#345062"/>'+svgText(tx,y+h-28,dim||average||goalie?'MATCHER · MINST 50 %':extra?(kind==='penalties'?'UTVISNINGSMINUTER':'TACKLINGAR')+' PER MATCH':footer,12,"#a6bfce",700,'letter-spacing="1.2"')+svgText(right,y+h-26,dim||average||goalie?p.gp+' / '+p.teamGames:extra?fmtDec(p.score/p.gp):rate,22,accent,800,'text-anchor="end"');
   return o+'</g>';
 }
 function modernPodiumBase(content){
@@ -647,7 +647,7 @@ function editorialBoard(kind){
   const cardH=(H-85-top-gap*2)/3,metric=kind==="goals"?"g":kind==="assists"?"a":"p";
   const maxes={gp:Math.max(1,...rows.map(p=>p.gp)),rate:Math.max(.01,...rows.map(p=>p.gp?p[metric]/p.gp:0)),ppg:Math.max(.01,...rows.map(p=>p.gp?p.p/p.gp:0)),gpg:Math.max(.01,...rows.map(p=>p.gp?p.g/p.gp:0)),apg:Math.max(.01,...rows.map(p=>p.gp?p.a/p.gp:0))};
   let o="";rows.forEach((p,i)=>o+=modernPodiumCard(p,i+1,kind,m,top+i*(cardH+gap),W-m*2,cardH,lm.get(String(p.sports_gamer_team_id))||""));
-  if(!rows.length)o+=svgText(W/2,H/2,kind==='points_average'?'Ingen spelare uppfyller matchkravet ännu':'Ingen matchstatistik ännu',30,"#a2b6c9",700,'text-anchor="middle"');
+  if(!rows.length)o+=svgText(W/2,H/2,kind==='points_average'||kind==='goalies'?'Ingen spelare uppfyller matchkravet ännu':'Ingen matchstatistik ännu',30,"#a2b6c9",700,'text-anchor="middle"');
   return modernPodiumBase(o);
 }
 function board(kind){return editorialBoard(kind)}
