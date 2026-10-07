@@ -644,6 +644,7 @@ function build(){
   graphic=graphic.replace(/<text\b[^>]*>[\s\S]*?<\/text>/g,text=>{
     const y=Number(text.match(/\by="([\d.]+)"/)?.[1]),x=Number(text.match(/\bx="([\d.]+)"/)?.[1]);
     if(y<h-50||x>w/2||!text.includes(name))return text;
+    text=text.replace(name+' / ','').replace(name+' | ','').replace(name+' · ','').replace(name,'');
     const width=sports?140:50;
     return '<image href="'+logo+'" x="'+x+'" y="'+(y-30)+'" width="'+width+'" height="40" preserveAspectRatio="xMidYMid meet"/>'+text.replace(/\bx="[\d.]+"/,'x="'+(x+width+12)+'"');
   });
