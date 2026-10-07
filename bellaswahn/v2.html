@@ -251,6 +251,7 @@
       opacity:.62;
     }
     .now-marker{
+      display:none!important;
       scroll-margin-top:175px;
       display:flex;
       align-items:center;
@@ -739,7 +740,7 @@
 "use strict";
 
 /*
-  NEXTGAME – MOBIL V5.7
+  NEXTGAME – MOBIL V5.8
 
   API:
   Den här versionen hämtar matcher direkt från ESPN:s öppna scoreboard-endpoints.
@@ -2090,7 +2091,7 @@ function openLeaguePage(name) {
   currentView = { view:"league", name };
   detailPositionKey = `league:${name}`;
   clearSearch();
-  window.scrollTo({ top:0, behavior:"smooth" });
+  window.scrollTo({ top:0, behavior:"auto" });
   renderEverything();
   loadLeagueSeason(name);
 }
@@ -2099,7 +2100,7 @@ function openTeamPage(name) {
   currentView = { view:"team", name };
   detailPositionKey = `team:${name}`;
   clearSearch();
-  window.scrollTo({ top:0, behavior:"smooth" });
+  window.scrollTo({ top:0, behavior:"auto" });
   renderEverything();
   loadTeamSeason(name);
 }
@@ -2393,7 +2394,7 @@ function positionDetailIfNeeded(key) {
   if (detailPositionKey !== key) return;
   detailPositionKey = "";
   requestAnimationFrame(() => {
-    document.getElementById("detail-now-anchor")?.scrollIntoView({behavior:"auto", block:"start"});
+    window.scrollTo({ top:0, behavior:"auto" });
   });
 }
 
