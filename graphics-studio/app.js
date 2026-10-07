@@ -635,7 +635,20 @@ function editorialBoard(kind){
 }
 function board(kind){return editorialBoard(kind)}
 function goalieSvg(){return editorialBoard("goalies")}
-function build(){return S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind)}
+function build(){
+  let graphic=S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind);
+  const sports=$("#sender").value==="sportsgamer",name=sports?"SportsGamer":"SVENSK eHOCKEY",logo=sports?"../assets/sportsgamer-logo.png":"../assets/svensk-ehockey-logo.png";
+  const {w,h}=format();
+  graphic=graphic.replaceAll('SVENSK eHOCKEY',name);
+  // Keep the tournament and team logos intact. The selected sender owns the footer.
+  graphic=graphic.replace(/<text\b[^>]*>[\s\S]*?<\/text>/g,text=>{
+    const y=Number(text.match(/\by="([\d.]+)"/)?.[1]),x=Number(text.match(/\bx="([\d.]+)"/)?.[1]);
+    if(y<h-50||x>w/2||!text.includes(name))return text;
+    const width=sports?140:50;
+    return '<image href="'+logo+'" x="'+x+'" y="'+(y-30)+'" width="'+width+'" height="40" preserveAspectRatio="xMidYMid meet"/>'+text.replace(/\bx="[\d.]+"/,'x="'+(x+width+12)+'"');
+  });
+  return graphic;
+}
 function render(){
   sync();$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=TIT[S.kind];
   $("#stageField").hidden=S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table";$("#countField").hidden=true;
@@ -665,7 +678,9 @@ async function expSvg(){const s=await inline(build());dl(new Blob([s],{type:"ima
 async function expPng(){const s=await inline(build()),{w,h}=format(),u=URL.createObjectURL(new Blob([s],{type:"image/svg+xml;charset=utf-8"})),im=new Image();try{await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=u});const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(im,0,0,w,h);const b=await new Promise(ok=>c.toBlob(ok,"image/png",1));if(!b)throw new Error("PNG-export misslyckades");dl(b,safe()+".png")}finally{URL.revokeObjectURL(u)}}
 
 $$("[data-kind]").forEach(b=>b.onclick=()=>{$$("[data-kind]").forEach(x=>x.classList.toggle("active",x===b));S.kind=b.dataset.kind;render()});
-["stage","group","count","format","bg","logos"].forEach(id=>$("#"+id).addEventListener("change",render));
+["stage","group","count","format","bg","logos","sender"].forEach(id=>$("#"+id).addEventListener("change",render));
+try{$("#sender").value=localStorage.getItem('swn-graphics-sender')==='sportsgamer'?'sportsgamer':'seh';}catch{}
+$("#sender").addEventListener('change',()=>{try{localStorage.setItem('swn-graphics-sender',$("#sender").value);}catch{}});
 ["title","subtitle"].forEach(id=>$("#"+id).addEventListener("input",render));
 $("#league").onchange=()=>{S.league=Number($("#league").value||527);S.group=null;load()};
 async function exportGraphic(type){
