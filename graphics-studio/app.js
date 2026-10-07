@@ -15,6 +15,7 @@ const F={portrait:{w:1080,h:1350,label:"1080 × 1350"},square:{w:1080,h:1080,lab
 const TIT={table:"TABELLEN",groups:"GRUPPTABELLER",goals:"SKYTTELIGAN",points:"POÄNGLIGAN",assists:"ASSISTLIGAN",defender_points:"BACKLIGAN · POÄNG",defender_goals:"BACKLIGAN · MÅL",defender_assists:"BACKLIGAN · ASSIST",goalies:"MÅLVAKTSLIGAN",leaders:"LIGATOPPAR"};
 const S={kind:"table",league:527,stage:"regular",group:null,count:8,format:"portrait",bg:"gamenight",logos:true,teams:[],players:[]};
 TIT.dim='DEFENSIV IMPACT';
+Object.assign(TIT,{points_average:'POÄNGSNITT',defender_points_average:'BACKLIGAN · POÄNGSNITT',penalties:'UTVISNINGSLIGAN',hits:'TACKLINGSLIGAN'});
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const n=v=>v!==null&&v!==undefined&&v!==""&&Number.isFinite(Number(v))?Number(v):0;
 const clip=(v,l)=>{v=String(v||"");return v.length>l?v.slice(0,l-1)+"…":v};
@@ -51,6 +52,21 @@ function isDefender(p){
 }
 function skaters(metric,defendersOnly=false){
   return S.players.filter(p=>!defendersOnly||isDefender(p)).map(p=>({...p,gp:ps(p,"skater_games"),g:ps(p,"goals"),a:ps(p,"assists"),p:ps(p,"points")})).filter(p=>p.gp>0).sort((a,b)=>b[metric]-a[metric]||b.p-a.p||b.g-a.g||String(a.display_gamertag||"").localeCompare(String(b.display_gamertag||""),"sv")).slice(0,S.count);
+}
+function teamGamesFor(p){
+  return S.teams.filter(t=>String(t.sports_gamer_team_id)===String(p.sports_gamer_team_id)&&(S.stage==='total'||t.statistics_stage===(S.stage==='playoffs'?'playoffs':'regular'))).reduce((sum,t)=>sum+n(t.games_played),0);
+}
+function metricAvailable(p,key){
+  const stages=S.stage==='total'?['regular','playoff']:[S.stage==='playoffs'?'playoff':'regular'];
+  return stages.every(s=>!n(p[s+'_skater_games'])||(p[s+'_'+key]!=null&&Number.isFinite(Number(p[s+'_'+key]))));
+}
+function extraLeaders(kind,defendersOnly=false){
+  const average=kind==='points_average',field=average?'points':kind==='penalties'?'penalty_minutes':'hits';
+  return S.players.filter(p=>(!defendersOnly||isDefender(p))&&metricAvailable(p,field)).map(p=>{
+    const gp=ps(p,'skater_games'),teamGames=teamGamesFor(p),total=ps(p,field);
+    return {...p,gp,g:ps(p,'goals'),a:ps(p,'assists'),p:ps(p,'points'),teamGames,total,score:average?(gp?total/gp:0):total};
+  }).filter(p=>p.gp>0&&(average?p.teamGames>0&&p.gp*2>=p.teamGames:p.score>0))
+    .sort((a,b)=>b.score-a.score||b.p-a.p||b.gp-a.gp||String(a.display_gamertag||'').localeCompare(String(b.display_gamertag||''),'sv')).slice(0,3);
 }
 function dimPlayers(){
   return S.players.map(p=>{
@@ -585,8 +601,9 @@ function nationFlag(p,x,y,width=36){
   return '<g><title>'+esc(raw)+'</title><rect x="'+(x-1)+'" y="'+(y-1)+'" width="'+(width+2)+'" height="'+(height+2)+'" rx="3" fill="#b7d0df" fill-opacity=".4"/><image href="https://flagcdn.com/w80/'+code+'.png" x="'+x+'" y="'+y+'" width="'+width+'" height="'+height+'" preserveAspectRatio="xMidYMid meet"/></g>';
 }
 function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
-  const goalie=kind==="goalies",dim=kind==='dim',key=kind==="goals"?"g":kind==="assists"?"a":"p",label=dim?'DIM':goalie?"SV%":kind==="goals"?"MÅL":kind==="assists"?"ASSIST":"POÄNG";
-  const value=dim?fmtDec(p.dim):goalie?fmtDec(p.sv*(p.sv<=1?100:1),1):p[key],gold=rank===1,accent=gold?"#ffda55":"#bdd4e5";
+  const average=kind==='points_average',extra=average||kind==='penalties'||kind==='hits';
+  const goalie=kind==="goalies",dim=kind==='dim',key=kind==="goals"?"g":kind==="assists"?"a":"p",label=average?'POÄNG / MATCH':kind==='penalties'?'UTVISNINGSMINUTER':kind==='hits'?'TACKLINGAR':dim?'DIM':goalie?"SV%":kind==="goals"?"MÅL":kind==="assists"?"ASSIST":"POÄNG";
+  const value=extra?(average?fmtDec(p.score):p.score):dim?fmtDec(p.dim):goalie?fmtDec(p.sv*(p.sv<=1?100:1),1):p[key],gold=rank===1,accent=gold?"#ffda55":"#bdd4e5";
   const pw=Math.min(S.format==='wide'?270:300,h*.90),px=x+62,py=y+12,tx=px+pw+26,right=x+w-32,scale=Math.min(1.25,h/290);
   const flag=nationFlag(p,tx,y+54*scale-27*scale,36*scale),nameX=tx+(flag?48*scale:0),logoSize=92*scale;
   const nameSize=Math.min(40,(right-nameX-logoSize-24)/Math.max(1,String(p.display_gamertag||"").length)*1.6);
@@ -603,12 +620,12 @@ function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
   o+=flag+svgText(nameX,y+54*scale,clip(p.display_gamertag,32),nameSize,"#fff",900)+svgText(tx,y+81*scale,clip(p.team_name_in_league||"",36),17*scale,"#a6bfce",600);
   if(logo)o+=img(logo,right-logoSize,y+16*scale,logoSize);
   const vy=y+h*.59;
-  o+=svgText(tx,vy-52*scale,label,13*scale,accent,800,'letter-spacing="2"')+svgText(tx-4,vy+25*scale,value,(dim?68:goalie?75:98)*scale,accent,900,'letter-spacing="-4"');
+  o+=svgText(tx,vy-52*scale,label,13*scale,accent,800,'letter-spacing="2"')+svgText(tx-4,vy+25*scale,value,(dim||average?68:goalie?75:98)*scale,accent,900,'letter-spacing="-4"');
   const values=goalie?[['MATCHER',p.gp],['GAA',p.gaa==null?'–':fmtDec(p.gaa)],['NOLLOR',p.so]]:kind==="goals"?[['MATCHER',p.gp],['ASSIST',p.a],['POÄNG',p.p]]:kind==="assists"?[['MATCHER',p.gp],['MÅL',p.g],['POÄNG',p.p]]:[['MATCHER',p.gp],['MÅL',p.g],['ASSIST',p.a]];
-  const sx=tx+(goalie||dim?220:190),step=Math.min(200,(right-sx)/3);
-  (dim?[['TA',p.ta],['INT',p.it],['BS',p.bs]]:values).forEach((v,i)=>o+=svgText(sx+i*step,vy-32*scale,v[0],11*scale,"#a6bfce",700,'letter-spacing="1"')+svgText(sx+i*step,vy+14*scale,v[1],34*scale,"#fff",800));
+  const sx=tx+(goalie||dim||average?220:190),step=Math.min(200,(right-sx)/3);
+  (extra?[['MATCHER',p.gp],['POÄNG',p.p],[average?'MÅL':'ASSIST',average?p.g:p.a]]:dim?[['TA',p.ta],['INT',p.it],['BS',p.bs]]:values).forEach((v,i)=>o+=svgText(sx+i*step,vy-32*scale,v[0],11*scale,"#a6bfce",700,'letter-spacing="1"')+svgText(sx+i*step,vy+14*scale,v[1],34*scale,"#fff",800));
   const footer=goalie?'RÄDDNINGSPROCENT':label+' PER MATCH',rate=goalie?fmtDec(p.sv*(p.sv<=1?100:1),1)+' %':fmtDec(p.gp?p[key]/p.gp:0);
-  o+='<line x1="'+tx+'" y1="'+(y+h-57)+'" x2="'+right+'" y2="'+(y+h-57)+'" stroke="#345062"/>'+svgText(tx,y+h-28,dim?'MATCHER · MINST 50 %':footer,12,"#a6bfce",700,'letter-spacing="1.2"')+svgText(right,y+h-26,dim?p.gp+' / '+p.teamGames:rate,22,accent,800,'text-anchor="end"');
+  o+='<line x1="'+tx+'" y1="'+(y+h-57)+'" x2="'+right+'" y2="'+(y+h-57)+'" stroke="#345062"/>'+svgText(tx,y+h-28,dim||average?'MATCHER · MINST 50 %':extra?(kind==='penalties'?'UTVISNINGSMINUTER':'TACKLINGAR')+' PER MATCH':footer,12,"#a6bfce",700,'letter-spacing="1.2"')+svgText(right,y+h-26,dim||average?p.gp+' / '+p.teamGames:extra?fmtDec(p.score/p.gp):rate,22,accent,800,'text-anchor="end"');
   return o+'</g>';
 }
 function modernPodiumBase(content){
@@ -625,12 +642,12 @@ function modernPodiumBase(content){
 function editorialBoard(kind){
   const defendersOnly=kind.startsWith('defender_');
   kind=kind.replace(/^defender_/,'');
-  const rows=kind==='dim'?dimPlayers():kind==="goalies"?goalies().slice(0,3):skaters(kind==="goals"?"g":kind==="assists"?"a":"p",defendersOnly).slice(0,3),lm=logos();
+  const rows=['points_average','penalties','hits'].includes(kind)?extraLeaders(kind,defendersOnly):kind==='dim'?dimPlayers():kind==="goalies"?goalies().slice(0,3):skaters(kind==="goals"?"g":kind==="assists"?"a":"p",defendersOnly).slice(0,3),lm=logos();
   const {w:W,h:H}=format(),m=Math.round(W*.052),top=300,gap=20;
   const cardH=(H-85-top-gap*2)/3,metric=kind==="goals"?"g":kind==="assists"?"a":"p";
   const maxes={gp:Math.max(1,...rows.map(p=>p.gp)),rate:Math.max(.01,...rows.map(p=>p.gp?p[metric]/p.gp:0)),ppg:Math.max(.01,...rows.map(p=>p.gp?p.p/p.gp:0)),gpg:Math.max(.01,...rows.map(p=>p.gp?p.g/p.gp:0)),apg:Math.max(.01,...rows.map(p=>p.gp?p.a/p.gp:0))};
   let o="";rows.forEach((p,i)=>o+=modernPodiumCard(p,i+1,kind,m,top+i*(cardH+gap),W-m*2,cardH,lm.get(String(p.sports_gamer_team_id))||""));
-  if(!rows.length)o+=svgText(W/2,H/2,"Ingen matchstatistik ännu",30,"#a2b6c9",700,'text-anchor="middle"');
+  if(!rows.length)o+=svgText(W/2,H/2,kind==='points_average'?'Ingen spelare uppfyller matchkravet ännu':'Ingen matchstatistik ännu',30,"#a2b6c9",700,'text-anchor="middle"');
   return modernPodiumBase(o);
 }
 function board(kind){return editorialBoard(kind)}
