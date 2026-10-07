@@ -67,10 +67,14 @@ function title(){return ($("#title").value||TIT[S.kind]).trim().toUpperCase()}
 function subtitle(){return ($("#subtitle").value||(S.kind==="table"?stageName()+" · "+groupName(S.group):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label)).trim().toUpperCase()}
 function defs(){return '<defs><linearGradient id="silver" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#edf1f4"/><stop offset=".8" stop-color="#a2adb6"/><stop offset="1" stop-color="#fff"/></linearGradient><linearGradient id="gold"><stop stop-color="#ffd95f"/><stop offset=".5" stop-color="#ffbd00"/><stop offset="1" stop-color="#d88700"/></linearGradient><linearGradient id="panel" x2="1" y2="1"><stop stop-color="#071d2c" stop-opacity=".97"/><stop offset="1" stop-color="#020b12" stop-opacity=".98"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#000" flood-opacity=".58"/></filter></defs>'}
 function background(W,H){
+  const glow=(id,color,x,y)=>'<radialGradient id="'+id+'"><stop stop-color="'+color+'" stop-opacity=".48"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient>';
+  const lights='<defs>'+glow('arenaBlue','#24aaff')+glow('arenaGold','#ffce43')+'</defs><ellipse cx="'+W*.12+'" cy="'+H*.12+'" rx="'+W*.65+'" ry="'+H*.45+'" fill="url(#arenaBlue)"/><ellipse cx="'+W*.92+'" cy="'+H*.75+'" rx="'+W*.55+'" ry="'+H*.55+'" fill="url(#arenaGold)"/>';
   if(S.bg==="gamenight"){
     const u=new URL("../broadcast-studio/assets/game-night-background-photo.webp",location.href).href;
-    return '<rect width="'+W+'" height="'+H+'" fill="#06111d"/><image href="'+esc(u)+'" width="'+W+'" height="'+H+'" preserveAspectRatio="xMidYMid slice"/><rect width="'+W+'" height="'+H+'" fill="#020b12" fill-opacity=".50"/>';
+    return '<rect width="'+W+'" height="'+H+'" fill="#06111d"/><image href="'+esc(u)+'" width="'+W+'" height="'+H+'" preserveAspectRatio="xMidYMid slice"/><rect width="'+W+'" height="'+H+'" fill="#020b12" fill-opacity=".55"/>'+lights+'<path d="M'+W*.06+' 0 L'+W*.38+' '+H+' L'+W*.56+' '+H+' Z" fill="#b4e7ff" opacity=".05"/>';
   }
+  if(S.bg==="neon")return '<rect width="'+W+'" height="'+H+'" fill="#061322"/>'+lights+'<path d="M0 '+H*.34+' L'+W+' '+H*.04+' M0 '+H*.96+' L'+W+' '+H*.66+'" stroke="#37c9ff" stroke-width="3" opacity=".45"/><path d="M'+W*.68+' 0 L'+W*.1+' '+H+'" stroke="#ffda55" stroke-width="5" opacity=".38"/>';
+  if(S.bg==="champions")return '<rect width="'+W+'" height="'+H+'" fill="#100f10"/>'+lights+Array.from({length:42},(_,i)=>'<circle cx="'+((i*137+53)%W)+'" cy="'+((i*211+91)%H)+'" r="'+(i%3+1)+'" fill="#ffda55" opacity="'+(.15+i%4*.08)+'"/>').join('');
   if(S.bg==="ice")return '<rect width="'+W+'" height="'+H+'" fill="#0a2a3d"/><circle cx="'+W*.5+'" cy="'+H*.56+'" r="'+Math.min(W,H)*.34+'" fill="none" stroke="#a8e6ff" stroke-opacity=".09" stroke-width="8"/><path d="M0 '+H*.56+' H'+W+'" stroke="#d7f4ff" stroke-opacity=".09" stroke-width="5"/>';
   if(S.bg==="smoke")return '<rect width="'+W+'" height="'+H+'" fill="#06111a"/><ellipse cx="'+W*.25+'" cy="'+H*.68+'" rx="'+W*.38+'" ry="'+H*.24+'" fill="#a8b5bf" fill-opacity=".09"/><ellipse cx="'+W*.8+'" cy="'+H*.35+'" rx="'+W*.3+'" ry="'+H*.2+'" fill="#ffbd00" fill-opacity=".06"/>';
   return '<rect width="'+W+'" height="'+H+'" fill="#06283d"/><path d="M0 '+H*.82+' L'+W*.48+' 0 H'+W*.62+' L'+W*.16+' '+H+'" Z" fill="#0d4a70" fill-opacity=".32"/><path d="M'+W*.6+' 0 L'+W+' '+H*.42+' V'+H*.63+' L'+W*.48+' 0 Z" fill="#ffbd00" fill-opacity=".05"/>';
@@ -573,17 +577,17 @@ function nationFlag(p,x,y,width=36){
 function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
   const goalie=kind==="goalies",key=kind==="goals"?"g":kind==="assists"?"a":"p",label=goalie?"SV%":kind==="goals"?"MÅL":kind==="assists"?"ASSIST":"POÄNG";
   const value=goalie?fmtDec(p.sv*(p.sv<=1?100:1),1):p[key],gold=rank===1,accent=gold?"#ffda55":"#bdd4e5";
-  const pw=Math.min(250,h*.90),px=x+62,py=y+12,tx=px+pw+26,right=x+w-32,scale=Math.min(1.25,h/290);
+  const pw=Math.min(S.format==='wide'?270:300,h*.90),px=x+62,py=y+12,tx=px+pw+26,right=x+w-32,scale=Math.min(1.25,h/290);
   const flag=nationFlag(p,tx,y+54*scale-27*scale,36*scale),nameX=tx+(flag?48*scale:0),logoSize=92*scale;
   const nameSize=Math.min(40,(right-nameX-logoSize-24)/Math.max(1,String(p.display_gamertag||"").length)*1.6);
   let o='<g><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="12" fill="'+(gold?'#132d3c':'#0b1d2c')+'" stroke="'+(gold?'#dfb742':'#294355')+'" stroke-width="'+(gold?2:1)+'"/>'+
     '<path d="M'+(x+w*.78)+' '+y+' H'+(x+w)+' V'+(y+h)+' H'+(x+w*.62)+' Z" fill="'+accent+'" opacity=".04"/>'+
     svgText(x+24,y+53,String(rank).padStart(2,'0'),29,accent,900)+
     '<rect x="'+(x+24)+'" y="'+(y+70)+'" width="3" height="'+(h-100)+'" fill="'+accent+'" opacity=".65"/>';
-  const portrait=portraitUrl(p),ph=h-24,frame='M'+(px+20)+' '+py+' H'+(px+pw)+' L'+(px+pw-20)+' '+(py+ph)+' H'+px+' Z';
+  const portrait=portraitUrl(p),ph=h-24,photoH=Math.min(ph-6,(pw-8)*1.42),frame='M'+(px+20)+' '+py+' H'+(px+pw)+' L'+(px+pw-20)+' '+(py+ph)+' H'+px+' Z';
   o+='<defs><linearGradient id="portraitBlue-'+rank+'" x2="1" y2="1"><stop stop-color="#16466a"/><stop offset="1" stop-color="#062337"/></linearGradient><clipPath id="portraitFrame-'+rank+'"><path d="'+frame+'"/></clipPath></defs>'+
     '<g clip-path="url(#portraitFrame-'+rank+')"><rect x="'+px+'" y="'+py+'" width="'+pw+'" height="'+ph+'" fill="url(#portraitBlue-'+rank+')"/>'+
-    (portrait?normalizedPortrait(portrait,px+4,py+6,pw-8,ph-6,'player-'+rank,true):silhouetteSvg(px,py,pw,ph))+'</g>'+
+    (portrait?normalizedPortrait(portrait,px+4,py+ph-photoH,pw-8,photoH,'player-'+rank,true):silhouetteSvg(px,py,pw,ph))+'</g>'+
     '<path d="'+frame+'" fill="none" stroke="'+accent+'" stroke-width="2"/>'+
     '<path d="M'+(px+20)+' '+py+' L'+px+' '+(py+ph)+' M'+(px+pw)+' '+py+' L'+(px+pw-20)+' '+(py+ph)+'" fill="none" stroke="#e8c84e" stroke-width="3"/>';
   o+=flag+svgText(nameX,y+54*scale,clip(p.display_gamertag,32),nameSize,"#fff",900)+svgText(tx,y+81*scale,clip(p.team_name_in_league||"",36),17*scale,"#a6bfce",600);
@@ -591,7 +595,7 @@ function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
   const vy=y+h*.59;
   o+=svgText(tx,vy-52*scale,label,13*scale,accent,800,'letter-spacing="2"')+svgText(tx-4,vy+25*scale,value,(goalie?75:98)*scale,accent,900,'letter-spacing="-4"');
   const values=goalie?[['MATCHER',p.gp],['GAA',p.gaa==null?'–':fmtDec(p.gaa)],['NOLLOR',p.so]]:kind==="goals"?[['MATCHER',p.gp],['ASSIST',p.a],['POÄNG',p.p]]:kind==="assists"?[['MATCHER',p.gp],['MÅL',p.g],['POÄNG',p.p]]:[['MATCHER',p.gp],['MÅL',p.g],['ASSIST',p.a]];
-  const sx=tx+(goalie?220:190),step=(right-sx)/3;
+  const sx=tx+(goalie?220:190),step=Math.min(200,(right-sx)/3);
   values.forEach((v,i)=>o+=svgText(sx+i*step,vy-32*scale,v[0],11*scale,"#a6bfce",700,'letter-spacing="1"')+svgText(sx+i*step,vy+14*scale,v[1],34*scale,"#fff",800));
   const footer=goalie?'RÄDDNINGSPROCENT':label+' PER MATCH',rate=goalie?fmtDec(p.sv*(p.sv<=1?100:1),1)+' %':fmtDec(p.gp?p[key]/p.gp:0);
   o+='<line x1="'+tx+'" y1="'+(y+h-57)+'" x2="'+right+'" y2="'+(y+h-57)+'" stroke="#345062"/>'+svgText(tx,y+h-28,footer,12,"#a6bfce",700,'letter-spacing="1.2"')+svgText(right,y+h-26,rate,22,accent,800,'text-anchor="end"');
@@ -599,7 +603,7 @@ function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
 }
 function modernPodiumBase(content){
   const {w:W,h:H}=format(),m=Math.round(W*.052),c=comp(),ts=Math.min(W>1400?100:86,(W-m*2)/Math.max(1,title().length)*1.55);
-  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+defs()+'<rect width="'+W+'" height="'+H+'" fill="#05121c"/>'+background(W,H)+'<rect width="'+W+'" height="'+H+'" fill="#05121c" opacity=".85"/>'+
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+defs()+'<rect width="'+W+'" height="'+H+'" fill="#05121c"/>'+background(W,H)+'<rect width="'+W+'" height="'+H+'" fill="#05121c" opacity=".30"/>'+
     '<path d="M'+W*.72+' 0 H'+W+' L'+W*.28+' '+H+' H'+W*.12+' Z" fill="#83bdde" opacity=".045"/>'+
     (c.logo?'<image href="'+esc(c.logo)+'" x="'+m+'" y="32" width="76" height="76" preserveAspectRatio="xMidYMid meet"/>':'')+
     svgText(m+94,65,c.label,25,"#fff",900)+svgText(m+94,90,"SVENSK eHOCKEY",11,"#a6bfce",700,'letter-spacing="2"')+
