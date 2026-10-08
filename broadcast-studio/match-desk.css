@@ -21,3 +21,17 @@ body:not(.obs-preview) .stream-dock{width:100%;max-width:1100px;box-sizing:borde
 .desk-alternatives label{margin-top:12px}
 @media(max-width:850px){body:not(.obs-preview) .stream-dock{grid-template-columns:minmax(0,1fr);padding:14px}.stream-dock>.next-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){.stream-dock>.next-controls{grid-template-columns:minmax(0,1fr)}}
+
+/* Compact director setup and saved-match selector. */
+aside .theme-control{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+aside .theme-control>h3,aside .theme-control>.control-note{grid-column:1/-1}
+aside .theme-control>label{width:auto;min-width:0;margin:0}
+aside .theme-control select{width:100%;box-sizing:border-box}
+aside .saved-match-picker label{display:block;width:100%}
+aside .saved-match-picker select{width:100%}
+aside .saved-match-picker small{display:block;margin-top:10px}
+aside .block[hidden]{display:none!important}
+
+aside .team-select-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;width:100%;grid-column:1/-1}
+aside .team-select-row>label{width:auto;min-width:0;margin:0}
+aside .team-select-row select{width:100%;box-sizing:border-box}
