@@ -78,6 +78,9 @@
     authMessageType: "",
     authEmailDraft: "",
     cloudSyncState: "local",
+    notesLocalSaved: null,
+    notesRevision: 0,
+    notesCloudRevision: 0,
     cloudSyncMessage: "",
     access: null,
     accessRows: [],
@@ -779,8 +782,10 @@
   function persistLocalNotes() {
     try{
       localStorage.setItem(noteStorageKey(),JSON.stringify(state.notes));
+      state.notesLocalSaved=true;
       return true;
     }catch{
+      state.notesLocalSaved=false;
       return false;
     }
   }
@@ -819,7 +824,26 @@
     };
   }
 
+  function notesSaveStatus() {
+    const dirty=(state.notesRevision||0)>(state.notesCloudRevision||0);
+    const local=state.notesLocalSaved!==false;
+    if(state.cloudSyncState==="synced"&&!dirty) return {title:"Sparat i molnet",text:state.cloudSyncMessage||"Anteckningarna är sparade på ditt konto och kan hämtas på en annan enhet.",kind:"saved"};
+    if(!local) return {title:"Inte säkert sparat",text:"Webbläsaren kunde inte spara anteckningarna på datorn. "+(state.cloudSyncState==="syncing"?"Molnsynk pågår; låt sidan vara öppen.":"Kopiera texten innan du stänger sidan och försök synka igen."),kind:"error"};
+    if(state.cloudSyncState==="syncing"||(state.cloudSyncState==="synced"&&dirty)) return {title:"Väntar på synkning",text:"Sparat på den här datorn. Vänta på Sparat i molnet innan du byter enhet.",kind:"pending"};
+    if(state.cloudSyncState==="error") return {title:"Sparat på datorn · synkfel",text:"Molnsynk misslyckades. Texten finns kvar i den här webbläsaren. Öppna KONTO och välj SYNKA NOTES NU för att försöka igen.",kind:"error"};
+    return {title:state.notesLocalSaved===true?"Sparat på datorn":"Sparas på den här datorn",text:state.authUser?"Molnsynk kräver godkänd lagbehörighet.":"Anteckningarna finns i den här webbläsaren. Logga in med ett godkänt konto för molnsynk.",kind:"local"};
+  }
+
+  function updateNotesSaveStatus() {
+    const status=notesSaveStatus();
+    const badge=document.getElementById("notesSaveStatus");
+    if(badge){badge.textContent=status.title;badge.dataset.kind=status.kind;badge.title=status.text;}
+    const info=document.querySelector(".notes-storage-info");
+    if(info){info.dataset.kind=status.kind;info.querySelector("strong").textContent=status.title;info.querySelector("span").textContent=status.text;}
+  }
+
   function updateAuthButton() {
+    updateNotesSaveStatus();
     const button=document.getElementById("accountButton");
     if(!button) return;
     state.access=state.selectedTeam
@@ -876,6 +900,7 @@
     updateAuthButton();
 
     const userId=state.authUser.id;
+    const savingRevision=state.notesRevision||0;
     const teamId=state.selectedTeam.id;
     const stillAuthorized=()=>state.authUser?.id===userId&&canAccessTeam(teamId);
     const userKey=noteStorageKey(userId);
@@ -911,9 +936,11 @@
     state.notes=mergeNoteSets(merged,readNotesFromStorage(userKey),state.notes);
     try{
       localStorage.setItem(userKey,JSON.stringify(state.notes));
+      state.notesLocalSaved=true;
       if(includeGuest) localStorage.removeItem(noteStorageKey(null));
-    }catch{}
+    }catch{state.notesLocalSaved=false;}
 
+    state.notesCloudRevision=savingRevision;
     state.cloudSyncState="synced";
     state.cloudSyncMessage="Synkad "+new Intl.DateTimeFormat("sv-SE",{
       hour:"2-digit",minute:"2-digit",timeZone:"Europe/Stockholm"
@@ -924,15 +951,18 @@
   }
 
   function saveNotes() {
+    state.notesRevision=(state.notesRevision||0)+1;
     persistLocalNotes();
     if(state.authUser&&state.selectedTeam&&canAccessTeam(state.selectedTeam.id)){
+      state.cloudSyncState="syncing";
       syncNotesWithCloud().catch((error)=>{
         console.error("Note cloud sync failed",error);
         state.cloudSyncState="error";
         state.cloudSyncMessage="Molnsynk misslyckades.";
         updateAuthButton();
       });
-    }
+    }else{state.cloudSyncState=state.authUser?"blocked":"local";}
+    updateNotesSaveStatus();
   }
 
   function noteId() {
@@ -1217,15 +1247,8 @@
         }).join("")+'</div>'
       : '';
 
-    const storageTitle=state.access?.active
-      ? "Molnsynk aktiv"
-      : state.authUser ? "Lokalt · behörighet saknas" : "Lokalt sparat";
-    const storageText=state.access?.active
-      ? (state.cloudSyncMessage||"Anteckningar följer det godkända kontot mellan enheter.")
-      : state.authUser
-        ? "Du är inloggad, men kontot måste godkännas innan NOTES får skrivas till Supabase."
-        : "Anteckningar ligger bara i den här webbläsaren tills du loggar in med ett godkänt konto.";
-    return '<article class="drawer-card notes-storage-info"><strong>'+esc(storageTitle)+'</strong><span>'+esc(storageText)+'</span></article>' +
+    const storage=notesSaveStatus();
+    return '<article class="drawer-card notes-storage-info" data-kind="'+storage.kind+'" role="status" aria-live="polite"><strong>'+esc(storage.title)+'</strong><span>'+esc(storage.text)+'</span></article>' +
       reportImportHtml() +
       '<form class="note-form" id="noteForm">' +
         '<input type="hidden" id="noteEditId" value="">' +
@@ -1931,7 +1954,7 @@
     const game=live||pregame||ended ? state.nextGame : state.latestFocusGame;
     const events=live||ended ? state.currentEvents : pregame ? [] : state.latestEvents;
     const eventPanelTitle=document.getElementById("eventPanelTitle");
-    if(eventPanelTitle) eventPanelTitle.textContent=ended ? "SLUT · Matchhändelser" : live ? "LIVE · Senaste händelser" : pregame ? "Dagens match" : "Matchhändelser";
+    if(eventPanelTitle) eventPanelTitle.textContent=ended ? "SLUT · Matchhändelser" : live ? "LIVE · Senaste händelser" : pregame ? "Inför nedsläpp" : "Senaste match · underlag";
 
     if(!game){
       feed.className="empty-state";
@@ -2008,7 +2031,7 @@
       ? 'MATCH SLUT · 60:00'
       : live
         ? 'LIVE MATCH · ' + esc(state.focusTeam.canonical_name.toUpperCase()) + ' · ' + (events.length?'OFFICIELL EVENTDATA':'INVÄNTAR MATCHDATA')
-        : 'OFFICIELL MATCHRAPPORT';
+        : 'SENASTE MATCH · UNDERLAG'+(state.opponent?' INFÖR '+esc(state.opponent.canonical_name.toUpperCase()):'');
     const footer=esc(game.venue_name || "") + ' · ' +
       (live
         ? (events.length ? events.length + ' importerade händelser' : 'väntar på '+league.sourceLabel+'-data')

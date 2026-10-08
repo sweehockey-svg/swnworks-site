@@ -4903,3 +4903,10 @@ html[data-theme="light"] .note-tag-options button[aria-pressed="true"]{backgroun
 .ai-pause>h3{font-size:13px;letter-spacing:.06em}
 .ai-pause>p{font-size:12px;line-height:1.5;color:var(--muted)}
 @media(max-width:520px){.notes-search{grid-template-columns:minmax(0,1fr)}}
+
+#notesSaveStatus{display:block;font-size:8px;line-height:1.4;color:var(--muted);letter-spacing:0;white-space:normal}
+#notesSaveStatus[data-kind="saved"]{color:#78cda7}
+#notesSaveStatus[data-kind="pending"]{color:#e0bb60}
+#notesSaveStatus[data-kind="error"]{color:#eea191}
+.notes-storage-info[data-kind="error"]{border-color:#a76b51}
+.notes-storage-info[data-kind="pending"]{border-color:#887036}

@@ -27,6 +27,30 @@ function notesHarness(){
   vm.createContext(ctx);vm.runInContext(extract('  function noteTimestamp(', '  function updateAuthButton()')+extract('  let notesSyncPromise=', '  function saveNotes()'),ctx);
   return {ctx,writes,storage};
 }
+
+function saveStatus(state){
+  const ctx={state};vm.createContext(ctx);
+  vm.runInContext(extract('  function notesSaveStatus()', '  function updateNotesSaveStatus()'),ctx);
+  return ctx.notesSaveStatus();
+}
+test('cloud saving status waits for the newest edit, not an older successful write',()=>{
+  const state={cloudSyncState:'synced',notesRevision:2,notesCloudRevision:1,notesLocalSaved:true};
+  assert.equal(saveStatus(state).title,'Väntar på synkning');
+  state.notesCloudRevision=2;assert.equal(saveStatus(state).title,'Sparat i molnet');
+});
+test('failed cloud sync distinguishes safe local backup from an unsaved draft',()=>{
+  const state={cloudSyncState:'error',notesLocalSaved:true};
+  assert.equal(saveStatus(state).title,'Sparat på datorn · synkfel');
+  state.notesLocalSaved=false;assert.equal(saveStatus(state).title,'Inte säkert sparat');
+  state.cloudSyncState='synced';assert.equal(saveStatus(state).title,'Sparat i molnet');
+});
+test('last-match report is clearly separate from the upcoming match and changes at pregame/live',()=>{
+  const feed={},title={};const ctx={state:{nextGame:{id:'next',status:'scheduled',scheduled_start:new Date(Date.now()+48*3600000).toISOString()},latestFocusGame:{id:'last',status:'final',home_team_id:'vasby',away_team_id:'lindloven',home_score:5,away_score:2},opponent:{canonical_name:'Kiruna IF'},focusTeam:{canonical_name:'Väsby IK HK'},latestEvents:[],currentEvents:[],nextLineup:null},document:{getElementById:id=>id==='eventFeed'?feed:title},gameIsLive:g=>g?.status==='live',gameIsEffectivelyFinal:g=>g?.status==='final',getTeamName:id=>({vasby:'Väsby IK HK',lindloven:'Lindlövens IF'}[id]||id),esc:v=>v??'',swedishDate:()=>'',matchStatsStripHtml:()=>'',officialLineupState:()=>({ready:false,partial:false}),league:{sourceLabel:'Swehockey'}};
+  vm.createContext(ctx);vm.runInContext(extract('  function renderLatestGame()', '  function formSummary('),ctx);
+  ctx.renderLatestGame();assert.equal(title.textContent,'Senaste match · underlag');assert.match(feed.innerHTML,/UNDERLAG INFÖR KIRUNA IF/);assert.match(feed.innerHTML,/Lindlövens IF/);
+  ctx.state.nextGame.scheduled_start=new Date(Date.now()+30*60000).toISOString();ctx.renderLatestGame();assert.equal(title.textContent,'Inför nedsläpp');assert.doesNotMatch(feed.innerHTML,/Lindlövens IF/);
+  ctx.state.nextGame.status='live';ctx.renderLatestGame();assert.equal(title.textContent,'LIVE · Senaste händelser');assert.doesNotMatch(feed.innerHTML,/UNDERLAG INFÖR/);
+});
 test('existing notes survive and edits made during a write are queued',async()=>{
   const {ctx,writes,storage}=notesHarness();const first=ctx.syncNotesWithCloud();await tick();
   ctx.state.notes=[{...ctx.state.notes[0],body:'Newest text',updated_at:'2026-01-01T00:00:01Z'}];
