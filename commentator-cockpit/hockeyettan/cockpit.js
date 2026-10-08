@@ -3643,9 +3643,32 @@
     '</section>';
   }
 
+  function renderMatchCheck() {
+    const lineup=officialLineupState();
+    const teams=[state.focusTeam?.id,state.opponent?.id].filter(Boolean);
+    const goalies=new Set((state.nextLineup?.players||[]).filter((row)=>row.position==='GK'&&teams.includes(row.team_id)).map((row)=>row.team_id));
+    const live=gameIsLive(state.nextGame);
+    const sourceAt=state.nextGame?.updated_at;
+    const sourceAge=sourceAt?(Date.now()-new Date(sourceAt).getTime())/60000:null;
+    const stale=live&&(sourceAge==null||!Number.isFinite(sourceAge)||sourceAge>5);
+    const failed=Boolean(state.lastLiveRefreshError);
+    const stamp=(iso)=>{const date=new Date(iso);return iso&&!Number.isNaN(date.getTime())?date.toLocaleString('sv-SE',{timeZone:'Europe/Stockholm',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'Tid saknas';};
+    const items=[
+      ['Laguppställningar',lineup.ready?'Båda lagen klara':lineup.partial?'1 av 2 lag klara':'Inväntar officiella uppställningar',lineup.ready?'ready':'waiting'],
+      ['Målvakter i officiell lineup',goalies.size===2?'Publicerade för båda lagen':goalies.size===1?'Publicerade för ett lag':'Inväntar publicering',goalies.size===2?'ready':'waiting'],
+      ['Livedata',failed?'Uppdatering misslyckades':stale?'Källdata är fördröjd':live?state.currentEvents.length?'Matchhändelser finns':'Matchen startad · inväntar händelser':'Matchen har inte startat',failed||stale?'warn':live&&state.currentEvents.length?'ready':'waiting']
+    ];
+    return '<section class="match-check"><h3>MATCHCHECK</h3><div class="match-check-grid">'+items.map(([label,text,kind])=>'<article class="'+kind+'"><span>'+esc(label)+'</span><strong>'+esc(text)+'</strong></article>').join('')+'</div><p>Lineup uppdaterad: '+esc(stamp(lineup.updatedAt))+' · Matchkälla uppdaterad: '+esc(stamp(sourceAt))+'</p><p>Senaste lyckade kontroll: '+esc(stamp(state.lastLiveRefreshAt))+' · Målvaktslistan bekräftar inte vem som startar.</p><small><kbd>/</kbd> Spelarsök · <kbd>N</kbd> Ny anteckning · <kbd>Esc</kbd> Stäng panel</small></section>';
+  }
+
+  function updateMatchCheck() {
+    const check=document.querySelector('.drawer.open .match-check');
+    if(check) check.outerHTML=renderMatchCheck();
+  }
+
   function renderDataHealth() {
-    const lineupStatus=state.nextLineup
-      ? ["ready","OFFICIELL"]
+    const official=officialLineupState();
+    const lineupStatus=official.ready?["ready","OFFICIELL"]:official.partial?["warn","DELVIS"]
       : state.fallbackLineups.size ? ["warn","SENASTE"] : ["waiting","VÄNTAR"];
     const statsTotal=state.seasonPlayerStats.length+state.seasonGoalieStats.length+state.seasonSpecialTeams.length;
     const statsStatus=statsTotal
@@ -3766,7 +3789,7 @@
     const rest = cards.slice(1).map(([title, text]) =>
       '<article class="drawer-card"><strong>' + esc(title) + '</strong><span>' + esc(text) + '</span></article>'
     ).join("");
-    return renderPregameCockpit() + renderDataHealth() + renderUpcomingGames() + rest;
+    return renderMatchCheck() + renderPregameCockpit() + renderDataHealth() + renderUpcomingGames() + rest;
   }
 
   function renderDrawer(key) {
@@ -4515,6 +4538,7 @@
       state.lastLiveRefreshError="";
       state.lastLiveRefreshAt=new Date().toISOString();
       render();
+      updateMatchCheck();
       const activeButton=document.querySelector(".deck-key.active");
       const livePanels=new Set(["lines","players","goalies","special","live","studio"]);
       if(drawer.classList.contains("open")&&livePanels.has(activeButton?.dataset.panel||"")){
@@ -4523,6 +4547,7 @@
     }catch(error){
       console.error("Live refresh failed",error);
       state.lastLiveRefreshError=String(error?.message||error||"Okänt fel");
+      updateMatchCheck();
       if(gameIsLive(state.nextGame)) setSyncStatus("warn","Live-uppdatering misslyckades · senaste data visas");
     }finally{
       state.liveRefreshBusy=false;
@@ -4582,8 +4607,29 @@
     setDrawerOpen(false);
   });
 
+  function cockpitShortcut(event) {
+    if(event.ctrlKey||event.metaKey||event.altKey||event.isComposing||event.repeat||event.defaultPrevented) return null;
+    const target=event.target;
+    if(target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="searchbox"],[role="combobox"]')) return null;
+    return event.key==='/'?'players':String(event.key).toLowerCase()==='n'?'notes':null;
+  }
+
   document.addEventListener("keydown",(event)=>{
     if(event.key==="Escape"&&drawer.classList.contains("open")) setDrawerOpen(false);
+    const panel=cockpitShortcut(event);
+    if(!panel||!state.teamDataLoaded||!state.selectedTeam||!canAccessTeam(state.selectedTeam.id)) return;
+    event.preventDefault();
+    if(panel==='notes'&&drawer.classList.contains('open')&&drawer.dataset.panel==='notes'&&document.getElementById('noteEditor')?.open){
+      document.getElementById('noteBody')?.focus();return;
+    }
+    document.querySelectorAll('.deck-key').forEach((item)=>item.classList.toggle('active',item.dataset.panel===panel));
+    renderDrawer(panel);
+    if(panel==='players') document.getElementById('playerSearchInput')?.focus();
+    else {
+      state.noteEditorOpen=true;
+      document.getElementById('noteEditor').open=true;
+      document.getElementById('noteBody')?.focus();
+    }
   });
 
   document.getElementById("accountButton")?.addEventListener("click",()=>{

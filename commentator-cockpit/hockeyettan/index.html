@@ -16,7 +16,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="cockpit.css?v=63">
+  <link rel="stylesheet" href="cockpit.css?v=64">
 </head>
 <body>
   <div class="app-shell">
@@ -178,7 +178,7 @@
             <span class="assistant-light">●</span>
           </div>
 
-          <button class="lookup-button" id="playerLookupButton" type="button">SNABBSÖK SPELARE · # / NAMN</button>
+          <button class="lookup-button" id="playerLookupButton" type="button" aria-keyshortcuts="/" title="Spelarsök · tangent /">SNABBSÖK SPELARE · # / NAMN</button>
           <div class="fact-stack" id="factStack">
             <article class="fact-card primary">
               <span>DATASTATUS</span>
@@ -223,13 +223,13 @@
       <button class="deck-key" data-panel="story"><span>07</span><strong>STORY</strong></button>
       <button class="deck-key" data-panel="h2h"><span>08</span><strong>H2H</strong></button>
       <button class="deck-key" data-panel="studio"><span>09</span><strong>STUDIO</strong></button>
-      <button class="deck-key" data-panel="notes"><span>10</span><strong>NOTES</strong><small id="notesSaveStatus" role="status" aria-live="polite">Sparas lokalt</small></button>
+      <button class="deck-key" data-panel="notes" aria-keyshortcuts="N" title="Ny anteckning · tangent N"><span>10</span><strong>NOTES</strong><small id="notesSaveStatus" role="status" aria-live="polite">Sparas lokalt</small></button>
       <button class="deck-key accent" data-panel="ai"><span>11</span><strong>AI</strong></button>
     </nav>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js?v=4"></script>
-  <script src="cockpit.js?v=74"></script>
+  <script src="cockpit.js?v=75"></script>
 </body>
 </html>
