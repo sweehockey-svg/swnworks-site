@@ -113,12 +113,14 @@
   }
   async function stopHost(publish=true){
     clearTimeout(expiryTimer);
-    if(channel&&keys&&session){const outgoing=channel;void signed(presenter?{type:'host-status',room:session.room,live:false,count:0}:{type:'end',room:session.room}).then(message=>send(message,outgoing));}
+    let goodbye;
+    if(channel&&keys&&session){const outgoing=channel;goodbye=signed(presenter?{type:'host-status',room:session.room,live:false,count:0}:{type:'end',room:session.room}).then(message=>send(message,outgoing));}
     startingToken++;starting=false;
     stream?.getTracks().forEach(track=>track.stop());stream=null;
     session=null;keys=null;
     for(const peerId of [...peers.keys()])closePeer(peerId);
-    const old=channel;channel=null;if(old&&client)void client.removeChannel(old);
+    const old=channel;channel=null;
+    if(old&&client){if(goodbye)void goodbye.catch(()=>{}).finally(()=>client.removeChannel(old));else void client.removeChannel(old);}
     if(!presenter){window.__sehCommentarySession=null;if(publish)window.__sehPublishBroadcastState?.();}
     const oldLink=panel.querySelector('.commentary-invite');
     if(oldLink){oldLink.hidden=true;oldLink.querySelector('input').value='';}
