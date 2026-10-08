@@ -136,7 +136,7 @@ function matchesSvg(){
   return base(games.sort((a,b)=>a[0].localeCompare(b[0])).map((g,i)=>{
     const y=top+i*rowH,cy=y+rowH/2;
     const team=(name,x)=>{const t=S.teams.find(t=>String(t.team_name_in_league).toLocaleLowerCase('sv')===name.toLocaleLowerCase('sv'));const logo=t&&lm.get(String(t.sports_gamer_team_id));return (S.logos&&logo?'<image href="'+esc(logo)+'" x="'+x+'" y="'+(cy-24)+'" width="48" height="48"/>':'')+svgText(x+(S.logos?58:0),cy+8,clip(name,W>1200?34:21),W>1200?29:22);};
-    return '<rect x="'+m+'" y="'+(y+5)+'" width="'+(W-m*2)+'" height="'+(rowH-10)+'" rx="10" fill="#071d2c" fill-opacity=".9"/>'+svgText(m+20,cy+8,g[0],25,'#ffcf4a')+team(g[1],m+130)+svgText(W*.55,cy+8,g[3]+'–'+g[4],24,'#ffcf4a',800,'text-anchor="middle"')+team(g[2],W*.59);
+    return '<rect x="'+m+'" y="'+(y+5)+'" width="'+(W-m*2)+'" height="'+(rowH-10)+'" rx="10" fill="#071d2c" fill-opacity=".9"/>'+team(g[1],m+24)+svgText(W*.55,cy+8,g[3]+'–'+g[4],24,'#ffcf4a',800,'text-anchor="middle"')+team(g[2],W*.59);
   }).join(''));
 }
 function title(){return ($("#title").value||TIT[S.kind]).trim().toUpperCase()}
