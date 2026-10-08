@@ -6,15 +6,24 @@
   let matches=[],active='',noMatch=true;
   try{const saved=JSON.parse(localStorage.getItem(key)||'{}');matches=Array.isArray(saved.matches)?saved.matches:[];}catch{}
   const desk=document.createElement('div');desk.className='match-desk block';
-  desk.innerHTML='<h3>MATCHBEVAKNING</h3><p>Ställ in lag, resultat och grafik ovan. Spara sedan matchen här. Endast vald stream spelas.</p><label>MATCHNAMN<input id="deskName" placeholder="T.ex. Västerås – Burchurs"></label><label>TWITCH-KANALER · EN PER RAD<textarea id="deskStreams" rows="3" placeholder="hemmalagets_kanal\nbortalagets_kanal"></textarea></label><div class="desk-actions"><button id="deskSave">Spara som ny match</button><button id="deskUpdate">Uppdatera vald match</button><button id="deskIdle">Ingen match just nu</button></div><p id="deskMessage" role="status"></p><div id="deskMatches"></div><small>Listan sparas i den här webbläsaren. Resultat för övriga matcher uppdateras manuellt. Byte skickas till Match-TV.</small>';
+  desk.innerHTML='<h3>MATCH & STREAM</h3><p>Välj stream här, ladda videon och spara den tillsammans med matchen. Lag, resultat och grafik ställs in ovan.</p><label>MATCHNAMN<input id="deskName" placeholder="T.ex. Västerås – Burchurs"></label><details class="desk-alternatives"><summary>Alternativa Twitch-kanaler · valfritt</summary><label>EN KANAL PER RAD<textarea id="deskStreams" rows="3" placeholder="bortalagets_kanal"></textarea></label><small>Lägg till fler vinklar här. Huvudkanalen ovan sparas automatiskt med matchen.</small></details><div class="desk-actions"><button id="deskSave">Spara som ny match</button><button id="deskUpdate">Uppdatera vald match</button><button id="deskIdle">Ingen match just nu</button></div><p id="deskMessage" role="status"></p><div id="deskMatches"></div><small>Listan sparas i den här webbläsaren. Resultat för övriga matcher uppdateras manuellt. Byte skickas till Match-TV.</small>';
   document.querySelector('.stream-dock')?.prepend(desk);
+  const source=document.createElement('section');source.className='desk-live-source';
+  const dock=document.querySelector('.stream-dock');
+  for(const selector of ['.dock-head','.stream-controls','.control-note','#streamStatus']){
+    const node=dock?.querySelector(selector);if(node)source.append(node);
+  }
+  const heading=source.querySelector('.dock-head');
+  if(heading){heading.innerHTML='<strong>Stream som spelas</strong><small>Ladda Twitch eller en direkt videokälla. Endast den valda streamen spelas.</small>';}
+  desk.querySelector('.desk-alternatives')?.before(source);
+
   const quick=document.createElement('section');quick.className='match-desk quick-match-bar';
   quick.innerHTML='<h3>MATCH & STREAM · SNABBVAL</h3>';
   document.querySelector('.director-monitors')?.before(quick);
   quick.append(document.getElementById('deskMatches'),document.getElementById('deskIdle'),document.getElementById('deskMessage'));
-  const nextControls=document.createElement('div');nextControls.className='next-controls';
+  const nextControls=document.createElement('div');nextControls.className='next-controls match-desk';
   nextControls.innerHTML='<h3>NÄSTA MATCH · ENDAST MATCH-TV</h3><label>HEMMALAG<select id="nextHome"></select></label><label>BORTALAG<select id="nextAway"></select></label><label>DATUM<input id="nextDate" type="date" required></label><label>STARTTID · SVENSK TID<input id="nextTime" type="time" required></label><button id="deskNext">Visa Nästa match på Match-TV</button><p>Preview fortsätter vara fritt att ändra. Detta startar inte sändningen automatiskt.</p>';
-  desk.querySelector('.desk-actions').after(nextControls);
+  document.querySelector('.stream-dock')?.append(nextControls);
   const get=id=>document.getElementById(id);
   const fillTeams=()=>['Home','Away'].forEach(side=>{const select=get('next'+side),value=select.value||get(side.toLowerCase()).value;select.replaceChildren(...[...get(side.toLowerCase()).options].map(o=>new Option(o.text,o.value)));select.value=value;});
   nextControls.addEventListener('focusin',e=>{if(e.target.tagName==='SELECT')fillTeams();});
@@ -50,7 +59,7 @@
     });get('deskUpdate').disabled=!active;
   };
   const save=update=>{
-    const name=get('deskName').value.trim(),raw=get('deskStreams').value.split(/\n|,/).map(s=>s.trim()).filter(Boolean);
+    const name=get('deskName').value.trim(),raw=[...(get('videoSource')?.value==='twitch'?[get('twitchChannel').value]:[]),...get('deskStreams').value.split(/\n|,/)].map(s=>s.trim()).filter(Boolean);
     if(!name){get('deskMessage').textContent='Ange ett matchnamn.';return;}
     const streams=[];
     for(let channel of raw){if(/^https?:\/\//i.test(channel)){try{const u=new URL(channel);if(!/^(www\.)?twitch\.tv$/i.test(u.hostname))throw Error();channel=u.pathname.split('/').filter(Boolean)[0]||'';}catch{get('deskMessage').textContent='Ange Twitch-kanaler eller Twitch-länkar.';return;}}channel=channel.replace(/^@/,'');if(!/^[a-z0-9_]{1,25}$/i.test(channel)){get('deskMessage').textContent='Ogiltig Twitch-kanal: '+channel;return;}if(!streams.includes(channel.toLowerCase()))streams.push(channel.toLowerCase());}
