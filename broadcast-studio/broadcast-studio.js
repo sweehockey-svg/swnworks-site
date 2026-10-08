@@ -9,7 +9,8 @@
     526:{id:526,code:"GCL",label:"GCL 13 · POKAL",logo:"https://fhr.fra1.cdn.digitaloceanspaces.com/SportsGamer/leagues/GCL/Season_12/GCL_logo_new_350x350.png"},
     527:{id:527,code:"SCL",label:"SCL 27",logo:"https://fhr.fra1.cdn.digitaloceanspaces.com/NHLGamer/Community/uploads/monthly_2021_08/small.SCL_logo_shading.png.f99772ef717dcd328c35b5469ac1cbc2.png"},
     523:{id:523,code:"WECL",label:"WECL",logo:"https://fhr.fra1.cdn.digitaloceanspaces.com/NHLGamer/WECL/WECL_logo.png"},
-    529:{id:529,code:"FCL",label:"FCL 27",logo:"https://sportsgamer.gg/community/gallery/image/374-fcl_logopng/?do=download"}
+    529:{id:529,code:"FCL",label:"FCL 27",logo:"https://sportsgamer.gg/community/gallery/image/374-fcl_logopng/?do=download"},
+    532:{id:532,code:"WV",label:"WV 4 Nations 2026",logo:"https://fhr.fra1.cdn.digitaloceanspaces.com/SportsGamer/tournaments/WV_4_Nations/WV_logo.png"}
   };
   let activeLeagueId = Number($("#tournament")?.value || 520);
   const competition = () => COMPETITIONS[activeLeagueId] || COMPETITIONS[520];
@@ -27,6 +28,25 @@
   const seriesBestOf = bo => LOCALE === "fi" ? "PARAS " + bo + ":STÄ" : LOCALE === "de" ? "BEST-OF-" + bo : LOCALE === "sv" ? "BÄST AV " + bo : "BEST OF " + bo;
   const REMOTE_CHANNEL = ({sv:"sec21-bronze-test",en:"broadcast-en",fi:"broadcast-fi",de:"broadcast-de"}[LOCALE] || "sec21-bronze-test");
   const OBS_MODE = new URLSearchParams(location.search).get("obs") === "1";
+  const VIEWER_MODE = new URLSearchParams(location.search).get("viewer") === "1";
+  const PREVIEW_MODE = new URLSearchParams(location.search).get('preview')==='1';
+  let publicNoMatch=true;
+  let publicNextMatch=null;
+  const idleScene=document.createElement('div');
+  idleScene.className='scene idle';
+  idleScene.innerHTML='<div class="idle-content"><span>SVENSK eHOCKEY · MATCH-TV</span><h1>Ingen match<br>just nu</h1><p>Vi är tillbaka med fler matcher. Håll utkik i vår Discord.</p></div>';
+  document.getElementById('screen')?.append(idleScene);
+  const nextScene=document.createElement('div');nextScene.className='scene nextmatch';
+  nextScene.innerHTML='<div class="next-content"><span>NÄSTA MATCH · SVENSK eHOCKEY</span><h1>Snart dags för nedsläpp</h1><div class="next-teams"><div class="homeTeam"><img alt=""><b></b></div><strong>VS</strong><div class="awayTeam"><img alt=""><b></b></div></div><p id="nextMatchStart"></p><small>Starttid i svensk tid · Europe/Stockholm</small></div>';
+  document.getElementById('screen')?.append(nextScene);
+  function viewerState(s){
+    if(!VIEWER_MODE||!s.publicNoMatch)return s;
+    const next=s.publicNextMatch;
+    if(!next)return {...s,scene:'idle'};
+    const date=new Date(next.date+'T12:00:00Z');
+    document.getElementById('nextMatchStart').textContent=Number.isFinite(date.getTime())?new Intl.DateTimeFormat('sv-SE',{day:'numeric',month:'long',year:'numeric',timeZone:'Europe/Stockholm'}).format(date)+' · kl. '+String(next.time):'';
+    return {...s,home:next.home,away:next.away,scene:'nextmatch'};
+  }
   if (OBS_MODE) {
     const fitObsPreview = () => document.documentElement.style.setProperty("--obs-preview-scale", String(Math.min(window.innerWidth / 1280, window.innerHeight / 720)));
     fitObsPreview();
@@ -258,16 +278,12 @@
     const scene=box.closest(".scene.table");
 
     if(splitGroups){
-      // Keep group order stable on-air: Group 1 is always left, Group 2 right,
-      // regardless of which selected team happens to be home or away.
-      const orderedGroups=groupIds.filter(id=>id===homeGroup||id===awayGroup);
-      const leftGroup=orderedGroups[0], rightGroup=orderedGroups[1];
-      const leftRows=regular.filter(r=>groupId(r)===leftGroup);
-      const rightRows=regular.filter(r=>groupId(r)===rightGroup);
+      const homeRows=regular.filter(r=>groupId(r)===homeGroup);
+      const awayRows=regular.filter(r=>groupId(r)===awayGroup);
       box.className="broadcast-table bt-dual";
       box.innerHTML=
-        '<section class="bt-panel"><div class="bt-panel-title">'+esc(groupLabel(leftGroup))+'</div><div class="bt-table-inner">'+tableMarkup(leftRows)+'</div></section>'+
-        '<section class="bt-panel"><div class="bt-panel-title">'+esc(groupLabel(rightGroup))+'</div><div class="bt-table-inner">'+tableMarkup(rightRows)+'</div></section>';
+        '<section class="bt-panel"><div class="bt-panel-title">'+esc(groupLabel(homeGroup))+'</div><div class="bt-table-inner">'+tableMarkup(homeRows)+'</div></section>'+
+        '<section class="bt-panel"><div class="bt-panel-title">'+esc(groupLabel(awayGroup))+'</div><div class="bt-table-inner">'+tableMarkup(awayRows)+'</div></section>';
       scene?.classList.add("table-dual-mode","table-dense-mode");
       if($("#tableKicker"))$("#tableKicker").textContent=competition().label+" · "+tx("playoffs")+" · "+tx("groupTables");
       return;
@@ -524,7 +540,7 @@
 
   function renderSeries(){const bo=Number($("#seriesFormat")?.value||5),need=Math.ceil(bo/2),hw=Math.max(0,Math.min(need,Number($("#seriesHome")?.value||0))),aw=Math.max(0,Math.min(need,Number($("#seriesAway")?.value||0))),round=($("#seriesRound")?.value||tx("playoffs")).trim().toLocaleUpperCase(LOCALE),h=selectedTeam("home"),a=selectedTeam("away");$("#seriesHomeScore").textContent=hw;$("#seriesAwayScore").textContent=aw;$("#seriesKicker").textContent=round+" · "+seriesBestOf(bo);const dots=(wins)=>Array.from({length:need},(_,i)=>'<i class="'+(i<wins?"won":"")+'"></i>').join("");$("#seriesHomeDots").innerHTML=dots(hw);$("#seriesAwayDots").innerHTML=dots(aw);const done=hw===need||aw===need;$("#seriesTitle").textContent=done?(hw===need?h.team_name_in_league:a.team_name_in_league)+" "+tx("winsSeries"):tx("seriesState");$("#seriesNext").textContent=done?tx("seriesDone")+" · "+hw+"–"+aw:tx("nextMatch")+" · "+(hw+aw+1);const showResults=!!$("#seriesShowResults")?.checked,results=Array.from({length:bo},(_,i)=>($("#seriesR"+(i+1))?.value||"").trim()).map((v,i)=>v?'<span><b>M'+(i+1)+'</b> '+esc(v.replace(/\s+/g,""))+'</span>':"").filter(Boolean),resultBox=$("#seriesResults");if(resultBox){resultBox.hidden=!showResults||!results.length;$("#seriesResultsList").innerHTML=results.join("");}for(let i=1;i<=7;i++){const label=$("#seriesR"+i)?.closest("label");if(label)label.hidden=i>bo;}["seriesHome","seriesAway"].forEach(id=>{const el=$("#"+id);if(el)el.max=need;});}
 
-  function studioState(){const ls={};["home","away"].forEach(side=>{const l=lineupFor(side);ls[side]={};SLOTS.forEach(slot=>ls[side][slot]=l[slot]||"");});return {leagueId:activeLeagueId,theme:$("#theme")?.value||"broadcast",backgroundPackage:$("#theme")?.value||"broadcast",graphicsPackage:$("#graphicsPackage")?.value||"standard",seriesFormat:$("#seriesFormat")?.value||"5",seriesRound:$("#seriesRound")?.value||tx("playoffs"),seriesHome:$("#seriesHome")?.value||"0",seriesAway:$("#seriesAway")?.value||"0",seriesShowResults:!!$("#seriesShowResults")?.checked,seriesResults:Array.from({length:7},(_,i)=>$("#seriesR"+(i+1))?.value||""),scene:activeScene,lineupSide:$("#lineupSide").value,home:$("#home").value,away:$("#away").value,hs:$("#hs").value,as:$("#as").value,headline:$("#headline").value,subline:$("#subline").value,commentator1:$("#commentator1").value,commentator2:$("#commentator2").value,person:$("#person").value,role:$("#role").value,videoSource:$("#videoSource")?.value||"twitch",hlsUrl:$("#hlsUrl")?.value||"",twitchChannel:$("#twitchChannel")?.value||"",twitchShow:$("#showTwitch")?.checked!==false,twitchMute:$("#muteTwitch")?.checked!==false,liveTeamStripShow:$("#showLiveTeamStrip")?.checked!==false,liveCommentatorsShow:!!$("#showLiveCommentators")?.checked,lineups:ls};}
+  function studioState(){const ls={};["home","away"].forEach(side=>{const l=lineupFor(side);ls[side]={};SLOTS.forEach(slot=>ls[side][slot]=l[slot]||"");});return {matchName:String(window.__sehTwitchState?.matchName||""),leagueId:activeLeagueId,theme:$("#theme")?.value||"broadcast",backgroundPackage:$("#theme")?.value||"broadcast",graphicsPackage:$("#graphicsPackage")?.value||"standard",seriesFormat:$("#seriesFormat")?.value||"5",seriesRound:$("#seriesRound")?.value||tx("playoffs"),seriesHome:$("#seriesHome")?.value||"0",seriesAway:$("#seriesAway")?.value||"0",seriesShowResults:!!$("#seriesShowResults")?.checked,seriesResults:Array.from({length:7},(_,i)=>$("#seriesR"+(i+1))?.value||""),scene:activeScene,lineupSide:$("#lineupSide").value,home:$("#home").value,away:$("#away").value,hs:$("#hs").value,as:$("#as").value,headline:$("#headline").value,subline:$("#subline").value,commentator1:$("#commentator1").value,commentator2:$("#commentator2").value,person:$("#person").value,role:$("#role").value,videoSource:$("#videoSource")?.value||"twitch",hlsUrl:$("#hlsUrl")?.value||"",twitchChannel:$("#twitchChannel")?.value||"",twitchShow:$("#showTwitch")?.checked!==false,twitchMute:$("#muteTwitch")?.checked!==false,liveTeamStripShow:$("#showLiveTeamStrip")?.checked!==false,liveCommentatorsShow:!!$("#showLiveCommentators")?.checked,lineups:ls};}
   function applyScene(name,side){
     const next=name||"opening";
     const nextSide=side||$("#lineupSide").value;
@@ -540,6 +556,7 @@
     displayedLineupSide=next==="lineup"?nextSide:displayedLineupSide;
     document.querySelectorAll("[data-scene]").forEach(x=>x.classList.toggle("active",x.dataset.scene===next&&(!x.dataset.lineupSide||x.dataset.lineupSide===$("#lineupSide").value)));
     activeScene=next;
+    document.getElementById('screen')?.classList.toggle('no-match',next==='idle'||next==='nextmatch');
     if(!target)return;
     const screen=$("#screen");screen?.classList.toggle("live-mode",next==="live");
     if(OBS_MODE)document.documentElement.classList.toggle("obs-live",next==="live");
@@ -580,12 +597,17 @@
   }
   function applyRemoteState(s){if(!s||typeof s!=="object")return;remoteApplying=true;const incomingLeague=Number(s.leagueId||activeLeagueId);if(COMPETITIONS[incomingLeague]&&incomingLeague!==activeLeagueId){activeLeagueId=incomingLeague;if($("#tournament"))$("#tournament").value=String(activeLeagueId);applyCompetitionChrome(false);loadTournamentData();}setTheme(s.backgroundPackage||s.theme||"broadcast");setGraphicsPackage(s.graphicsPackage||"standard");if($("#videoSource")&&s.videoSource!==undefined)$("#videoSource").value=s.videoSource||"twitch";if($("#hlsUrl")&&s.hlsUrl!==undefined)$("#hlsUrl").value=s.hlsUrl||"";if($("#twitchChannel")&&s.twitchChannel!==undefined)$("#twitchChannel").value=s.twitchChannel||"";if($("#showTwitch")&&s.twitchShow!==undefined)$("#showTwitch").checked=!!s.twitchShow;if($("#muteTwitch")&&s.twitchMute!==undefined)$("#muteTwitch").checked=!!s.twitchMute;if($("#showLiveTeamStrip")&&s.liveTeamStripShow!==undefined)$("#showLiveTeamStrip").checked=!!s.liveTeamStripShow;if($("#showLiveCommentators")&&s.liveCommentatorsShow!==undefined)$("#showLiveCommentators").checked=!!s.liveCommentatorsShow;$("#screen")?.classList.toggle("live-team-strip-off",$("#showLiveTeamStrip")?.checked===false);$("#screen")?.classList.toggle("live-commentators-off",!$("#showLiveCommentators")?.checked);window.__sehTwitchState=s;["home","away"].forEach(id=>{if(s[id]!==undefined&&$("#"+id)){const el=$("#"+id),v=String(s[id]);if(v&&![...el.options].some(o=>o.value===v))el.add(new Option(tx("team"),v));el.value=v;}});["hs","as","headline","subline","commentator1","commentator2","person","role","seriesFormat","seriesRound","seriesHome","seriesAway"].forEach(id=>{if(s[id]!==undefined&&$("#"+id))$("#"+id).value=s[id];});if($("#seriesShowResults")&&s.seriesShowResults!==undefined)$("#seriesShowResults").checked=!!s.seriesShowResults;if(Array.isArray(s.seriesResults))s.seriesResults.slice(0,7).forEach((v,i)=>{const el=$("#seriesR"+(i+1));if(el)el.value=v||"";});if(s.lineups){["home","away"].forEach(side=>{if(!s.lineups[side])return;const key=side+":"+String(selectedTeam(side).sports_gamer_team_id);const next={};SLOTS.forEach(slot=>next[slot]=String(s.lineups[side][slot]||""));lineups.set(key,next);});}applyScene(s.scene,s.lineupSide);window.dispatchEvent(new CustomEvent("seh:twitch-state",{detail:s}));renderMatch();renderSeries();renderLineup();renderStats();renderTable();renderTeamCompare();renderScorers();renderFormGuide();renderOffense();renderDefenseLeaders();renderGoalieLeaders();renderRoad();renderLeaders();renderRoleMatchups();remoteApplying=false;}
   async function remoteRequest(method,body){const cfg=window.EHOCKEY_CONFIG||{};if(!cfg.supabaseUrl||!cfg.supabasePublishableKey)return;const key=String(cfg.supabasePublishableKey),headers={apikey:key,Accept:"application/json","Content-Type":"application/json"};if(/^eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(key))headers.Authorization="Bearer "+key;const url=String(cfg.supabaseUrl).replace(/\/+$/,"")+"/rest/v1/broadcast_studio_state?channel=eq."+encodeURIComponent(REMOTE_CHANNEL);const res=await fetch(url,{method,headers,body:body?JSON.stringify(body):undefined,cache:"no-store"});if(!res.ok)throw new Error("Broadcast state HTTP "+res.status);return method==="GET"?res.json():null;}
-  function publishState(){if(OBS_MODE||remoteApplying)return;clearTimeout(remoteTimer);remoteTimer=setTimeout(()=>remoteRequest("PATCH",{state:studioState(),updated_at:new Date().toISOString()}).catch(console.error),120);} window.__sehPublishBroadcastState=publishState;
-  async function pullState(){try{const rows=await remoteRequest("GET");if(rows&&rows[0]&&rows[0].state&&Object.keys(rows[0].state).length)applyRemoteState(rows[0].state);}catch(e){console.error("Broadcast remote:",e);}}
+  function publishState(){if(OBS_MODE||PREVIEW_MODE||remoteApplying)return;clearTimeout(remoteTimer);remoteTimer=setTimeout(()=>remoteRequest("PATCH",{state:{...studioState(),publicNoMatch,publicNextMatch},updated_at:new Date().toISOString()}).catch(console.error),120);} window.__sehPublishBroadcastState=publishState;
+  let stateRequestPending=false,lastRemoteState='';
+  window.__sehStudioSnapshot=studioState;
+  window.__sehStudioRestore=s=>{applyRemoteState(s);publishState();};
+  window.__sehStudioIdle=enabled=>{publicNoMatch=!!enabled;publicNextMatch=null;publishState();return publicNoMatch;};
+  window.__sehStudioNext=next=>{publicNextMatch=next;publicNoMatch=true;publishState();};
+  async function pullState(){if(stateRequestPending)return;stateRequestPending=true;try{const rows=await remoteRequest("GET");if(rows&&rows[0]&&rows[0].state&&Object.keys(rows[0].state).length){const signature=JSON.stringify(rows[0].state);if(signature!==lastRemoteState){lastRemoteState=signature;applyRemoteState(viewerState(rows[0].state));}}}catch(e){console.error("Broadcast remote:",e);if(VIEWER_MODE)parent.postMessage({type:'seh-tv-status',text:'Kontakten med studion är tillfälligt bruten. Försöker igen.'},location.origin);}finally{stateRequestPending=false;}}
   if(OBS_MODE){
-    const obsPoll=()=>{void pullState();};
+    const obsPoll=()=>{if(!VIEWER_MODE||!document.hidden)void pullState();};
     obsPoll();
-    setInterval(obsPoll,1000);
+    setInterval(obsPoll,VIEWER_MODE?10000:1000);
     document.addEventListener("visibilitychange",obsPoll);
     window.addEventListener("focus",obsPoll);
     window.addEventListener("pageshow",obsPoll);
@@ -702,14 +724,40 @@
 (()=>{
  const tx=window.__sehBroadcastTx||((key)=>key);
  const OBS_MODE_LOCAL=new URLSearchParams(location.search).get("obs")==="1";
+ const VIEWER_MODE_LOCAL=new URLSearchParams(location.search).get("viewer")==="1";
+ const DIRECTOR_MODE=!OBS_MODE_LOCAL&&!VIEWER_MODE_LOCAL;
+ let viewerMuted=true;
  const $id=id=>document.getElementById(id);
  const source=$id("videoSource"),twitchInput=$id("twitchChannel"),hlsInput=$id("hlsUrl"),btn=$id("loadTwitch"),
        layer=$id("twitchLayer"),host=$id("twitchPlayer"),video=$id("directVideo"),status=$id("streamStatus"),
        show=$id("showTwitch"),mute=$id("muteTwitch"),screen=$id("screen");
+ const playbackActive=()=>DIRECTOR_MODE||screen?.classList.contains("live-mode");
+ let monitorStatus=null;
+ if(DIRECTOR_MODE){
+   const shell=document.querySelector('.preview-shell');
+   if(shell){
+     const pair=document.createElement('div');pair.className='director-monitors';shell.before(pair);pair.append(shell);
+     const monitor=document.createElement('section');monitor.className='feed-monitor';
+     monitor.innerHTML='<h3>MATCHFEED · UTAN GRAFIK</h3><canvas width="640" height="360" aria-label="Vald matchstream, oberoende av grafikscen"></canvas><p role="status">Ladda en stream nedan för att följa matchen.</p><small>Visas bara i studion · fortsätter vid scenbyte · ljud av som standard</small>';
+     pair.prepend(monitor);monitorStatus=monitor.querySelector('p');
+     const canvas=monitor.querySelector('canvas'),ctx=canvas.getContext('2d');
+     setInterval(()=>{
+       if(document.hidden)return;
+       ctx.fillStyle='#030b12';ctx.fillRect(0,0,640,360);
+       if(video&&!video.hidden&&video.readyState>=2&&video.videoWidth){
+         const scale=Math.min(640/video.videoWidth,360/video.videoHeight),w=video.videoWidth*scale,h=video.videoHeight*scale;
+         ctx.drawImage(video,(640-w)/2,(360-h)/2,w,h);
+       }
+     },100);
+     const scaleBox=shell.querySelector('.preview-scale');
+     new ResizeObserver(()=>{const width=shell.clientWidth-20;scaleBox.style.setProperty('--director-scale',String(Math.max(.1,width/1280)));}).observe(shell);
+   }
+ }
  let mountedKey="",hls=null,directPlaying=false,activeTwitchChannel="",pendingTwitchChannel="",liveWatchTimer=0,lastVideoTime=0,lastVideoProgressAt=0;
 
  const parseTwitch=raw=>{let v=String(raw||"").trim();if(!v)return "";try{if(/^https?:\/\//i.test(v)){const u=new URL(v);return u.pathname.split("/").filter(Boolean)[0]||""}}catch(e){}return v.replace(/^@/,"").replace(/^www\.twitch\.tv\//i,"").replace(/^twitch\.tv\//i,"").split(/[/?#]/)[0].trim()};
- const setStatus=(t,ok=false)=>{if(OBS_MODE_LOCAL){document.documentElement.dataset.playback=t;console.info("[SEH Video]",t)}if(status){status.classList.toggle("ready",ok);const x=status.querySelector("span");if(x)x.textContent=t}};
+ let statusMatchName='',lastStatusText='',lastStatusOk=false;
+ const setStatus=(t,ok=false)=>{lastStatusText=t;lastStatusOk=ok;const label=statusMatchName&&playbackActive()?statusMatchName+' · '+t:t;if(monitorStatus)monitorStatus.textContent=label;if(VIEWER_MODE_LOCAL)parent.postMessage({type:'seh-tv-status',text:label,playing:ok},location.origin);if(OBS_MODE_LOCAL){document.documentElement.dataset.playback=label;console.info("[SEH Video]",label)}if(status){status.classList.toggle("ready",ok);const x=status.querySelector("span");if(x)x.textContent=label}};
  const obsBoot=()=>{};
  const obsPlaying=()=>{};
 
@@ -732,6 +780,7 @@
    if(!channel){destroy();setStatus(tx("invalidTwitch"));return false}
    if(channel===pendingTwitchChannel)return true;
    if(channel===activeTwitchChannel&&video&&!video.hidden&&(hls||video.currentSrc))return true;
+   if(mountedKey)destroy();
    lastTwitchRaw=raw;
    pendingTwitchChannel=channel;
    const seq=++twitchResolveSeq;
@@ -743,6 +792,8 @@
      const res=await fetch(base+"/functions/v1/seh-twitch-resolve?channel="+encodeURIComponent(channel),{cache:"no-store"});
      const data=await res.json().catch(()=>({}));
      if(seq!==twitchResolveSeq)return false;
+     pendingTwitchChannel='';
+     if(VIEWER_MODE_LOCAL&&(!res.ok||!data.hlsUrl))twitchResolveTimer=setTimeout(()=>{if(screen?.classList.contains('live-mode'))void resolveTwitchHls(raw,viewerMuted);},30000);
      if(!res.ok||!data?.hlsUrl){
        setStatus(data?.detail?("TWITCH RESOLVER · "+String(data.detail).slice(0,90)):tx("twitchFetchFail"));
        return false;
@@ -753,7 +804,7 @@
      if(ok)activeTwitchChannel=channel;
      if(ok&&data.expiresAt){
        const ms=Math.max(300000,Math.min(7200000,(Number(data.expiresAt)*1000-Date.now())-300000));
-       twitchResolveTimer=setTimeout(()=>{if(lastTwitchRaw&&screen?.classList.contains("live-mode"))resolveTwitchHls(lastTwitchRaw,muted)},ms);
+       twitchResolveTimer=setTimeout(()=>{if(lastTwitchRaw&&playbackActive())resolveTwitchHls(lastTwitchRaw,muted)},ms);
      }
      return ok;
    }catch(e){
@@ -766,7 +817,7 @@
  const mountTwitch=(raw,muted=true)=>{void resolveTwitchHls(raw,muted);return true;};
 
  const tryDirectPlay=()=>{
-   if(!video||!screen?.classList.contains("live-mode")||layer?.classList.contains("is-hidden"))return;
+   if(!video||!playbackActive()||(!DIRECTOR_MODE&&layer?.classList.contains("is-hidden")))return;
    const p=video.play();if(p&&typeof p.catch==="function")p.catch(()=>{});
  };
 
@@ -775,19 +826,21 @@
    const key=(meta.kind||"direct")+":"+url;if(key===mountedKey&&video&&!video.hidden)return true;
    destroy();obsBoot();
    video.hidden=false;
-   video.autoplay=true;video.playsInline=true;video.preload="auto";video.controls=false;
-   video.muted=!!muted;
+   video.autoplay=true;video.playsInline=true;video.preload="auto";video.controls=VIEWER_MODE_LOCAL;
+   video.muted=VIEWER_MODE_LOCAL?viewerMuted:!!muted;
    const onPlaying=()=>{directPlaying=true;lastVideoTime=video.currentTime||0;lastVideoProgressAt=Date.now();obsPlaying();setStatus((meta.label||tx("directVideo"))+" "+tx("playing"),true)};
-   const onPause=()=>{directPlaying=false;if(screen?.classList.contains("live-mode"))setTimeout(tryDirectPlay,150)};
+   const onPause=()=>{directPlaying=false;if(playbackActive())setTimeout(tryDirectPlay,150)};
    video.onplaying=onPlaying;video.onpause=onPause;video.onstalled=()=>setStatus(tx("directVideo")+" "+tx("buffering"));video.onwaiting=()=>setStatus(tx("directVideo")+" "+tx("buffering"));
    video.onerror=()=>setStatus(tx("videoError"));
 
    if((meta.kind==="twitch"||/\.m3u8(?:$|[?#])/i.test(url))&&window.Hls?.isSupported()){
-     hls=new Hls({lowLatencyMode:false,capLevelToPlayerSize:OBS_MODE_LOCAL,backBufferLength:10,maxBufferLength:12,maxMaxBufferLength:20,liveSyncDurationCount:3,liveMaxLatencyDurationCount:8,highBufferWatchdogPeriod:2,nudgeOffset:.1,nudgeMaxRetry:10});
+     // Keep director and public playback near the same live target. Independent
+     // players may still differ slightly, but must not accumulate stale footage.
+     hls=new Hls({lowLatencyMode:true,capLevelToPlayerSize:false,backBufferLength:10,maxBufferLength:12,maxMaxBufferLength:20,liveSyncDurationCount:3,liveMaxLatencyDurationCount:5,maxLiveSyncPlaybackRate:1.1,liveSyncOnStallIncrease:0,highBufferWatchdogPeriod:2,nudgeOffset:.1,nudgeMaxRetry:10});
      hls.loadSource(url);hls.attachMedia(video);
      hls.on(Hls.Events.MANIFEST_PARSED,()=>{
        let qualityLabel="";
-       if(OBS_MODE_LOCAL&&Array.isArray(hls.levels)&&hls.levels.length){
+       if(Array.isArray(hls.levels)&&hls.levels.length){
          const candidates=hls.levels.map((level,index)=>({index,height:Number(level.height||0),width:Number(level.width||0),bitrate:Number(level.bitrate||0)}))
            .filter(x=>x.height>0&&x.height<=720&&(!x.width||x.width<=1280));
          const chosen=(candidates.length?candidates:hls.levels.map((level,index)=>({index,height:Number(level.height||0),width:Number(level.width||0),bitrate:Number(level.bitrate||0)})))
@@ -804,12 +857,18 @@
      });
      if(meta.kind==="twitch"){
        const recoverLive=()=>{
-         if(!hls||!video||video.hidden||!screen?.classList.contains("live-mode"))return;
+         if(!hls||!video||video.hidden||!playbackActive())return;
          const now=Date.now(),current=Number(video.currentTime||0);
+         const live=Number(hls.liveSyncPosition);
+         // A stream can keep playing while falling behind after buffering or a
+         // background tab. Recover that drift too, not only a complete stall.
+         if(!video.seeking&&Number.isFinite(live)&&live>0&&live-current>4){
+           try{video.currentTime=live;lastVideoTime=live;lastVideoProgressAt=now;tryDirectPlay();}catch(e){console.warn("[SEH HLS] live catch-up",e)}
+           return;
+         }
          if(current>lastVideoTime+.08){lastVideoTime=current;lastVideoProgressAt=now;return}
          if(!lastVideoProgressAt)lastVideoProgressAt=now;
          if(now-lastVideoProgressAt<4500)return;
-         const live=Number(hls.liveSyncPosition);
          setStatus(tx("twitchRecovering"));
          try{
            if(Number.isFinite(live)&&live>0&&Math.abs(live-current)>1.5)video.currentTime=Math.max(0,live-1);
@@ -860,12 +919,15 @@
 
  const apply=s=>{
    if(!s)return;
+   statusMatchName=String(s.matchName||'').trim().slice(0,120);
+   if(lastStatusText)setStatus(lastStatusText,lastStatusOk);
    if(source&&s.videoSource!==undefined)source.value=s.videoSource||"twitch";
    if(hlsInput&&s.hlsUrl!==undefined)hlsInput.value=s.hlsUrl||"";
    syncSourceUi();
    const enabled=s.scene==="live"&&s.twitchShow!==false;
    layer?.classList.toggle("is-hidden",!enabled);
-   if(!enabled){destroy();return}
+   if(!enabled&&!DIRECTOR_MODE){destroy();if(VIEWER_MODE_LOCAL)setStatus(s.scene==='nextmatch'?'Nästa match · '+(s.publicNextMatch?.date||'')+' kl. '+(s.publicNextMatch?.time||''):s.scene==='idle'?'Ingen match just nu':'Studiosändning · väntar på matchvideo');return}
+   if(DIRECTOR_MODE&&!String((s.videoSource==='direct'?s.hlsUrl:s.twitchChannel)||'').trim()){destroy();setStatus('Ingen stream laddad');return;}
    if((s.videoSource||"twitch")==="direct")mountDirect(s.hlsUrl,s.twitchMute!==false,{label:tx("directVideo"),kind:"direct"});
    else mountTwitch(s.twitchChannel,s.twitchMute!==false);
  };
@@ -878,15 +940,24 @@
 
  btn?.addEventListener("click",e=>{e.preventDefault();loadFromControls()});
  [twitchInput,hlsInput].forEach(el=>el?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();loadFromControls()}}));
- source?.addEventListener("change",()=>{syncSourceUi();window.__sehPublishBroadcastState?.();if(screen?.classList.contains("live-mode"))loadFromControls()});
+ source?.addEventListener("change",()=>{syncSourceUi();window.__sehPublishBroadcastState?.();if(playbackActive())loadFromControls()});
  show?.addEventListener("change",()=>{layer?.classList.toggle("is-hidden",!show.checked);window.__sehPublishBroadcastState?.();if(show.checked)loadFromControls()});
  mute?.addEventListener("change",()=>{if(video&&!video.hidden)video.muted=mute.checked;window.__sehPublishBroadcastState?.()});
 
  window.addEventListener("seh:twitch-state",e=>apply(e.detail));
+ if(VIEWER_MODE_LOCAL){
+   window.addEventListener('message',e=>{
+     if(e.origin!==location.origin||e.source!==parent||e.data?.type!=='seh-tv-audio')return;
+     viewerMuted=!!e.data.muted;
+     if(video){video.muted=viewerMuted;if(video.currentSrc&&screen?.classList.contains('live-mode'))void video.play().catch(()=>setStatus('Tryck på videon för att starta uppspelningen'));}
+   });
+   if(video)video.controls=true;
+   parent.postMessage({type:'seh-tv-status',text:'Ansluter till studion…'},location.origin);
+ }
  if(window.__sehTwitchState)apply(window.__sehTwitchState);
  syncSourceUi();
 
- const syncLiveMode=()=>screen?.classList.toggle("live-mode",!!screen?.querySelector(".scene.live.active"));
+ const syncLiveMode=()=>{const live=!!screen?.querySelector(".scene.live.active");screen?.classList.toggle("live-mode",live);if(DIRECTOR_MODE)layer?.classList.toggle('is-hidden',!live||show?.checked===false);};
  screen?.querySelectorAll(".scene").forEach(s=>new MutationObserver(syncLiveMode).observe(s,{attributes:true,attributeFilter:["class"]}));
  syncLiveMode();
 })();
