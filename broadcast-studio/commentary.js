@@ -10,7 +10,7 @@
   const peers=new Map(), id=crypto.randomUUID();
   const cfg=window.EHOCKEY_CONFIG||{};
   let client,channel,stream,keys,session,starting=false,disposed=false,generation=0;
-  let ctx,source,delay,gain,currentTrack,viewerEnabled=false,joinedAt=0,lastRequest=0;
+  let ctx,source,delay,gain,currentTrack,receiverAudio,viewerEnabled=false,joinedAt=0,lastRequest=0;
   let pollTimer,retryTimer,startingToken=0,invite=null,joining=false,expiryTimer;
   const panel=document.createElement('section');
   panel.className='commentary-panel';
@@ -147,7 +147,7 @@
     }catch(error){await stopHost();status(error.name==='NotAllowedError'?'Mikrofonåtkomst nekades. Ingen kommentering skickas.':'Kunde inte starta kommenteringen: '+String(error.message||error).slice(0,130));}
     finally{if(token===startingToken)starting=false;}
   }
-  function detachAudio(){source?.disconnect();source=null;currentTrack=null;}
+  function detachAudio(){source?.disconnect();source=null;currentTrack=null;if(receiverAudio){receiverAudio.pause();receiverAudio.srcObject=null;receiverAudio.remove();receiverAudio=null;}}
   async function stopViewer(){
     generation++;joining=false;detachAudio();
     const old=channel;channel=null;
@@ -163,7 +163,11 @@
     pc.ontrack=event=>{
       if(!viewerEnabled||token!==generation||!ctx)return;
       detachAudio();currentTrack=event.track;
-      source=ctx.createMediaStreamSource(new MediaStream([event.track]));source.connect(delay);
+      const received=new MediaStream([event.track]);
+      // Keep Chromium's remote-media decoder running while Web Audio handles volume/delay.
+      receiverAudio=document.createElement('audio');receiverAudio.muted=true;receiverAudio.autoplay=true;receiverAudio.hidden=true;receiverAudio.srcObject=received;panel.append(receiverAudio);
+      void receiverAudio.play().catch(()=>status('Tryck av och på kommenteringen för att starta ljudet.'));
+      source=ctx.createMediaStreamSource(received);source.connect(delay);
       void ctx.resume();
     };
     try{
