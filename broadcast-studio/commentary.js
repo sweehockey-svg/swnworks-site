@@ -56,6 +56,7 @@
     const p=peers.get(peerId);if(!p)return;
     clearTimeout(p.timer);peers.delete(peerId);p.pc.close();
     if(!viewer&&session)hostStatus();
+    if(viewer&&!disposed){detachAudio();status('Kommentatorn är frånkopplad. Försöker igen.');}
   }
   function hostStatus(){
     const count=[...peers.values()].filter(p=>p.pc.connectionState==='connected').length;
@@ -71,6 +72,7 @@
         closePeer(peerId);
         if(viewer)status('Ingen direkt ljudanslutning. Försöker igen; nätet kan kräva en reläserver.');
       }else if(pc.connectionState==='disconnected'){
+        if(viewer)status('Ljudanslutningen är bruten. Försöker återansluta.');
         p.timer=setTimeout(()=>closePeer(peerId),10000);
       }
     };
@@ -147,7 +149,7 @@
     }catch(error){await stopHost();status(error.name==='NotAllowedError'?'Mikrofonåtkomst nekades. Ingen kommentering skickas.':'Kunde inte starta kommenteringen: '+String(error.message||error).slice(0,130));}
     finally{if(token===startingToken)starting=false;}
   }
-  function detachAudio(){source?.disconnect();source=null;currentTrack=null;if(receiverAudio){receiverAudio.pause();receiverAudio.srcObject=null;receiverAudio.remove();receiverAudio=null;}}
+  function detachAudio(){source?.disconnect();source=null;currentTrack=null;if(gain)gain.gain.value=0;if(receiverAudio){receiverAudio.pause();receiverAudio.srcObject=null;receiverAudio.remove();receiverAudio=null;}}
   async function stopViewer(){
     generation++;joining=false;detachAudio();
     const old=channel;channel=null;
@@ -163,6 +165,7 @@
     pc.ontrack=event=>{
       if(!viewerEnabled||token!==generation||!ctx)return;
       detachAudio();currentTrack=event.track;
+      delay.disconnect();delay=ctx.createDelay(15);delay.delayTime.value=Number($('.commentary-delay').value);delay.connect(gain);gain.gain.value=Number($('.commentary-volume').value)/100;
       const received=new MediaStream([event.track]);
       // Keep Chromium's remote-media decoder running while Web Audio handles volume/delay.
       receiverAudio=document.createElement('audio');receiverAudio.muted=true;receiverAudio.autoplay=true;receiverAudio.hidden=true;receiverAudio.srcObject=received;panel.append(receiverAudio);
