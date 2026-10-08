@@ -4890,3 +4890,16 @@ html[data-theme="light"] .note-tag-options button[aria-pressed="true"]{backgroun
 .ai-sources dl>div{display:grid;grid-template-columns:minmax(80px,30%) minmax(0,1fr);gap:8px}
 .ai-sources dt{opacity:.7}
 .ai-sources dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.notes-search{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:10px;margin-top:22px}
+.notes-search label{display:grid;gap:6px;min-width:0}
+.notes-search label>span{font-size:10px;font-weight:850;letter-spacing:.06em}
+.notes-search input,.notes-search select{width:100%;min-width:0;border:1px solid var(--line);border-radius:7px;padding:9px;background:var(--panel);color:var(--text);font:inherit;font-size:12px}
+.notes-search button,.ai-point-actions button{border:1px solid var(--line);border-radius:7px;padding:9px;background:var(--panel);color:var(--text);font:inherit;font-size:10px;font-weight:800;cursor:pointer}
+.note-card[hidden],.notes-empty[hidden]{display:none!important}
+.ai-point-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.ai-point-actions button[aria-pressed="true"]{background:var(--yellow);color:#07111a;border-color:var(--yellow)}
+.ai-point-used>div>strong{text-decoration:line-through;text-decoration-thickness:1px;opacity:.7}
+.ai-pause{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+.ai-pause>h3{font-size:13px;letter-spacing:.06em}
+.ai-pause>p{font-size:12px;line-height:1.5;color:var(--muted)}
+@media(max-width:520px){.notes-search{grid-template-columns:minmax(0,1fr)}}

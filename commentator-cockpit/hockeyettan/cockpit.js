@@ -947,6 +947,7 @@
 
   function noteScopeLabel(note) {
     if(note.scope_type==="match"){
+      if(note.game_id!==state.nextGame?.id) return "ANNAN MATCH";
       return "MATCH · "+(state.nextGame
         ? getTeamName(state.nextGame.home_team_id)+" – "+getTeamName(state.nextGame.away_team_id)
         : "match");
@@ -1086,7 +1087,8 @@
     const values=Object.fromEntries(ids.map((id)=>[id,document.getElementById(id)?.value||""]));
     const pinned=document.getElementById("notePinned")?.checked;
     renderDrawer("notes");
-    for(const id of ids) if(document.getElementById(id)) document.getElementById(id).value=values[id];
+    for(const id of ids.filter((id)=>id!=="noteScope")) if(document.getElementById(id)) document.getElementById(id).value=values[id];
+    setNoteScopeValue(values.noteScope);
     if(pinned!==undefined) document.getElementById("notePinned").checked=pinned;
     document.getElementById("noteTags")?.dispatchEvent(new Event("input"));
   }
@@ -1153,14 +1155,53 @@
     }));
   }
 
+  function notesSearchState() {
+    const owner=state.authUser?.id||"guest";
+    if(state.notesSearch?.owner!==owner) state.notesSearch={owner,query:"",tag:"",context:"current"};
+    return state.notesSearch;
+  }
+
+  function normalizeNoteSearch(value) {
+    return String(value||"").toLocaleLowerCase("sv-SE").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+  }
+
+  function noteMatchesSearch(note,filters) {
+    if(note.is_active===false) return false;
+    if(filters.context!=="all"&&!noteAppliesToCurrentMatch(note)) return false;
+    if(filters.tag&&!(note.tags||[]).some((tag)=>normalizeNoteSearch(tag)===normalizeNoteSearch(filters.tag))) return false;
+    const hay=normalizeNoteSearch([note.title,note.body,...(note.tags||[]),noteScopeLabel(note)].join(" "));
+    return normalizeNoteSearch(filters.query).split(/\s+/).filter(Boolean).every((term)=>hay.includes(term));
+  }
+
+  function applyNotesSearch() {
+    const filters=notesSearchState();
+    const byId=new Map(state.notes.map((note)=>[note.id,note]));
+    let shown=0;
+    drawerBody.querySelectorAll("[data-note-card]").forEach((card)=>{
+      const note=byId.get(card.dataset.noteCard);
+      const visible=Boolean(note&&noteMatchesSearch(note,filters));
+      card.hidden=!visible;
+      if(visible) shown++;
+    });
+    const count=document.getElementById("notesSearchCount");
+    if(count) count.textContent=shown+" av "+state.notes.filter((note)=>note.is_active!==false).length+" anteckningar visas";
+    const empty=document.getElementById("notesSearchEmpty");
+    if(empty) empty.hidden=shown>0;
+  }
+
   function renderNotes() {
-    const notes=currentEditorialNotes();
+    const filters=notesSearchState();
+    const notes=state.notes.filter((note)=>note.is_active!==false).slice().sort((a,b)=>
+      Number(Boolean(b.pinned))-Number(Boolean(a.pinned))||
+      String(b.updated_at||b.created_at||"").localeCompare(String(a.updated_at||a.created_at||""))
+    );
+    const availableTags=[...new Set(notes.flatMap((note)=>note.tags||[]))].sort((a,b)=>a.localeCompare(b,"sv"));
     const playerCount=state.seasonPlayerStats.filter((row)=>row.player_id).length;
 
     const list=notes.length
       ? '<div class="notes-list">'+notes.map((note)=>{
           const tags=(note.tags||[]).map((tag)=>'<span>#'+esc(tag)+'</span>').join("");
-          return '<article class="note-card '+(note.pinned?"pinned":"")+'">' +
+          return '<article data-note-card="'+esc(note.id)+'" '+(!noteMatchesSearch(note,filters)?'hidden ':'')+'class="note-card '+(note.pinned?"pinned":"")+'">' +
             '<div class="note-card-head"><div><span>'+esc(noteScopeLabel(note))+'</span>' +
               (note.pinned?'<b>PINNAD</b>':'')+'</div>' +
               '<small>'+esc(shortDateOnly(note.updated_at||note.created_at))+'</small></div>' +
@@ -1174,7 +1215,7 @@
             '</div>' +
           '</article>';
         }).join("")+'</div>'
-      : '<div class="notes-empty"><strong>Inga anteckningar för den här matchen ännu.</strong><span>Lägg in sådant som officiell statistik inte känner till.</span></div>';
+      : '';
 
     const storageTitle=state.access?.active
       ? "Molnsynk aktiv"
@@ -1196,12 +1237,32 @@
         '<label class="note-pin-control"><input type="checkbox" id="notePinned" checked><span>PINNA TILL STORY / SNABBFAKTA</span></label>' +
         '<div class="note-form-actions"><button type="button" id="noteCancelEdit">RENSA</button><button type="submit" class="primary">SPARA ANTECKNING</button></div>' +
       '</form>' +
-      '<div class="notes-meta"><span>'+esc(notes.length)+' relevanta anteckningar</span><small>'+esc(playerCount)+' spelare kan kopplas</small></div>' +
-      list;
+      '<div class="notes-search"><label><span>SÖK I NOTES</span><input type="search" id="notesSearch" value="'+esc(filters.query)+'" placeholder="Text, spelare eller lag" maxlength="200"></label>'+
+        '<label><span>TAGG</span><select id="notesTagFilter"><option value="">Alla taggar</option>'+
+          availableTags.map((tag)=>'<option value="'+esc(tag)+'" '+(tag===filters.tag?'selected':'')+'>'+esc(tag)+'</option>').join("")+'</select></label>'+
+        '<label><span>VISA</span><select id="notesContextFilter"><option value="current" '+(filters.context==="current"?'selected':'')+'>Aktuell matchkontext</option>'+
+          '<option value="all" '+(filters.context==="all"?'selected':'')+'>Alla mina anteckningar</option></select></label>'+
+        '<button type="button" id="notesClearFilters">RENSA FILTER</button></div>'+
+      '<div class="notes-meta"><span id="notesSearchCount" role="status"></span><small>'+esc(playerCount)+' spelare kan kopplas</small></div>' +
+      list+'<div id="notesSearchEmpty" class="notes-empty" hidden><strong>Inga anteckningar matchar filtren.</strong><span>Prova andra sökord eller visa alla dina anteckningar.</span></div>';
   }
 
   function bindNotesUi() {
     bindReportImport();
+    const filters=notesSearchState();
+    for(const [id,key,event] of [["notesSearch","query","input"],["notesTagFilter","tag","change"],["notesContextFilter","context","change"]]){
+      document.getElementById(id)?.addEventListener(event,(event)=>{
+        filters[key]=event.target.value;applyNotesSearch();
+      });
+    }
+    document.getElementById("notesClearFilters")?.addEventListener("click",()=>{
+      filters.query="";filters.tag="";filters.context="current";
+      document.getElementById("notesSearch").value="";
+      document.getElementById("notesTagFilter").value="";
+      document.getElementById("notesContextFilter").value="current";
+      applyNotesSearch();
+    });
+    applyNotesSearch();
     const form=document.getElementById("noteForm");
     if(!form) return;
     const tagsInput=document.getElementById("noteTags");
@@ -1302,11 +1363,19 @@
         updateTagButtons();
         document.getElementById("notePinned").checked=Boolean(note.pinned);
         const value=note.scope_type+"|"+(note.game_id||note.team_id||note.player_id||"");
-        const scope=document.getElementById("noteScope");
-        if([...scope.options].some((option)=>option.value===value)) scope.value=value;
+        setNoteScopeValue(value,noteScopeLabel(note));
         document.getElementById("noteBody").focus();
       });
     });
+  }
+
+  function setNoteScopeValue(value,label="Tidigare koppling") {
+    const scope=document.getElementById("noteScope");
+    if(!scope) return;
+    if(![...scope.options].some((option)=>option.value===value)){
+      scope.add(new Option(label,value));
+    }
+    scope.value=value;
   }
 
 
@@ -2461,27 +2530,90 @@
     return refs.length?'<small>Källkategori: '+esc(refs.map((ref)=>labels[ref]||ref).join(" · "))+'</small>':"";
   }
 
+  function aiPointKey(point) {
+    return String(point?.label||"").trim().toLocaleLowerCase("sv-SE")+"|"+
+      String(point?.text||"").replace(/\s+/g," ").trim().toLocaleLowerCase("sv-SE");
+  }
+
+  function aiWorkflowState() {
+    const key=noteStorageKey()+":broadcast:"+league.accessKey+":"+(state.nextGame?.id||state.focusTeam?.id||"general");
+    if(state.aiWorkflow?.key!==key){
+      let entries=[];
+      try{
+        const stored=JSON.parse(localStorage.getItem(key)||"[]");
+        if(Array.isArray(stored)) entries=stored.filter((entry)=>
+          entry&&typeof entry.key==="string"&&typeof entry.point?.text==="string"&&
+          entry.key===aiPointKey(entry.point)&&(entry.used||entry.paused)
+        ).slice(-100).map((entry)=>({...entry,used:Boolean(entry.used),paused:Boolean(entry.paused)}));
+      }catch{}
+      state.aiWorkflow={key,entries,error:""};
+    }
+    return state.aiWorkflow;
+  }
+
+  function toggleAiPointState(point,action) {
+    if(!point||!["used","paused"].includes(action)) return;
+    const workflow=aiWorkflowState(),key=aiPointKey(point);
+    let entry=workflow.entries.find((entry)=>entry.key===key);
+    if(!entry){
+      if(workflow.entries.length>=100){
+        workflow.error="Listan är full. Ta bort en markering eller en sparad pauspunkt först.";
+        return;
+      }
+      entry={key,point:JSON.parse(JSON.stringify(point)),used:false,paused:false};
+      workflow.entries.push(entry);
+    }
+    entry[action]=!entry[action];
+    if(action==="paused"&&entry.paused) entry.point=JSON.parse(JSON.stringify(point));
+    workflow.entries=workflow.entries.filter((entry)=>entry.used||entry.paused);
+    workflow.error="";
+    try{ localStorage.setItem(workflow.key,JSON.stringify(workflow.entries)); }
+    catch{ workflow.error="Markeringen fungerar nu men kunde inte sparas i webbläsaren."; }
+  }
+
+  function aiPointHtml(point,index,location="brief") {
+    const usage=aiWorkflowState().entries.find((entry)=>entry.key===aiPointKey(point));
+    return '<article class="ai-point '+(usage?.used?'ai-point-used':'')+'">'+
+      '<b>'+String(index+1).padStart(2,"0")+'</b><div><span>'+esc(point.label||"PRATPUNKT")+'</span>'+
+      '<strong>'+esc(point.text||"")+'</strong><p>'+esc(point.why_now||"")+'</p>'+
+      aiSourcesHtml(point)+
+      '<div class="ai-point-actions">'+
+        '<button type="button" data-ai-action="used" data-ai-location="'+location+'" data-ai-index="'+index+'" aria-pressed="'+Boolean(usage?.used)+'">'+
+          (usage?.used?'ANVÄND · ÅNGRA':'MARKERA ANVÄND')+'</button>'+
+        '<button type="button" data-ai-action="paused" data-ai-location="'+location+'" data-ai-index="'+index+'" aria-pressed="'+Boolean(usage?.paused)+'">'+
+          (usage?.paused?'TA BORT FRÅN PAUS':'SPARA TILL PAUS')+'</button>'+
+      '</div></div></article>';
+  }
+
+  function aiPauseHtml() {
+    const workflow=aiWorkflowState();
+    const paused=workflow.entries.filter((entry)=>entry.paused);
+    return '<section class="ai-pause"><h3>SPARAT TILL PAUS · '+paused.length+'</h3>'+
+      '<p>Personligt för den här matchen. Sparas i den här webbläsaren och ligger kvar när du tar fram nya vinklar.</p>'+
+      (workflow.error?'<p role="status">'+esc(workflow.error)+'</p>':'')+
+      (paused.length?'<div class="ai-points">'+paused.map((entry,index)=>aiPointHtml(entry.point,index,"pause")).join("")+'</div>':
+        '<div class="notes-empty"><span>Välj SPARA TILL PAUS på en pratpunkt för att lägga den här.</span></div>')+'</section>';
+  }
+
   function aiBriefHtml(brief,source) {
     if(!brief?.talking_points?.length){
       return '<div class="notes-empty"><strong>Inga talking points ännu.</strong><span>Matchkontexten är för tunn.</span></div>';
     }
     const sourceLabel=source==="server"?"OPENAI · GPT-6 LUNA":"VERIFIERAD FALLBACK";
     return '<div class="ai-result-head"><span>'+esc(sourceLabel)+'</span><strong>'+esc(brief.headline||"Talking points")+'</strong></div>' +
-      '<div class="ai-points">'+brief.talking_points.slice(0,3).map((point,index)=>
-        '<article class="ai-point">' +
-          '<b>'+String(index+1).padStart(2,"0")+'</b>' +
-          '<div><span>'+esc(point.label||"TALKING POINT")+'</span>' +
-          '<strong>'+esc(point.text||"")+'</strong>' +
-          '<p>'+esc(point.why_now||"")+'</p>' +
-          aiSourcesHtml(point)+
-          '</div>' +
-        '</article>'
-      ).join("")+'</div>' +
+      '<div class="ai-points">'+brief.talking_points.slice(0,3).map((point,index)=>aiPointHtml(point,index)).join("")+'</div>' +
       (brief.caution?'<div class="ai-caution">'+esc(brief.caution)+'</div>':"");
   }
 
   function renderAi() {
+    const contextKey=aiWorkflowState().key;
+    if(state.aiBriefContext!==contextKey){
+      state.aiBriefContext=contextKey;
+      state.aiBrief=null;state.aiBriefSource="local";state.aiBusy=false;state.aiError="";state.aiUsedTopics=[];
+      state.aiRequestId=(state.aiRequestId||0)+1;
+    }
     const brief=state.aiBrief||localAiBrief("");
+    state.aiDisplayedBrief=brief;
     const serverReady=state.aiBriefSource==="server";
     const relevantNoteCount=currentEditorialNotes().length;
     const statusText=serverReady
@@ -2503,22 +2635,39 @@
         '</div>' +
       '</form>' +
       (state.aiError?'<div class="ai-error">'+esc(state.aiError)+'</div>':"") +
-      '<div class="ai-output">'+aiBriefHtml(brief,state.aiBriefSource)+'</div>';
+      '<div class="ai-output">'+aiBriefHtml(brief,state.aiBriefSource)+'</div>'+
+      aiPauseHtml();
   }
 
   function bindAiUi() {
+    drawerBody.querySelectorAll("[data-ai-action]").forEach((button)=>button.addEventListener("click",()=>{
+      const index=Number(button.dataset.aiIndex);
+      const point=button.dataset.aiLocation==="pause"
+        ? aiWorkflowState().entries.filter((entry)=>entry.paused)[index]?.point
+        : state.aiDisplayedBrief?.talking_points?.[index];
+      const question=document.getElementById("aiQuestion")?.value||"";
+      toggleAiPointState(point,button.dataset.aiAction);
+      renderDrawer("ai");
+      const input=document.getElementById("aiQuestion");
+      if(input) input.value=question;
+    }));
     const form=document.getElementById("aiForm");
     if(!form) return;
 
     async function runAi(question="",requestStyle="relevant") {
       if(state.aiBusy) return;
+      const contextKey=aiWorkflowState().key;
+      const requestId=state.aiRequestId=(state.aiRequestId||0)+1;
       state.aiBusy=true;
       state.aiError="";
       state.aiBrief=localAiBrief(question);
       state.aiBriefSource="local";
       renderDrawer("ai");
 
-      const result=await requestServerAi(question,requestStyle);
+      let result;
+      try{ result=await requestServerAi(question,requestStyle); }
+      catch{ result={used:false,reason:"request_failed"}; }
+      if(state.aiRequestId!==requestId||aiWorkflowState().key!==contextKey) return;
       state.aiBusy=false;
       if(result.used){
         state.aiBrief=result.brief;
