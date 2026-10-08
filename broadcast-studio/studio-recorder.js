@@ -22,7 +22,7 @@
     <a href="https://studio.youtube.com/" target="_blank" rel="noopener">Ladda upp den sparade videon i YouTube Studio ↗</a>`;
   document.querySelector('.stream-dock')?.prepend(panel);
   const el=id=>panel.querySelector('#'+id),status=el('recordStatus'),metrics=el('recordMetrics');
-  const output=new URL(location.href);output.search='?obs=1&recording=1';el('recordOutput').href=output.href;
+  const output=new URL(location.href);output.search='?obs=1&recording=1'+(params.get('preview')==='1'?'&preview=1':'');el('recordOutput').href=output.href;
   const supported=!!(window.showSaveFilePicker&&navigator.mediaDevices?.getDisplayMedia&&window.MediaRecorder&&window.AudioContext&&window.SWNRecording);
   const mime=supported?['video/webm;codecs=vp8,opus','video/webm'].find(type=>MediaRecorder.isTypeSupported(type)):null;
   let handle=null,session=null,capture=null,mic=null,context=null,wake=null,timer=null,started=0,busy=false,active=false;
