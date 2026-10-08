@@ -43,3 +43,24 @@ aside #seriesResultInputs input{width:100%;box-sizing:border-box;min-width:0}
 @media(max-width:420px){aside #seriesResultInputs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 body:not(.obs-preview) aside .theme-control>label{grid-column:auto;margin:0}
+
+/* Laptop director: preparation left, daily transmission controls right. */
+body:not(.obs-preview) main{grid-template-columns:minmax(340px,38%) minmax(0,1fr)}
+body:not(.obs-preview) aside>.match-desk{padding:16px 0;border-bottom:1px solid #294858}
+.director-fold{width:100%;box-sizing:border-box;border-bottom:1px solid #294858;margin:10px 0}
+.director-fold>summary{cursor:pointer;padding:13px 0;color:#a9c2d2;font-size:12px;font-weight:700}
+.director-fold>.block{margin-top:0;border-top:0}
+body:not(.obs-preview) .workspace>.director-fold{max-width:1100px}
+.more-scenes{margin:6px 0 0}
+.more-scenes>summary{padding:10px 0}
+body:not(.obs-preview) .scene-dock .scene-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+.quick-match-bar #deskMatches{max-height:92px}
+.quick-match-bar #deskOnAir{margin:4px 0;color:#e5f2fa;font-weight:700}
+.quick-match-bar .preparing-status{margin:4px 0 8px;color:#f4c955}
+.quick-match-bar #deskTake{border-color:#f4c955;color:#f4c955}
+body:not(.obs-preview) .workspace .commentary-panel{padding:12px;margin:12px 0}
+.recording-summary{font-weight:400;color:#f4c955}
+body:not(.obs-preview) aside .next-controls{display:block}
+body:not(.obs-preview) .workspace>.stream-dock:empty{display:none}
+@media(max-width:1000px){body:not(.obs-preview) main{grid-template-columns:minmax(300px,40%) minmax(0,1fr)}body:not(.obs-preview) .scene-dock .scene-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:700px){body:not(.obs-preview) main{display:block}body:not(.obs-preview) aside{max-height:none}body:not(.obs-preview) .workspace{padding:14px}}
