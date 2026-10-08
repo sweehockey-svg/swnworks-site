@@ -42,6 +42,7 @@
     standings: [],
     standingsByTeam: new Map(),
     roster: [],
+    searchRoster: [],
     playerProfiles: new Map(),
     focusForm: [],
     opponentForm: [],
@@ -2341,25 +2342,31 @@
   function renderFacts() {
     const box=document.getElementById("factStack");
     if(!box) return;
-    const facts=rankedQuickFacts();
-    if(!facts.length){
-      box.innerHTML='<article class="fact-card"><span>SNABBFAKTA</span><strong>Ingen verifierad fakta ännu.</strong><p>Väntar på mer matchdata.</p></article>';
-      return;
-    }
+    const facts=rankedQuickFacts().filter((fact)=>!fact.editorial);
 
     const shown=facts.slice(0,3);
     state.lastQuickFactIds=shown.map((fact)=>fact.id);
-    box.innerHTML=shown.map((fact,index)=>
+    box.innerHTML=pinnedFactsHtml()+shown.map((fact,index)=>
       '<article class="fact-card '+(index===0?"primary ":"")+(fact.editorial?"editorial ":"")+'insight-card">' +
         '<span>'+esc(fact.tag)+'</span>' +
         '<strong>'+esc(fact.title)+'</strong>' +
         '<p>'+esc(fact.text)+'</p>' +
+        '<button type="button" class="fact-pin" data-pin-quick="'+index+'" aria-pressed="'+aiWorkflowState().entries.some((entry)=>entry.pinned&&entry.key===aiPointKey(quickFactPoint(fact)))+'">'+(aiWorkflowState().entries.some((entry)=>entry.pinned&&entry.key===aiPointKey(quickFactPoint(fact)))?'LÖSGÖR FAKTA':'FÄST FAKTA')+'</button>' +
       '</article>'
-    ).join("") +
+    ).join("") + (!facts.length?'<article class="fact-card"><span>SNABBFAKTA</span><strong>Ingen verifierad fakta ännu.</strong><p>Väntar på mer matchdata.</p></article>':'') +
     (facts.length>3
       ? '<button class="quick-fact-next" id="nextQuickFact" type="button"><span>↻</span><strong>NY SNABBFAKTA</strong><small>Redan visade fakta prioriteras ned</small></button>'
       : "");
 
+    box.querySelectorAll('[data-pin-quick]').forEach((button)=>button.addEventListener('click',()=>{
+      const fact=shown[Number(button.dataset.pinQuick)];
+      toggleAiPointState(quickFactPoint(fact),'pinned');
+      renderFacts();
+    }));
+    box.querySelectorAll('[data-unpin-fact]').forEach((button)=>button.addEventListener('click',()=>{
+      const point=aiWorkflowState().entries.filter((entry)=>entry.pinned)[Number(button.dataset.unpinFact)]?.point;
+      toggleAiPointState(point,'pinned');renderFacts();
+    }));
     const next=document.getElementById("nextQuickFact");
     if(next){
       next.addEventListener("click",()=>{
@@ -2371,6 +2378,20 @@
         renderFacts();
       });
     }
+  }
+
+  function quickFactPoint(fact) {
+    return {label:fact.tag,text:fact.title+(fact.text?' '+fact.text:''),why_now:'Sparad snabbfakta · kontrollera mot aktuell matchdata.'};
+  }
+
+  function pinnedFactsHtml() {
+    const pinned=aiWorkflowState().entries.filter((entry)=>entry.pinned);
+    const notes=currentEditorialNotes().filter((note)=>note.pinned);
+    if(!pinned.length&&!notes.length&&!aiWorkflowState().error) return '';
+    return '<section class="pinned-facts"><h3>FÄST FAKTA · '+(pinned.length+notes.length)+'</h3><small>Pinnade NOTES + fästa fakta. Fästa fakta sparas i den här webbläsaren och uppdateras inte automatiskt.</small>'+
+      (aiWorkflowState().error?'<p role="status">'+esc(aiWorkflowState().error)+'</p>':'')+
+      '<div class="pinned-facts-list">'+notes.map((note)=>'<article class="fact-card editorial"><span>NOTES · '+esc(noteScopeLabel(note))+'</span><strong>'+esc(note.title||'Anteckning')+'</strong><p>'+esc(note.body)+'</p></article>').join('')+
+      pinned.map((entry,index)=>'<article class="fact-card"><span>SPARAD · '+esc(entry.point.label)+'</span><strong>'+esc(entry.point.text)+'</strong><button type="button" class="fact-pin" data-unpin-fact="'+index+'">LÖSGÖR FAKTA</button></article>').join('')+'</div></section>';
   }
 
   function renderStorylines() {
@@ -2566,8 +2587,8 @@
         const stored=JSON.parse(localStorage.getItem(key)||"[]");
         if(Array.isArray(stored)) entries=stored.filter((entry)=>
           entry&&typeof entry.key==="string"&&typeof entry.point?.text==="string"&&
-          entry.key===aiPointKey(entry.point)&&(entry.used||entry.paused)
-        ).slice(-100).map((entry)=>({...entry,used:Boolean(entry.used),paused:Boolean(entry.paused)}));
+          entry.key===aiPointKey(entry.point)&&(entry.used||entry.paused||entry.pinned)
+        ).slice(-100).map((entry)=>({...entry,used:Boolean(entry.used),paused:Boolean(entry.paused),pinned:Boolean(entry.pinned)}));
       }catch{}
       state.aiWorkflow={key,entries,error:""};
     }
@@ -2575,7 +2596,7 @@
   }
 
   function toggleAiPointState(point,action) {
-    if(!point||!["used","paused"].includes(action)) return;
+    if(!point||!["used","paused","pinned"].includes(action)) return;
     const workflow=aiWorkflowState(),key=aiPointKey(point);
     let entry=workflow.entries.find((entry)=>entry.key===key);
     if(!entry){
@@ -2587,8 +2608,8 @@
       workflow.entries.push(entry);
     }
     entry[action]=!entry[action];
-    if(action==="paused"&&entry.paused) entry.point=JSON.parse(JSON.stringify(point));
-    workflow.entries=workflow.entries.filter((entry)=>entry.used||entry.paused);
+    if((action==="paused"||action==="pinned")&&entry[action]) entry.point=JSON.parse(JSON.stringify(point));
+    workflow.entries=workflow.entries.filter((entry)=>entry.used||entry.paused||entry.pinned);
     workflow.error="";
     try{ localStorage.setItem(workflow.key,JSON.stringify(workflow.entries)); }
     catch{ workflow.error="Markeringen fungerar nu men kunde inte sparas i webbläsaren."; }
@@ -2605,6 +2626,8 @@
           (usage?.used?'ANVÄND · ÅNGRA':'MARKERA ANVÄND')+'</button>'+
         '<button type="button" data-ai-action="paused" data-ai-location="'+location+'" data-ai-index="'+index+'" aria-pressed="'+Boolean(usage?.paused)+'">'+
           (usage?.paused?'TA BORT FRÅN PAUS':'SPARA TILL PAUS')+'</button>'+
+        '<button type="button" data-ai-action="pinned" data-ai-location="'+location+'" data-ai-index="'+index+'" aria-pressed="'+Boolean(usage?.pinned)+'">'+
+          (usage?.pinned?'LÖSGÖR FAKTA':'FÄST FAKTA')+'</button>'+
       '</div></div></article>';
   }
 
@@ -2670,6 +2693,7 @@
         : state.aiDisplayedBrief?.talking_points?.[index];
       const question=document.getElementById("aiQuestion")?.value||"";
       toggleAiPointState(point,button.dataset.aiAction);
+      renderFacts();
       renderDrawer("ai");
       const input=document.getElementById("aiQuestion");
       if(input) input.value=question;
@@ -2999,6 +3023,51 @@
     const sv=row.save_pct==null ? "–" : Number(row.save_pct).toLocaleString("sv-SE",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
     const gaa=row.gaa==null ? "–" : Number(row.gaa).toLocaleString("sv-SE",{minimumFractionDigits:2,maximumFractionDigits:2});
     return '<div class="goalie-live"><span>LIVE</span><strong>'+esc(Number(row.saves||0)+"/"+Number(row.shots_against||0)+" · "+sv+" · GAA "+gaa+" · "+formatClockSeconds(row.minutes_played_seconds))+'</strong></div>';
+  }
+
+  function playerSearchRows(query) {
+    const clean=(value)=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('sv-SE').trim();
+    const q=clean(query).replace(/^#\s*/,'');
+    if(!q) return [];
+    const teams=[state.focusTeam?.id,state.opponent?.id].filter(Boolean);
+    const rows=new Map();
+    for(const row of [...(state.searchRoster||[]),...state.seasonPlayerStats,...state.seasonGoalieStats,...state.currentPlayerStats,...state.currentGoalieStats]){
+      if(!teams.includes(row.team_id)) continue;
+      const key=row.team_id+':'+(row.player_id||clean(row.source_name));
+      if(!rows.has(key)) rows.set(key,row);
+    }
+    return [...rows.values()].filter((row)=>/^\d+$/.test(q)
+      ? row.jersey_number!=null&&Number(row.jersey_number)===Number(q)
+      : q.split(/\s+/).every((word)=>clean(humanSourceName(row.source_name)).includes(word)))
+      .sort((a,b)=>teams.indexOf(a.team_id)-teams.indexOf(b.team_id)||Number(a.jersey_number||0)-Number(b.jersey_number||0));
+  }
+
+  function playerSearchResults(query) {
+    if(!String(query||'').trim()) return '<p class="search-hint">Sök i båda lagen, även målvakter. Nummer matchas exakt.</p>';
+    const rows=playerSearchRows(query);
+    if(!rows.length) return '<p class="search-hint">Ingen träff i de publicerade trupperna. Prova namn eller ett annat nummer.</p>';
+    return rows.map((row)=>{
+      const goalie=row.position==='GK'||state.seasonGoalieStats.some((item)=>item.team_id===row.team_id&&sameStatPlayer(row,item));
+      const stats=(goalie?state.seasonGoalieStats:state.seasonPlayerStats).find((item)=>item.team_id===row.team_id&&sameStatPlayer(row,item));
+      const detail=stats?(goalie?'SV% '+(stats.save_pct??'–')+' · GAA '+(stats.gaa??'–'):
+        Number(stats.goals||0)+' mål · '+Number(stats.assists||0)+' assist · '+Number(stats.points||0)+' poäng'):'Säsongsstatistik ej publicerad';
+      const notes=currentEditorialNotes().filter((note)=>note.scope_type==='player'&&note.player_id===row.player_id&&(!note.team_id||note.team_id===row.team_id));
+      return '<article class="drawer-card player-search-card"><span>'+esc(getTeamName(row.team_id))+' · '+esc(goalie?'Målvakt':row.position||'Position ej publicerad')+'</span><strong>#'+esc(row.jersey_number??'–')+' '+esc(humanSourceName(row.source_name))+'</strong><span>SÄSONG · '+esc(detail)+'</span>'+
+        (goalie?liveGoalieDetail(currentGoalieGameRow(row)):livePlayerDetail(currentPlayerGameRow(row)))+
+        notes.map((note)=>'<p>NOTES · '+esc(note.title?note.title+': ':'')+esc(note.body)+'</p>').join('')+'</article>';
+    }).join('');
+  }
+
+  function playerSearchHtml() {
+    return '<section class="player-search"><form id="playerSearchForm" role="search"><label for="playerSearchInput">SNABBSÖK · NUMMER / NAMN</label><div><input id="playerSearchInput" type="search" autocomplete="off" placeholder="86, #31 eller spelarnamn" value="'+esc(state.playerSearchQuery||'')+'"><button type="button" id="clearPlayerSearch">RENSA</button></div></form><div id="playerSearchResults" aria-live="polite">'+playerSearchResults(state.playerSearchQuery)+'</div></section>';
+  }
+
+  function bindPlayerSearch() {
+    const input=document.getElementById('playerSearchInput');
+    document.getElementById('playerSearchForm')?.addEventListener('submit',(event)=>event.preventDefault());
+    const update=()=>{state.playerSearchQuery=input.value;document.getElementById('playerSearchResults').innerHTML=playerSearchResults(input.value);};
+    input?.addEventListener('input',update);
+    document.getElementById('clearPlayerSearch')?.addEventListener('click',()=>{input.value='';update();input.focus();});
   }
 
   function renderPlayerStats() {
@@ -3333,10 +3402,15 @@
   }
 
   function studioPeriod(game,events) {
+    if(state.studioSelection?.gameId===game.id&&state.studioSelection.period>=1&&state.studioSelection.period<=studioAvailablePeriods(game,events)) return state.studioSelection.period;
     const eventPeriods=events.map((event)=>Number(event.period||0)).filter((period)=>period>0&&period<=5);
     const maxEventPeriod=eventPeriods.length?Math.max(...eventPeriods):1;
     if(gameIsLive(game)&&Number(game.period)>0) return Math.max(1,Number(game.period));
     return Math.max(1,maxEventPeriod);
+  }
+
+  function studioAvailablePeriods(game,events) {
+    return Math.min(5,Math.max(1,Number(game.period)||1,...events.map((event)=>Number(event.period)||1)));
   }
 
   function periodStat(stats,key,period) {
@@ -3404,6 +3478,16 @@
     if(period===4) return "OT";
     if(period===5) return "SO";
     return "P"+period;
+  }
+
+  function studioEditorialHtml(game) {
+    if(game.id!==state.nextGame?.id) return '<article class="drawer-card"><strong>Underlag från tidigare match</strong><span>Aktuella NOTES och sparade pauspunkter visas när den kommande matchen är igång.</span></article>';
+    const notes=currentEditorialNotes().filter((note)=>note.pinned);
+    const points=aiWorkflowState().entries.filter((entry)=>entry.paused);
+    return '<section class="pause-editorial"><h3>ATT TA UPP I PAUSEN · '+(notes.length+points.length)+'</h3><p>Matchens pinnade NOTES och dina sparade AI-punkter. Redaktionellt underlag.</p>'+
+      notes.map((note)=>'<article class="drawer-card"><span>NOTES · '+esc(noteScopeLabel(note))+'</span><strong>'+esc(note.title||'Anteckning')+'</strong><span>'+esc(note.body)+'</span></article>').join('')+
+      points.map((entry)=>'<article class="drawer-card"><span>SPARAD AI-PUNKT'+(entry.used?' · REDAN ANVÄND':'')+'</span><strong>'+esc(entry.point.text)+'</strong>'+aiSourcesHtml(entry.point)+'</article>').join('')+
+      (!notes.length&&!points.length?'<div class="notes-empty"><span>Pinna en anteckning i NOTES eller välj SPARA TILL PAUS i AI för att samla punkter här.</span></div>':'')+'</section>';
   }
 
   function renderStudio() {
@@ -3485,7 +3569,7 @@
       : '<div class="drawer-card"><strong>Inga mål eller utvisningar i perioden</strong><span>Eventflödet innehåller inga sådana händelser ännu.</span></div>';
 
     return '<article class="studio-banner '+(live?"live":"")+'">' +
-      '<div><span>'+esc(modeLabel)+'</span><h3>'+esc(periodLabel(period))+' · '+esc(homeName)+' – '+esc(awayName)+'</h3></div>' +
+      '<div><span>'+esc(modeLabel)+'</span><h3>'+esc(periodLabel(period))+' · '+esc(homeName)+' – '+esc(awayName)+'</h3><label class="studio-period-control" for="studioPeriodSelect">PAUSKORT · PERIOD <select id="studioPeriodSelect">'+Array.from({length:studioAvailablePeriods(game,events)},(_,index)=>index+1).map((value)=>'<option value="'+value+'" '+(value===period?'selected':'')+'>'+esc(periodLabel(value))+'</option>').join('')+'</select></label></div>' +
       '<strong>'+esc(overall.home)+'–'+esc(overall.away)+'</strong>' +
     '</article>' +
     '<div class="studio-summary-grid">' +
@@ -3499,7 +3583,7 @@
       '<article><b>'+String(index+1).padStart(2,"0")+'</b><div><span>'+esc(point.tag)+'</span><strong>'+esc(point.title)+'</strong><p>'+esc(point.text)+'</p></div></article>'
     ).join("")+'</div>' +
     '<div class="studio-section-title"><span>PERIODENS HÄNDELSER</span><small>'+esc(periodLabel(period))+'</small></div>' +
-    eventsHtml;
+    eventsHtml+studioEditorialHtml(game);
   }
 
   function renderUpcomingGames() {
@@ -3662,6 +3746,8 @@
   }
 
   function renderDrawer(key) {
+    const searchFocus=key==='players'&&document.activeElement?.id==='playerSearchInput'
+      ? {start:document.activeElement.selectionStart,end:document.activeElement.selectionEnd}:null;
     const data = panels[key] || panels.match;
     drawerKicker.textContent = data.kicker;
     drawerTitle.textContent = data.title;
@@ -3678,9 +3764,15 @@
       drawerBody.innerHTML = renderLineups();
     } else if (key === "players") {
       drawerBody.innerHTML =
+        playerSearchHtml()+
         '<article class="drawer-card stats-intro"><strong>'+(gameIsLive(state.nextGame)?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(gameIsLive(state.nextGame)?"LIVE-raden kommer från pågående officiell matchstatistik när "+esc(league.sourceLabel)+" publicerar den. ":"")+'Säsongstotalen kommer direkt från '+esc(league.sourceLabel)+'. S5 räknas från de matchrapporter som faktiskt är publicerade.</span></article>' +
         individualReportNotice("players") +
         '<div class="stats-team-grid players-grid">' + renderPlayerStats() + '</div>';
+      bindPlayerSearch();
+      if(searchFocus){
+        const input=document.getElementById('playerSearchInput');
+        input.focus();input.setSelectionRange(searchFocus.start,searchFocus.end);
+      }
     } else if (key === "goalies") {
       drawerBody.innerHTML =
         '<article class="drawer-card stats-intro"><strong>'+(gameIsLive(state.nextGame)?"LIVE + säsong + senaste 5":"Säsong + senaste 5")+'</strong><span>'+(gameIsLive(state.nextGame)?"LIVE-raden uppdateras från pågående officiell målvaktsstatistik när den finns. ":"")+'SV%, GAA och record kommer från '+esc(league.sourceLabel)+'. S5 räknas från de matchrapporter som faktiskt är publicerade.</span></article>' +
@@ -3694,6 +3786,10 @@
       drawerBody.innerHTML = renderH2H();
     } else if (key === "studio") {
       drawerBody.innerHTML = renderStudio();
+      document.getElementById('studioPeriodSelect')?.addEventListener('change',(event)=>{
+        state.studioSelection={gameId:studioGame().id,period:Number(event.target.value)};
+        renderDrawer('studio');
+      });
     } else if (key === "notes") {
       drawerBody.innerHTML = renderNotes();
       bindNotesUi();
@@ -4016,6 +4112,7 @@
       }
     }
     state.playerProfiles = playerMap;
+    state.searchRoster = rosterRows || [];
     state.roster = (rosterRows || [])
       .filter((row) => row.team_id === state.focusTeam.id)
       .map((row) => ({ ...row, player: playerMap.get(row.player_id) || null }));
@@ -4451,6 +4548,7 @@
       target.closest("#leagueLoginButton") ||
       target.closest("#leagueAccountButton") ||
       target.closest("#noMatchNotes") ||
+      target.closest("#playerLookupButton") ||
       target.closest("#aiButton")
     ) return;
 
@@ -4486,6 +4584,13 @@
     document.querySelectorAll(".deck-key").forEach((item)=>item.classList.remove("active"));
     document.querySelector('.deck-key[data-panel="ai"]')?.classList.add("active");
     renderDrawer("ai");
+  });
+
+  document.getElementById('playerLookupButton')?.addEventListener('click',()=>{
+    document.querySelectorAll('.deck-key').forEach((item)=>item.classList.remove('active'));
+    document.querySelector('.deck-key[data-panel="players"]')?.classList.add('active');
+    renderDrawer('players');
+    document.getElementById('playerSearchInput')?.focus();
   });
 
   function updateClock() {

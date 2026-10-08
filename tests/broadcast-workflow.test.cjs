@@ -29,6 +29,24 @@ test('pause list survives reload and replacement of the current AI brief',()=>{
   assert.equal(ctx.aiWorkflowState().entries[0].point.text,point.text);
   assert.match(ctx.aiPauseHtml(),/Tre räddningar/);
 });
+test('pinned facts survive reload and remain independent of used and pause flags',()=>{
+  const {ctx,state}=setup();ctx.toggleAiPointState(point,'pinned');
+  state.aiWorkflow=null;
+  assert.equal(ctx.aiWorkflowState().entries[0].pinned,true);
+  ctx.toggleAiPointState(point,'paused');ctx.toggleAiPointState(point,'pinned');
+  assert.equal(ctx.aiWorkflowState().entries[0].paused,true);
+  assert.equal(ctx.aiWorkflowState().entries[0].pinned,false);
+  ctx.toggleAiPointState(point,'paused');assert.equal(ctx.aiWorkflowState().entries.length,0);
+});
+test('pin snapshots and errors are isolated by match and user',()=>{
+  const {ctx,state}=setup();ctx.toggleAiPointState(point,'pinned');
+  point.sources[0].record.saves=4;
+  assert.equal(ctx.aiWorkflowState().entries[0].point.sources[0].record.saves,3);
+  point.sources[0].record.saves=3;
+  state.nextGame={id:'g2'};assert.equal(ctx.aiWorkflowState().entries.length,0);
+  state.nextGame={id:'g1'};state.authUser={id:'u2'};assert.equal(ctx.aiWorkflowState().entries.length,0);
+  state.authUser={id:'u1'};assert.equal(ctx.aiWorkflowState().entries[0].pinned,true);
+});
 test('match and user changes isolate broadcast state without deleting it',()=>{
   const {ctx,state}=setup();ctx.toggleAiPointState(point,'paused');
   state.nextGame={id:'g2'};assert.equal(ctx.aiWorkflowState().entries.length,0);
