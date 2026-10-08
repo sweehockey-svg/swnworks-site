@@ -36,7 +36,7 @@
   async function connect(room,onMessage){
     if(!client){
       const lib=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm');
-      client=lib.createClient(cfg.supabaseUrl,cfg.supabasePublishableKey,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+      client=lib.createClient(cfg.supabaseUrl,cfg.supabasePublishableKey,{auth:{storageKey:'seh-commentary-guest',persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
     }
     const next=client.channel('seh-commentary:'+room,{config:{broadcast:{self:false}}});
     next.on('broadcast',{event:'signal'},({payload})=>{
@@ -195,7 +195,7 @@
   async function poll(){
     if(disposed)return;
     try{
-      const res=await fetch(cfg.supabaseUrl+'/rest/v1/broadcast_studio_state?channel=eq.sec21-bronze-test&select=state',{headers:{apikey:cfg.supabasePublishableKey},cache:'no-store'});
+      const res=await fetch(cfg.supabaseUrl+'/rest/v1/broadcast_studio_state?channel=eq.sec21-bronze-test&select=state',{headers:{apikey:cfg.supabasePublishableKey},cache:'no-store',signal:AbortSignal.timeout(8000)});
       if(!res.ok)throw new Error('HTTP '+res.status);
       const rows=await res.json(),next=rows?.[0]?.state?.commentary;
       const valid=next&&/^[a-f0-9-]{36}$/.test(next.room)&&next.publicKey?.kty==='EC'&&next.publicKey?.crv==='P-256'&&Number.isFinite(next.startedAt)&&Date.now()-next.startedAt<21600000;
@@ -204,6 +204,7 @@
         if(!session)status('Ingen kommentering pågår');
         else if(!viewerEnabled)status('Kommentering finns · tryck för att lyssna');
       }
+      if(!valid&&!session)status('Ingen kommentering pågår');
       $('.commentary-listen').disabled=!session&&!viewerEnabled;
       if(session&&viewerEnabled)void joinViewer();
     }catch{status('Kontakten med kommenteringen är bruten. Matchbilden påverkas inte.');}
