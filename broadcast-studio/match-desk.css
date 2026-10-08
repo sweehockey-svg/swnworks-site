@@ -64,3 +64,8 @@ body:not(.obs-preview) aside .next-controls{display:block}
 body:not(.obs-preview) .workspace>.stream-dock:empty{display:none}
 @media(max-width:1000px){body:not(.obs-preview) main{grid-template-columns:minmax(300px,40%) minmax(0,1fr)}body:not(.obs-preview) .scene-dock .scene-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(max-width:700px){body:not(.obs-preview) main{display:block}body:not(.obs-preview) aside{max-height:none}body:not(.obs-preview) .workspace{padding:14px}}
+
+body:not(.obs-preview) aside .saved-match-picker>h3,body:not(.obs-preview) aside .saved-match-picker>small{grid-column:1/-1}
+body:not(.obs-preview) aside .saved-match-picker{padding-bottom:12px;margin-bottom:12px}
+body:not(.obs-preview) .workspace{padding:18px 24px}
+body:not(.obs-preview) .commentary-panel .commentary-note{font-size:11px}
