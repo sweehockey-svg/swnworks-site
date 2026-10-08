@@ -199,10 +199,25 @@
   }
 
   function setDrawerOpen(open) {
+    if(open) updateDrawerLayout();
     drawer.classList.toggle("open", open);
     drawer.setAttribute("aria-hidden", open ? "false" : "true");
     document.body.classList.toggle("drawer-open", open);
   }
+
+  function updateDrawerLayout() {
+    const workspace=document.querySelector('.cockpit:not(.hidden) .workspace');
+    const feed=workspace?.querySelector('.event-panel');
+    const docked=window.innerWidth>=1101&&window.innerHeight>=650&&Boolean(feed);
+    drawer.classList.toggle('docked',docked);
+    if(!docked) return;
+    const area=workspace.getBoundingClientRect(),start=feed.getBoundingClientRect();
+    for(const [name,value] of Object.entries({left:start.left,top:area.top,width:area.right-start.left,height:Math.max(200,Math.min(area.bottom,window.innerHeight-86)-area.top)})){
+      drawer.style.setProperty('--drawer-'+name,value+'px');
+    }
+  }
+  window.addEventListener('resize',()=>{if(drawer.classList.contains('open')) updateDrawerLayout();});
+  window.addEventListener('scroll',()=>{if(drawer.classList.contains('open')) updateDrawerLayout();},{passive:true});
 
   const esc = (value) => String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -1117,9 +1132,11 @@
     const ids=["noteEditId","noteTitle","noteBody","noteTags","noteScope"];
     const values=Object.fromEntries(ids.map((id)=>[id,document.getElementById(id)?.value||""]));
     const pinned=document.getElementById("notePinned")?.checked;
+    state.noteEditorOpen=Boolean(document.getElementById("noteEditor")?.open);
     renderDrawer("notes");
     for(const id of ids.filter((id)=>id!=="noteScope")) if(document.getElementById(id)) document.getElementById(id).value=values[id];
     setNoteScopeValue(values.noteScope);
+    if(values.noteEditId) document.querySelector("#noteEditor>summary").textContent="REDIGERA ANTECKNING";
     if(pinned!==undefined) document.getElementById("notePinned").checked=pinned;
     document.getElementById("noteTags")?.dispatchEvent(new Event("input"));
   }
@@ -1250,8 +1267,7 @@
 
     const storage=notesSaveStatus();
     return '<article class="drawer-card notes-storage-info" data-kind="'+storage.kind+'" role="status" aria-live="polite"><strong>'+esc(storage.title)+'</strong><span>'+esc(storage.text)+'</span></article>' +
-      reportImportHtml() +
-      '<form class="note-form" id="noteForm">' +
+      '<details class="note-editor" id="noteEditor" '+(state.noteEditorOpen?'open':'')+'><summary>NY ANTECKNING</summary><form class="note-form" id="noteForm">' +
         '<input type="hidden" id="noteEditId" value="">' +
         '<label><span>KOPPLA TILL</span><select id="noteScope">'+noteScopeOptionsHtml(state.nextGame?"match|"+state.nextGame.id:"general|")+'</select></label>' +
         '<label><span>RUBRIK</span><input id="noteTitle" maxlength="120" placeholder="T.ex. återvänder till moderklubben"></label>' +
@@ -1260,7 +1276,7 @@
         '<label class="wide"><span>VALDA OCH EGNA TAGGAR</span><input id="noteTags" maxlength="160" aria-describedby="noteTagStatus" placeholder="Momentum, Vändpunkt, egen tagg"></label>' +
         '<label class="note-pin-control"><input type="checkbox" id="notePinned" checked><span>PINNA TILL STORY / SNABBFAKTA</span></label>' +
         '<div class="note-form-actions"><button type="button" id="noteCancelEdit">RENSA</button><button type="submit" class="primary">SPARA ANTECKNING</button></div>' +
-      '</form>' +
+      '</form></details>' +
       '<div class="notes-search"><label><span>SÖK I NOTES</span><input type="search" id="notesSearch" value="'+esc(filters.query)+'" placeholder="Text, spelare eller lag" maxlength="200"></label>'+
         '<label><span>TAGG</span><select id="notesTagFilter"><option value="">Alla taggar</option>'+
           availableTags.map((tag)=>'<option value="'+esc(tag)+'" '+(tag===filters.tag?'selected':'')+'>'+esc(tag)+'</option>').join("")+'</select></label>'+
@@ -1268,10 +1284,12 @@
           '<option value="all" '+(filters.context==="all"?'selected':'')+'>Alla mina anteckningar</option></select></label>'+
         '<button type="button" id="notesClearFilters">RENSA FILTER</button></div>'+
       '<div class="notes-meta"><span id="notesSearchCount" role="status"></span><small>'+esc(playerCount)+' spelare kan kopplas</small></div>' +
-      list+'<div id="notesSearchEmpty" class="notes-empty" hidden><strong>Inga anteckningar matchar filtren.</strong><span>Prova andra sökord eller visa alla dina anteckningar.</span></div>';
+      list+'<div id="notesSearchEmpty" class="notes-empty" hidden><strong>Inga anteckningar matchar filtren.</strong><span>Prova andra sökord eller visa alla dina anteckningar.</span></div>'+reportImportHtml();
   }
 
   function bindNotesUi() {
+    const editor=document.getElementById('noteEditor');
+    editor?.addEventListener('toggle',()=>{if(editor.isConnected) state.noteEditorOpen=editor.open;});
     bindReportImport();
     const filters=notesSearchState();
     for(const [id,key,event] of [["notesSearch","query","input"],["notesTagFilter","tag","change"],["notesContextFilter","context","change"]]){
@@ -1313,6 +1331,7 @@
 
     const resetForm=()=>{
       document.getElementById("noteEditId").value="";
+      document.querySelector("#noteEditor>summary").textContent="NY ANTECKNING";
       document.getElementById("noteTitle").value="";
       document.getElementById("noteBody").value="";
       document.getElementById("noteTags").value="";
@@ -1343,6 +1362,8 @@
       state.notes=existing
         ? state.notes.map((item)=>item.id===id?note:item)
         : [note,...state.notes];
+      state.noteEditorOpen=false;
+      drawerBody.scrollTop=0;
       saveNotes();
       renderFacts();
       renderDrawer("notes");
@@ -1380,6 +1401,9 @@
       button.addEventListener("click",()=>{
         const note=state.notes.find((item)=>item.id===button.dataset.noteEdit);
         if(!note) return;
+        state.noteEditorOpen=true;
+        document.getElementById('noteEditor').open=true;
+        document.querySelector('#noteEditor>summary').textContent='REDIGERA ANTECKNING';
         document.getElementById("noteEditId").value=note.id;
         document.getElementById("noteTitle").value=note.title||"";
         document.getElementById("noteBody").value=note.body||"";
@@ -3748,6 +3772,8 @@
   function renderDrawer(key) {
     const searchFocus=key==='players'&&document.activeElement?.id==='playerSearchInput'
       ? {start:document.activeElement.selectionStart,end:document.activeElement.selectionEnd}:null;
+    const changedPanel=drawer.dataset.panel!==key;
+    drawer.dataset.panel=key;
     const data = panels[key] || panels.match;
     drawerKicker.textContent = data.kicker;
     drawerTitle.textContent = data.title;
@@ -3806,6 +3832,7 @@
         '<article class="drawer-card"><strong>' + esc(title) + '</strong><span>' + esc(text) + '</span></article>'
       ).join("");
     }
+    if(changedPanel) drawerBody.scrollTop=0;
     setDrawerOpen(true);
   }
 
