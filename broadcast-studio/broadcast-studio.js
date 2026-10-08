@@ -606,7 +606,7 @@
   }
   function publishState(){
     if(OBS_MODE||remoteApplying||(programHeld&&!programState))return;
-    const state={...structuredClone(programHeld?programState:studioState()),publicNoMatch,publicNextMatch};
+    const state={...structuredClone(programHeld?programState:studioState()),publicNoMatch,publicNextMatch,commentary:window.__sehCommentarySession||null};
     if(PREVIEW_MODE){previewChannel?.postMessage({type:"state",state});return;}
     clearTimeout(remoteTimer);
     remoteTimer=setTimeout(()=>remoteRequest("PATCH",{state,updated_at:new Date().toISOString()}).catch(console.error),120);
@@ -614,6 +614,7 @@
   window.__sehPublishBroadcastState=publishState;
   let stateRequestPending=false,lastRemoteState='';
   window.__sehStudioSnapshot=studioState;
+  window.__sehStudioHasProgram=()=>!!programState||!programHeld;
   window.__sehStudioHoldOutput=holdProgram;
   window.__sehStudioRestore=s=>{holdProgram();applyRemoteState(s);};
   window.__sehStudioTake=s=>{
@@ -633,7 +634,8 @@
   if(!OBS_MODE&&!PREVIEW_MODE){
     void remoteRequest("GET").then(rows=>{
       if(programHeld&&!programState&&rows?.[0]?.state){
-        programState=structuredClone(rows[0].state);canResumeProgram=true;
+        programState=structuredClone(rows[0].state);
+        if(window.__sehCommentarySession===undefined)window.__sehCommentarySession=programState.commentary||null;canResumeProgram=true;
         publicNoMatch=!!programState.publicNoMatch;publicNextMatch=programState.publicNextMatch||null;
         window.dispatchEvent(new CustomEvent("seh:program-status",{detail:programState}));
       }
