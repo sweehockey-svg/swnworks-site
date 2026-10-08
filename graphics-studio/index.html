@@ -39,8 +39,9 @@
     <div class="hero"><span class="eyebrow">GRAPHICS STUDIO</span><h1>Från match till flöde.</h1><p>Välj en mall, anpassa din grafik och exportera den redo för publicering.</p></div>
 
     <section class="block">
-      <div class="head"><b>INNEHÅLL</b><span>15 MALLAR</span></div>
+      <div class="head"><b>INNEHÅLL</b><span>16 MALLAR</span></div>
       <div class="kinds">
+        <button class="kind" data-kind="matches"><b>Dagens matcher</b><small>Välj rapporteringsdag</small></button>
         <button class="kind active" data-kind="table"><b>Tabell</b><small>Aktuell grupp</small></button>
         <button class="kind" data-kind="groups"><b>Grupptabeller</b><small>Båda grupperna</small></button>
         <button class="kind" data-kind="goals"><b>Skytteliga</b><small>Flest mål</small></button>
@@ -62,6 +63,16 @@
     <section class="block">
       <div class="head"><b>DATA</b><span id="dataStatus">HÄMTAR…</span></div>
       <div class="grid">
+        <label id="matchDateField" hidden><span>MATCHDAG</span><input id="matchDate" type="date"></label>
+        <div id="matchEditField" class="full" hidden>
+          <label><span>ÄNDRA DATUM PÅ EN MATCH</span><select id="matchEditSelect"></select></label>
+          <label><span>MATCHENS DATUM I GRAFIKEN</span><input id="matchEditDate" type="date"></label>
+          <button class="refresh" id="matchEditSave" type="button">Spara matchdatum</button>
+          <button class="refresh" id="matchEditReset" type="button">Återställ rapporteringsdatum</button>
+          <small id="matchEditStatus" role="status">Datumändringar sparas i den här webbläsaren och används i grafiken.</small>
+        </div>
+        <label id="matchPageField" hidden><span>SIDA · HÖGST 8 MATCHER PER BILD</span><select id="matchPage"><option value="0">Sida 1</option></select></label>
+        <p id="matchListField" class="full" hidden>Rapporteringsdatum används automatiskt. Du kan välja ett annat datum för en enskild match nedan.</p>
         <label><span>TURNERING</span><select id="league"><option value="527" selected>SCL 27</option><option value="529">FCL 27</option><option value="523">WECL</option><option value="524">GCL 13 · Div I</option><option value="525">GCL 13 · Div II</option><option value="526">GCL 13 · Pokal</option><option value="520">SEC 21</option></select></label>
         <label id="stageField"><span>PERIOD</span><select id="stage"><option value="regular">Gruppspel</option><option value="playoffs">Slutspel</option><option value="total">Totalt</option></select></label>
         <label id="groupField"><span>GRUPP</span><select id="group"><option>Hämtar…</option></select></label>
@@ -94,6 +105,6 @@
 </main>
 <script src="https://www.svenskehockey.se/playerimages-manifest.js?v=20261006"></script>
 <script src="../broadcast-studio/broadcast-config.js?v=2"></script>
-<script src="app.js?v=20261008-30"></script>
+<script src="app.js?v=20261009-34"></script>
 </body>
 </html>
