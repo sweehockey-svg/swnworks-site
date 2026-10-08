@@ -598,12 +598,47 @@
   }
   function applyRemoteState(s){if(!s||typeof s!=="object")return;remoteApplying=true;const incomingLeague=Number(s.leagueId||activeLeagueId);if(COMPETITIONS[incomingLeague]&&incomingLeague!==activeLeagueId){activeLeagueId=incomingLeague;if($("#tournament"))$("#tournament").value=String(activeLeagueId);applyCompetitionChrome(false);loadTournamentData();}setTheme(s.backgroundPackage||s.theme||"broadcast");setGraphicsPackage(s.graphicsPackage||"standard");if($("#videoSource")&&s.videoSource!==undefined)$("#videoSource").value=s.videoSource||"twitch";if($("#hlsUrl")&&s.hlsUrl!==undefined)$("#hlsUrl").value=s.hlsUrl||"";if($("#twitchChannel")&&s.twitchChannel!==undefined)$("#twitchChannel").value=s.twitchChannel||"";if($("#showTwitch")&&s.twitchShow!==undefined)$("#showTwitch").checked=!!s.twitchShow;if($("#muteTwitch")&&s.twitchMute!==undefined)$("#muteTwitch").checked=!!s.twitchMute;if($("#showLiveTeamStrip")&&s.liveTeamStripShow!==undefined)$("#showLiveTeamStrip").checked=!!s.liveTeamStripShow;if($("#showLiveCommentators")&&s.liveCommentatorsShow!==undefined)$("#showLiveCommentators").checked=!!s.liveCommentatorsShow;$("#screen")?.classList.toggle("live-team-strip-off",$("#showLiveTeamStrip")?.checked===false);$("#screen")?.classList.toggle("live-commentators-off",!$("#showLiveCommentators")?.checked);window.__sehTwitchState=s;["home","away"].forEach(id=>{if(s[id]!==undefined&&$("#"+id)){const el=$("#"+id),v=String(s[id]);if(v&&![...el.options].some(o=>o.value===v))el.add(new Option(tx("team"),v));el.value=v;}});["hs","as","headline","subline","commentator1","commentator2","person","role","seriesFormat","seriesRound","seriesHome","seriesAway"].forEach(id=>{if(s[id]!==undefined&&$("#"+id))$("#"+id).value=s[id];});if($("#seriesShowResults")&&s.seriesShowResults!==undefined)$("#seriesShowResults").checked=!!s.seriesShowResults;if(Array.isArray(s.seriesResults))s.seriesResults.slice(0,7).forEach((v,i)=>{const el=$("#seriesR"+(i+1));if(el)el.value=v||"";});if(s.lineups){["home","away"].forEach(side=>{if(!s.lineups[side])return;const key=side+":"+String(selectedTeam(side).sports_gamer_team_id);const next={};SLOTS.forEach(slot=>next[slot]=String(s.lineups[side][slot]||""));lineups.set(key,next);});}applyScene(s.scene,s.lineupSide);window.dispatchEvent(new CustomEvent("seh:twitch-state",{detail:s}));renderMatch();renderSeries();renderLineup();renderStats();renderTable();renderTeamCompare();renderScorers();renderFormGuide();renderOffense();renderDefenseLeaders();renderGoalieLeaders();renderRoad();renderLeaders();renderRoleMatchups();remoteApplying=false;}
   async function remoteRequest(method,body){const cfg=window.EHOCKEY_CONFIG||{};if(!cfg.supabaseUrl||!cfg.supabasePublishableKey)return;const key=String(cfg.supabasePublishableKey),headers={apikey:key,Accept:"application/json","Content-Type":"application/json"};if(/^eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(key))headers.Authorization="Bearer "+key;const url=String(cfg.supabaseUrl).replace(/\/+$/,"")+"/rest/v1/broadcast_studio_state?channel=eq."+encodeURIComponent(REMOTE_CHANNEL);const res=await fetch(url,{method,headers,body:body?JSON.stringify(body):undefined,cache:"no-store"});if(!res.ok)throw new Error("Broadcast state HTTP "+res.status);return method==="GET"?res.json():null;}
-  function publishState(){if(OBS_MODE||remoteApplying)return;if(PREVIEW_MODE){previewChannel?.postMessage({type:"state",state:{...studioState(),publicNoMatch,publicNextMatch}});return;}clearTimeout(remoteTimer);remoteTimer=setTimeout(()=>remoteRequest("PATCH",{state:{...studioState(),publicNoMatch,publicNextMatch},updated_at:new Date().toISOString()}).catch(console.error),120);} window.__sehPublishBroadcastState=publishState;
+  // Preparing a match must never publish its state to the program output.
+  let programState=null,programHeld=true,canResumeProgram=false;
+  function holdProgram(){
+    if(!programHeld)programState=structuredClone(studioState());
+    programHeld=true;clearTimeout(remoteTimer);
+  }
+  function publishState(){
+    if(OBS_MODE||remoteApplying||(programHeld&&!programState))return;
+    const state={...structuredClone(programHeld?programState:studioState()),publicNoMatch,publicNextMatch};
+    if(PREVIEW_MODE){previewChannel?.postMessage({type:"state",state});return;}
+    clearTimeout(remoteTimer);
+    remoteTimer=setTimeout(()=>remoteRequest("PATCH",{state,updated_at:new Date().toISOString()}).catch(console.error),120);
+  }
+  window.__sehPublishBroadcastState=publishState;
   let stateRequestPending=false,lastRemoteState='';
   window.__sehStudioSnapshot=studioState;
-  window.__sehStudioRestore=s=>{applyRemoteState(s);publishState();};
-  window.__sehStudioIdle=enabled=>{publicNoMatch=!!enabled;publicNextMatch=null;publishState();return publicNoMatch;};
-  window.__sehStudioNext=next=>{publicNextMatch=next;publicNoMatch=true;publishState();};
+  window.__sehStudioHoldOutput=holdProgram;
+  window.__sehStudioRestore=s=>{holdProgram();applyRemoteState(s);};
+  window.__sehStudioTake=s=>{
+    clearTimeout(remoteTimer);applyRemoteState(s);
+    programState=structuredClone(studioState());programHeld=false;canResumeProgram=true;
+    publicNoMatch=false;publicNextMatch=null;publishState();
+  };
+  window.__sehStudioIdle=enabled=>{
+    if(!enabled&&!canResumeProgram)return publicNoMatch;
+    if(!programState)programState=structuredClone(studioState());
+    publicNoMatch=!!enabled;publicNextMatch=null;publishState();return publicNoMatch;
+  };
+  window.__sehStudioNext=next=>{
+    if(!programState)programState=structuredClone(studioState());
+    publicNextMatch=next;publicNoMatch=true;publishState();
+  };
+  if(!OBS_MODE&&!PREVIEW_MODE){
+    void remoteRequest("GET").then(rows=>{
+      if(programHeld&&!programState&&rows?.[0]?.state){
+        programState=structuredClone(rows[0].state);canResumeProgram=true;
+        publicNoMatch=!!programState.publicNoMatch;publicNextMatch=programState.publicNextMatch||null;
+        window.dispatchEvent(new CustomEvent("seh:program-status",{detail:programState}));
+      }
+    }).catch(console.error);
+  }
   async function pullState(){if(stateRequestPending)return;stateRequestPending=true;try{const rows=await remoteRequest("GET");if(rows&&rows[0]&&rows[0].state&&Object.keys(rows[0].state).length){const signature=JSON.stringify(rows[0].state);if(signature!==lastRemoteState){lastRemoteState=signature;applyRemoteState(viewerState(rows[0].state));}}}catch(e){console.error("Broadcast remote:",e);if(VIEWER_MODE)parent.postMessage({type:'seh-tv-status',text:'Kontakten med studion är tillfälligt bruten. Försöker igen.'},location.origin);}finally{stateRequestPending=false;}}
   if(previewChannel){previewChannel.onmessage=event=>{if(OBS_MODE&&event.data?.type==="state")applyRemoteState(viewerState(event.data.state));else if(!OBS_MODE&&event.data?.type==="request")publishState();};}
   if(OBS_MODE&&PREVIEW_MODE){previewChannel?.postMessage({type:"request"});}
