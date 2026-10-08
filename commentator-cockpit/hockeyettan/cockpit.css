@@ -4925,3 +4925,47 @@ html[data-theme="light"] .note-tag-options button[aria-pressed="true"]{backgroun
 .lookup-button{display:block;width:100%;padding:10px;margin-bottom:9px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);font:inherit;font-size:11px;font-weight:800;cursor:pointer}
 .studio-period-control{display:flex;align-items:center;gap:9px;margin-top:10px;font-size:10px;color:var(--muted)}
 .pause-editorial{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+
+/* Readable broadcast workspace: keep the scoreboard and overview visible. */
+.drawer{container-type:inline-size;--muted:#a6bbc8}
+html[data-theme="light"] .drawer{--muted:#465f6f}
+.drawer.docked{left:var(--drawer-left)!important;top:var(--drawer-top)!important;right:auto!important;bottom:auto!important;width:var(--drawer-width)!important;height:var(--drawer-height)!important;max-height:none!important;transform:translateX(calc(100vw + 30px))!important;padding:18px 20px;box-sizing:border-box}
+.drawer.docked.open{transform:none!important}
+.drawer.docked .drawer-body{flex:1 1 auto;min-height:0;max-height:none!important;overflow-y:auto}
+.drawer .drawer-head h2{font-size:23px;line-height:1.25}
+.drawer .drawer-body{font-size:14px;line-height:1.6;color:var(--muted)}
+.drawer .drawer-card strong,.drawer .story-card strong,.drawer .studio-talking-points strong{font-size:15px;line-height:1.5}
+.drawer .drawer-card span,.drawer .story-card p,.drawer .studio-talking-points p,.drawer .stats-intro span{font-size:12px;line-height:1.55;color:var(--muted)}
+.drawer .roster-section-title{font-size:13px;margin:16px 0 10px}
+.drawer.stats-wide .player-stat-head,.drawer.stats-wide .player-stat-row{grid-template-columns:minmax(180px,1fr) 30px 30px 30px 34px 38px 44px;gap:6px}
+.drawer.stats-wide .player-stat-head{font-size:11px;color:var(--muted)}
+.drawer.stats-wide .player-stat-row{padding:10px 8px;min-height:58px}
+.drawer.stats-wide .player-stat-row:nth-child(even){background:rgba(128,161,181,.085)}
+.drawer.stats-wide .player-stat-name{grid-template-columns:48px minmax(0,1fr);gap:9px}
+.drawer.stats-wide .player-stat-name>b{font-size:18px;color:var(--yellow);font-variant-numeric:tabular-nums;text-align:center}
+.drawer.stats-wide .player-stat-name strong{font-size:15px;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
+.drawer.stats-wide .player-stat-name small{font-size:11px;line-height:1.45;color:var(--muted)}
+.drawer.stats-wide .player-stat-row em{font-size:13px;font-variant-numeric:tabular-nums}
+.drawer.stats-wide .goalie-card h3{font-size:17px;line-height:1.4}
+.drawer.stats-wide .goalie-metrics strong{font-size:20px}
+.drawer.stats-wide .goalie-card-head,.drawer.stats-wide .goalie-metrics span,.drawer.stats-wide .goalie-recent{font-size:11px;color:var(--muted)}
+.drawer.ai-work .ai-points{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.drawer.ai-work .ai-point{padding:16px}
+.drawer.ai-work .ai-point strong{font-size:16px;line-height:1.55}
+.drawer.ai-work .ai-point p,.drawer.ai-work .ai-point small{font-size:12px;line-height:1.6;color:var(--muted)}
+.drawer.ai-work .ai-point span,.drawer.ai-work .ai-status strong,.drawer .ai-trust-strip strong{font-size:12px;line-height:1.5}
+.drawer .ai-point-actions button,.drawer .note-actions button,.drawer .note-form-actions button{font-size:11px;min-height:38px}
+.drawer .note-card strong{font-size:16px}
+.drawer .note-card p{font-size:14px;line-height:1.65;color:var(--text)}
+.drawer .note-editor{margin:12px 0;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.drawer .note-editor>summary{padding:13px 16px;color:var(--yellow);font-size:13px;font-weight:850;cursor:pointer}
+.drawer .note-editor>summary:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+.drawer .note-editor .note-form{margin:0;border:0;padding:16px}
+.drawer .note-form input,.drawer .note-form select,.drawer .note-form textarea,.drawer .notes-search input,.drawer .notes-search select,.drawer.ai-work .ai-form textarea{font-size:14px;line-height:1.5}
+.drawer .notes-search{margin-top:14px}
+.drawer .story-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+@container(max-width:900px){.drawer .stats-team-grid{grid-template-columns:1fr}}
+@container(max-width:620px){.drawer.ai-work .ai-points,.drawer .story-grid{grid-template-columns:1fr}.drawer .player-stat-section{overflow-x:auto}.drawer .player-stat-head,.drawer .player-stat-list{min-width:540px}}
+
+.drawer .note-card h3{font-size:16px;line-height:1.5}
+.drawer .notes-meta,.drawer .notes-meta small,.drawer .note-card-head span{font-size:11px;color:var(--muted)}
