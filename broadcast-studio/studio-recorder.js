@@ -5,7 +5,7 @@
     document.title='Inspelningsbild · SWNWORKS';
     const audioButton=document.createElement('button');audioButton.className='recording-audio-start';
     audioButton.textContent='Aktivera matchljud · klicka innan du spelar in';
-    audioButton.onclick=()=>{const video=document.getElementById('directVideo');if(video){video.muted=false;if(video.currentSrc)void video.play().catch(()=>{});}audioButton.remove();};
+    audioButton.onclick=()=>{const video=document.getElementById('directVideo');if(video){window.__sehSyncMatchAudio?.();if(video.currentSrc)void video.play().catch(()=>{});}audioButton.remove();};
     document.body.append(audioButton);return;
   }
   if(params.get('obs')==='1'||params.get('viewer')==='1')return;
