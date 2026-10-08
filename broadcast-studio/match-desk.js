@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  if(dock&&!dock.children.length)dock.remove();
  const grid=document.querySelector('.scene-grid');
  if(grid){
-  const common=new Set(['opening','live','matchup','lineup','intermission']);
+  const common=new Set(['opening','live','lineup','table','teamcompare']);
   const extra=document.createElement('details');extra.className='director-fold more-scenes';
   const summary=document.createElement('summary');summary.textContent='Fler scener';
   const more=document.createElement('div');more.className='scene-grid';
