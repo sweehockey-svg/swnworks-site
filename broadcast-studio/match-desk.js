@@ -112,3 +112,63 @@
   updateIdle();
   render();
 })();
+
+/* Keep preparation and transmission controls together without changing program state. */
+document.addEventListener('DOMContentLoaded',()=>{
+ if(new URLSearchParams(location.search).get('obs')==='1')return;
+ const aside=document.querySelector('aside'),work=document.querySelector('.workspace');
+ if(!aside||!work)return;
+ const fold=(node,title)=>{
+  if(!node)return;
+  const details=document.createElement('details');details.className='director-fold';
+  const summary=document.createElement('summary');summary.textContent=title;
+  node.before(details);details.append(summary,node);return details;
+ };
+ const picker=aside.querySelector('.saved-match-picker');
+ if(picker)aside.querySelector('.control-hero')?.after(picker);
+ const desk=document.querySelector('.stream-dock>.match-desk');
+ if(desk){
+  const match=aside.querySelector('#tournament')?.closest('.block');
+  match?.after(desk);
+  desk.querySelector('h3').textContent='STREAM · FÖRBEREDD MATCH';
+  desk.querySelector('p').textContent='Ladda streamen och spara tillsammans med lag och resultat ovan.';
+ }
+ fold(aside.querySelector('.theme-control'),'Design · bakgrund och grafik');
+ fold(aside.querySelector('.series-control'),'Slutspelsserie');
+ fold(aside.querySelector('#commentator1')?.closest('.block'),'Kommentatorsbilder');
+ fold(aside.querySelector('.lineup-control'),'Laguppställningar');
+ const recorder=document.querySelector('.recorder-panel');
+ if(recorder){
+  work.append(recorder);
+  const recording=fold(recorder,'Spela in matchen');
+  const status=recorder.querySelector('[role="status"]');
+  if(status){
+   const badge=document.createElement('small');badge.className='recording-summary';
+   recording.querySelector('summary').append(badge);
+   const sync=()=>badge.textContent=' · '+status.textContent;
+   new MutationObserver(sync).observe(status,{childList:true,subtree:true,characterData:true});sync();
+  }
+ }
+ const next=document.querySelector('.next-controls');
+ if(next){aside.append(next);fold(next,'Vänteskärm · nästa match');}
+ const dock=document.querySelector('.stream-dock');
+ if(dock&&!dock.children.length)dock.remove();
+ const grid=document.querySelector('.scene-grid');
+ if(grid){
+  const common=new Set(['opening','live','matchup','lineup','intermission']);
+  const extra=document.createElement('details');extra.className='director-fold more-scenes';
+  const summary=document.createElement('summary');summary.textContent='Fler scener';
+  const more=document.createElement('div');more.className='scene-grid';
+  grid.after(extra);extra.append(summary,more);
+  [...grid.children].forEach(button=>{if(!common.has(button.dataset.scene))more.append(button);});
+ }
+ const quick=document.querySelector('.quick-match-bar');
+ if(quick){
+  const preparing=document.createElement('p');preparing.id='deskPreparing';preparing.className='preparing-status';
+  quick.querySelector('#deskTake').before(preparing);
+  const sync=()=>{const select=document.getElementById('deskMatchSelect');preparing.textContent='Förbereder: '+(select?.selectedOptions[0]?.textContent||'Ny match');};
+  aside.addEventListener('change',sync);
+  new MutationObserver(sync).observe(document.getElementById('deskMatchSelect'),{childList:true});
+  sync();
+ }
+});
