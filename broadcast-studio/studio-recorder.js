@@ -14,7 +14,7 @@
     <p>Spela in grafik, matchljud och din mikrofon till datorn. Ingen video laddas upp från studion.</p>
     <ol><li>Öppna inspelningsbilden och aktivera ljudet där.</li><li>Välj en ny videofil på datorn.</li><li>Starta och välj fliken <b>Inspelningsbild · SWNWORKS</b>. Kryssa i <b>Dela flikljud</b>.</li></ol>
     <a id="recordOutput" class="recorder-output" target="_blank" rel="noopener">1. Öppna inspelningsbild ↗</a>
-    <div class="recorder-options"><label><input id="recordTabAudio" type="checkbox" checked> Matchljud från fliken</label><label><input id="recordMic" type="checkbox" checked> Min mikrofon</label></div>
+    <div class="recorder-options"><label><input id="recordTabAudio" type="checkbox" checked> Matchljud från fliken</label><label><input id="recordMic" type="checkbox"> Min mikrofon</label></div>
     <div class="recorder-actions"><button id="recordFile" type="button">2. Välj videofil</button><button id="recordStart" type="button" disabled>3. Starta inspelning</button><button id="recordStop" type="button" disabled>Stoppa och spara</button></div>
     <p id="recordStatus" role="status" aria-live="polite">Välj först var videon ska sparas.</p><p id="recordMetrics"></p>
     <video id="recordPreview" muted autoplay playsinline hidden aria-label="Bild som spelas in"></video>
