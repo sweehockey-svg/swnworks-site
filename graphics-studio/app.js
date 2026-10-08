@@ -162,6 +162,9 @@ function background(W,H){
   if(S.bg==="smoke")return '<rect width="'+W+'" height="'+H+'" fill="#06111a"/><ellipse cx="'+W*.25+'" cy="'+H*.68+'" rx="'+W*.38+'" ry="'+H*.24+'" fill="#a8b5bf" fill-opacity=".09"/><ellipse cx="'+W*.8+'" cy="'+H*.35+'" rx="'+W*.3+'" ry="'+H*.2+'" fill="#ffbd00" fill-opacity=".06"/>';
   return '<rect width="'+W+'" height="'+H+'" fill="#06283d"/><path d="M0 '+H*.82+' L'+W*.48+' 0 H'+W*.62+' L'+W*.16+' '+H+'" Z" fill="#0d4a70" fill-opacity=".32"/><path d="M'+W*.6+' 0 L'+W+' '+H*.42+' V'+H*.63+' L'+W*.48+' 0 Z" fill="#ffbd00" fill-opacity=".05"/>';
 }
+function studioBackground(W,H){
+  return '<rect width="'+W+'" height="'+H+'" fill="#05121c"/>'+background(W,H)+'<rect width="'+W+'" height="'+H+'" fill="#05121c" opacity=".30"/>'+ '<path d="M'+W*.72+' 0 H'+W+' L'+W*.28+' '+H+' H'+W*.12+' Z" fill="#83bdde" opacity=".045"/>';
+}
 function legacyBase(content){
   const {w:W,h:H}=format(),m=Math.round(W*.052),hy=Math.round(H*.052),ty=Math.round(H*.19),wide=S.format==="wide";
   const c=comp(),ts=wide?78:S.format==="story"?74:68;
@@ -546,8 +549,7 @@ function base(content){
   const {w:W,h:H}=format(),m=Math.round(W*.052),c=comp(),wide=S.format==="wide";
   const headingSize=Math.min(wide?82:70,(W-m*2)/Math.max(1,title().length)*1.55);
   return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+defs()+
-    '<defs><linearGradient id="editorialShade" x2="0" y2="1"><stop stop-color="#06111d" stop-opacity=".96"/><stop offset=".6" stop-color="#06111d" stop-opacity=".88"/><stop offset="1" stop-color="#06111d" stop-opacity=".96"/></linearGradient></defs>'+background(W,H)+
-    '<rect width="'+W+'" height="'+H+'" fill="url(#editorialShade)"/><path d="M'+W*.68+' 0 L'+W+' 0 L'+W*.35+' '+H+' H'+W*.2+' Z" fill="#77bfff" opacity=".025"/>'+
+    studioBackground(W,H)+
     '<rect x="'+m+'" y="48" width="6" height="56" rx="3" fill="#ffbd00"/>'+
     (c.logo?'<image href="'+esc(c.logo)+'" x="'+(m+20)+'" y="40" width="72" height="72" preserveAspectRatio="xMidYMid meet"/>':'')+
     svgText(m+112,72,c.label,27,"#f4f7fa",800)+svgText(m+112,97,"SVENSK eHOCKEY",12,"#a2b6c9",700,'letter-spacing="2.4"')+
@@ -687,8 +689,7 @@ function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
 }
 function modernPodiumBase(content){
   const {w:W,h:H}=format(),m=Math.round(W*.052),c=comp(),ts=Math.min(W>1400?100:86,(W-m*2)/Math.max(1,title().length)*1.55);
-  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+defs()+'<rect width="'+W+'" height="'+H+'" fill="#05121c"/>'+background(W,H)+'<rect width="'+W+'" height="'+H+'" fill="#05121c" opacity=".30"/>'+
-    '<path d="M'+W*.72+' 0 H'+W+' L'+W*.28+' '+H+' H'+W*.12+' Z" fill="#83bdde" opacity=".045"/>'+
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+defs()+studioBackground(W,H)+
     (c.logo?'<image href="'+esc(c.logo)+'" x="'+m+'" y="32" width="76" height="76" preserveAspectRatio="xMidYMid meet"/>':'')+
     svgText(m+94,65,c.label,25,"#fff",900)+svgText(m+94,90,"SVENSK eHOCKEY",11,"#a6bfce",700,'letter-spacing="2"')+
     svgText(W-m,70,"TOPP 03",16,"#ffda55",800,'text-anchor="end" letter-spacing="3"')+
