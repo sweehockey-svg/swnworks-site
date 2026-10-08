@@ -25,6 +25,21 @@
   nextControls.innerHTML='<h3>NÄSTA MATCH · ENDAST MATCH-TV</h3><label>HEMMALAG<select id="nextHome"></select></label><label>BORTALAG<select id="nextAway"></select></label><label>DATUM<input id="nextDate" type="date" required></label><label>STARTTID · SVENSK TID<input id="nextTime" type="time" required></label><button id="deskNext">Visa Nästa match på Match-TV</button><p>Preview fortsätter vara fritt att ändra. Detta startar inte sändningen automatiskt.</p>';
   document.querySelector('.stream-dock')?.append(nextControls);
   const get=id=>document.getElementById(id);
+  const picker=document.createElement('section');picker.className='block match-desk saved-match-picker';
+  picker.innerHTML='<h3>SPARADE MATCHER</h3><label>VÄLJ MATCH<select id="deskMatchSelect"><option value="">Ny match</option></select></label><button id="deskNewMatch" type="button">Förbered ny match</button><small>Match 1, 2, 3 … har egna lag, grafik och stream. Spara med ”Spara som ny match” nedan.</small>';
+  document.querySelector('.theme-control')?.after(picker);
+  const selectMatch=m=>{
+    remember();active=m.id;get('deskName').value=m.name;get('deskStreams').value=m.streams.join('\n');
+    m.state={...m.state,matchName:m.name};window.__sehStudioRestore(m.state);persist();render();get('deskMessage').textContent='Visar '+m.name;
+  };
+  const newMatch=()=>{
+    remember();persist();active='';get('deskName').value='';get('deskStreams').value='';
+    render();get('deskMessage').textContent='Ny match: ställ in lag, namn och stream. Klicka sedan Spara som ny match.';
+    get('deskName').focus();
+  };
+  get('deskMatchSelect').onchange=()=>{const m=matches.find(m=>m.id===get('deskMatchSelect').value);if(m)selectMatch(m);else newMatch();};
+  get('deskNewMatch').onclick=newMatch;
+
   const fillTeams=()=>['Home','Away'].forEach(side=>{const select=get('next'+side),value=select.value||get(side.toLowerCase()).value;select.replaceChildren(...[...get(side.toLowerCase()).options].map(o=>new Option(o.text,o.value)));select.value=value;});
   nextControls.addEventListener('focusin',e=>{if(e.target.tagName==='SELECT')fillTeams();});
   fillTeams();
@@ -38,12 +53,15 @@
   const persist=()=>{try{localStorage.setItem(key,JSON.stringify({matches}));}catch{get('deskMessage').textContent='Webbläsaren kunde inte spara matchlistan.';}};
   const remember=()=>{const m=matches.find(m=>m.id===active);if(m)m.state=window.__sehStudioSnapshot();};
   const render=()=>{
+    const select=get('deskMatchSelect');select.replaceChildren(new Option('Ny match', ''));
+    matches.forEach((m,i)=>select.add(new Option('Match '+(i+1)+' · '+m.name,m.id)));
+    select.value=active;
     get('deskMatches').replaceChildren();
     matches.forEach(m=>{
       const row=document.createElement('div');row.className='desk-match'+(active===m.id?' selected':'');
       const title=document.createElement('strong');title.textContent=m.name+' · '+(m.state.hs||0)+'–'+(m.state.as||0);row.append(title);
       const choose=document.createElement('button');choose.textContent=active===m.id?'Vald match':'Välj match';choose.onclick=()=>{
-        remember();active=m.id;get('deskName').value=m.name;get('deskStreams').value=m.streams.join('\n');m.state={...m.state,matchName:m.name};window.__sehStudioRestore(m.state);persist();render();get('deskMessage').textContent='Visar '+m.name;
+        selectMatch(m);
       };row.append(choose);
       m.streams.forEach(channel=>{const btn=document.createElement('button');btn.textContent='Visa '+channel;btn.onclick=()=>{
         remember();active=m.id;get('deskName').value=m.name;get('deskStreams').value=m.streams.join('\n');m.state={...m.state,matchName:m.name,videoSource:'twitch',twitchChannel:channel,twitchShow:true,scene:'live'};window.__sehStudioRestore(m.state);persist();render();get('deskMessage').textContent='Byter till '+channel+' – videon kan behöva några sekunder.';
