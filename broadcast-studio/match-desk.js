@@ -164,6 +164,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  }
  const quick=document.querySelector('.quick-match-bar');
  if(quick){
+  fold(quick.querySelector('#deskMatches'),'Sparade matcher · snabbval');
   const preparing=document.createElement('p');preparing.id='deskPreparing';preparing.className='preparing-status';
   quick.querySelector('#deskTake').before(preparing);
   const sync=()=>{const select=document.getElementById('deskMatchSelect');preparing.textContent='Förbereder: '+(select?.selectedOptions[0]?.textContent||'Ny match');};
