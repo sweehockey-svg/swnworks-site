@@ -759,7 +759,7 @@ function dl(blob,name){const a=document.createElement("a");a.href=URL.createObje
 function dataUrl(blob){return new Promise((ok,no)=>{const f=new FileReader();f.onload=()=>ok(f.result);f.onerror=no;f.readAsDataURL(blob)})}
 let logoAssetsPromise;
 async function inline(svg){
-  logoAssetsPromise ||= fetch('logo-assets.json?v=20261007-24',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Loggorna kunde inte laddas. Uppdatera sidan och försök igen.');return r.json()});
+  logoAssetsPromise ||= fetch('logo-assets.json?v=20261009-wv-41',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Loggorna kunde inte laddas. Uppdatera sidan och försök igen.');return r.json()});
   const logoAssets=await logoAssetsPromise;
   const d=new DOMParser().parseFromString(svg,"image/svg+xml"),ims=[...d.querySelectorAll("image")];
   const images=new Map();
