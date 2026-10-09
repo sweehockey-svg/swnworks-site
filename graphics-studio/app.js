@@ -753,7 +753,7 @@ function build(){
     const width=sports?140:50;
     return '<image href="'+logo+'" x="'+x+'" y="'+(y-30)+'" width="'+width+'" height="40" preserveAspectRatio="xMidYMid meet"/>'+text.replace(/\bx="[\d.]+"/,'x="'+(x+width+12)+'"');
   });
-  return graphic;
+  return L.svg(graphic,[$("#title").value,$("#subtitle").value,comp().label,...S.teams.map(t=>t.team_name_in_league),...S.players.map(p=>p.display_gamertag)]);
 }
 function render(){
   sync();$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
@@ -802,5 +802,6 @@ async function exportGraphic(type){
   finally{$("#png").disabled=$("#svg").disabled=false;button.textContent=label}
 }
 $("#refresh").onclick=()=>{load();if(S.kind==="matches")loadSchedule()};$("#svg").onclick=()=>exportGraphic("svg");$("#png").onclick=()=>exportGraphic("png");
-render();load();
+$("#language").onchange=()=>{L.set($("#language").value);groups();render()};
+L.applyUi();render();load();
 })();
