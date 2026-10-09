@@ -4448,11 +4448,40 @@
     renderSyncFreshness();
   }
 
+  let lastCompetitionCheckAt=0;
   async function refreshActiveMatch() {
-    if(!client||!state.teamDataLoaded||!state.selectedTeam||!canAccessTeam(state.selectedTeam.id)||!state.nextGame?.id||state.liveRefreshBusy) return;
+    if(!client||!state.teamDataLoaded||!state.selectedTeam||!canAccessTeam(state.selectedTeam.id)||state.teamLoading||state.liveRefreshBusy||document.hidden) return;
     state.liveRefreshBusy=true;
     if(gameIsLive(state.nextGame)) setSyncStatus("working","Uppdaterar live-data…");
     try{
+      // Refresh the import timestamp from the server, not just its displayed age.
+      if(state.selectedCompetition?.id&&Date.now()-lastCompetitionCheckAt>=60000){
+        const previous=state.selectedCompetition;
+        const {data:competition,error}=await client.from("competitions")
+          .select("id,name,season_label,group_name,updated_at,source_competition_id")
+          .eq("id",previous.id).single();
+        if(error)throw error;
+        // Ignore a response if the user switched teams/competitions meanwhile.
+        if(state.selectedCompetition?.id!==previous.id)return;
+        lastCompetitionCheckAt=Date.now();
+        if(competition.updated_at!==previous.updated_at){
+          state.selectedCompetition=competition;
+          state.competitionById.set(competition.id,competition);
+          for(const [teamId,row] of state.teamCompetitionByTeam){
+            if(row.id===competition.id)state.teamCompetitionByTeam.set(teamId,competition);
+          }
+          try{
+            await loadData();
+            state.lastLiveRefreshAt=new Date().toISOString();
+          }catch(error){
+            state.selectedCompetition=previous;state.competition=previous;
+            lastCompetitionCheckAt=0;throw error;
+          }
+          return;
+        }
+        state.competition=competition;
+      }
+      if(!state.nextGame?.id)return;
       const {data:game,error:gameError}=await client.from("games")
         .select("id,scheduled_start,home_team_id,away_team_id,venue_name,status,period,clock_display,home_score,away_score,source_game_id,source_event_game_id,game_number,updated_at")
         .eq("id",state.nextGame.id)
@@ -4680,6 +4709,8 @@
   window.setInterval(updateClock, 1000);
   window.setInterval(refreshActiveMatch, 15000);
   window.setInterval(renderSyncFreshness, 60000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden){lastCompetitionCheckAt=0;void refreshActiveMatch();}});
+  window.addEventListener("online",()=>{lastCompetitionCheckAt=0;void refreshActiveMatch();});
 
   async function boot() {
     state.selectedTeamSlug=requestedTeamSlug();
