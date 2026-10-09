@@ -122,18 +122,26 @@ async function loadSchedule(){
  finally{if(request===scheduleRequest){scheduleLoading=false;render();}}
 }
 function matchDayLabel(){return new Date(($("#matchDate").value||swedishDay(new Date()))+"T12:00:00").toLocaleDateString("sv-SE",{day:"numeric",month:"long",year:"numeric"})}
+function matchPages(games){
+  const pairKey=g=>JSON.stringify([g[1].trim().toLocaleLowerCase('sv'),g[2].trim().toLocaleLowerCase('sv')].sort((a,b)=>a.localeCompare(b,'sv')));
+  const groups=new Map();
+  games.forEach(g=>{const key=pairKey(g);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(g)});
+  const ordered=[...groups.entries()].sort(([a],[b])=>a.localeCompare(b,'sv')).flatMap(([,rows])=>rows.sort((a,b)=>a[0].localeCompare(b[0])));
+  const count=Math.ceil(ordered.length/8),size=Math.floor(ordered.length/count),extra=ordered.length%count;
+  let offset=0;return Array.from({length:count},(_,i)=>{const length=size+(i<extra?1:0),page=ordered.slice(offset,offset+length);offset+=length;return page});
+}
 function matchesSvg(){
   const {w:W,h:H}=format(),m=Math.round(W*.052),top=300;
   if(scheduleLoading||scheduleError)return base(svgText(W/2,H/2,scheduleError||'Hämtar rapporterade matcher…',26,'#a2b6c9',700,'text-anchor="middle"'));
-  const games=schedule.filter(g=>effectiveMatchDay(g)===$("#matchDate").value).map(g=>[new Date(g.date).toLocaleTimeString('sv-SE',{timeZone:'Europe/Stockholm',hour:'2-digit',minute:'2-digit'}),g.home,g.away,g.homeScore,g.awayScore]);
+  let games=schedule.filter(g=>effectiveMatchDay(g)===$("#matchDate").value).map(g=>[new Date(g.date).toLocaleTimeString('sv-SE',{timeZone:'Europe/Stockholm',hour:'2-digit',minute:'2-digit'}),g.home,g.away,g.homeScore,g.awayScore]);
   if(!games.length)return base(svgText(W/2,H/2,'Inga rapporterade matcher på valt datum',28,'#a2b6c9',700,'text-anchor="middle"'));
-  const pageCount=Math.ceil(games.length/8),pageSelect=$("#matchPage"),page=Math.min(Number(pageSelect.value)||0,pageCount-1);
+  const pages=matchPages(games),pageCount=pages.length,pageSelect=$("#matchPage"),page=Math.min(Number(pageSelect.value)||0,pageCount-1);
   pageSelect.innerHTML=Array.from({length:pageCount},(_,i)=>'<option value="'+i+'"'+(i===page?' selected':'')+'>Sida '+(i+1)+' av '+pageCount+'</option>').join('');
-  games.sort((a,b)=>a[0].localeCompare(b[0]));games.splice(0,page*8);games.splice(8);
+  games=pages[page];
   const capacity=Math.max(1,Math.floor((H-top-90)/52));
   if(games.length>capacity)return base(svgText(W/2,H/2,'För många matcher – välj ett högre format eller dela listan',24,'#ffcf4a',700,'text-anchor="middle"'));
   const rowH=Math.min(180,(H-top-90)/games.length),blockTop=top+Math.max(0,(H-top-90-rowH*games.length)/2),lm=logos();
-  return base(games.sort((a,b)=>a[0].localeCompare(b[0])).map((g,i)=>{
+  return base(games.map((g,i)=>{
     const y=blockTop+i*rowH,cy=y+rowH/2,center=W/2,logoSize=56,innerGap=82;
     const team=(name,home)=>{
       const t=S.teams.find(t=>String(t.team_name_in_league).toLocaleLowerCase('sv')===name.toLocaleLowerCase('sv')),logo=t&&lm.get(String(t.sports_gamer_team_id));
