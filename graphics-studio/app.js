@@ -28,12 +28,16 @@ async function rows(view){
   const u=SUPA+"/rest/v1/"+view+"?sports_gamer_league_id=eq."+S.league+"&select=*";
   const r=await fetch(u,{headers:headers(),cache:"no-store"});if(!r.ok)throw new Error(view+" HTTP "+r.status);return r.json();
 }
+let dataRequest=0;
 async function load(){
+  const request=++dataRequest, league=S.league;
   setStatus("HÄMTAR…","load");
   try{
-    [S.teams,S.players]=await Promise.all([rows("v_broadcast_teams_public"),rows("v_broadcast_players_public")]);
+    const [teams,players]=await Promise.all([rows("v_broadcast_teams_public"),rows("v_broadcast_players_public")]);
+    if(request!==dataRequest||league!==S.league)return;
+    S.teams=teams;S.players=players;
     groups(); setStatus(S.teams.length+" LAG · "+S.players.length+" SPELARE","ok"); render();
-  }catch(e){console.error(e);setStatus("DATAFEL","error");$("#preview").innerHTML='<div style="color:white;padding:30px">Datafel: '+esc(e.message)+'</div>'}
+  }catch(e){if(request!==dataRequest)return;console.error(e);setStatus("DATAFEL","error");$("#preview").innerHTML='<div style="color:white;padding:30px">Datafel: '+esc(e.message)+'</div>'}
 }
 function setStatus(t,m){$("#dataStatus").textContent=t;$("#topStatus").textContent=m==="error"?"DATAFEL":m==="load"?"UPPDATERAR":"LIVE DATA"}
 function groupIds(){return [...new Set(S.teams.filter(x=>x.statistics_stage==="regular").map(x=>Number(x.effective_group_id)).filter(Number.isFinite))].sort((a,b)=>a-b)}
@@ -793,7 +797,7 @@ async function exportGraphic(type){
   if(S.kind==="matches"&&(scheduleLoading||scheduleError))return;
   const button=$("#"+type),label=button.textContent;
   $("#png").disabled=$("#svg").disabled=true;button.textContent="Exporterar…";
-  try{await (type==="png"?expPng():expSvg())}catch(e){alert(e.message)}
+  try{await (type==="png"?expPng():expSvg())}catch(e){console.error("Graphics export:",e);$("#dataStatus").textContent=e.message;alert(e.message)}
   finally{$("#png").disabled=$("#svg").disabled=false;button.textContent=label}
 }
 $("#refresh").onclick=()=>{load();if(S.kind==="matches")loadSchedule()};$("#svg").onclick=()=>exportGraphic("svg");$("#png").onclick=()=>exportGraphic("png");
