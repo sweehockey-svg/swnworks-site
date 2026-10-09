@@ -3,6 +3,7 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const cfg=window.EHOCKEY_CONFIG||{}, SUPA=String(cfg.supabaseUrl||"").replace(/\/+$/,""), KEY=String(cfg.supabasePublishableKey||cfg.supabaseAnonKey||"");
 const C={
+  532:{label:"WV 4 NATIONS 2026",code:"WV",logo:"assets/wv-logo.svg"},
   520:{label:"SEC 21",code:"SEC",logo:"https://www.svenskehockey.se/assets/SECLOGGA.png"},
   523:{label:"WECL",code:"WECL",logo:"https://fhr.fra1.cdn.digitaloceanspaces.com/NHLGamer/WECL/WECL_logo.png"},
   524:{label:"GCL 13 · DIV I",code:"GCL",logo:"https://fhr.fra1.cdn.digitaloceanspaces.com/SportsGamer/leagues/GCL/Season_12/GCL_logo_new_350x350.png"},
@@ -172,6 +173,10 @@ function defs(){return '<defs><linearGradient id="silver" x2="0" y2="1"><stop st
 function background(W,H){
   const glow=(id,color,x,y)=>'<radialGradient id="'+id+'"><stop stop-color="'+color+'" stop-opacity=".48"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient>';
   const lights='<defs>'+glow('arenaBlue','#24aaff')+glow('arenaGold','#ffce43')+'</defs><ellipse cx="'+W*.12+'" cy="'+H*.12+'" rx="'+W*.65+'" ry="'+H*.45+'" fill="url(#arenaBlue)"/><ellipse cx="'+W*.92+'" cy="'+H*.75+'" rx="'+W*.55+'" ry="'+H*.55+'" fill="url(#arenaGold)"/>';
+  if(S.bg==="wv"){
+    const u=new URL("assets/wv-4-nations-background.svg",location.href).href;
+    return '<svg width="'+W+'" height="'+H+'" viewBox="0 220 1323 663" preserveAspectRatio="xMidYMid slice"><image href="'+esc(u)+'" width="1323" height="883"/></svg><rect width="'+W+'" height="'+H+'" fill="#020b12" fill-opacity=".55"/>';
+  }
   if(S.bg==="gamenight"){
     const u=new URL("../broadcast-studio/assets/game-night-background-photo.webp",location.href).href;
     return '<rect width="'+W+'" height="'+H+'" fill="#06111d"/><image href="'+esc(u)+'" width="'+W+'" height="'+H+'" preserveAspectRatio="xMidYMid slice"/><rect width="'+W+'" height="'+H+'" fill="#020b12" fill-opacity=".55"/>'+lights+'<path d="M'+W*.06+' 0 L'+W*.38+' '+H+' L'+W*.56+' '+H+' Z" fill="#b4e7ff" opacity=".05"/>';
@@ -783,7 +788,7 @@ $("#matchEditReset").onclick=()=>saveMatchDate(true);
 try{$("#sender").value=localStorage.getItem('swn-graphics-sender')==='sportsgamer'?'sportsgamer':'seh';}catch{}
 $("#sender").addEventListener('change',()=>{try{localStorage.setItem('swn-graphics-sender',$("#sender").value);}catch{}});
 ["title","subtitle"].forEach(id=>$("#"+id).addEventListener("input",render));
-$("#league").onchange=()=>{S.league=Number($("#league").value||527);S.group=null;load();if(S.kind==="matches")loadSchedule()};
+$("#league").onchange=()=>{S.league=Number($("#league").value||527);S.group=null;if(S.league===532)$("#bg").value="wv";else if($("#bg").value==="wv")$("#bg").value="gamenight";load();if(S.kind==="matches")loadSchedule()};
 async function exportGraphic(type){
   if(S.kind==="matches"&&(scheduleLoading||scheduleError))return;
   const button=$("#"+type),label=button.textContent;
