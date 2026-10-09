@@ -7,6 +7,33 @@
   if(!viewer&&(params.get('obs')==='1'||params.get('viewer')==='1'))return;
   const MAX_PEERS=50, RATE=24000;
   const ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'}]};
+  let turnRequest=null,turnRoom='';
+  async function relayConfig(){
+    const active=session;
+    if(!active||!keys)throw new Error('Kommentatorsession saknas');
+    if(turnRoom!==active.room){turnRoom=active.room;turnRequest=null;}
+    if(!turnRequest){
+      turnRequest=(async()=>{
+        const message=await signed({type:'turn-credentials',room:active.room,timestamp:Date.now()});
+        const response=await fetch('https://match-tv-turn.sweehockey.workers.dev/credentials',{
+          method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(message),signal:AbortSignal.timeout(15000)
+        });
+        if(!response.ok)throw new Error('Ljudrelä kunde inte anslutas ('+response.status+')');
+        const data=await response.json();
+        if(!validRelay(data.iceServers)||data.expiresAt<=Date.now())throw new Error('Ogiltigt svar från ljudrelä');
+        return {iceServers:data.iceServers};
+      })().catch(error=>{turnRequest=null;throw error;});
+    }
+    return turnRequest;
+  }
+  function validRelay(servers){
+    return Array.isArray(servers)&&servers.length>0&&servers.length<=8&&servers.every(server=>{
+      const urls=Array.isArray(server.urls)?server.urls:[server.urls];
+      return urls.length>0&&urls.length<=8&&urls.every(url=>typeof url==='string'&&/^(stun|turn|turns):(stun|turn)\.cloudflare\.com:\d+(\?transport=(udp|tcp))?$/.test(url))&&
+        (server.username===undefined||typeof server.username==='string'&&server.username.length<512)&&
+        (server.credential===undefined||typeof server.credential==='string'&&server.credential.length<512);
+    });
+  }
   const peers=new Map(), id=crypto.randomUUID();
   const cfg=window.EHOCKEY_CONFIG||{};
   let client,channel,stream,keys,session,starting=false,disposed=false,generation=0;
@@ -17,7 +44,7 @@
   panel.setAttribute('aria-label',viewer?'Kommentatorsljud':'Mikrofon till Match-TV');
   panel.innerHTML=viewer
     ? '<h3>KOMMENTERING · BETA</h3><p class="commentary-status" role="status" aria-live="polite">Kontrollerar kommenteringen…</p><div class="commentary-actions"><button type="button" class="commentary-listen" aria-pressed="false">Lyssna på kommentering</button><label>Röstvolym<input class="commentary-volume" type="range" min="0" max="100" value="100"></label><label>Fördröj rösten <output class="commentary-delay-value">0 s</output><input class="commentary-delay" type="range" min="0" max="15" step="0.5" value="0"></label></div><small>Matchljudet styrs med ”Slå på ljud”. Om rösten ligger före bilden, öka fördröjningen. Ligger rösten efter, prova att ladda om matchbilden.</small>'
-    : '<h3>MIKROFON TILL MATCH-TV · BETA</h3><p class="commentary-status" role="status" aria-live="polite">Mikrofon av</p><div class="commentary-actions"><button type="button" class="commentary-start">Starta kommentering</button><button type="button" class="commentary-mute" disabled aria-pressed="false">Tysta mikrofon</button><button type="button" class="commentary-stop" disabled>Stoppa</button></div><small>Endast rösten skickas till Match-TV. Använd hörlurar och låt den här fliken vara öppen. Mikrofonen fortsätter för den pågående sändningen när du förbereder nästa match. Testläge: upp till 50 anslutningar, men nätet kan begränsa antalet och vissa nät kräver en ljudreläserver som inte ingår här.</small>';
+    : '<h3>MIKROFON TILL MATCH-TV · BETA</h3><p class="commentary-status" role="status" aria-live="polite">Mikrofon av</p><div class="commentary-actions"><button type="button" class="commentary-start">Starta kommentering</button><button type="button" class="commentary-mute" disabled aria-pressed="false">Tysta mikrofon</button><button type="button" class="commentary-stop" disabled>Stoppa</button></div><small>Endast rösten skickas till Match-TV. Använd hörlurar och låt den här fliken vara öppen. Mikrofonen fortsätter för den pågående sändningen när du förbereder nästa match. Testläge: upp till 50 anslutningar. Ljudrelä hjälper anslutningen mellan olika nät. Antalet lyssnare beror även på kommentatorns nät.</small>';
   const anchor=presenter?document.getElementById('commentatorControls'):viewer?document.querySelector('.tv-video .toolbar'):document.querySelector('.scene-dock');
   if(!anchor)return;
   anchor.after(panel);
@@ -70,7 +97,7 @@
         clearTimeout(p.timer);if(viewer){joinedAt=Date.now();status('Kommentering ansluten');}else hostStatus();
       }else if(['failed','closed'].includes(pc.connectionState)){
         closePeer(peerId);
-        if(viewer)status('Ingen direkt ljudanslutning. Försöker igen; nätet kan kräva en reläserver.');
+        if(viewer)status('Ljudanslutningen misslyckades. Försöker igen via ljudrelä.');
       }else if(pc.connectionState==='disconnected'){
         if(viewer)status('Ljudanslutningen är bruten. Försöker återansluta.');
         p.timer=setTimeout(()=>closePeer(peerId),10000);
@@ -82,7 +109,7 @@
     return new Promise(resolve=>{
       const done=()=>{clearTimeout(timer);pc.removeEventListener('icegatheringstatechange',changed);resolve();};
       const changed=()=>{if(pc.iceGatheringState==='complete')done();};
-      const timer=setTimeout(done,4000);pc.addEventListener('icegatheringstatechange',changed);
+      const timer=setTimeout(done,12000);pc.addEventListener('icegatheringstatechange',changed);
     });
   }
   async function hostSignal(message){
@@ -98,7 +125,11 @@
       return;
     }
     if(message.type!=='join'||typeof message.from!=='string'||!/^[a-f0-9-]{36}$/.test(message.from)||peers.has(message.from)||peers.size>=MAX_PEERS)return;
-    const activeSession=session,pc=new RTCPeerConnection(ICE);watch(pc,message.from);
+    const activeSession=session;
+    let relay;
+    try{relay=await relayConfig();}catch(error){status(String(error.message||'Ljudrelä kunde inte anslutas'));return;}
+    if(session!==activeSession||!stream||peers.has(message.from)||peers.size>=MAX_PEERS)return;
+    const pc=new RTCPeerConnection(relay);watch(pc,message.from);
     try{
       const sender=pc.addTrack(stream.getAudioTracks()[0],stream);
       const settings=sender.getParameters();settings.encodings=[{maxBitrate:RATE}];
@@ -108,7 +139,7 @@
       if(opus)offer.sdp=offer.sdp.replace(new RegExp('(a=fmtp:'+opus[1]+' [^\\r\\n]*)'),'$1;maxaveragebitrate=24000;stereo=0;usedtx=1');
       await pc.setLocalDescription(offer);await iceComplete(pc);
       if(session!==activeSession||!peers.has(message.from))return;
-      await send(await signed({type:'offer',room:session.room,to:message.from,sdp:pc.localDescription.sdp}));
+      await send(await signed({type:'offer',room:session.room,to:message.from,sdp:pc.localDescription.sdp,iceServers:relay.iceServers}));
     }catch{closePeer(message.from);}
   }
   async function stopHost(publish=true){
@@ -117,7 +148,7 @@
     if(channel&&keys&&session){const outgoing=channel;goodbye=signed(presenter?{type:'host-status',room:session.room,live:false,count:0}:{type:'end',room:session.room}).then(message=>send(message,outgoing));}
     startingToken++;starting=false;
     stream?.getTracks().forEach(track=>track.stop());stream=null;
-    session=null;keys=null;
+    session=null;keys=null;turnRequest=null;turnRoom='';
     for(const peerId of [...peers.keys()])closePeer(peerId);
     const old=channel;channel=null;
     if(old&&client){if(goodbye)void goodbye.catch(()=>{}).finally(()=>client.removeChannel(old));else void client.removeChannel(old);}
@@ -163,7 +194,8 @@
     const activeSession=session,token=generation;
     if(!await verified(message)||session!==activeSession||token!==generation||peers.size)return;
     if(typeof message.payload.sdp!=='string'||message.payload.sdp.length>30000)return;
-    const pc=new RTCPeerConnection(ICE);watch(pc,'host');
+    if(message.payload.iceServers&&!validRelay(message.payload.iceServers))return;
+    const pc=new RTCPeerConnection(message.payload.iceServers?{iceServers:message.payload.iceServers}:ICE);watch(pc,'host');
     pc.ontrack=event=>{
       if(!viewerEnabled||token!==generation||!ctx)return;
       detachAudio();currentTrack=event.track;
