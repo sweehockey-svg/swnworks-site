@@ -9,7 +9,7 @@ Deno.serve(async req=>{
  if(req.headers.get("apikey")!==API_KEY)return json({error:"Unauthorized"},401);
  if(req.method!=="GET")return json({error:"Method not allowed"},405);
  const league=new URL(req.url).searchParams.get("league")||"527";
- if(!["520","523","524","525","526","527","529"].includes(league))return json({error:"Invalid league"},400);
+ if(!["520","523","524","525","526","527","529","532"].includes(league))return json({error:"Invalid league"},400);
  try{
   const r=await fetch("https://sportsgamer.gg/leagues/"+league+"/schedule?status=all",{signal:AbortSignal.timeout(20000)});
   if(!r.ok)throw Error("SportsGamer HTTP "+r.status);
