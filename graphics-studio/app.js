@@ -1,5 +1,6 @@
 (() => {
 "use strict";
+const L=window.GraphicsLanguage;
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const cfg=window.EHOCKEY_CONFIG||{}, SUPA=String(cfg.supabaseUrl||"").replace(/\/+$/,""), KEY=String(cfg.supabasePublishableKey||cfg.supabaseAnonKey||"");
 const C={
@@ -39,9 +40,9 @@ async function load(){
     groups(); setStatus(S.teams.length+" LAG · "+S.players.length+" SPELARE","ok"); render();
   }catch(e){if(request!==dataRequest)return;console.error(e);setStatus("DATAFEL","error");$("#preview").innerHTML='<div style="color:white;padding:30px">Datafel: '+esc(e.message)+'</div>'}
 }
-function setStatus(t,m){$("#dataStatus").textContent=t;$("#topStatus").textContent=m==="error"?"DATAFEL":m==="load"?"UPPDATERAR":"LIVE DATA"}
+function setStatus(t,m){$("#dataStatus").textContent=L.t(t);$("#topStatus").textContent=L.t(m==="error"?"DATAFEL":m==="load"?"UPPDATERAR":"LIVE DATA")}
 function groupIds(){return [...new Set(S.teams.filter(x=>x.statistics_stage==="regular").map(x=>Number(x.effective_group_id)).filter(Number.isFinite))].sort((a,b)=>a-b)}
-function groupName(id){const ids=groupIds(),i=ids.indexOf(Number(id));return "GRUPP "+(i<0?Number(id):i+1)}
+function groupName(id){const ids=groupIds(),i=ids.indexOf(Number(id));return L.t("GRUPP")+" "+(i<0?Number(id):i+1)}
 function groups(){
   const ids=groupIds();if(!ids.length){S.group=null;$("#group").innerHTML='<option>Ingen gruppdata</option>';return}
   if(!ids.includes(Number(S.group)))S.group=ids[0];
@@ -126,7 +127,7 @@ async function loadSchedule(){
  }catch(e){if(request!==scheduleRequest)return;scheduleError="Rapporterade matcher kunde inte hämtas. Försök uppdatera.";}
  finally{if(request===scheduleRequest){scheduleLoading=false;render();}}
 }
-function matchDayLabel(){return new Date(($("#matchDate").value||swedishDay(new Date()))+"T12:00:00").toLocaleDateString("sv-SE",{day:"numeric",month:"long",year:"numeric"})}
+function matchDayLabel(){return new Date(($("#matchDate").value||swedishDay(new Date()))+"T12:00:00").toLocaleDateString(L.locale,{day:"numeric",month:"long",year:"numeric"})}
 function matchPages(games){
   const pairKey=g=>JSON.stringify([g[1].trim().toLocaleLowerCase('sv'),g[2].trim().toLocaleLowerCase('sv')].sort((a,b)=>a.localeCompare(b,'sv')));
   const groups=new Map();
@@ -231,7 +232,7 @@ function leaderboardGeometry(len){
   return {W,H,m,top,bottom,head,width:W-m*2,rowHeights,total};
 }
 function clamp01(v){return Math.max(0,Math.min(1,Number.isFinite(Number(v))?Number(v):0))}
-function fmtDec(v,d=2){return Number.isFinite(Number(v))?Number(v).toFixed(d).replace(".",","):"–"}
+function fmtDec(v,d=2){return Number.isFinite(Number(v))?Number(v).toLocaleString(L.locale,{minimumFractionDigits:d,maximumFractionDigits:d,useGrouping:false}):"–"}
 function silhouetteSvg(x,y,w,h){
   const cx=x+w/2, headR=Math.min(w,h)*.13, headY=y+h*.27;
   return '<g opacity=".92"><circle cx="'+cx+'" cy="'+headY+'" r="'+headR+'" fill="#050b11"/><path d="M '+(x+w*.18)+' '+(y+h*.92)+' C '+(x+w*.20)+' '+(y+h*.63)+', '+(x+w*.36)+' '+(y+h*.52)+', '+cx+' '+(y+h*.52)+' C '+(x+w*.64)+' '+(y+h*.52)+', '+(x+w*.80)+' '+(y+h*.63)+', '+(x+w*.82)+' '+(y+h*.92)+' Z" fill="#050b11"/></g>';
@@ -755,7 +756,7 @@ function build(){
   return graphic;
 }
 function render(){
-  sync();$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=TIT[S.kind];
+  sync();$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
   $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches")syncMatchEditor();$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table";$("#countField").hidden=true;
 }
 function safe(){return (comp().code+(S.kind==="matches"?"-"+$("#matchDate").value+"-sida-"+(Number($("#matchPage").value)+1):"")+"-"+TIT[S.kind]).toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
@@ -796,7 +797,7 @@ $("#league").onchange=()=>{S.league=Number($("#league").value||527);S.group=null
 async function exportGraphic(type){
   if(S.kind==="matches"&&(scheduleLoading||scheduleError))return;
   const button=$("#"+type),label=button.textContent;
-  $("#png").disabled=$("#svg").disabled=true;button.textContent="Exporterar…";
+  $("#png").disabled=$("#svg").disabled=true;button.textContent=L.t("Exporterar…");
   try{await (type==="png"?expPng():expSvg())}catch(e){console.error("Graphics export:",e);$("#dataStatus").textContent=e.message;alert(e.message)}
   finally{$("#png").disabled=$("#svg").disabled=false;button.textContent=label}
 }
