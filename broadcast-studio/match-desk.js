@@ -114,7 +114,7 @@
 })();
 
 /* Keep preparation and transmission controls together without changing program state. */
-document.addEventListener('DOMContentLoaded',()=>{
+const setupDirectorLayout=()=>{
  if(new URLSearchParams(location.search).get('obs')==='1')return;
  const aside=document.querySelector('aside'),work=document.querySelector('.workspace');
  if(!aside||!work)return;
@@ -172,4 +172,5 @@ document.addEventListener('DOMContentLoaded',()=>{
   new MutationObserver(sync).observe(document.getElementById('deskMatchSelect'),{childList:true});
   sync();
  }
-});
+};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setupDirectorLayout,{once:true});else setupDirectorLayout();
