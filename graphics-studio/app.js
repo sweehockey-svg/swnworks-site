@@ -126,9 +126,21 @@ function matchPages(games){
   const pairKey=g=>JSON.stringify([g[1].trim().toLocaleLowerCase('sv'),g[2].trim().toLocaleLowerCase('sv')].sort((a,b)=>a.localeCompare(b,'sv')));
   const groups=new Map();
   games.forEach(g=>{const key=pairKey(g);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(g)});
-  const ordered=[...groups.entries()].sort(([a],[b])=>a.localeCompare(b,'sv')).flatMap(([,rows])=>rows.sort((a,b)=>a[0].localeCompare(b[0])));
-  const count=Math.ceil(ordered.length/8),size=Math.floor(ordered.length/count),extra=ordered.length%count;
-  let offset=0;return Array.from({length:count},(_,i)=>{const length=size+(i<extra?1:0),page=ordered.slice(offset,offset+length);offset+=length;return page});
+  const blocks=[...groups.entries()].sort(([a],[b])=>a.localeCompare(b,'sv')).flatMap(([,rows])=>{
+    rows.sort((a,b)=>a[0].localeCompare(b[0]));
+    // A matchup only needs splitting when it exceeds an entire image.
+    return Array.from({length:Math.ceil(rows.length/8)},(_,i)=>rows.slice(i*8,i*8+8));
+  });
+  const best=Array(blocks.length+1);best[blocks.length]={pages:[],cost:0};
+  for(let i=blocks.length-1;i>=0;i--){
+    let page=[];
+    for(let j=i;j<blocks.length&&page.length+blocks[j].length<=8;j++){
+      page=page.concat(blocks[j]);const tail=best[j+1],candidate={pages:[page,...tail.pages],cost:page.length**2+tail.cost};
+      const previous=best[i];
+      if(!previous||candidate.pages.length<previous.pages.length||(candidate.pages.length===previous.pages.length&&(candidate.cost<previous.cost||(candidate.cost===previous.cost&&page.length>previous.pages[0].length))))best[i]=candidate;
+    }
+  }
+  return best[0]?.pages||[];
 }
 function matchesSvg(){
   const {w:W,h:H}=format(),m=Math.round(W*.052),top=300;
