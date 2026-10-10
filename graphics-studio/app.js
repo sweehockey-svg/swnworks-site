@@ -752,7 +752,15 @@ function rosterTeamName(){return rosterTeamOptions().find(team=>team.id===roster
 function rosterPlayers(){const unique=new Map();for(const player of S.players){if(String(player.sports_gamer_team_id)!==rosterTeamId||player.is_current_roster!==true)continue;const id=String(player.sports_gamer_player_id??player.display_gamertag);if(!unique.has(id))unique.set(id,player);}return [...unique.values()].sort((a,b)=>String(a.display_gamertag).localeCompare(String(b.display_gamertag),'sv'));}
 function rosterPlayerId(player){return String(player.sports_gamer_player_id??player.display_gamertag);}
 function rosterExclusions(){const key=S.league+':'+rosterTeamId;if(!rosterExcluded.has(key))rosterExcluded.set(key,new Set());return rosterExcluded.get(key);}
-function selectedRoster(){return rosterPlayers().filter(player=>!rosterExclusions().has(rosterPlayerId(player)));}
+function rosterPosition(player){
+  const position=String(player.roster_preferred_position_abbreviation||player.regular_skater_position_abbreviation||player.playoff_skater_position_abbreviation||'').toUpperCase();
+  return position==='GK'?'G':position==='CE'?'C':position;
+}
+function selectedRoster(){
+  const order=['RW','LW','C','LD','RD','G'];
+  const rank=player=>{const index=order.indexOf(rosterPosition(player));return index<0?-1:index;};
+  return rosterPlayers().filter(player=>!rosterExclusions().has(rosterPlayerId(player))).sort((a,b)=>rank(a)-rank(b)||String(a.display_gamertag).localeCompare(String(b.display_gamertag),'sv'));
+}
 function syncRosterPicker(){
  const teams=rosterTeamOptions();if(!teams.some(team=>team.id===rosterTeamId))rosterTeamId=teams[0]?.id||'';
  const signature=JSON.stringify([S.league,rosterTeamId,teams,rosterPlayers().map(player=>[rosterPlayerId(player),player.display_gamertag]),[...rosterExclusions()],L.locale]);
