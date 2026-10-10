@@ -65,9 +65,12 @@ Deno.serve(async req=>{
    const token=[...crypto.getRandomValues(new Uint8Array(24))].map(x=>x.toString(16).padStart(2,'0')).join('');
    const link=check(await service.from('swn_image_links').insert({name,upload_limit:limit,preset_gts:presets,token,created_by:user.user.id}).select('*').single());return json({link},200,origin);
   }
+  if(action==='admin-link-delete'){
+   check(await service.from('swn_image_links').update({active:false,deleted_at:new Date().toISOString()}).eq('id',get('id')).is('deleted_at',null).select('id').single());return json({ok:true},200,origin);
+  }
   if(action==='admin-link-update'){
    const limit=Number(get('limit'));if(!Number.isInteger(limit)||limit<1||limit>500)fail('Ange 1–500 uppladdningar.');
-   check(await service.from('swn_image_links').update({upload_limit:limit,active:get('active')===true}).eq('id',get('id')).select('id').single());return json({ok:true},200,origin);
+   check(await service.from('swn_image_links').update({upload_limit:limit,active:get('active')===true}).eq('id',get('id')).is('deleted_at',null).select('id').single());return json({ok:true},200,origin);
   }
   if(action==='admin-search')return json({players:await searchPlayers(String(get('query')||'').slice(0,80))},200,origin);
   const submission:any=check(await service.from('swn_image_submissions').select('*').eq('id',get('id')).single());
