@@ -28,7 +28,7 @@
   }
   const panel = document.createElement('section');
   panel.id = 'studio-login';
-  panel.innerHTML = '<div class="studio-login-card"><div class="studio-login-brand">SWNWORKS · ADMIN</div><h1>Logga in i studion</h1><p>Endast ditt admin-konto har tillgång till Broadcast Studio och Graphics Studio.</p><form><label>Inloggningsnamn<input name="username" value="eSwahn" autocomplete="username" required spellcheck="false"></label><label>Lösenord<input name="password" type="password" autocomplete="current-password" required></label><button type="submit">Logga in</button></form><p id="studio-login-status" role="status" aria-live="polite">Kontrollerar inloggningen…</p><a href="/">Till SWNWORKS</a></div>';
+  panel.innerHTML = '<div class="studio-login-card"><div class="studio-login-brand">SWNWORKS · ADMIN</div><h1>Logga in i SWNWORKS</h1><p>Endast ditt admin-konto har tillgång till SWNWORKS adminverktyg.</p><form><label>Inloggningsnamn<input name="username" value="eSwahn" autocomplete="username" required spellcheck="false"></label><label>Lösenord<input name="password" type="password" autocomplete="current-password" required></label><button type="submit">Logga in</button></form><p id="studio-login-status" role="status" aria-live="polite">Kontrollerar inloggningen…</p><a href="/">Till SWNWORKS</a></div>';
   document.body.appendChild(panel);
   const status = panel.querySelector('#studio-login-status');
   const submit = panel.querySelector('button');

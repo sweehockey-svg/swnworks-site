@@ -216,6 +216,8 @@ function standingMark(i){
   return null;
 }
 function portraitUrl(p){
+  const published=p&&p.player_image?String(p.player_image):"";
+  if(published.startsWith("https://oujqnvrczdavqbqaavuh.supabase.co/storage/v1/object/public/player-profile-images/"))return published;
   const id=Number(p&&p.sports_gamer_player_id), file=Number.isFinite(id)?id+".png":"";
   const approved=Array.isArray(window.SEH_PLAYER_IMAGE_FILES)&&window.SEH_PLAYER_IMAGE_FILES.includes(file);
   if(approved)return "https://www.svenskehockey.se/players/"+file;
