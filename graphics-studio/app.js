@@ -675,7 +675,7 @@ function portraitCrop(b,w,h){
  return {left:b.left+(b.width-cropW)/2,top:b.top,width:cropW,height:cropH};
 }
 function normalizedPortrait(url,x,y,w,h,id,framed=false){
- measurePortrait(url);const b=portraitBounds.get(url),crop=b?portraitCrop(b,w,h):null;
+ measurePortrait(url);const b=portraitBounds.get(url),player=S.players.find(p=>portraitUrl(p)===url),gt=String(player?.display_gamertag||'').trim().toLowerCase(),correction=gt==='wedux_'?1.18:/^borjee_+$/.test(gt)?1.14:1,crop=b?portraitCrop({...b,headWidth:b.headWidth/correction},w,h):null;
  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'"'+(crop?' viewBox="'+[crop.left,crop.top,crop.width,crop.height].join(' ')+'"':' viewBox="0 0 '+w+' '+h+'"')+' preserveAspectRatio="xMidYMin slice" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMin slice')+'"/></svg>';
 }
 async function readyPortraits(){build();await Promise.all([...portraitMeasurements.values()]);}
