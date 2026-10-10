@@ -76,15 +76,16 @@ Deno.serve(async req=>{
    check(await service.from('swn_image_submissions').update({deleted_at:new Date().toISOString()}).eq('id',get('id')).is('deleted_at',null).select('id').single());return json({ok:true},200,origin);
   }
   if(action==='admin-search')return json({players:await searchPlayers(String(get('query')||'').slice(0,80))},200,origin);
-  const submission:any=check(await service.from('swn_image_submissions').select('*').eq('id',get('id')).single());
+  const submission:any=action==='admin-direct-publish'?null:check(await service.from('swn_image_submissions').select('*').eq('id',get('id')).single());
   if(action==='admin-original'){
-   const signed=check(await service.storage.from('player-image-submissions').createSignedUrl(submission.original_path,600));return json({url:signed.signedUrl},200,origin);
+   const signed=check(await service.storage.from(submission.link_id?'player-image-submissions':'player-profile-images').createSignedUrl(submission.original_path,600));return json({url:signed.signedUrl},200,origin);
   }
   if(action==='admin-reject'){
    if(submission.status==='published')fail('Bilden är redan publicerad.');check(await service.from('swn_image_submissions').update({status:'rejected',reviewed_by:user.user.id,reviewed_at:new Date().toISOString()}).eq('id',submission.id));return json({ok:true},200,origin);
   }
-  if(action==='admin-publish'){
-   if(!['pending','editing'].includes(submission.status))fail('Bilden är redan behandlad.');
+  if(action==='admin-publish'||action==='admin-direct-publish'){
+   const directGT=action==='admin-direct-publish'?validateGT(get('gt')):null;
+   if(submission&&!['pending','editing'].includes(submission.status))fail('Bilden är redan behandlad.');
    const playerKey=String(get('playerKey')||'');if(!playerKey||playerKey.length>100)fail('Välj en registrerad spelare.');
    const {file,mime,ext}=await validateFile(get('file'));
    const path='published/'+playerKey.replace(/[^a-z0-9_-]/gi,'_')+'/'+crypto.randomUUID()+'.'+ext;
@@ -92,7 +93,7 @@ Deno.serve(async req=>{
    const publicUrl=service.storage.from('player-profile-images').getPublicUrl(path).data.publicUrl;
    try{check(await userClient.rpc('seh_admin_publish_player_image_direct',{p_player_key:playerKey,p_final_path:path,p_public_url:publicUrl}));}
    catch(error){await service.storage.from('player-profile-images').remove([path]);throw error;}
-   check(await service.from('swn_image_submissions').update({status:'published',player_key:playerKey,published_url:publicUrl,final_path:path,reviewed_by:user.user.id,reviewed_at:new Date().toISOString()}).eq('id',submission.id));
+   if(!submission){check(await service.from('swn_image_submissions').insert({link_id:null,source_label:String(get('source')||'DM').trim().slice(0,100),submitted_gt:directGT,player_key:playerKey,original_path:path,original_filename:file.name,mime_type:mime,size_bytes:file.size,consent_version:'admin-direct-v1',consent_text:'Uploaded and published by admin; no player consent was collected through this portal.',status:'published',uploaded_at:new Date().toISOString(),published_url:publicUrl,final_path:path,reviewed_by:user.user.id,reviewed_at:new Date().toISOString()}));}else check(await service.from('swn_image_submissions').update({status:'published',player_key:playerKey,published_url:publicUrl,final_path:path,reviewed_by:user.user.id,reviewed_at:new Date().toISOString()}).eq('id',submission.id));
    return json({ok:true,url:publicUrl},200,origin);
   }
   return json({error:'Okänd åtgärd.'},400,origin);
