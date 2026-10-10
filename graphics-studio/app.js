@@ -237,8 +237,7 @@ function leaderboardGeometry(len){
 function clamp01(v){return Math.max(0,Math.min(1,Number.isFinite(Number(v))?Number(v):0))}
 function fmtDec(v,d=2){return Number.isFinite(Number(v))?Number(v).toLocaleString(L.locale,{minimumFractionDigits:d,maximumFractionDigits:d,useGrouping:false}):"–"}
 function silhouetteSvg(x,y,w,h){
-  const cx=x+w/2, headR=Math.min(w,h)*.13, headY=y+h*.27;
-  return '<g opacity=".92"><circle cx="'+cx+'" cy="'+headY+'" r="'+headR+'" fill="#050b11"/><path d="M '+(x+w*.18)+' '+(y+h*.92)+' C '+(x+w*.20)+' '+(y+h*.63)+', '+(x+w*.36)+' '+(y+h*.52)+', '+cx+' '+(y+h*.52)+' C '+(x+w*.64)+' '+(y+h*.52)+', '+(x+w*.80)+' '+(y+h*.63)+', '+(x+w*.82)+' '+(y+h*.92)+' Z" fill="#050b11"/></g>';
+ return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="0 0 200 260" preserveAspectRatio="xMidYMin slice" overflow="hidden"><path d="M 100 18 C 78 18 66 33 66 54 L 66 67 C 61 67 61 80 68 85 C 72 99 78 108 87 113 L 87 130 C 80 139 58 141 40 150 C 18 162 8 183 4 217 L 0 260 H 200 L 196 217 C 192 183 182 162 160 150 C 142 141 120 139 113 130 L 113 113 C 122 108 128 99 132 85 C 139 80 139 67 134 67 L 134 54 C 134 33 122 18 100 18 Z" fill="#293e50" stroke="#486175" stroke-width="1.5"/><path d="M 72 148 Q 100 169 128 148 M 30 182 L 24 260 M 170 182 L 176 260" fill="none" stroke="#486175" stroke-width="2" opacity=".6"/></svg>';
 }
 function statBar(x,y,w,label,value,ratio,accent="#ffbd00"){
   const fillW=Math.max(10,Math.round(w*clamp01(ratio)));
