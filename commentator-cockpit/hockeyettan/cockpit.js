@@ -2936,7 +2936,7 @@
     const rows = ctx.players.filter((row) => row.team_id === teamId);
     const goalies = rows
       .filter((row) => row.position === "GK")
-      .sort((a, b) => String(a.goalie_role || "").localeCompare(String(b.goalie_role || "")));
+      .sort((a, b) => Number(b.goalie_role === "starter")-Number(a.goalie_role === "starter") || String(a.goalie_role || "").localeCompare(String(b.goalie_role || "")));
     const extras = rows.filter((row) => row.line_number == null && row.position !== "GK");
     const statusLabel = ctx.mode === "official" ? "OFFICIELL LINEUP ✓" : "SENAST ANVÄNDA";
     const meta = ctx.mode === "official"
@@ -2963,7 +2963,7 @@
 
     const goaliesHtml = '<div class="lineup-goalies">' +
       goalies.map((row, i) =>
-        '<div class="'+(ctx.mode === "official" && row.goalie_role === "listed_1" ? 'lineup-starter' : '')+'"><span>' + (ctx.mode === "official" && row.goalie_role === "listed_1" ? "STARTMÅLVAKT" : ctx.mode === "official" && row.goalie_role === "listed_2" ? "RESERV" : i === 0 ? "G1 · SENASTE" : "G2 · SENASTE") + '</span><b>#' + esc(row.jersey_number ?? "–") + '</b><strong>' +
+        '<div class="'+(ctx.mode === "official" && row.goalie_role === "starter" ? 'lineup-starter' : '')+'"><span>' + (ctx.mode === "official" && row.goalie_role === "starter" ? "STARTMÅLVAKT" : ctx.mode === "official" && goalies.some(goalie=>goalie.goalie_role === "starter") ? "RESERV" : ctx.mode === "official" ? "MÅLVAKT" : i === 0 ? "G1 · SENASTE" : "G2 · SENASTE") + '</span><b>#' + esc(row.jersey_number ?? "–") + '</b><strong>' +
         nationalityMarkup(row.player_id) + esc(humanSourceName(cleanLineupSourceName(row.source_name))) + '</strong></div>'
       ).join("") +
     '</div>';
