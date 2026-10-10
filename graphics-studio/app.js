@@ -224,7 +224,7 @@ function portraitUrl(p){
   return p&&p.player_image?String(p.player_image):"";
 }
 function portraitImage(url,x,y,w,h){
-  return url?'<image href="'+esc(url)+'" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" preserveAspectRatio="xMidYMid meet"/>':"";
+ return url?normalizedPortrait(url,x,y,w,h,'portrait',true):'';
 }
 function leaderboardGeometry(len){
   const {w:W,h:H}=format(),m=Math.round(W*.052),top=S.format==="story"?380:S.format==="wide"?300:310,bottom=H-90,head=48;
@@ -659,31 +659,26 @@ function podiumCard(p,rank,kind,x,y,w,h,logo,maxes){
     '<rect x="'+bx+'" y="'+by+'" width="'+Math.max(0,bw*clamp01(b[2]))+'" height="'+bh+'" rx="'+bh/2+'" fill="url(#gold)"/>'+svgText(right,by+bh,b[1],18*s,"#fff",800,'text-anchor="end"')});
   return o+'</g>';
 }
-const portraitBounds=new Map();
+const portraitBounds=new Map(),portraitMeasurements=new Map();
 function measurePortrait(url){
-  if(!url||portraitBounds.has(url))return;
-  portraitBounds.set(url,null);
-  const photo=new Image();photo.crossOrigin="anonymous";
-  photo.onload=()=>{
-    try{
-      const canvas=document.createElement("canvas");canvas.width=photo.naturalWidth;canvas.height=photo.naturalHeight;
-      const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(photo,0,0);
-      const {data}=ctx.getImageData(0,0,canvas.width,canvas.height);let left=canvas.width,top=canvas.height,right=0,bottom=0;
-      for(let y=0;y<canvas.height;y+=2)for(let x=0;x<canvas.width;x+=2)if(data[(y*canvas.width+x)*4+3]>24){left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x);bottom=Math.max(bottom,y)}
-      if(right>left&&bottom>top)portraitBounds.set(url,{left,top,width:Math.min(canvas.width-left,right-left+2),height:Math.min(canvas.height-top,bottom-top+2),sourceW:canvas.width,sourceH:canvas.height});
-      render();
-    }catch(e){console.warn("Porträtt visas med standardproportioner",url)}
-  };
-  photo.src=url;
+ if(!url||portraitMeasurements.has(url))return;
+ const task=new Promise(resolve=>{const timer=setTimeout(resolve,15000),photo=new Image();photo.crossOrigin='anonymous';photo.onload=()=>{try{
+  const canvas=document.createElement('canvas'),ratio=Math.min(1,640/photo.naturalWidth,900/photo.naturalHeight);canvas.width=Math.max(1,Math.round(photo.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(photo.naturalHeight*ratio));const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(photo,0,0,canvas.width,canvas.height);const {data}=ctx.getImageData(0,0,canvas.width,canvas.height);let left=canvas.width,top=canvas.height,right=-1,bottom=-1;
+  for(let yy=0;yy<canvas.height;yy++)for(let xx=0;xx<canvas.width;xx++)if(data[(yy*canvas.width+xx)*4+3]>32){left=Math.min(left,xx);top=Math.min(top,yy);right=Math.max(right,xx);bottom=Math.max(bottom,yy);}
+  if(right>=left&&bottom>=top){const widths=[];for(let yy=top+Math.round((bottom-top)*.08);yy<=top+Math.round((bottom-top)*.22);yy+=2){let lo=canvas.width,hi=-1;for(let xx=left;xx<=right;xx++)if(data[(yy*canvas.width+xx)*4+3]>32){lo=Math.min(lo,xx);hi=Math.max(hi,xx);}if(hi>=lo)widths.push(hi-lo+1);}widths.sort((a,b)=>a-b);portraitBounds.set(url,{left:left/ratio,top:top/ratio,width:(right-left+1)/ratio,height:(bottom-top+1)/ratio,headWidth:(widths[Math.floor(widths.length/2)]||right-left+1)/ratio,sourceW:photo.naturalWidth,sourceH:photo.naturalHeight});}
+ }catch(e){console.warn('Portrait uses original crop',url);}clearTimeout(timer);resolve();render();};photo.onerror=()=>{clearTimeout(timer);resolve();};photo.src=url;});portraitMeasurements.set(url,task);
+}
+function portraitCrop(b,w,h){
+ const width=Math.min(b.width,Math.max(b.headWidth/.52,b.headWidth*1.5*w/h));
+ // Top anchor and a single aspect-preserving crop for every card size.
+ const cropW=Math.min(width,b.height*w/h),cropH=cropW*h/w;
+ return {left:b.left+(b.width-cropW)/2,top:b.top,width:cropW,height:cropH};
 }
 function normalizedPortrait(url,x,y,w,h,id,framed=false){
-  measurePortrait(url);const b=portraitBounds.get(url),sourceW=b?b.sourceW:w,sourceH=b?b.sourceH:h;
-  const view=b?[b.left,b.top,b.width,b.height].join(" "):'0 0 '+w+' '+h;
-  const left=b?b.left:0,top=b?b.top:0,bw=b?b.width:w,bh=b?b.height:h;
-  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+view+'" preserveAspectRatio="'+(framed?'xMidYMin slice':'xMidYMax meet')+'">'+
-    '<defs><linearGradient id="edge-'+id+'"><stop stop-color="white" stop-opacity="0"/><stop offset=".09" stop-color="white"/><stop offset=".91" stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient><linearGradient id="foot-'+id+'" x2="0" y2="1"><stop stop-color="white"/><stop offset=".86" stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient><mask id="edgeMask-'+id+'" maskUnits="userSpaceOnUse" x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'"><rect x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'" fill="url(#edge-'+id+')"/></mask><mask id="footMask-'+id+'" maskUnits="userSpaceOnUse" x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'"><rect x="'+left+'" y="'+top+'" width="'+bw+'" height="'+bh+'" fill="url(#foot-'+id+')"/></mask></defs>'+
-    '<g'+(framed?'':' mask="url(#footMask-'+id+')"')+'><image href="'+esc(url)+'" width="'+sourceW+'" height="'+sourceH+'" preserveAspectRatio="none"'+(framed?'':' mask="url(#edgeMask-'+id+')"')+'/></g></svg>';
+ measurePortrait(url);const b=portraitBounds.get(url),crop=b?portraitCrop(b,w,h):null;
+ return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'"'+(crop?' viewBox="'+[crop.left,crop.top,crop.width,crop.height].join(' ')+'"':' viewBox="0 0 '+w+' '+h+'"')+' preserveAspectRatio="xMidYMin slice" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMin slice')+'"/></svg>';
 }
+async function readyPortraits(){build();await Promise.all([...portraitMeasurements.values()]);}
 function nationFlag(p,x,y,width=36){
   const aliases={SWE:'se',FIN:'fi',NOR:'no',DNK:'dk',DEN:'dk',DEU:'de',GER:'de',USA:'us',CAN:'ca',GBR:'gb',UK:'gb',CZE:'cz',CHE:'ch',SUI:'ch',FRA:'fr',SVK:'sk',LVA:'lv',EST:'ee'};
   const raw=String(p.player_country||p.country_code||'').trim().toUpperCase(),code=aliases[raw]||raw.toLowerCase();
@@ -766,11 +761,7 @@ function rosterGeometry(count,W,H){
  for(let columns=1;columns<=Math.min(8,Math.max(1,count));columns++){const rows=Math.ceil(Math.max(1,count)/columns),w=(width-gap*(columns-1))/columns,h=(height-gap*(rows-1))/rows;const score=Math.abs(Math.log((w/h)/.85))+(rows*columns-Math.max(1,count))*.025;if(!best||score<best.score)best={columns,rows,w,h,score};}
  return {...best,margin,top,gap,width};
 }
-function rosterPortrait(url,x,y,w,h,count,player){
- const baseZoom=count>=11&&count<=12?1.7:count>=9&&count<=10?1.45:count>=7&&count<=8?1.2:1;
- const zoom=baseZoom*(String(player?.display_gamertag||'').trim().toLowerCase()==='brokenrice2000'?1.16:1.1);
- return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" overflow="hidden"><image href="'+esc(url)+'" x="'+(-w*(zoom-1)/2)+'" y="0" width="'+(w*zoom)+'" height="'+(h*zoom)+'" preserveAspectRatio="xMidYMin meet"/></svg>';
-}
+function rosterPortrait(url,x,y,w,h){return portraitImage(url,x,y,w,h);}
 function rosterSvg(){
  const players=selectedRoster(),{w:W,h:H}=format(),g=rosterGeometry(players.length,W,H),team=rosterTeamOptions().find(team=>team.id===rosterTeamId),logo=logos().get(rosterTeamId);
  let content=(logo?img(logo,g.margin,278,46):'')+svgText(g.margin+(logo&&S.logos?62:0),310,players.length+' '+L.t('SPELARE'),17,'#ffcf4a',800);
@@ -820,8 +811,8 @@ async function inline(svg){
   }));
   return new XMLSerializer().serializeToString(d.documentElement);
 }
-async function expSvg(){const s=await inline(build());dl(new Blob([s],{type:"image/svg+xml;charset=utf-8"}),safe()+".svg")}
-async function expPng(){const s=await inline(build()),{w,h}=format(),u=URL.createObjectURL(new Blob([s],{type:"image/svg+xml;charset=utf-8"})),im=new Image();try{await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=u});const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(im,0,0,w,h);const b=await new Promise(ok=>c.toBlob(ok,"image/png",1));if(!b)throw new Error("PNG-export misslyckades");dl(b,safe()+".png")}finally{URL.revokeObjectURL(u)}}
+async function expSvg(){await readyPortraits();const s=await inline(build());dl(new Blob([s],{type:"image/svg+xml;charset=utf-8"}),safe()+".svg")}
+async function expPng(){await readyPortraits();const s=await inline(build()),{w,h}=format(),u=URL.createObjectURL(new Blob([s],{type:"image/svg+xml;charset=utf-8"})),im=new Image();try{await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=u});const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(im,0,0,w,h);const b=await new Promise(ok=>c.toBlob(ok,"image/png",1));if(!b)throw new Error("PNG-export misslyckades");dl(b,safe()+".png")}finally{URL.revokeObjectURL(u)}}
 
 $$("[data-kind]").forEach(b=>b.onclick=()=>{$$("[data-kind]").forEach(x=>x.classList.toggle("active",x===b));S.kind=b.dataset.kind;if(S.kind==="matches")loadSchedule();else render()});
 $("#rosterTeam").onchange=()=>{rosterTeamId=$("#rosterTeam").value;render()};
