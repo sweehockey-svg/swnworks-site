@@ -4981,3 +4981,7 @@ html[data-theme="light"] .drawer{--muted:#465f6f}
 @container(max-width:620px){.match-check-grid{grid-template-columns:1fr}}
 
 #lineupChangeNotice{display:block;width:100%;padding:12px 18px;border:1px solid #dca900;border-radius:8px;background:#332a0a;color:#ffe284;font:700 13px/1.5 Arial;cursor:pointer;text-align:left;margin:8px 0}#lineupChangeNotice[hidden]{display:none}.lineup-slot-changed{outline:2px solid #ffc400;outline-offset:-2px}.lineup-change-details{border-color:#dca900!important}.lineup-change-details div{padding:6px 0;font-size:12px;border-top:1px solid #ffffff18}
+
+.lineup-goalies>div{grid-template-columns:28px minmax(0,1fr)}
+.lineup-goalies>div>span{grid-column:1 / -1;font-size:10px;letter-spacing:.5px}
+.lineup-goalies>div.lineup-starter{border:2px solid var(--yellow);background:rgba(255,207,74,.08)}

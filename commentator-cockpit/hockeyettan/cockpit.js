@@ -2320,10 +2320,10 @@
           tag:"LINEUP",
           title:lineupStatus.ready
             ? "Officiell lineup klar för båda lagen"
-            : "Officiell lineup publicerad för ett av lagen",
+            : "Officiell lineup: " + lineupPublicationNames().published,
           text:lineupStatus.ready
             ? "KEDJOR-panelen visar dagens officiella uppställningar från "+league.sourceLabel+"."
-            : "KEDJOR-panelen visar den publicerade lineupen och senaste kända kedjor för laget som återstår.",
+            : "Inväntar " + lineupPublicationNames().waiting + ". KEDJOR visar lagets senaste kända uppställning tills dagens lineup publiceras.",
           score:150,
           story:true
         });
@@ -2868,6 +2868,14 @@
     return { game, revision, players: players || [] };
   }
 
+  function lineupPublicationNames() {
+    const ids=new Set((state.nextLineup?.players||[]).map(row=>row.team_id));
+    const teams=[state.focusTeam,state.opponent].filter(Boolean);
+    return {
+      published:teams.filter(team=>ids.has(team.id)).map(team=>getTeamName(team.id)).join(' och '),
+      waiting:teams.filter(team=>!ids.has(team.id)).map(team=>getTeamName(team.id)).join(' och ')
+    };
+  }
   function officialLineupState() {
     const players=state.nextLineup?.players||[];
     const teamIds=new Set(players.map((row)=>row.team_id).filter(Boolean));
@@ -2955,7 +2963,7 @@
 
     const goaliesHtml = '<div class="lineup-goalies">' +
       goalies.map((row, i) =>
-        '<div><span>' + (i === 0 ? "G1" : "G2") + '</span><b>#' + esc(row.jersey_number ?? "–") + '</b><strong>' +
+        '<div class="'+(ctx.mode === "official" && row.goalie_role === "listed_1" ? 'lineup-starter' : '')+'"><span>' + (ctx.mode === "official" && row.goalie_role === "listed_1" ? "STARTMÅLVAKT" : ctx.mode === "official" && row.goalie_role === "listed_2" ? "RESERV" : i === 0 ? "G1 · SENASTE" : "G2 · SENASTE") + '</span><b>#' + esc(row.jersey_number ?? "–") + '</b><strong>' +
         nationalityMarkup(row.player_id) + esc(humanSourceName(cleanLineupSourceName(row.source_name))) + '</strong></div>'
       ).join("") +
     '</div>';
@@ -2980,9 +2988,10 @@
       : new Set();
     const officialReady = officialTeams.has(state.focusTeam.id) && officialTeams.has(state.opponent.id);
 
+    const names=lineupPublicationNames();
     const intro = officialReady
       ? '<article class="drawer-card lineup-info official"><strong>Officiell lineup publicerad</strong><span>Uppställningen för nästa match hämtas direkt från '+esc(league.sourceLabel)+' och ersätter automatiskt tidigare kedjor.</span></article>'
-      : '<article class="drawer-card lineup-info"><strong>Officiell lineup är inte publicerad ännu</strong><span>Visar respektive lags senast importerade uppställning tills nästa matchs lineup kommer. Den byts då ut automatiskt.</span></article>';
+      : '<article class="drawer-card lineup-info"><strong>'+ (names.published ? 'Officiell lineup publicerad: '+esc(names.published) : 'Officiell lineup är inte publicerad ännu') +'</strong><span>Inväntar '+esc(names.waiting)+'. Visar senaste importerade uppställningen för laget som saknar dagens lineup. Den byts ut automatiskt när lineupen publiceras.</span></article>';
 
     return lineupChangesMarkup() + intro +
       '<div class="lineup-team-grid">' +
