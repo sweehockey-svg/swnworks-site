@@ -2901,7 +2901,47 @@
     }).format(date);
   }
 
+  let personalLineups=new Map(),personalLineupGame=null,personalLineupOwner=null;
+  async function loadPersonalLineups(){
+    personalLineups=new Map();personalLineupGame=state.nextGame?.id;personalLineupOwner=state.authUser?.id;
+    if(!personalLineupGame||!personalLineupOwner)return;
+    const gameId=personalLineupGame,ownerId=personalLineupOwner;
+    const {data,error}=await client.from('commentator_lineup_overrides').select('team_id,players').eq('game_id',gameId).eq('owner_id',ownerId);
+    if(error){console.error('Personal lineup load failed',error);return;}
+    if(state.nextGame?.id===gameId&&state.authUser?.id===ownerId)personalLineups=new Map((data||[]).map(row=>[row.team_id,row.players]));
+  }
+  function editPersonalLineup(teamId){
+    const gameId=state.nextGame?.id,ownerId=state.authUser?.id;
+    if(!gameId||!ownerId||!canAccessTeam(state.selectedTeam.id))return;
+    let draft=(lineupContextForTeam(teamId)?.players||[]).filter(row=>row.team_id===teamId).map(row=>({...row}));
+    const positions=['GK','LW','CE','RW','LD','RD'];
+    function paint(){
+      drawerBody.innerHTML='<section id="personalLineupEditor" class="drawer-card"><h3>Redigera '+esc(getTeamName(teamId))+'</h3><p>Egen lineup för denna match och ditt konto. Swehockeys synk ändrar inte dina sparade val.</p><div class="lineup-edit-table">'+draft.map((row,i)=>'<div class="lineup-edit-row" data-row="'+i+'"><label>Namn<input data-field="source_name" maxlength="100" value="'+esc(row.source_name||'')+'"></label><label>Nummer<input data-field="jersey_number" type="number" min="0" max="999" value="'+esc(row.jersey_number??'')+'"></label><label>Position<select data-field="position">'+positions.map(pos=>'<option value="'+pos+'"'+(row.position===pos?' selected':'')+'>'+ (pos==='GK'?'G':pos==='CE'?'C':pos)+'</option>').join('')+'</select></label><label>Kedja<select data-field="line_number">'+['','1','2','3','4'].map(line=>'<option value="'+line+'"'+(String(row.line_number??'')===line?' selected':'')+'>'+(line||'Extra / målvakt')+'</option>').join('')+'</select></label><label>Målvaktsroll<select data-field="goalie_role">'+[['','Ej vald'],['starter','Startmålvakt'],['reserve','Reserv']].map(([value,label])=>'<option value="'+value+'"'+(row.goalie_role===value?' selected':'')+'>'+label+'</option>').join('')+'</select></label><button type="button" data-remove="'+i+'">Ta bort</button></div>').join('')+'</div><div class="lineup-edit-actions"><button id="lineupAdd">Lägg till spelare</button><button id="lineupSave">Spara lineup</button><button id="lineupReset">Återgå till Swehockey</button><button id="lineupCancel">Avbryt</button></div><p id="lineupEditStatus" role="status"></p></section>';
+      drawerBody.querySelectorAll('[data-field]').forEach(input=>input.onchange=()=>{const row=draft[Number(input.closest('[data-row]').dataset.row)];row[input.dataset.field]=input.value; if(input.dataset.field==='source_name')row.player_id=null;});
+      drawerBody.querySelectorAll('[data-remove]').forEach(button=>button.onclick=()=>{draft.splice(Number(button.dataset.remove),1);paint();});
+      document.getElementById('lineupAdd').onclick=()=>{draft.push({team_id:teamId,source_name:'',jersey_number:null,position:'LW',line_number:1,goalie_role:null});paint();};
+      document.getElementById('lineupCancel').onclick=()=>renderDrawer('lines');
+      async function persist(reset){
+        const status=document.getElementById('lineupEditStatus');
+        const players=draft.map(row=>({...row,team_id:teamId,source_name:String(row.source_name||'').trim(),jersey_number:row.jersey_number==null||row.jersey_number===''?null:Number(row.jersey_number),line_number:row.position==='GK'?null:row.line_number==null||row.line_number===''?null:Number(row.line_number),goalie_role:row.position==='GK'?row.goalie_role||null:null,is_extra:row.position!=='GK'&&!row.line_number}));
+        if(!reset&&(players.some(row=>!row.source_name||row.jersey_number!==null&&(!Number.isInteger(row.jersey_number)||row.jersey_number<0||row.jersey_number>999))||players.filter(row=>row.goalie_role==='starter').length>1)){status.textContent='Fyll i namn och giltiga nummer. Välj högst en startmålvakt.';return;}
+        const slots=players.filter(row=>row.position!=='GK'&&row.line_number).map(row=>row.line_number+':'+row.position);
+        if(!reset&&new Set(slots).size!==slots.length){status.textContent='Två spelare har samma position i samma kedja. Ändra kedja eller position, eller välj Extra.';return;}
+        if(state.nextGame?.id!==gameId||state.authUser?.id!==ownerId){status.textContent='Match eller konto har ändrats. Öppna editorn igen.';return;}
+        const buttons=[...drawerBody.querySelectorAll('button')];buttons.forEach(button=>button.disabled=true);status.textContent='Sparar…';
+        const result=reset?await client.from('commentator_lineup_overrides').delete().eq('owner_id',ownerId).eq('game_id',gameId).eq('team_id',teamId):await client.from('commentator_lineup_overrides').upsert({owner_id:ownerId,game_id:gameId,team_id:teamId,players,updated_at:new Date().toISOString()});
+        if(result.error){status.textContent='Kunde inte spara. Dina ändringar finns kvar här; försök igen.';buttons.forEach(button=>button.disabled=false);return;}
+        if(reset)personalLineups.delete(teamId);else personalLineups.set(teamId,players);
+        personalLineupOwner=ownerId;personalLineupGame=gameId;renderDrawer('lines');
+      }
+      document.getElementById('lineupSave').onclick=()=>persist(false);
+      document.getElementById('lineupReset').onclick=()=>persist(true);
+    }
+    paint();
+  }
   function lineupContextForTeam(teamId) {
+    const manual=personalLineups.get(teamId);
+    if(manual&&personalLineupGame===state.nextGame?.id&&personalLineupOwner===state.authUser?.id) return {players:manual,mode:'manual',game:state.nextGame};
     const official = state.nextLineup?.players?.some((row) => row.team_id === teamId);
     if (official) {
       return { ...state.nextLineup, mode: "official" };
@@ -2929,7 +2969,7 @@
     if (!ctx) {
       return '<section class="lineup-team">' +
         '<div class="lineup-team-head"><div><span>INGEN LINEUP</span><h3>' + esc(teamName) + '</h3></div></div>' +
-        '<div class="drawer-card"><strong>Uppställning saknas</strong><span>Ingen tidigare lineup är importerad för laget ännu.</span></div>' +
+        '<div class="drawer-card"><strong>Uppställning saknas</strong><span>Ingen tidigare lineup är importerad för laget ännu.</span><button data-edit-lineup="'+esc(teamId)+'">LÄGG TILL SPELARE / SKAPA LINEUP</button></div>' +
       '</section>';
     }
 
@@ -2938,8 +2978,8 @@
       .filter((row) => row.position === "GK")
       .sort((a, b) => Number(b.goalie_role === "starter")-Number(a.goalie_role === "starter") || String(a.goalie_role || "").localeCompare(String(b.goalie_role || "")));
     const extras = rows.filter((row) => row.line_number == null && row.position !== "GK");
-    const statusLabel = ctx.mode === "official" ? "OFFICIELL LINEUP ✓" : "SENAST ANVÄNDA";
-    const meta = ctx.mode === "official"
+    const statusLabel = ctx.mode === 'manual' ? 'EGEN LINEUP · SPARAD I MOLNET' : ctx.mode === "official" ? "OFFICIELL LINEUP ✓" : "SENAST ANVÄNDA";
+    const meta = ctx.mode !== "previous"
       ? swedishDate(state.nextGame.scheduled_start)
       : "Från " + swedishDate(ctx.game.scheduled_start);
 
@@ -2963,7 +3003,7 @@
 
     const goaliesHtml = '<div class="lineup-goalies">' +
       goalies.map((row, i) =>
-        '<div class="'+(ctx.mode === "official" && row.goalie_role === "starter" ? 'lineup-starter' : '')+'"><span>' + (ctx.mode === "official" && row.goalie_role === "starter" ? "STARTMÅLVAKT" : ctx.mode === "official" && goalies.some(goalie=>goalie.goalie_role === "starter") ? "RESERV" : ctx.mode === "official" ? "MÅLVAKT" : i === 0 ? "G1 · SENASTE" : "G2 · SENASTE") + '</span><b>#' + esc(row.jersey_number ?? "–") + '</b><strong>' +
+        '<div class="'+(ctx.mode !== "previous" && row.goalie_role === "starter" ? 'lineup-starter' : '')+'"><span>' + (ctx.mode !== "previous" && row.goalie_role === "starter" ? "STARTMÅLVAKT" : ctx.mode !== "previous" && goalies.some(goalie=>goalie.goalie_role === "starter") ? "RESERV" : ctx.mode !== "previous" ? "MÅLVAKT" : i === 0 ? "G1 · SENASTE" : "G2 · SENASTE") + '</span><b>#' + esc(row.jersey_number ?? "–") + '</b><strong>' +
         nationalityMarkup(row.player_id) + esc(humanSourceName(cleanLineupSourceName(row.source_name))) + '</strong></div>'
       ).join("") +
     '</div>';
@@ -2976,7 +3016,7 @@
 
     return '<section class="lineup-team">' +
       '<div class="lineup-team-head"><div><span class="' + (ctx.mode === "official" ? "official" : "") + '">' + statusLabel + '</span><h3>' + esc(teamName) + '</h3></div><small>' + esc(meta) + '</small></div>' +
-      goaliesHtml +
+      '<button type="button" data-edit-lineup="'+esc(teamId)+'">REDIGERA LINEUP / LÄGG TILL SPELARE</button>'+goaliesHtml +
       '<div class="lineup-lines">' + lineHtml + '</div>' +
       extrasHtml +
     '</section>';
@@ -3853,6 +3893,7 @@
     drawer.classList.toggle("ai-work", key === "ai");
     if (key === "lines") {
       drawerBody.innerHTML = renderLineups();
+      drawerBody.querySelectorAll('[data-edit-lineup]').forEach(button=>button.onclick=()=>editPersonalLineup(button.dataset.editLineup));
     } else if (key === "players") {
       drawerBody.innerHTML =
         playerSearchHtml()+
@@ -4228,6 +4269,7 @@
     ]);
     lineupChanges=[]; lineupChangedAt=null;
     state.nextLineup = nextLineup;
+    await loadPersonalLineups();
     renderLineupNotice();
     state.fallbackLineups = new Map();
     if (focusFallbackLineup) state.fallbackLineups.set(state.focusTeam.id, focusFallbackLineup);
@@ -4494,6 +4536,7 @@
 
   let lastCompetitionCheckAt=0;
   async function refreshActiveMatch() {
+    if(document.getElementById('personalLineupEditor')) return;
     if(!client||!state.teamDataLoaded||!state.selectedTeam||!canAccessTeam(state.selectedTeam.id)||state.teamLoading||state.liveRefreshBusy||document.hidden) return;
     state.liveRefreshBusy=true;
     if(gameIsLive(state.nextGame)) setSyncStatus("working","Uppdaterar live-data…");

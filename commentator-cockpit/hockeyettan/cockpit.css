@@ -4985,3 +4985,5 @@ html[data-theme="light"] .drawer{--muted:#465f6f}
 .lineup-goalies>div{grid-template-columns:28px minmax(0,1fr)}
 .lineup-goalies>div>span{grid-column:1 / -1;font-size:10px;letter-spacing:.5px}
 .lineup-goalies>div.lineup-starter{border:2px solid var(--yellow);background:rgba(255,207,74,.08)}
+
+.lineup-edit-row{display:grid;grid-template-columns:2fr .6fr 1fr 1fr 1.2fr auto;gap:10px;align-items:end;margin:12px 0}.lineup-edit-row label{display:grid;gap:5px}.lineup-edit-row input,.lineup-edit-row select{width:100%;min-width:0;padding:9px;border:1px solid #355369;border-radius:6px;background:#0b2232;color:#fff}.lineup-edit-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}@media(max-width:800px){.lineup-edit-row{grid-template-columns:1fr 1fr}}
