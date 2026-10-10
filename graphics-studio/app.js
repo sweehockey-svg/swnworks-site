@@ -763,6 +763,7 @@ function syncRosterPicker(){
 function rosterGeometry(count,W,H){
  const margin=Math.round(W*.052),top=340,bottom=H-90,gap=W>1500?22:16,width=W-margin*2,height=bottom-top;
  let best=null;
+ if(count>=6){const rows=count<=12?2:3,columns=Math.ceil(count/rows),w=(width-gap*(columns-1))/columns,h=(height-gap*(rows-1))/rows;return {columns,rows,w,h,margin,top,gap,width};}
  for(let columns=1;columns<=Math.min(8,Math.max(1,count));columns++){const rows=Math.ceil(Math.max(1,count)/columns),w=(width-gap*(columns-1))/columns,h=(height-gap*(rows-1))/rows;const score=Math.abs(Math.log((w/h)/.85))+(rows*columns-Math.max(1,count))*.025;if(!best||score<best.score)best={columns,rows,w,h,score};}
  return {...best,margin,top,gap,width};
 }
