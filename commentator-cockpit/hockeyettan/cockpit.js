@@ -3176,6 +3176,25 @@
     document.getElementById('clearPlayerSearch')?.addEventListener('click',()=>{input.value='';update();input.focus();});
   }
 
+  const playerStatSort=new Map();
+  function comparePlayerStats(a,b,sort){
+    const av=a[sort.key],bv=b[sort.key];
+    if(av==null&&bv!=null)return 1;
+    if(bv==null&&av!=null)return -1;
+    const result=sort.key==='source_name'?humanSourceName(av||'').localeCompare(humanSourceName(bv||''),'sv'):Number(av||0)-Number(bv||0);
+    return result*sort.direction||Number(b.points||0)-Number(a.points||0)||Number(b.goals||0)-Number(a.goals||0)||Number(b.shots||0)-Number(a.shots||0)||Number(a.jersey_number??999)-Number(b.jersey_number??999);
+  }
+  function playerSortButton(teamId,key,label){
+    const sort=playerStatSort.get(teamId)||{key:'points',direction:-1};
+    return '<button type="button" data-stat-team="'+esc(teamId)+'" data-stat-sort="'+key+'" aria-label="Sortera efter '+label+'"'+(sort.key===key?' aria-pressed="true"':' aria-pressed="false"')+'>'+label+(sort.key===key?(sort.direction===1?' ▲':' ▼'):'')+'</button>';
+  }
+  function bindPlayerStatSort(){
+    drawerBody.querySelectorAll('[data-stat-sort]').forEach(button=>button.onclick=()=>{
+      const teamId=button.dataset.statTeam,key=button.dataset.statSort,previous=playerStatSort.get(teamId)||{key:'points',direction:-1};
+      playerStatSort.set(teamId,{key,direction:previous.key===key?-previous.direction:['jersey_number','source_name'].includes(key)?1:-1});
+      renderDrawer('players');
+    });
+  }
   function renderPlayerStats() {
     if ((!state.seasonPlayerStats.length && !state.currentPlayerStats.length) || !state.nextGame) {
       return '<div class="drawer-card"><strong>Ingen säsongsstatistik ännu</strong><span>'+esc(league.sourceLabel)+' har ännu inte gett oss spelardata.</span></div>';
@@ -3195,17 +3214,12 @@
           live_only:true
         }));
       const rows = [...seasonRows,...liveOnlyRows]
-        .sort((a, b) =>
-          Number(b.points || 0) - Number(a.points || 0) ||
-          Number(b.goals || 0) - Number(a.goals || 0) ||
-          Number(b.shots || 0) - Number(a.shots || 0) ||
-          Number(a.jersey_number || 999) - Number(b.jersey_number || 999)
-        );
+        .sort((a,b)=>comparePlayerStats(a,b,playerStatSort.get(teamId)||{key:'points',direction:-1}));
 
       if (!rows.length) return "";
       return '<section class="player-stat-section">' +
         '<h3 class="roster-section-title">' + esc(getTeamName(teamId)) + ' · SÄSONG</h3>' +
-        '<div class="player-stat-head"><span>SPELARE</span><span>GP</span><span>G</span><span>A</span><span>P</span><span>SOG</span><span>FO%</span></div>' +
+        '<div class="player-stat-head"><span>'+playerSortButton(teamId,'jersey_number','#')+' '+playerSortButton(teamId,'source_name','SPELARE')+'</span>'+[['games_played','GP'],['goals','G'],['assists','A'],['points','P'],['shots','SOG'],['faceoff_pct','FO%']].map(([key,label])=>'<span>'+playerSortButton(teamId,key,label)+'</span>').join('')+'</div>' +
         '<div class="player-stat-list">' +
           rows.map((row) => {
             const recent = aggregateRecentPlayer(row);
@@ -3901,6 +3915,7 @@
         individualReportNotice("players") +
         '<div class="stats-team-grid players-grid">' + renderPlayerStats() + '</div>';
       bindPlayerSearch();
+      bindPlayerStatSort();
       if(searchFocus){
         const input=document.getElementById('playerSearchInput');
         input.focus();input.setSelectionRange(searchFocus.start,searchFocus.end);
