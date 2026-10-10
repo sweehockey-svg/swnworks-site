@@ -742,7 +742,7 @@ let rosterTeamId='',rosterPickerSignature='';
 const rosterExcluded=new Map();
 function rosterTeamOptions(){const teams=new Map();for(const row of [...S.teams,...S.players]){const id=String(row.sports_gamer_team_id??'');if(id&&!teams.has(id))teams.set(id,{id,name:row.team_name_in_league||id});}return [...teams.values()].sort((a,b)=>a.name.localeCompare(b.name,'sv'));}
 function rosterTeamName(){return rosterTeamOptions().find(team=>team.id===rosterTeamId)?.name||L.t('Välj lag');}
-function rosterPlayers(){const unique=new Map();for(const player of S.players){if(String(player.sports_gamer_team_id)!==rosterTeamId)continue;const id=String(player.sports_gamer_player_id??player.display_gamertag);if(!unique.has(id))unique.set(id,player);}return [...unique.values()].sort((a,b)=>String(a.display_gamertag).localeCompare(String(b.display_gamertag),'sv'));}
+function rosterPlayers(){const unique=new Map();for(const player of S.players){if(String(player.sports_gamer_team_id)!==rosterTeamId||player.is_current_roster!==true)continue;const id=String(player.sports_gamer_player_id??player.display_gamertag);if(!unique.has(id))unique.set(id,player);}return [...unique.values()].sort((a,b)=>String(a.display_gamertag).localeCompare(String(b.display_gamertag),'sv'));}
 function rosterPlayerId(player){return String(player.sports_gamer_player_id??player.display_gamertag);}
 function rosterExclusions(){const key=S.league+':'+rosterTeamId;if(!rosterExcluded.has(key))rosterExcluded.set(key,new Set());return rosterExcluded.get(key);}
 function selectedRoster(){return rosterPlayers().filter(player=>!rosterExclusions().has(rosterPlayerId(player)));}
