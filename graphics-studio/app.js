@@ -577,10 +577,17 @@ function leadersSvg(){
 function svgText(x,y,value,size=24,color="#f4f7fa",weight=700,extra=""){
   return '<text x="'+x+'" y="'+y+'" fill="'+color+'" font-family="Arial, sans-serif" font-size="'+size+'" font-weight="'+weight+'" '+extra+'>'+esc(value)+'</text>';
 }
+function fittedHeadingSize(value,maxSize,availableWidth){
+  const context=document.createElement('canvas').getContext('2d');
+  context.font='900 '+maxSize+'px Arial, sans-serif';
+  const measured=context.measureText(value).width;
+  const spacing=-2*Math.max(0,Array.from(value).length-1);
+  return measured+spacing<=availableWidth?maxSize:Math.floor(maxSize*(availableWidth-spacing)/measured*100)/100;
+}
 function base(content){
   const {w:W,h:H}=format(),m=Math.round(W*.052),c=comp(),wide=S.format==="wide";
   const rosterLogo=S.kind==='roster'&&S.logos?logos().get(rosterTeamId):'',rosterLogoSize=130,headingWidth=W-m*2-(rosterLogo?rosterLogoSize+30:0);
-  const headingSize=Math.min(wide?82:70,headingWidth/Math.max(1,title().length)*1.55);
+  const headingSize=fittedHeadingSize(title(),wide?82:70,headingWidth);
   return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+defs()+
     studioBackground(W,H)+
     '<rect x="'+m+'" y="48" width="6" height="56" rx="3" fill="#ffbd00"/>'+
