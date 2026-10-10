@@ -72,6 +72,9 @@ Deno.serve(async req=>{
    const limit=Number(get('limit'));if(!Number.isInteger(limit)||limit<1||limit>500)fail('Ange 1–500 uppladdningar.');
    check(await service.from('swn_image_links').update({upload_limit:limit,active:get('active')===true}).eq('id',get('id')).is('deleted_at',null).select('id').single());return json({ok:true},200,origin);
   }
+  if(action==='admin-submission-delete'){
+   check(await service.from('swn_image_submissions').update({deleted_at:new Date().toISOString()}).eq('id',get('id')).is('deleted_at',null).select('id').single());return json({ok:true},200,origin);
+  }
   if(action==='admin-search')return json({players:await searchPlayers(String(get('query')||'').slice(0,80))},200,origin);
   const submission:any=check(await service.from('swn_image_submissions').select('*').eq('id',get('id')).single());
   if(action==='admin-original'){
