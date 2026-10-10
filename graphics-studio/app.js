@@ -16,6 +16,7 @@ const C={
 const F={portrait:{w:1080,h:1350,label:"1080 × 1350"},square:{w:1080,h:1080,label:"1080 × 1080"},story:{w:1080,h:1920,label:"1080 × 1920"},wide:{w:1920,h:1080,label:"1920 × 1080"}};
 const TIT={table:"TABELLEN",groups:"GRUPPTABELLER",goals:"SKYTTELIGAN",points:"POÄNGLIGAN",assists:"ASSISTLIGAN",defender_points:"BACKLIGAN · POÄNG",defender_goals:"BACKLIGAN · MÅL",defender_assists:"BACKLIGAN · ASSIST",goalies:"MÅLVAKTSLIGAN",leaders:"LIGATOPPAR"};
 const S={kind:"table",league:527,stage:"regular",group:null,count:8,format:"portrait",bg:"gamenight",logos:true,teams:[],players:[]};
+TIT.roster='LAGPRESENTATION';
 TIT.matches='DAGENS RESULTAT';
 TIT.dim='DEFENSIV IMPACT';
 Object.assign(TIT,{points_average:'POÄNGSNITT',defender_points_average:'BACKLIGAN · POÄNGSNITT',penalties:'UTVISNINGSLIGAN',hits:'TACKLINGSLIGAN'});
@@ -172,8 +173,8 @@ function matchesSvg(){
     return '<rect x="'+m+'" y="'+(y+6)+'" width="'+(W-m*2)+'" height="'+(rowH-12)+'" rx="12" fill="#071d2c" fill-opacity=".9"/>'+team(g[1],true)+svgText(center,cy+14,g[3]+'–'+g[4],40,'#ffcf4a',900,'text-anchor="middle"')+team(g[2],false);
   }).join(''));
 }
-function title(){return ($("#title").value||TIT[S.kind]).trim().toUpperCase()}
-function subtitle(){if(S.kind==="matches")return ($("#subtitle").value||matchDayLabel()+" · "+comp().label).toUpperCase();return ($("#subtitle").value||(S.kind==="table"?stageName()+" · "+groupName(S.group):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label)).trim().toUpperCase()}
+function title(){return ($("#title").value||(S.kind==="roster"?rosterTeamName():TIT[S.kind])).trim().toUpperCase()}
+function subtitle(){if(S.kind==="roster")return ($("#subtitle").value||L.t("LAGPRESENTATION")+" · "+comp().label).toUpperCase();if(S.kind==="matches")return ($("#subtitle").value||matchDayLabel()+" · "+comp().label).toUpperCase();return ($("#subtitle").value||(S.kind==="table"?stageName()+" · "+groupName(S.group):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label)).trim().toUpperCase()}
 function defs(){return '<defs><linearGradient id="silver" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#edf1f4"/><stop offset=".8" stop-color="#a2adb6"/><stop offset="1" stop-color="#fff"/></linearGradient><linearGradient id="gold"><stop stop-color="#ffd95f"/><stop offset=".5" stop-color="#ffbd00"/><stop offset="1" stop-color="#d88700"/></linearGradient><linearGradient id="panel" x2="1" y2="1"><stop stop-color="#071d2c" stop-opacity=".97"/><stop offset="1" stop-color="#020b12" stop-opacity=".98"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#000" flood-opacity=".58"/></filter></defs>'}
 function background(W,H){
   const glow=(id,color,x,y)=>'<radialGradient id="'+id+'"><stop stop-color="'+color+'" stop-opacity=".48"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient>';
@@ -740,8 +741,40 @@ function editorialBoard(kind){
 }
 function board(kind){return editorialBoard(kind)}
 function goalieSvg(){return editorialBoard("goalies")}
+
+let rosterTeamId='',rosterPickerSignature='';
+const rosterExcluded=new Map();
+function rosterTeamOptions(){const teams=new Map();for(const row of [...S.teams,...S.players]){const id=String(row.sports_gamer_team_id??'');if(id&&!teams.has(id))teams.set(id,{id,name:row.team_name_in_league||id});}return [...teams.values()].sort((a,b)=>a.name.localeCompare(b.name,'sv'));}
+function rosterTeamName(){return rosterTeamOptions().find(team=>team.id===rosterTeamId)?.name||L.t('Välj lag');}
+function rosterPlayers(){const unique=new Map();for(const player of S.players){if(String(player.sports_gamer_team_id)!==rosterTeamId)continue;const id=String(player.sports_gamer_player_id??player.display_gamertag);if(!unique.has(id))unique.set(id,player);}return [...unique.values()].sort((a,b)=>String(a.display_gamertag).localeCompare(String(b.display_gamertag),'sv'));}
+function rosterPlayerId(player){return String(player.sports_gamer_player_id??player.display_gamertag);}
+function rosterExclusions(){const key=S.league+':'+rosterTeamId;if(!rosterExcluded.has(key))rosterExcluded.set(key,new Set());return rosterExcluded.get(key);}
+function selectedRoster(){return rosterPlayers().filter(player=>!rosterExclusions().has(rosterPlayerId(player)));}
+function syncRosterPicker(){
+ const teams=rosterTeamOptions();if(!teams.some(team=>team.id===rosterTeamId))rosterTeamId=teams[0]?.id||'';
+ const signature=JSON.stringify([S.league,rosterTeamId,teams,rosterPlayers().map(player=>[rosterPlayerId(player),player.display_gamertag]),[...rosterExclusions()],L.locale]);
+ if(signature===rosterPickerSignature)return;rosterPickerSignature=signature;
+ $('#rosterTeam').innerHTML=teams.map(team=>'<option value="'+esc(team.id)+'"'+(team.id===rosterTeamId?' selected':'')+'>'+esc(team.name)+'</option>').join('');
+ $('#rosterSelectionCount').textContent=selectedRoster().length+' / '+rosterPlayers().length+' '+L.t('SPELARE');
+ $('#rosterPlayers').innerHTML=rosterPlayers().map(player=>'<label><input type="checkbox" value="'+esc(rosterPlayerId(player))+'"'+(!rosterExclusions().has(rosterPlayerId(player))?' checked':'')+'><span>'+esc(player.display_gamertag)+'</span></label>').join('');
+}
+function rosterGeometry(count,W,H){
+ const margin=Math.round(W*.052),top=340,bottom=H-90,gap=W>1500?22:16,width=W-margin*2,height=bottom-top;
+ let best=null;
+ for(let columns=1;columns<=Math.min(8,Math.max(1,count));columns++){const rows=Math.ceil(Math.max(1,count)/columns),w=(width-gap*(columns-1))/columns,h=(height-gap*(rows-1))/rows;const score=Math.abs(Math.log((w/h)/.85))+(rows*columns-Math.max(1,count))*.025;if(!best||score<best.score)best={columns,rows,w,h,score};}
+ return {...best,margin,top,gap,width};
+}
+function rosterSvg(){
+ const players=selectedRoster(),{w:W,h:H}=format(),g=rosterGeometry(players.length,W,H),team=rosterTeamOptions().find(team=>team.id===rosterTeamId),logo=logos().get(rosterTeamId);
+ let content=(logo?img(logo,g.margin,278,46):'')+svgText(g.margin+(logo&&S.logos?62:0),310,players.length+' '+L.t('SPELARE'),17,'#ffcf4a',800);
+ if(!players.length)return base(content+svgText(W/2,(H+340)/2,L.t(team?'Välj minst en spelare':'Inga registrerade spelare'),26,'#a2b6c9',700,'text-anchor="middle"'));
+ players.forEach((player,i)=>{const row=Math.floor(i/g.columns),rowCount=Math.min(g.columns,players.length-row*g.columns),offset=(g.width-(rowCount*g.w+(rowCount-1)*g.gap))/2,x=g.margin+offset+(i%g.columns)*(g.w+g.gap),y=g.top+row*(g.h+g.gap),band=Math.min(72,Math.max(60,g.h*.23)),ph=g.h-band-12,portrait=portraitUrl(player),name=String(player.display_gamertag||''),size=Math.min(25,(g.w-22)/Math.max(1,name.length)*1.45),position=player.roster_preferred_position_abbreviation||player.regular_skater_position_abbreviation||player.playoff_skater_position_abbreviation||'–';
+ content+='<g data-player-id="'+esc(rosterPlayerId(player))+'"><rect x="'+x+'" y="'+y+'" width="'+g.w+'" height="'+g.h+'" rx="14" fill="#071d2c" fill-opacity=".93" stroke="#355369"/><path d="M'+(x+g.w*.60)+' '+(y+6)+' H'+(x+g.w-6)+' V'+(y+ph)+' H'+(x+g.w*.32)+' Z" fill="#ffcf4a" opacity=".08"/>'+(portrait?portraitImage(portrait,x+8,y+6,g.w-16,ph):silhouetteSvg(x+8,y+6,g.w-16,ph))+'<rect x="'+x+'" y="'+(y+g.h-band)+'" width="'+g.w+'" height="'+band+'" fill="#04131e"/>'+svgText(x+g.w/2,y+g.h-band+Math.min(size+5,band*.5),name,size,'#fff',900,'text-anchor="middle"')+svgText(x+g.w/2,y+g.h-10,(player.player_number!=null?'#'+player.player_number+' · ':'')+position,Math.min(14,band*.24),'#ffcf4a',800,'text-anchor="middle"')+'</g>';
+ });return base(content);
+}
+
 function build(){
-  let graphic=S.kind==="matches"?matchesSvg():S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind);
+  let graphic=S.kind==="roster"?rosterSvg():S.kind==="matches"?matchesSvg():S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind);
   const sports=$("#sender").value==="sportsgamer",name=sports?"SportsGamer":"SVENSK eHOCKEY",logo=sports?"../assets/sportsgamer-logo.png":"../assets/svensk-ehockey-logo.png";
   const {w,h}=format();
   graphic=graphic.replaceAll('SVENSK eHOCKEY',name);
@@ -756,8 +789,8 @@ function build(){
   return L.svg(graphic,[$("#title").value,$("#subtitle").value,comp().label,...S.teams.map(t=>t.team_name_in_league),...S.players.map(p=>p.display_gamertag)]);
 }
 function render(){
-  sync();$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
-  $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches")syncMatchEditor();$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table";$("#countField").hidden=true;
+  sync();if(S.kind==="roster")syncRosterPicker();$("#rosterTeamField").hidden=$("#rosterPlayersField").hidden=S.kind!=="roster";$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
+  $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches")syncMatchEditor();$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=S.kind==="roster"||S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table";$("#countField").hidden=true;
 }
 function safe(){return (comp().code+(S.kind==="matches"?"-"+$("#matchDate").value+"-sida-"+(Number($("#matchPage").value)+1):"")+"-"+TIT[S.kind]).toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1200)}
@@ -784,6 +817,9 @@ async function expSvg(){const s=await inline(build());dl(new Blob([s],{type:"ima
 async function expPng(){const s=await inline(build()),{w,h}=format(),u=URL.createObjectURL(new Blob([s],{type:"image/svg+xml;charset=utf-8"})),im=new Image();try{await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=u});const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(im,0,0,w,h);const b=await new Promise(ok=>c.toBlob(ok,"image/png",1));if(!b)throw new Error("PNG-export misslyckades");dl(b,safe()+".png")}finally{URL.revokeObjectURL(u)}}
 
 $$("[data-kind]").forEach(b=>b.onclick=()=>{$$("[data-kind]").forEach(x=>x.classList.toggle("active",x===b));S.kind=b.dataset.kind;if(S.kind==="matches")loadSchedule();else render()});
+$("#rosterTeam").onchange=()=>{rosterTeamId=$("#rosterTeam").value;render()};
+$("#rosterPlayers").onchange=event=>{const input=event.target;if(input.type!=="checkbox")return;const excluded=rosterExclusions();if(input.checked)excluded.delete(input.value);else excluded.add(input.value);render()};
+$("#rosterSelectAll").onclick=()=>{rosterExclusions().clear();render()};
 $("#matchDate").value=new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Stockholm",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
 ["matchDate"].forEach(id=>$("#"+id).addEventListener("change",()=>{$("#matchPage").value="0";render()}));
 $("#matchEditSelect").addEventListener("change",syncMatchEditor);
