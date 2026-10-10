@@ -769,7 +769,7 @@ function rosterGeometry(count,W,H){
 }
 function rosterPortrait(url,x,y,w,h,count,player){
  const baseZoom=count>=11&&count<=12?1.7:count>=9&&count<=10?1.45:count>=7&&count<=8?1.2:1;
- const zoom=baseZoom*(String(player?.display_gamertag||'').trim().toLowerCase()==='brokenrice2000'?1.16:1);
+ const zoom=baseZoom*(String(player?.display_gamertag||'').trim().toLowerCase()==='brokenrice2000'?1.16:1.1);
  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" overflow="hidden"><image href="'+esc(url)+'" x="'+(-w*(zoom-1)/2)+'" y="0" width="'+(w*zoom)+'" height="'+(h*zoom)+'" preserveAspectRatio="xMidYMin meet"/></svg>';
 }
 function rosterSvg(){
