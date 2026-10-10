@@ -1830,7 +1830,7 @@
 
   function statsPairForGame(game) {
     if (!game) return { home: null, away: null };
-    if (game.id === state.nextGame?.id && (gameIsLive(state.nextGame) || gameIsEffectivelyFinal(state.nextGame))) {
+    if (game.id === state.nextGame?.id) {
       return {
         home: state.teamGameStats.find((row)=>row.game_id===game.id&&row.team_id===game.home_team_id) || null,
         away: state.teamGameStats.find((row)=>row.game_id===game.id&&row.team_id===game.away_team_id) || null
@@ -1874,7 +1874,7 @@
   }
 
   function renderMatchStats() {
-    const game = displayGame();
+    const game = officialLineupState().count > 0 ? state.nextGame : displayGame();
     if (!game) return;
     const { home, away } = statsPairForGame(game);
     const homeName = getTeamName(game.home_team_id);
@@ -1886,10 +1886,10 @@
       const focusName=state.focusTeam?.canonical_name || "";
       const currentFinal=game.id===state.nextGame?.id && gameIsEffectivelyFinal(game);
       overviewContext.textContent=(focusName ? focusName+" · " : "") +
-        (currentFinal ? "MATCH SLUT · VS " : gameIsLive(game) ? "LIVE MATCH · VS " : "SENASTE MATCH · VS ") + opponentName;
+        (currentFinal ? "MATCH SLUT · VS " : gameIsLive(game) ? "LIVE MATCH · VS " : game.id===state.nextGame?.id ? "DAGENS MATCH · VS " : "SENASTE MATCH · VS ") + opponentName;
     }
 
-    const missingLabel=gameIsLive(game) ? "väntar på "+league.sourceLabel : "ej publicerat";
+    const missingLabel=gameIsLive(game) ? "väntar på "+league.sourceLabel : game.id===state.nextGame?.id && !gameIsEffectivelyFinal(game) ? "inväntar matchstart" : "ej publicerat";
     const bothMissing=(a,b)=>a==null&&b==null;
 
     document.getElementById("shotsValue").textContent =
