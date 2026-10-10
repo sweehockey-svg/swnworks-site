@@ -4709,6 +4709,7 @@
     if(!target) return;
 
     if(
+      event.composedPath().includes(drawer) ||
       drawer.contains(target) ||
       target.closest(".deck-key") ||
       target.closest("#lineupChangeNotice") ||
