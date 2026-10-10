@@ -767,8 +767,9 @@ function rosterGeometry(count,W,H){
  for(let columns=1;columns<=Math.min(8,Math.max(1,count));columns++){const rows=Math.ceil(Math.max(1,count)/columns),w=(width-gap*(columns-1))/columns,h=(height-gap*(rows-1))/rows;const score=Math.abs(Math.log((w/h)/.85))+(rows*columns-Math.max(1,count))*.025;if(!best||score<best.score)best={columns,rows,w,h,score};}
  return {...best,margin,top,gap,width};
 }
-function rosterPortrait(url,x,y,w,h,count){
- const zoom=count>=11&&count<=12?1.7:count>=9&&count<=10?1.45:count>=7&&count<=8?1.2:1;
+function rosterPortrait(url,x,y,w,h,count,player){
+ const baseZoom=count>=11&&count<=12?1.7:count>=9&&count<=10?1.45:count>=7&&count<=8?1.2:1;
+ const zoom=baseZoom*(String(player?.display_gamertag||'').trim().toLowerCase()==='brokenrice2000'?1.16:1);
  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" overflow="hidden"><image href="'+esc(url)+'" x="'+(-w*(zoom-1)/2)+'" y="0" width="'+(w*zoom)+'" height="'+(h*zoom)+'" preserveAspectRatio="xMidYMin meet"/></svg>';
 }
 function rosterSvg(){
@@ -776,7 +777,7 @@ function rosterSvg(){
  let content=(logo?img(logo,g.margin,278,46):'')+svgText(g.margin+(logo&&S.logos?62:0),310,players.length+' '+L.t('SPELARE'),17,'#ffcf4a',800);
  if(!players.length)return base(content+svgText(W/2,(H+340)/2,L.t(team?'Välj minst en spelare':'Inga registrerade spelare'),26,'#a2b6c9',700,'text-anchor="middle"'));
  players.forEach((player,i)=>{const row=Math.floor(i/g.columns),rowCount=Math.min(g.columns,players.length-row*g.columns),offset=(g.width-(rowCount*g.w+(rowCount-1)*g.gap))/2,x=g.margin+offset+(i%g.columns)*(g.w+g.gap),y=g.top+row*(g.h+(g.rowGap||g.gap)),band=Math.min(72,Math.max(60,g.h*.23)),ph=g.h-band-12,portrait=portraitUrl(player),name=String(player.display_gamertag||''),size=Math.min(25,(g.w-22)/Math.max(1,name.length)*1.45),position=player.roster_preferred_position_abbreviation||player.regular_skater_position_abbreviation||player.playoff_skater_position_abbreviation||'–';
- content+='<g data-player-id="'+esc(rosterPlayerId(player))+'"><rect x="'+x+'" y="'+y+'" width="'+g.w+'" height="'+g.h+'" rx="14" fill="#071d2c" fill-opacity=".93" stroke="#355369"/><path d="M'+(x+g.w*.60)+' '+(y+6)+' H'+(x+g.w-6)+' V'+(y+ph)+' H'+(x+g.w*.32)+' Z" fill="#ffcf4a" opacity=".08"/>'+(portrait?rosterPortrait(portrait,x+8,y+6,g.w-16,ph,players.length):silhouetteSvg(x+8,y+6,g.w-16,ph))+'<rect x="'+x+'" y="'+(y+g.h-band)+'" width="'+g.w+'" height="'+band+'" fill="#04131e"/>'+svgText(x+g.w/2,y+g.h-band+Math.min(size+5,band*.5),name,size,'#fff',900,'text-anchor="middle"')+svgText(x+g.w/2,y+g.h-10,(player.player_number!=null?'#'+player.player_number+' · ':'')+position,Math.min(14,band*.24),'#ffcf4a',800,'text-anchor="middle"')+'</g>';
+ content+='<g data-player-id="'+esc(rosterPlayerId(player))+'"><rect x="'+x+'" y="'+y+'" width="'+g.w+'" height="'+g.h+'" rx="14" fill="#071d2c" fill-opacity=".93" stroke="#355369"/><path d="M'+(x+g.w*.60)+' '+(y+6)+' H'+(x+g.w-6)+' V'+(y+ph)+' H'+(x+g.w*.32)+' Z" fill="#ffcf4a" opacity=".08"/>'+(portrait?rosterPortrait(portrait,x+8,y+6,g.w-16,ph,players.length,player):silhouetteSvg(x+8,y+6,g.w-16,ph))+'<rect x="'+x+'" y="'+(y+g.h-band)+'" width="'+g.w+'" height="'+band+'" fill="#04131e"/>'+svgText(x+g.w/2,y+g.h-band+Math.min(size+5,band*.5),name,size,'#fff',900,'text-anchor="middle"')+svgText(x+g.w/2,y+g.h-10,(player.player_number!=null?'#'+player.player_number+' · ':'')+position,Math.min(14,band*.24),'#ffcf4a',800,'text-anchor="middle"')+'</g>';
  });return base(content);
 }
 
