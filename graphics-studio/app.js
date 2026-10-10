@@ -579,7 +579,8 @@ function svgText(x,y,value,size=24,color="#f4f7fa",weight=700,extra=""){
 }
 function base(content){
   const {w:W,h:H}=format(),m=Math.round(W*.052),c=comp(),wide=S.format==="wide";
-  const headingSize=Math.min(wide?82:70,(W-m*2)/Math.max(1,title().length)*1.55);
+  const rosterLogo=S.kind==='roster'&&S.logos?logos().get(rosterTeamId):'',rosterLogoSize=130,headingWidth=W-m*2-(rosterLogo?rosterLogoSize+30:0);
+  const headingSize=Math.min(wide?82:70,headingWidth/Math.max(1,title().length)*1.55);
   return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+defs()+
     studioBackground(W,H)+
     '<rect x="'+m+'" y="48" width="6" height="56" rx="3" fill="#ffbd00"/>'+
@@ -588,7 +589,7 @@ function base(content){
     svgText(W-m,78,"SWNWORKS / STUDIO",12,"#a2b6c9",700,'text-anchor="end" letter-spacing="2"')+
     '<line x1="'+m+'" y1="132" x2="'+(W-m)+'" y2="132" stroke="#7b9ab6" opacity=".24"/>'+
     svgText(m,178,subtitle(),15,"#ffcf4a",700,'letter-spacing="3"')+svgText(m,252,title(),headingSize,"#f4f7fa",900,'letter-spacing="-2"')+
-    content+'<line x1="'+m+'" y1="'+(H-65)+'" x2="'+(W-m)+'" y2="'+(H-65)+'" stroke="#7b9ab6" opacity=".24"/>'+
+    (rosterLogo?img(rosterLogo,W-m-rosterLogoSize,190,rosterLogoSize):'')+content+'<line x1="'+m+'" y1="'+(H-65)+'" x2="'+(W-m)+'" y2="'+(H-65)+'" stroke="#7b9ab6" opacity=".24"/>'+
     svgText(m,H-33,"SVENSK eHOCKEY · NHL 27",13,"#a2b6c9",700,'letter-spacing="1.5"')+
     svgText(W-m,H-33,"SWNWORKS",13,"#a2b6c9",700,'text-anchor="end" letter-spacing="2"')+'</svg>';
 }
@@ -764,7 +765,7 @@ function rosterGeometry(count,W,H){
 function rosterPortrait(url,x,y,w,h){return portraitImage(url,x,y,w,h);}
 function rosterSvg(){
  const players=selectedRoster(),{w:W,h:H}=format(),g=rosterGeometry(players.length,W,H),team=rosterTeamOptions().find(team=>team.id===rosterTeamId),logo=logos().get(rosterTeamId);
- let content=(logo?img(logo,g.margin,278,46):'')+svgText(g.margin+(logo&&S.logos?62:0),310,players.length+' '+L.t('SPELARE'),17,'#ffcf4a',800);
+ let content=svgText(g.margin,310,players.length+' '+L.t('SPELARE'),17,'#ffcf4a',800);
  if(!players.length)return base(content+svgText(W/2,(H+340)/2,L.t(team?'Välj minst en spelare':'Inga registrerade spelare'),26,'#a2b6c9',700,'text-anchor="middle"'));
  players.forEach((player,i)=>{const row=Math.floor(i/g.columns),rowCount=Math.min(g.columns,players.length-row*g.columns),offset=(g.width-(rowCount*g.w+(rowCount-1)*g.gap))/2,x=g.margin+offset+(i%g.columns)*(g.w+g.gap),y=g.top+row*(g.h+(g.rowGap||g.gap)),band=Math.min(72,Math.max(60,g.h*.23)),ph=g.h-band-12,portrait=portraitUrl(player),name=String(player.display_gamertag||''),size=Math.min(25,(g.w-22)/Math.max(1,name.length)*1.45),position=player.roster_preferred_position_abbreviation||player.regular_skater_position_abbreviation||player.playoff_skater_position_abbreviation||'–';
  content+='<g data-player-id="'+esc(rosterPlayerId(player))+'"><rect x="'+x+'" y="'+y+'" width="'+g.w+'" height="'+g.h+'" rx="14" fill="#071d2c" fill-opacity=".93" stroke="#355369"/><path d="M'+(x+g.w*.60)+' '+(y+6)+' H'+(x+g.w-6)+' V'+(y+ph)+' H'+(x+g.w*.32)+' Z" fill="#ffcf4a" opacity=".08"/>'+(portrait?rosterPortrait(portrait,x+8,y+6,g.w-16,ph,players.length,player):silhouetteSvg(x+8,y+6,g.w-16,ph))+'<rect x="'+x+'" y="'+(y+g.h-band)+'" width="'+g.w+'" height="'+band+'" fill="#04131e"/>'+svgText(x+g.w/2,y+g.h-band+Math.min(size+5,band*.5),name,size,'#fff',900,'text-anchor="middle"')+svgText(x+g.w/2,y+g.h-10,(player.player_number!=null?'#'+player.player_number+' · ':'')+position,Math.min(14,band*.24),'#ffcf4a',800,'text-anchor="middle"')+'</g>';
