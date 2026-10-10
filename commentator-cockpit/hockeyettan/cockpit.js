@@ -4808,6 +4808,13 @@
     });
   }
 
+  function toggleTopbar(hidden){
+    document.documentElement.dataset.topbarHidden=String(hidden);
+    try{localStorage.setItem('commentator-cockpit-topbar-hidden',String(hidden));}catch{}
+    document.getElementById(hidden?'showTopbar':'hideTopbar').focus();
+  }
+  document.getElementById('hideTopbar').onclick=()=>toggleTopbar(true);
+  document.getElementById('showTopbar').onclick=()=>toggleTopbar(false);
   updateClock();
   updateAuthButton();
   window.setInterval(updateClock, 1000);
