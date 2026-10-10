@@ -4717,6 +4717,13 @@
   });
 
   document.getElementById("closeDrawer").addEventListener("click", () => setDrawerOpen(false));
+  document.getElementById('expandDrawer').addEventListener('click',()=>{
+    const expanded=drawer.classList.toggle('page-expanded');
+    const button=document.getElementById('expandDrawer');
+    button.textContent=expanded?'Vanlig storlek':'Helbild';
+    button.setAttribute('aria-pressed',String(expanded));
+    updateDrawerLayout();
+  });
 
   document.addEventListener("click",(event)=>{
     if(!drawer.classList.contains("open")) return;

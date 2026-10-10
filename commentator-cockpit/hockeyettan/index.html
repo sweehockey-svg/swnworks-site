@@ -17,7 +17,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="cockpit.css?v=20261010-topbar-space">
+  <link rel="stylesheet" href="cockpit.css?v=20261010-panel-helbild">
 </head>
 <body>
   <div class="app-shell">
@@ -211,7 +211,7 @@
           <span class="panel-kicker" id="drawerKicker">MATCH</span>
           <h2 id="drawerTitle">Matchöversikt</h2>
         </div>
-        <button class="close-button" id="closeDrawer" type="button" aria-label="Stäng">×</button>
+        <div class="drawer-window-actions"><button id="expandDrawer" type="button" aria-pressed="false">Helbild</button><button class="close-button" id="closeDrawer" type="button" aria-label="Stäng">×</button></div>
       </div>
       <div class="drawer-body" id="drawerBody"></div>
     </section>
@@ -234,6 +234,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js?v=4"></script>
   <script src="../lineup-changes.js?v=20261010-1"></script>
-  <script src="cockpit.js?v=20261010-topbar-toggle"></script>
+  <script src="cockpit.js?v=20261010-panel-helbild"></script>
 </body>
 </html>
