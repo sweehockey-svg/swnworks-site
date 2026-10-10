@@ -4979,3 +4979,5 @@ html[data-theme="light"] .drawer{--muted:#465f6f}
 .match-check p,.match-check small{font-size:11px;line-height:1.5;color:var(--muted);margin:9px 0 0}
 .match-check kbd{font:inherit;font-weight:800;color:var(--text)}
 @container(max-width:620px){.match-check-grid{grid-template-columns:1fr}}
+
+#lineupChangeNotice{display:block;width:100%;padding:12px 18px;border:1px solid #dca900;border-radius:8px;background:#332a0a;color:#ffe284;font:700 13px/1.5 Arial;cursor:pointer;text-align:left;margin:8px 0}#lineupChangeNotice[hidden]{display:none}.lineup-slot-changed{outline:2px solid #ffc400;outline-offset:-2px}.lineup-change-details{border-color:#dca900!important}.lineup-change-details div{padding:6px 0;font-size:12px;border-top:1px solid #ffffff18}

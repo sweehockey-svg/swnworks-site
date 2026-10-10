@@ -2814,6 +2814,38 @@
     return String(sourceName || "").replace(/\s*\((RD|LD|RW|LW|CE|GK)\)\s*$/i, "").trim();
   }
 
+
+  let lineupChanges=[];
+  let lineupChangedAt=null;
+  function acceptLineup(next,initial=false){
+    if(!next)return;
+    if(initial||state.nextLineup?.game.id!==next.game.id){lineupChanges=[];lineupChangedAt=null;}
+    else {
+      const changes=window.CockpitLineupChanges.compare(state.nextLineup,next);
+      if(changes.length){lineupChanges=changes;lineupChangedAt=new Date().toISOString();}
+    }
+    state.nextLineup=next;
+    renderLineupNotice();
+  }
+  function renderLineupNotice(){
+    let notice=document.getElementById('lineupChangeNotice');
+    if(!notice){
+      notice=document.createElement('button');notice.id='lineupChangeNotice';notice.type='button';
+      notice.setAttribute('aria-live','polite');
+      notice.onclick=()=>{document.querySelectorAll('.deck-key').forEach(item=>item.classList.toggle('active',item.dataset.panel==='lines'));renderDrawer('lines');};
+      document.querySelector('.topbar')?.after(notice);
+    }
+    notice.hidden=!lineupChanges.length;
+    if(lineupChanges.length){
+      const names=[...new Set(lineupChanges.map(change=>getTeamName(change.row.team_id)))];
+      notice.textContent='⚠ Lineup ändrad – '+names.join(' / ')+' · '+lineupUpdateTime(lineupChangedAt)+' · Visa ändringar i KEDJOR';
+    }
+  }
+  function lineupChangesMarkup(){
+    if(!lineupChanges.length)return '';
+    return '<article class="drawer-card lineup-change-details"><strong>Lineup ändrad · '+esc(lineupUpdateTime(lineupChangedAt))+'</strong><span>Upptäckt vid senaste kontrollen. Före → Nu:</span>'+lineupChanges.map(change=>'<div><b>'+ (change.kind==='before'?'Före: ':'Nu: ')+esc(getTeamName(change.row.team_id))+'</b> · #'+esc(change.row.jersey_number??'–')+' '+esc(cleanLineupSourceName(change.row.source_name))+' · '+esc(change.row.position??'–')+' · Kedja '+esc(change.row.line_number??'–')+(change.row.goalie_role?' · '+esc(change.row.goalie_role):'')+(change.row.is_extra?' · Extra':'')+'</div>').join('')+'</article>';
+  }
+
   async function loadLineup(game) {
     if (!game?.id) return null;
     const { data: revision, error: revisionError } = await client.from("game_lineup_revisions")
@@ -2874,7 +2906,8 @@
     if (!row) {
       return '<div class="lineup-slot empty"><span>' + esc(position) + '</span><strong>–</strong></div>';
     }
-    return '<div class="lineup-slot">' +
+    const changed=lineupChanges.some(change=>change.kind==='after'&&window.CockpitLineupChanges.key(change.row)===window.CockpitLineupChanges.key(row));
+    return '<div class="lineup-slot'+(changed?' lineup-slot-changed':'')+'">' +
       '<span>' + esc(position) + '</span>' +
       '<b>#' + esc(row.jersey_number ?? "–") + '</b>' +
       '<strong>' + nationalityMarkup(row.player_id) + esc(humanSourceName(cleanLineupSourceName(row.source_name))) + '</strong>' +
@@ -2951,7 +2984,7 @@
       ? '<article class="drawer-card lineup-info official"><strong>Officiell lineup publicerad</strong><span>Uppställningen för nästa match hämtas direkt från '+esc(league.sourceLabel)+' och ersätter automatiskt tidigare kedjor.</span></article>'
       : '<article class="drawer-card lineup-info"><strong>Officiell lineup är inte publicerad ännu</strong><span>Visar respektive lags senast importerade uppställning tills nästa matchs lineup kommer. Den byts då ut automatiskt.</span></article>';
 
-    return intro +
+    return lineupChangesMarkup() + intro +
       '<div class="lineup-team-grid">' +
         renderLineupTeam(state.focusTeam.id) +
         renderLineupTeam(state.opponent.id) +
@@ -4184,7 +4217,9 @@
       optionalLoad("Kedjor · "+state.focusTeam.canonical_name,()=>loadLineup(state.focusForm[0]),null),
       optionalLoad("Kedjor · "+state.opponent.canonical_name,()=>loadLineup(state.opponentForm[0]),null)
     ]);
+    lineupChanges=[]; lineupChangedAt=null;
     state.nextLineup = nextLineup;
+    renderLineupNotice();
     state.fallbackLineups = new Map();
     if (focusFallbackLineup) state.fallbackLineups.set(state.focusTeam.id, focusFallbackLineup);
     if (opponentFallbackLineup) state.fallbackLineups.set(state.opponent.id, opponentFallbackLineup);
@@ -4524,7 +4559,7 @@
         state.currentEvents=eventResult.data||[];
         if((playerResult.data||[]).length || !state.currentPlayerStats.length) state.currentPlayerStats=playerResult.data||[];
         if((goalieResult.data||[]).length || !state.currentGoalieStats.length) state.currentGoalieStats=goalieResult.data||[];
-        if(lineupResult) state.nextLineup=lineupResult;
+        if(lineupResult) acceptLineup(lineupResult);
         state.teamGameStats=[
           ...state.teamGameStats.filter((row)=>row.game_id!==game.id),
           ...(statsResult.data||[])
@@ -4535,7 +4570,7 @@
         state.currentGoalieStats=[];
         if(game.source_event_game_id){
           const latestLineup=await loadLineup(game);
-          if(latestLineup) state.nextLineup=latestLineup;
+          if(latestLineup) acceptLineup(latestLineup);
         }
 
         if(state.latestFocusGame?.id){
@@ -4624,6 +4659,7 @@
     if(
       drawer.contains(target) ||
       target.closest(".deck-key") ||
+      target.closest("#lineupChangeNotice") ||
       target.closest("#accountButton") ||
       target.closest("#lockLoginButton") ||
       target.closest("#leagueLoginButton") ||
