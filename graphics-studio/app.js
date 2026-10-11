@@ -70,6 +70,8 @@ function logos(){const m=new Map();S.teams.forEach(t=>{const k=String(t.sports_g
 function standingsForGroup(groupId){return ManualResults.apply(S.teams,manualMatches,S.league).filter(x=>x.statistics_stage==="regular"&&Number(x.effective_group_id)===Number(groupId)).sort((a,b)=>n(b.table_points)-n(a.table_points)||n(b.goal_difference)-n(a.goal_difference)||n(b.goals_for)-n(a.goals_for)||String(a.team_name_in_league||"").localeCompare(String(b.team_name_in_league||""),"sv"))}
 function standings(){return standingsForGroup(S.group)}
 function ps(p,key){if(S.stage==="regular")return n(p["regular_"+key]);if(S.stage==="playoffs")return n(p["playoff_"+key]);return n(p["regular_"+key])+n(p["playoff_"+key])}
+function qualificationPercent(){const value=Number(S.minGamesPercent??50);return Number.isFinite(value)?Math.max(0,Math.min(100,value)):50;}
+function qualifiesForGames(games,total){return total>0&&games>0&&games*100>=total*qualificationPercent();}
 function isDefender(p){
   const stage=S.stage==='total'?(n(p.playoff_skater_games)>n(p.regular_skater_games)?'playoff':'regular'):S.stage==='playoffs'?'playoff':'regular';
   const position=p[stage+'_skater_position_abbreviation']||p.roster_preferred_position_abbreviation||p.global_preferred_position_abbreviation||'';
@@ -90,7 +92,7 @@ function extraLeaders(kind,defendersOnly=false){
   return S.players.filter(p=>(!defendersOnly||isDefender(p))&&metricAvailable(p,field)).map(p=>{
     const gp=ps(p,'skater_games'),teamGames=teamGamesFor(p),total=ps(p,field);
     return {...p,gp,g:ps(p,'goals'),a:ps(p,'assists'),p:ps(p,'points'),teamGames,total,score:average?(gp?total/gp:0):total};
-  }).filter(p=>p.gp>0&&(average?p.teamGames>0&&p.gp*2>=p.teamGames:p.score>0))
+  }).filter(p=>p.gp>0&&(average?qualifiesForGames(p.gp,p.teamGames):p.score>0))
     .sort((a,b)=>b.score-a.score||b.p-a.p||b.gp-a.gp||String(a.display_gamertag||'').localeCompare(String(b.display_gamertag||''),'sv')).slice(0,3);
 }
 function dimPlayers(){
@@ -100,7 +102,7 @@ function dimPlayers(){
     const stages=S.stage==='total'?['regular','playoff']:[S.stage==='playoffs'?'playoff':'regular'];
     const complete=stages.every(s=>!n(p[s+'_skater_games'])||['takeaways','interceptions','blocked_shots'].every(k=>p[s+'_'+k]!=null));
     return {...p,gp,ta,it,bs,teamGames,complete,dim:gp?(ta+it+bs)/gp:0};
-  }).filter(p=>p.complete&&p.gp>0&&p.teamGames>0&&p.gp*2>=p.teamGames).sort((a,b)=>b.dim-a.dim||b.gp-a.gp||String(a.display_gamertag).localeCompare(String(b.display_gamertag),'sv')).slice(0,3);
+  }).filter(p=>p.complete&&p.gp>0&&qualifiesForGames(p.gp,p.teamGames)).sort((a,b)=>b.dim-a.dim||b.gp-a.gp||String(a.display_gamertag).localeCompare(String(b.display_gamertag),'sv')).slice(0,3);
 }
 function gv(p,key){
   const rg=n(p.regular_goalie_games),pg=n(p.playoff_goalie_games);
@@ -110,10 +112,10 @@ function gv(p,key){
   const a=p["regular_goalie_"+key],b=p["playoff_goalie_"+key],d=rg+pg;if((rg>0&&a==null)||(pg>0&&b==null))return null;return d?((a==null?0:Number(a))*rg+(b==null?0:Number(b))*pg)/d:null;
 }
 function goalies(){
-  return S.players.map(p=>({...p,gp:gv(p,"gp"),teamGames:teamGamesFor(p),sv:gv(p,"save_percentage"),gaa:gv(p,"goals_against_average"),so:gv(p,"shutouts")})).filter(p=>p.gp>0&&p.teamGames>0&&p.gp*2>=p.teamGames&&p.sv!=null&&Number.isFinite(p.sv)).sort((a,b)=>b.sv-a.sv||(a.gaa??99)-(b.gaa??99)||b.gp-a.gp).slice(0,S.count);
+  return S.players.map(p=>({...p,gp:gv(p,"gp"),teamGames:teamGamesFor(p),sv:gv(p,"save_percentage"),gaa:gv(p,"goals_against_average"),so:gv(p,"shutouts")})).filter(p=>p.gp>0&&qualifiesForGames(p.gp,p.teamGames)&&p.sv!=null&&Number.isFinite(p.sv)).sort((a,b)=>b.sv-a.sv||(a.gaa??99)-(b.gaa??99)||b.gp-a.gp).slice(0,S.count);
 }
 function stageName(){return S.stage==="regular"?"GRUPPSPEL":S.stage==="playoffs"?"SLUTSPEL":"TOTALT"}
-function sync(){S.league=Number($("#league").value||527);S.stage=$("#stage").value;S.group=$("#group").value?Number($("#group").value):S.group;S.count=Number($("#count").value||8);S.format=$("#format").value;S.bg=$("#bg").value;S.logos=$("#logos").checked}
+function sync(){S.league=Number($("#league").value||527);S.stage=$("#stage").value;S.group=$("#group").value?Number($("#group").value):S.group;S.count=Number($("#count").value||8);S.format=$("#format").value;S.minGamesPercent=$("#minGamesPercent").value===""?50:Number($("#minGamesPercent").value);S.bg=$("#bg").value;S.logos=$("#logos").checked}
 let schedule=[],scheduleLoading=false,scheduleError="",scheduleRequest=0;
 const scheduleToken="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91anFudnJjemRhdnFicWFhdnVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3Mzg3NDEsImV4cCI6MjEwMDMxNDc0MX0.-yVDYCXkdslmUiXToldsCcWqPIv6tkPSCsIab_PAeBQ";
 const swedishDay=date=>new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Stockholm",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(date));
@@ -764,7 +766,7 @@ function modernPodiumCard(p,rank,kind,x,y,w,h,logo){
   const sx=tx+(goalie||dim||average?220:190),step=Math.min(200,(right-sx)/3);
   (extra?[['MATCHER',p.gp],['POÄNG',p.p],[average?'MÅL':'ASSIST',average?p.g:p.a]]:dim?[['TA',p.ta],['INT',p.it],['BS',p.bs]]:values).forEach((v,i)=>o+=svgText(sx+i*step,vy-32*scale,v[0],11*scale,"#a6bfce",700,'letter-spacing="1"')+svgText(sx+i*step,vy+14*scale,v[1],34*scale,"#fff",800));
   const footer=goalie?'RÄDDNINGSPROCENT':label+' PER MATCH',rate=goalie?fmtDec(p.sv*(p.sv<=1?100:1),1)+' %':fmtDec(p.gp?p[key]/p.gp:0);
-  o+='<line x1="'+tx+'" y1="'+(y+h-57)+'" x2="'+right+'" y2="'+(y+h-57)+'" stroke="#345062"/>'+svgText(tx,y+h-28,dim||average||goalie?'MATCHER · MINST 50 %':extra?(kind==='penalties'?'UTVISNINGSMINUTER':'TACKLINGAR')+' PER MATCH':footer,12,"#a6bfce",700,'letter-spacing="1.2"')+svgText(right,y+h-26,dim||average||goalie?p.gp+' / '+p.teamGames:extra?fmtDec(p.score/p.gp):rate,22,accent,800,'text-anchor="end"');
+  o+='<line x1="'+tx+'" y1="'+(y+h-57)+'" x2="'+right+'" y2="'+(y+h-57)+'" stroke="#345062"/>'+svgText(tx,y+h-28,dim||average||goalie?'MATCHER · MINST '+qualificationPercent()+' %':extra?(kind==='penalties'?'UTVISNINGSMINUTER':'TACKLINGAR')+' PER MATCH':footer,12,"#a6bfce",700,'letter-spacing="1.2"')+svgText(right,y+h-26,dim||average||goalie?p.gp+' / '+p.teamGames:extra?fmtDec(p.score/p.gp):rate,22,accent,800,'text-anchor="end"');
   return o+'</g>';
 }
 function modernPodiumBase(content){
@@ -853,7 +855,9 @@ function build(){
   return L.svg(graphic,[$("#title").value,$("#subtitle").value,comp().label,...S.teams.map(t=>t.team_name_in_league),...S.players.map(p=>p.display_gamertag)]);
 }
 function render(){
-  sync();if(S.kind==="roster")syncRosterPicker();$("#rosterTeamField").hidden=$("#rosterPlayersField").hidden=S.kind!=="roster";$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
+  sync();$("#minGamesField").hidden=!['goalies','points_average','defender_points_average','dim'].includes(S.kind);
+  for(const kind of ['goalies','points_average','defender_points_average','dim']){const el=document.querySelector('[data-kind="'+kind+'"] small');if(el)el.textContent=(kind==='goalies'?'SV% · GAA':kind==='dim'?'(TA + INT + BS) / GP':L.t('Poäng per match'))+' · '+L.t('MINST')+' '+qualificationPercent()+' %';}
+  if(S.kind==="roster")syncRosterPicker();$("#rosterTeamField").hidden=$("#rosterPlayersField").hidden=S.kind!=="roster";$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
   $("#png").disabled=$("#svg").disabled=dataLoading||playerDataError&&needsPlayers();
   $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches"){syncMatchEditor();syncManualEditor();}$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=S.kind==="roster"||S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table"||groupIds().length<=1;$("#countField").hidden=true;
 }
@@ -900,7 +904,7 @@ $("#matchEditReset").onclick=()=>saveMatchDate(true);
 $("#matchEditSwap").onclick=toggleMatchSides;
 $("#manualSave").onclick=saveManualMatch;
 $("#manualMatchList").onclick=event=>{const id=event.target.dataset.removeManual;if(!id)return;if(storeManualMatches(manualMatches.filter(g=>g.id!==id))){render();$("#manualMatchStatus").textContent='Manuellt resultat borttaget.';}};
-["matchPage","matchDate","stage","group","count","format","bg","logos","sender"].forEach(id=>$("#"+id).addEventListener("change",render));
+["minGamesPercent","matchPage","matchDate","stage","group","count","format","bg","logos","sender"].forEach(id=>$("#"+id).addEventListener("change",render));
 try{$("#sender").value=localStorage.getItem('swn-graphics-sender')==='sportsgamer'?'sportsgamer':'seh';}catch{}
 $("#sender").addEventListener('change',()=>{try{localStorage.setItem('swn-graphics-sender',$("#sender").value);}catch{}});
 ["title","subtitle"].forEach(id=>$("#"+id).addEventListener("input",render));
