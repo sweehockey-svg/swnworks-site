@@ -28,25 +28,37 @@ const headers=()=>{const h={apikey:KEY,Accept:"application/json"};if(/^eyJ[^.]+\
 async function rows(view){
   if(!SUPA||!KEY)throw new Error("Supabase-konfiguration saknas");
   const u=SUPA+"/rest/v1/"+view+"?sports_gamer_league_id=eq."+S.league+"&select=*";
-  const r=await fetch(u,{headers:headers(),cache:"no-store"});if(!r.ok)throw new Error(view+" HTTP "+r.status);return r.json();
+  for(let attempt=0;attempt<2;attempt++){
+    try{
+      const r=await fetch(u,{headers:headers(),cache:"no-store",signal:AbortSignal.timeout(20000)});
+      if(!r.ok){const error=new Error(view+" HTTP "+r.status);error.status=r.status;throw error;}
+      return await r.json();
+    }catch(error){
+      if(attempt||!(error.status>=500||error.status===429||error instanceof TypeError||error.name==='TimeoutError'))throw error;
+      await new Promise(resolve=>setTimeout(resolve,500));
+    }
+  }
 }
 let manualMatches=[];
 try{const saved=JSON.parse(localStorage.getItem('swn-graphics-manual-results')||'[]');if(Array.isArray(saved))manualMatches=saved.filter(g=>g&&Array.isArray(g.knownIds)&&Number.isInteger(g.homeScore)&&Number.isInteger(g.awayScore));}catch{}
 function storeManualMatches(next){try{localStorage.setItem('swn-graphics-manual-results',JSON.stringify(next));manualMatches=next;return true;}catch{return false;}}
-let dataRequest=0,dataLoading=false;
+let dataRequest=0,dataLoading=false,playerDataError=false;
+const needsPlayers=()=>!['table','groups','matches'].includes(S.kind);
 async function load(){
   const request=++dataRequest, league=S.league;dataLoading=true;
   setStatus("HÄMTAR…","load");
   try{
-    const [teams,players]=await Promise.all([rows("v_broadcast_teams_public"),rows("v_broadcast_players_public"),loadSchedule(false)]);
+    const [teamsResult,playersResult]=await Promise.allSettled([rows("v_broadcast_teams_public"),rows("v_broadcast_players_public"),loadSchedule(false)]);
     if(request!==dataRequest||league!==S.league)return;
-    S.teams=teams;S.players=players;dataLoading=false;
+    if(teamsResult.status!=='fulfilled')throw teamsResult.reason;
+    S.teams=teamsResult.value;
+    playerDataError=playersResult.status!=='fulfilled';S.players=playerDataError?[]:playersResult.value;dataLoading=false;
     const reconciliation=ManualResults.reconcile(manualMatches,schedule,league);
     if(reconciliation.removed.length&&storeManualMatches(reconciliation.remaining))$("#manualMatchStatus").textContent=reconciliation.removed.length+' manuell match ersatt av rapporterat resultat.';
-    groups(); setStatus(S.teams.length+" LAG · "+S.players.length+" SPELARE","ok"); render();
+    groups(); setStatus(playerDataError?'Lagdata klar · Spelardata kunde inte hämtas. Försök uppdatera.':S.teams.length+" LAG · "+S.players.length+" SPELARE",playerDataError?'partial':'ok'); render();
   }catch(e){if(request!==dataRequest)return;dataLoading=false;console.error(e);setStatus("DATAFEL","error");$("#preview").innerHTML='<div style="color:white;padding:30px">Datafel: '+esc(e.message)+'</div>'}
 }
-function setStatus(t,m){$("#dataStatus").textContent=L.t(t);$("#topStatus").textContent=L.t(m==="error"?"DATAFEL":m==="load"?"UPPDATERAR":"LIVE DATA")}
+function setStatus(t,m){$("#dataStatus").textContent=L.t(t);$("#topStatus").textContent=L.t(m==="error"?"DATAFEL":m==="load"?"UPPDATERAR":m==='partial'?'SPELARDATA SAKNAS':"LIVE DATA")}
 function groupIds(){return [...new Set(S.teams.filter(x=>x.statistics_stage==="regular").map(x=>Number(x.effective_group_id)).filter(Number.isFinite))].sort((a,b)=>a-b)}
 function groupName(id){const ids=groupIds(),i=ids.indexOf(Number(id));return L.t("GRUPP")+" "+(i<0?Number(id):i+1)}
 function groups(){
@@ -820,7 +832,7 @@ function rosterSvg(){
 }
 
 function build(){
-  let graphic=S.kind==="roster"?rosterSvg():S.kind==="matches"?matchesSvg():S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind);
+  let graphic=playerDataError&&needsPlayers()?base(svgText(format().w/2,format().h/2,'Spelardata kunde inte hämtas. Försök uppdatera.',24,'#ffcf4a',700,'text-anchor="middle"')):S.kind==="roster"?rosterSvg():S.kind==="matches"?matchesSvg():S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind);
   const sports=$("#sender").value==="sportsgamer",name=sports?"SportsGamer":"SVENSK eHOCKEY",logo=sports?"../assets/sportsgamer-logo.png":"../assets/svensk-ehockey-logo.png";
   const {w,h}=format();
   graphic=graphic.replaceAll('SVENSK eHOCKEY',name);
@@ -836,6 +848,7 @@ function build(){
 }
 function render(){
   sync();if(S.kind==="roster")syncRosterPicker();$("#rosterTeamField").hidden=$("#rosterPlayersField").hidden=S.kind!=="roster";$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
+  $("#png").disabled=$("#svg").disabled=dataLoading||playerDataError&&needsPlayers();
   $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches"){syncMatchEditor();syncManualEditor();}$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=S.kind==="roster"||S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table";$("#countField").hidden=true;
 }
 function safe(){return (comp().code+(S.kind==="matches"?"-"+$("#matchDate").value+"-sida-"+(Number($("#matchPage").value)+1):"")+"-"+TIT[S.kind]).toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
@@ -887,6 +900,7 @@ $("#sender").addEventListener('change',()=>{try{localStorage.setItem('swn-graphi
 ["title","subtitle"].forEach(id=>$("#"+id).addEventListener("input",render));
 $("#league").onchange=()=>{S.league=Number($("#league").value||527);S.group=null;if(S.league===532)$("#bg").value="wv";else if($("#bg").value==="wv")$("#bg").value="gamenight";load()};
 async function exportGraphic(type){
+  if(dataLoading||playerDataError&&needsPlayers())return;
   if(S.kind==="matches"&&(scheduleLoading||scheduleError))return;
   const button=$("#"+type),label=button.textContent;
   $("#png").disabled=$("#svg").disabled=true;button.textContent=L.t("Exporterar…");
