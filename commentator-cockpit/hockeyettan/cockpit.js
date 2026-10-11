@@ -3190,12 +3190,24 @@
     if(!row.player_id){container.textContent='Spelaren saknar en säker koppling till spelarregistret. Historik kan inte sparas ännu.';return;}
     if(!ownerId){container.textContent='Logga in för att använda egen spelarhistorik.';return;}
     const current=()=>request===playerHistoryRequest&&container.isConnected&&state.authUser?.id===ownerId;
-    const {data,error}=await client.from('commentator_player_history').select('id,season,club,league,details,source_url,checked_on,updated_at').eq('owner_id',ownerId).eq('player_id',row.player_id).order('season',{ascending:false});
+    const [{data,error},automatic]=await Promise.all([
+      client.from('commentator_player_history').select('id,season,club,league,details,source_url,checked_on,updated_at').eq('owner_id',ownerId).eq('player_id',row.player_id).order('season',{ascending:false}),
+      client.from('swehockey_player_history').select('season,club,league,source_url,checked_at').eq('player_id',row.player_id).order('season',{ascending:false})
+    ]);
     if(!current())return;
     if(error){container.textContent='Historiken kunde inte hämtas. Öppna fliken igen för att försöka på nytt.';return;}
     let editingId=null;
     container.innerHTML='<p>Egen klubbhistorik för ditt konto. Lägg in verifierade uppgifter med källänk. Uppgifterna ersätter inte Swehockeys data.</p><div>'+ (data||[]).map(item=>'<article class="player-card-game"><strong>'+esc(item.season)+' · '+esc(item.club)+'</strong><span>'+esc(item.league)+'</span><p>'+esc(item.details)+'</p>'+(safeHistoryUrl(item.source_url)?'<a href="'+esc(safeHistoryUrl(item.source_url))+'" target="_blank" rel="noopener noreferrer">Visa källa</a>':'')+'<small> · Kontrollerad '+esc(item.checked_on)+' · Egen uppgift</small><div><button type="button" data-history-edit="'+esc(item.id)+'">Redigera</button> <button type="button" data-history-delete="'+esc(item.id)+'">Ta bort</button></div></article>').join('')+'</div><h3 id="historyFormTitle">Lägg till klubb / övergång</h3><form id="historyForm"><div class="player-history-fields"><label>Säsong<input name="season" required maxlength="30" placeholder="2025/26"></label><label>Klubb<input name="club" required maxlength="120"></label><label>Liga<input name="league" maxlength="120"></label><label>Kontrollerad datum<input name="checked_on" type="date" required value="'+new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Stockholm',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())+'"></label><label class="history-wide">Källänk<input name="source_url" type="url" required maxlength="2000" placeholder="https://klubbens-webbplats/... "></label><label class="history-wide">Bakgrund / övergång / lån<textarea name="details" maxlength="1200" rows="3"></textarea></label></div><button type="submit">Spara historik</button> <button type="button" id="cancelHistoryEdit">Rensa formulär</button><p id="historyStatus" role="status"></p></form>';
     const form=container.querySelector('#historyForm'),status=container.querySelector('#historyStatus');
+    const automaticSection=document.createElement('section');
+    const seasons=new Map();
+    for(const item of automatic.data||[]){
+      const key=item.season+'|'+item.club;
+      if(!seasons.has(key))seasons.set(key,{season:item.season,club:item.club,sources:[]});
+      seasons.get(key).sources.push(item);
+    }
+    automaticSection.innerHTML='<h3>Klubbhistorik från Swehockey</h3><p>Importerade truppregistreringar, matchade på namn och födelsedatum. Registrering visar inte att spelaren spelat matcher eller när en övergång skedde. Underlaget täcker delar av tidigare svenska säsonger och kan vara ofullständigt.</p>'+ (automatic.error?'<p role="status">Swehockey-historiken kunde inte hämtas. Öppna fliken igen för att försöka på nytt.</p>':seasons.size?Array.from(seasons.values()).map(item=>'<article class="player-card-game"><strong>'+esc(item.season)+' · '+esc(item.club)+'</strong><span>Registrerad i truppen</span><div>'+item.sources.map(source=>'<p>'+esc(source.league)+' · <a href="'+esc(safeHistoryUrl(source.source_url))+'" target="_blank" rel="noopener noreferrer">Swehockey: trupp</a><small> · Hämtad '+esc(String(source.checked_at).slice(0,10))+'</small></p>').join('')+'</div></article>').join(''):'<p>Ingen äldre klubbregistrering hittades för spelaren i det importerade underlaget.</p>')+'<h3>Egna kompletteringar</h3>';
+    container.prepend(automaticSection);
     const reset=()=>{editingId=null;form.reset();container.querySelector('#historyFormTitle').textContent='Lägg till klubb / övergång';};
     container.querySelector('#cancelHistoryEdit').onclick=reset;
     container.querySelectorAll('[data-history-edit]').forEach(button=>button.onclick=()=>{const item=data.find(item=>item.id===button.dataset.historyEdit);editingId=item.id;for(const field of ['season','club','league','source_url','checked_on','details'])form.elements.namedItem(field).value=item[field]||'';container.querySelector('#historyFormTitle').textContent='Redigera klubbhistorik';form.elements.namedItem('season').focus();});
@@ -3235,7 +3247,7 @@
     }else if(tab==='stats'){
       content='<h3>Säsong</h3><div class="player-card-metrics">'+(goalie?metric('Matcher',goalie.games_played)+metric('SV%',goalie.save_pct)+metric('GAA',goalie.gaa)+metric('Vinster',goalie.wins)+metric('Förluster',goalie.losses):season?metric('Matcher',season.games_played)+metric('Mål',season.goals)+metric('Assist',season.assists)+metric('Poäng',season.points)+metric('Skott',season.shots)+metric('FO%',season.faceoff_pct)+metric('PIM',season.pim)+metric('+ / −',season.plus_minus):metric('Statistik','Ej publicerad'))+'</div><h3>Dagens match</h3>'+(goalie||row.position==='GK'?liveGoalieDetail(currentGoalieGameRow(row)):livePlayerDetail(currentPlayerGameRow(row)))+'<p>Liveuppgifter visas när de är publicerade för aktuell match.</p>';
     }else if(tab==='history'){
-      content='<div id="playerHistory" aria-live="polite">Hämtar egen klubbhistorik…</div>';
+      content='<div id="playerHistory" aria-live="polite">Hämtar klubbhistorik…</div>';
     }else if(tab==='recent'){
       const games=(row.team_id===state.focusTeam?.id?state.focusForm:state.opponentForm)||[];
       const stats=(goalie||row.position==='GK'?state.recentGoalieStats:state.recentPlayerStats).filter(item=>item.team_id===row.team_id&&sameStatPlayer(item,row));
