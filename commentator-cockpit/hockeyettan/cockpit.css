@@ -5016,3 +5016,15 @@ html[data-topbar-hidden="true"] #showTopbar{position:fixed;top:8px;right:20px;z-
 #playerCardDialog{width:min(1320px,96vw)}
 #playerCardDialog header{position:sticky;top:-22px;z-index:2;background:#071824;margin:-22px -22px 0;padding:22px;border-bottom:1px solid #355369}
 #playerCardDialog #closePlayerCard{flex-shrink:0;align-self:flex-start}
+.standings-full{width:100%;border-collapse:collapse;font-size:11px;font-variant-numeric:tabular-nums}
+.standings-full caption{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.standings-full td,.standings-full th{padding:7px 6px;border-bottom:1px solid #29404e;text-align:right}
+.standings-full thead th{font-size:10px;color:#9cb2c2}
+.standings-full th:nth-child(2){text-align:left}
+.standings-full tbody th{font-weight:500;overflow-wrap:anywhere}
+.standings-full tbody tr:last-child>*{border-bottom:0}
+.standings-full small{display:block;font-size:9px;color:#a4bbcb;margin-top:2px}
+.standings-full .standings-focus{background:rgba(255,207,74,.12);box-shadow:inset 3px 0 #ffcf4a}
+.standings-full .standings-opponent{background:rgba(87,211,165,.1);box-shadow:inset 3px 0 #57d3a5}
+.standings-empty{padding:10px;font-size:12px;color:#9cb2c2}
+html[data-theme="light"] .standings-full thead th,html[data-theme="light"] .standings-full small,html[data-theme="light"] .standings-empty{color:#38576c}

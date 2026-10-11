@@ -1951,12 +1951,17 @@
   function renderStandingsQuick() {
     const el = document.getElementById("standingsQuick");
     if (!el || !state.focusTeam || !state.opponent) return;
-    const rows = [state.focusTeam, state.opponent].map((team) => {
-      const row = state.standingsByTeam.get(team.id);
-      return '<div><b>' + esc(row?.rank ?? "–") + '</b><span>' +
-        esc(team.canonical_name) + '</span><em>' + esc(row?.points ?? "–") + ' p</em></div>';
-    });
-    el.innerHTML = rows.join("");
+    if (!state.standings.length) {
+      el.innerHTML = '<p class="standings-empty">Serietabellen är inte tillgänglig ännu.</p>';
+      return;
+    }
+    const rows = [...state.standings].sort((a,b)=>Number(a.rank??Infinity)-Number(b.rank??Infinity));
+    el.innerHTML = '<table class="standings-full"><caption class="sr-only">Hela serietabellen</caption><thead><tr><th scope="col">#</th><th scope="col">Lag</th><th scope="col" title="Spelade matcher">M</th><th scope="col" title="Målskillnad">+/−</th><th scope="col" title="Poäng">P</th></tr></thead><tbody>'+rows.map(row=>{
+      const focus=row.team_id===state.focusTeam.id,opponent=row.team_id===state.opponent.id;
+      const team=state.teamById.get(row.team_id);
+      const difference=row.goal_diff;
+      return '<tr class="'+(focus?'standings-focus':opponent?'standings-opponent':'')+'"><td>'+esc(row.rank??'–')+'</td><th scope="row">'+esc(team?.canonical_name||'Okänt lag')+(focus?'<small>Valt lag</small>':opponent?'<small>Motståndare</small>':'')+'</th><td>'+esc(row.games_played??'–')+'</td><td>'+esc(difference==null?'–':Number(difference)>0?'+'+difference:difference)+'</td><td><strong>'+esc(row.points??'–')+'</strong></td></tr>';
+    }).join('')+'</tbody></table>';
   }
 
   function renderLatestGame() {
