@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');
+const {rank}=require('./standings-order.js');
+const team=(id,extra={})=>({sports_gamer_team_id:id,team_name_in_league:id,games_played:6,table_points:5,wins:1,overtime_wins:0,goal_difference:0,goals_for:10,...extra});
+const order=(teams,matches=[],league=527)=>rank(teams,matches,league).map(t=>t.sports_gamer_team_id);
+assert.deepEqual(order([team('Academy',{goal_difference:-7}),team('VBO',{overtime_wins:1,goal_difference:-17})]),['VBO','Academy']);
+assert.deepEqual(order([team('A',{table_points:6,games_played:12}),team('B',{games_played:2})]),['A','B']);
+assert.deepEqual(order([team('A'),team('B',{games_played:5})]),['B','A']);
+const match={stage:'regular',homeId:'B',awayId:'A',homeScore:2,awayScore:1,overtime:true};
+assert.deepEqual(order([team('A',{goal_difference:20}),team('B')],[match]),['B','A']);
+assert.deepEqual(order([team('A',{goal_difference:20}),team('B')],[{...match,stage:'playoffs'}]),['A','B']);
+assert.deepEqual(order([team('A'),team('B',{goals_for:12})]),['B','A']);
+assert.deepEqual(order([team('A'),team('B')]),['A','B']);
+assert.deepEqual(order([team('A',{games_played:0,table_points:0}),team('B',{games_played:0,table_points:0})]),['A','B']);
+assert.deepEqual(order([team('Academy',{goal_difference:-7}),team('VBO',{overtime_wins:1,goal_difference:-17})],[],532),['Academy','VBO']);
+const cycle=[['A','B'],['B','C'],['C','A']].map(([homeId,awayId])=>({stage:'regular',homeId,awayId,homeScore:2,awayScore:1,overtime:false}));
+assert.deepEqual(order([team('C',{goal_difference:3}),team('A',{goal_difference:1}),team('B',{goal_difference:2})],cycle),['C','B','A']);
+console.log('SCL tie-break tests passed');

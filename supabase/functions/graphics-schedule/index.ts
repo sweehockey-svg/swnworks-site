@@ -18,6 +18,6 @@ Deno.serve(async req=>{
   const page=JSON.parse(raw.replace(/&quot;/g,'"').replace(/&#039;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&"));
   const rows=page.props?.matchups;
   if(!Array.isArray(rows))throw Error("SportsGamer schema saknas");
-  return json({matches:rows.filter(m=>!m.hidden&&m.result?.reportDate&&m.homeTeam&&m.awayTeam).map(m=>({id:m.result.id,date:m.result.reportDate,home:m.homeTeam.name,away:m.awayTeam.name,homeScore:m.result.goalsHome,awayScore:m.result.goalsAway})),fetchedAt:new Date().toISOString()});
+  return json({matches:rows.filter(m=>!m.hidden&&m.result?.reportDate&&m.homeTeam&&m.awayTeam).map(m=>({id:m.result.id,date:m.result.reportDate,home:m.homeTeam.name,away:m.awayTeam.name,homeId:m.homeTeam.id,awayId:m.awayTeam.id,stage:m.type,overtime:m.result.overtime===true,homeScore:m.result.goalsHome,awayScore:m.result.goalsAway})),fetchedAt:new Date().toISOString()});
  }catch(e){return json({error:e instanceof Error?e.message:"Schema kunde inte hämtas"},502)}
 });

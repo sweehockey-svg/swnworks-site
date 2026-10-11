@@ -67,7 +67,7 @@ function groups(){
   $("#group").innerHTML=ids.map(id=>'<option value="'+id+'"'+(id===S.group?' selected':'')+'>'+groupName(id)+'</option>').join("");
 }
 function logos(){const m=new Map();S.teams.forEach(t=>{const k=String(t.sports_gamer_team_id);if(t.team_logo_in_league&&!m.has(k))m.set(k,t.team_logo_in_league)});return m}
-function standingsForGroup(groupId){return ManualResults.apply(S.teams,manualMatches,S.league).filter(x=>x.statistics_stage==="regular"&&Number(x.effective_group_id)===Number(groupId)).sort((a,b)=>n(b.table_points)-n(a.table_points)||n(b.goal_difference)-n(a.goal_difference)||n(b.goals_for)-n(a.goals_for)||String(a.team_name_in_league||"").localeCompare(String(b.team_name_in_league||""),"sv"))}
+function standingsForGroup(groupId){return StandingsOrder.rank(ManualResults.apply(S.teams,manualMatches,S.league).filter(x=>x.statistics_stage==="regular"&&Number(x.effective_group_id)===Number(groupId)),[...schedule,...manualMatches.filter(g=>Number(g.league)===Number(S.league)).map(g=>({...g,stage:'regular'}))],S.league)}
 function standings(){return standingsForGroup(S.group)}
 function ps(p,key){if(S.stage==="regular")return n(p["regular_"+key]);if(S.stage==="playoffs")return n(p["playoff_"+key]);return n(p["regular_"+key])+n(p["playoff_"+key])}
 function qualificationPercent(){const value=Number(S.minGamesPercent??50);return Number.isFinite(value)?Math.max(0,Math.min(100,value)):50;}
@@ -858,7 +858,9 @@ function render(){
   sync();$("#minGamesField").hidden=!['goalies','points_average','defender_points_average','dim'].includes(S.kind);
   for(const kind of ['goalies','points_average','defender_points_average','dim']){const el=document.querySelector('[data-kind="'+kind+'"] small');if(el)el.textContent=(kind==='goalies'?'SV% · GAA':kind==='dim'?'(TA + INT + BS) / GP':L.t('Poäng per match'))+' · '+L.t('MINST')+' '+qualificationPercent()+' %';}
   if(S.kind==="roster")syncRosterPicker();$("#rosterTeamField").hidden=$("#rosterPlayersField").hidden=S.kind!=="roster";$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
-  $("#png").disabled=$("#svg").disabled=dataLoading||playerDataError&&needsPlayers();
+  const missingTieBreaks=S.league===527&&['table','groups'].includes(S.kind)&&(scheduleLoading||!!scheduleError);
+  if(missingTieBreaks)$("#preview").innerHTML='<div style="color:white;padding:30px">'+esc(scheduleError||L.t('HÄMTAR…'))+'</div>';
+  $("#png").disabled=$("#svg").disabled=dataLoading||playerDataError&&needsPlayers()||missingTieBreaks;
   $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches"){syncMatchEditor();syncManualEditor();}$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=S.kind==="roster"||S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table"||groupIds().length<=1;$("#countField").hidden=true;
 }
 function safe(){return (comp().code+(S.kind==="matches"?"-"+$("#matchDate").value+"-sida-"+(Number($("#matchPage").value)+1):"")+"-"+TIT[S.kind]).toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
@@ -912,6 +914,7 @@ $("#league").onchange=()=>{S.league=Number($("#league").value||527);S.group=null
 async function exportGraphic(type){
   if(dataLoading||playerDataError&&needsPlayers())return;
   if(S.kind==="matches"&&(scheduleLoading||scheduleError))return;
+  if(S.league===527&&['table','groups'].includes(S.kind)&&(scheduleLoading||scheduleError))return;
   const button=$("#"+type),label=button.textContent;
   $("#png").disabled=$("#svg").disabled=true;button.textContent=L.t("Exporterar…");
   try{await (type==="png"?expPng():expSvg())}catch(e){console.error("Graphics export:",e);$("#dataStatus").textContent=e.message;alert(e.message)}
