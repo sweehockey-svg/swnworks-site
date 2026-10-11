@@ -7,6 +7,7 @@ const assert=require('node:assert/strict');
 const root=path.join(__dirname,'../');
 const evidenceSource=fs.readFileSync(path.join(root,'supabase/functions/commentator-ai/evidence.ts'),'utf8');
 const edgeSource=fs.readFileSync(path.join(root,'supabase/functions/commentator-ai/index.ts'),'utf8');
+const history=stripTypeScriptTypes(fs.readFileSync(path.join(root,'supabase/functions/commentator-ai/history.ts'),'utf8').replace(/export /g,''));
 const jsSource=fs.readFileSync(path.join(root,'commentator-cockpit/hockeyettan/cockpit.js'),'utf8');
 const gid='11111111-1111-4111-8111-111111111111',tid='22222222-2222-4222-8222-222222222222';
 const evidence=stripTypeScriptTypes(evidenceSource.replace(/export /g,''));
@@ -39,7 +40,7 @@ function runtime({approved=true,authenticated=true,reportOutput,invalidRefs=fals
     }
   };
   const ctx={
-    Request,Response,console,createClient:()=>admin,
+    Request,Response,URL,console,createClient:()=>admin,
     Deno:{env:{get:()=> 'configured'},serve:fn=>{handler=fn;}},
     fetch:async(_url,options)=>{
       calls++;const body=JSON.parse(options.body);
@@ -53,7 +54,7 @@ function runtime({approved=true,authenticated=true,reportOutput,invalidRefs=fals
   };
   vm.createContext(ctx);
   const source=edgeSource.replace(/^import .*;\r?\n/gm,'');
-  vm.runInContext(evidence+'\n'+stripTypeScriptTypes(source),ctx);
+  vm.runInContext(evidence+'\n'+history+'\n'+stripTypeScriptTypes(source),ctx);
   return {queries,writes,get calls(){return calls;},request:async(body={})=>{
     const response=await handler(new Request('https://example.test',{method:'POST',headers:{Authorization:'Bearer token','Content-Type':'application/json'},body:JSON.stringify({game_id:gid,team_id:tid,...body})}));
     return {status:response.status,data:await response.json()};
@@ -112,8 +113,13 @@ test('saving a reviewed report point keeps its source and stays within the note 
 });
 test('source evidence renders as escaped text rather than executable HTML',()=>{
   const from=jsSource.indexOf('  function aiSourcesHtml('),to=jsSource.indexOf('  function aiBriefHtml(',from);
-  const ctx={esc:v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))};
-  vm.createContext(ctx);vm.runInContext(jsSource.slice(from,to),ctx);
+  const ctx={URL,esc:v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))};
+  const safeFrom=jsSource.indexOf('  function safeHistoryUrl('),safeTo=jsSource.indexOf('  async function bindPlayerHistory(',safeFrom);
+  vm.createContext(ctx);vm.runInContext(jsSource.slice(safeFrom,safeTo)+jsSource.slice(from,to),ctx);
   const html=ctx.aiSourcesHtml({sources:[{category:'editorial_notes',label:'<script>fake</script>',record:{body:'<img src=x onerror=alert(1)>',team_id:'hidden'}}]});
   assert.ok(!html.includes('<script>'));assert.ok(!html.includes('<img'));assert.match(html,/&lt;img/);assert.ok(!html.includes('hidden'));
+  const history=ctx.aiSourcesHtml({sources:[{category:'personal_player_history',record:{player_name:'Rasmus',source_url:'https://example.org/article?a=1&b=2'}},{category:'player_registrations',record:{source_url:'javascript:alert(1)'}}]});
+  assert.match(history,/href="https:\/\/example.org\/article\?a=1&amp;b=2"/);
+  assert.match(history,/Egen uppgift/);assert.match(history,/bevisar inte spelade matcher/);
+  assert.ok(!history.includes('href="javascript:'));
 });

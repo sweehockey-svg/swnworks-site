@@ -7,7 +7,8 @@ const text=(value:any,max=500)=>String(value??"").replace(/\s+/g," ").trim().sli
 const TITLES:any={
   game:"Matchöversikt",standings:"Tabell",form_last_5:"Senaste fem matcherna",h2h:"Inbördes möten",
   special_teams:"Special teams",top_skaters:"Spelarstatistik",goalies:"Målvaktsstatistik",
-  current_match_stats:"Aktuell matchstatistik",current_events:"Matchhändelse",editorial_notes:"Egen anteckning"
+  current_match_stats:"Aktuell matchstatistik",current_events:"Matchhändelse",editorial_notes:"Egen anteckning",
+  player_registrations:"Swehockey · truppregistrering",player_background:"Klubbens spelarbakgrund"
 };
 
 export function buildEvidenceCatalog(context:any,teamNames:any={}){

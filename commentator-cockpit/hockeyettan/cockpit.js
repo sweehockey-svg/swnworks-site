@@ -2565,10 +2565,12 @@
       game:"Matchöversikt",standings:"Tabell",form_last_5:"Senaste fem matcherna",h2h:"Inbördes möten",
       special_teams:"Special teams",top_skaters:"Spelarstatistik",goalies:"Målvaktsstatistik",
       current_match_stats:"Aktuell matchstatistik",current_events:"Matchhändelser",
-      editorial_notes:"Egna anteckningar",verified_stats:"Matchunderlag"
+      editorial_notes:"Egna anteckningar",verified_stats:"Matchunderlag",
+      player_registrations:"Swehockey · truppregistrering",player_background:"Klubbens spelarbakgrund",personal_player_history:"Egen spelarhistorik"
     };
     const fields={
       title:"Rubrik",body:"Anteckning",tags:"Taggar",updated_at:"Uppdaterad",observation:"Observation",detail:"Underlag",
+      player_name:"Spelare",season:"Säsong",club:"Klubb",league:"Serie",headline:"Rubrik",details:"Bakgrund",source_url:"Källänk",source_label:"Källa",record_type:"Typ av underlag",published_on:"Publicerad",checked_on:"Kontrollerad",
       rank:"Placering",games_played:"Matcher",wins:"Vinster",ties:"Oavgjorda",losses:"Förluster",
       goals_for:"Gjorda mål",goals_against:"Insläppta mål",goal_diff:"Målskillnad",points:"Poäng",
       source_name:"Spelare",jersey_number:"Nummer",position:"Position",goals:"Mål",assists:"Assist",
@@ -2591,12 +2593,12 @@
     const evidence=(record)=>Object.entries(record||{}).filter(([key,value])=>
       value!==null&&value!==undefined&&value!==""&&!/(^id$|_id$)/.test(key)
     ).map(([key,value])=>'<div><dt>'+esc(fields[key]||key.replace(/_/g," "))+'</dt><dd>'+
-      esc(valueText(key,value))+'</dd></div>').join("");
+      (key==="source_url"&&safeHistoryUrl(value)?'<a href="'+esc(safeHistoryUrl(value))+'" target="_blank" rel="noopener noreferrer">Öppna originalkällan</a>':esc(valueText(key,value)))+'</dd></div>').join("");
     const sources=Array.isArray(point.sources)?point.sources.slice(0,5):[];
     if(sources.length){
       return '<details class="ai-sources"><summary>VISA KÄLLA'+(sources.length>1?' · '+sources.length:'')+'</summary>'+
         sources.map((source)=>'<section><strong>'+esc(source.label||labels[source.category]||"Underlag")+'</strong>'+
-          (source.category==="editorial_notes"?'<p>Redaktionell anteckning · kontrollera mot originalkällan.</p>':'')+
+          (["editorial_notes","personal_player_history"].includes(source.category)?'<p>Egen uppgift · kontrollera mot originalkällan.</p>':source.category==="player_registrations"?'<p>Truppregistrering · bevisar inte spelade matcher eller övergångsdatum.</p>':'')+
           '<dl>'+evidence(source.record)+'</dl></section>').join("")+'</details>';
     }
     const refs=Array.isArray(point.source_refs)?point.source_refs:[];
