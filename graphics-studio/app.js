@@ -103,14 +103,24 @@ const swedishDay=date=>new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Stockho
 let matchDateOverrides={};
 try{const saved=JSON.parse(localStorage.getItem('swn-graphics-match-dates')||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))matchDateOverrides=saved;}catch{}
 const matchOverrideKey=g=>S.league+":"+g.id;
+let matchSideOverrides={};
+try{const saved=JSON.parse(localStorage.getItem('swn-graphics-match-sides')||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))matchSideOverrides=saved;}catch{}
+function displayedMatch(g){return matchSideOverrides[matchOverrideKey(g)]===true?{...g,home:g.away,away:g.home,homeScore:g.awayScore,awayScore:g.homeScore}:g;}
+function toggleMatchSides(){
+ const g=schedule.find(g=>String(g.id)===$("#matchEditSelect").value);if(!g)return;
+ const next={...matchSideOverrides},key=matchOverrideKey(g);if(next[key]===true)delete next[key];else next[key]=true;
+ try{localStorage.setItem('swn-graphics-match-sides',JSON.stringify(next));}catch{$("#matchEditStatus").textContent='Ändringen kunde inte sparas i webbläsaren.';return;}
+ matchSideOverrides=next;render();$("#matchEditStatus").textContent=next[key]?'Hemma och borta är bytta i grafiken. Lag och mål följer med.':'Originalets hemma- och bortalag är återställda.';
+}
 function effectiveMatchDay(g){const day=matchDateOverrides[matchOverrideKey(g)];return typeof day==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(day)?day:swedishDay(g.date)}
 function syncMatchEditor(){
  const select=$("#matchEditSelect"),selected=select.value;
- select.innerHTML=schedule.map(g=>'<option value="'+esc(g.id)+'">'+esc(effectiveMatchDay(g)+' · '+g.home+' – '+g.away+' · '+new Date(g.date).toLocaleTimeString('sv-SE',{timeZone:'Europe/Stockholm',hour:'2-digit',minute:'2-digit'}))+'</option>').join('');
+ select.innerHTML=schedule.map(original=>{const g=displayedMatch(original);return '<option value="'+esc(g.id)+'">'+esc(effectiveMatchDay(g)+' · '+g.home+' '+g.homeScore+' – '+g.awayScore+' '+g.away+' · '+new Date(g.date).toLocaleTimeString('sv-SE',{timeZone:'Europe/Stockholm',hour:'2-digit',minute:'2-digit'}))+'</option>';}).join('');
  if(schedule.some(g=>String(g.id)===selected))select.value=selected;
  const g=schedule.find(g=>String(g.id)===select.value);
  $("#matchEditDate").value=g?effectiveMatchDay(g):"";
- ["matchEditSelect","matchEditDate","matchEditSave","matchEditReset"].forEach(id=>$("#"+id).disabled=scheduleLoading||!!scheduleError||!g);
+ $("#matchEditSwap").textContent=g&&matchSideOverrides[matchOverrideKey(g)]===true?'Återställ hemma / borta':'Byt hemma / borta';
+ ["matchEditSelect","matchEditDate","matchEditSave","matchEditReset","matchEditSwap"].forEach(id=>$("#"+id).disabled=scheduleLoading||!!scheduleError||!g);
 }
 function saveMatchDate(reset=false){
  const g=schedule.find(g=>String(g.id)===$("#matchEditSelect").value),day=$("#matchEditDate").value;if(!g||(!reset&&!day))return;
@@ -152,7 +162,7 @@ function matchPages(games){
 function matchesSvg(){
   const {w:W,h:H}=format(),m=Math.round(W*.052),top=300;
   if(scheduleLoading||scheduleError)return base(svgText(W/2,H/2,scheduleError||'Hämtar rapporterade matcher…',26,'#a2b6c9',700,'text-anchor="middle"'));
-  let games=schedule.filter(g=>effectiveMatchDay(g)===$("#matchDate").value).map(g=>[new Date(g.date).toLocaleTimeString('sv-SE',{timeZone:'Europe/Stockholm',hour:'2-digit',minute:'2-digit'}),g.home,g.away,g.homeScore,g.awayScore]);
+  let games=schedule.filter(g=>effectiveMatchDay(g)===$("#matchDate").value).map(displayedMatch).map(g=>[new Date(g.date).toLocaleTimeString('sv-SE',{timeZone:'Europe/Stockholm',hour:'2-digit',minute:'2-digit'}),g.home,g.away,g.homeScore,g.awayScore]);
   if(!games.length)return base(svgText(W/2,H/2,'Inga rapporterade matcher på valt datum',28,'#a2b6c9',700,'text-anchor="middle"'));
   const pages=matchPages(games),pageCount=pages.length,pageSelect=$("#matchPage"),page=Math.min(Number(pageSelect.value)||0,pageCount-1);
   pageSelect.innerHTML=Array.from({length:pageCount},(_,i)=>'<option value="'+i+'"'+(i===page?' selected':'')+'>Sida '+(i+1)+' av '+pageCount+'</option>').join('');
@@ -838,6 +848,7 @@ $("#matchDate").value=new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Stockhol
 $("#matchEditSelect").addEventListener("change",syncMatchEditor);
 $("#matchEditSave").onclick=()=>saveMatchDate();
 $("#matchEditReset").onclick=()=>saveMatchDate(true);
+$("#matchEditSwap").onclick=toggleMatchSides;
 ["matchPage","matchDate","stage","group","count","format","bg","logos","sender"].forEach(id=>$("#"+id).addEventListener("change",render));
 try{$("#sender").value=localStorage.getItem('swn-graphics-sender')==='sportsgamer'?'sportsgamer':'seh';}catch{}
 $("#sender").addEventListener('change',()=>{try{localStorage.setItem('swn-graphics-sender',$("#sender").value);}catch{}});

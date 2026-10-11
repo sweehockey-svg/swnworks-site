@@ -68,11 +68,12 @@
       <div class="grid">
         <label id="matchDateField" hidden><span>MATCHDAG</span><input id="matchDate" type="date"></label>
         <div id="matchEditField" class="full" hidden>
-          <label><span>ÄNDRA DATUM PÅ EN MATCH</span><select id="matchEditSelect"></select></label>
+          <label><span>ÄNDRA EN MATCH</span><select id="matchEditSelect"></select></label>
+          <button class="refresh" id="matchEditSwap" type="button">Byt hemma / borta</button>
           <label><span>MATCHENS DATUM I GRAFIKEN</span><input id="matchEditDate" type="date"></label>
           <button class="refresh" id="matchEditSave" type="button">Spara matchdatum</button>
           <button class="refresh" id="matchEditReset" type="button">Återställ rapporteringsdatum</button>
-          <small id="matchEditStatus" role="status">Datumändringar sparas i den här webbläsaren och används i grafiken.</small>
+          <small id="matchEditStatus" role="status">Ändringar sparas i den här webbläsaren och används i grafiken. Vid byte av hemma / borta följer lag, loggor och mål med.</small>
         </div>
         <label id="matchPageField" hidden><span>SIDA · HÖGST 8 MATCHER PER BILD</span><select id="matchPage"><option value="0">Sida 1</option></select></label>
         <p id="matchListField" class="full" hidden>Rapporteringsdatum används automatiskt. Du kan välja ett annat datum för en enskild match nedan.</p>
@@ -112,7 +113,7 @@
 <script  type="text/plain" data-studio-src="https://www.svenskehockey.se/playerimages-manifest.js?v=20261006"></script>
 <script src="../broadcast-studio/broadcast-config.js?v=2"></script>
 <script  type="text/plain" data-studio-src="language.js?v=20261010-roster1"></script>
-<script  type="text/plain" data-studio-src="app.js?v=20261011-table-padding"></script>
+<script  type="text/plain" data-studio-src="app.js?v=20261011-match-sides"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script src="/studio-access.js?v=20261010-admin1"></script>
 </body>
 </html>
