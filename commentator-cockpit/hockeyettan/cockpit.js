@@ -3181,6 +3181,43 @@
   playerCardDialog.setAttribute('aria-labelledby','playerCardTitle');
   document.body.appendChild(playerCardDialog);
   let playerCardReturnFocus=null;
+  let playerHistoryRequest=0;
+  function safeHistoryUrl(value){
+    try{const url=new URL(value);return ['https:','http:'].includes(url.protocol)&&!url.username&&!url.password?url.href:null;}catch{return null;}
+  }
+  async function bindPlayerHistory(row){
+    const request=++playerHistoryRequest,ownerId=state.authUser?.id,container=playerCardDialog.querySelector('#playerHistory');
+    if(!row.player_id){container.textContent='Spelaren saknar en säker koppling till spelarregistret. Historik kan inte sparas ännu.';return;}
+    if(!ownerId){container.textContent='Logga in för att använda egen spelarhistorik.';return;}
+    const current=()=>request===playerHistoryRequest&&container.isConnected&&state.authUser?.id===ownerId;
+    const {data,error}=await client.from('commentator_player_history').select('id,season,club,league,details,source_url,checked_on,updated_at').eq('owner_id',ownerId).eq('player_id',row.player_id).order('season',{ascending:false});
+    if(!current())return;
+    if(error){container.textContent='Historiken kunde inte hämtas. Öppna fliken igen för att försöka på nytt.';return;}
+    let editingId=null;
+    container.innerHTML='<p>Egen klubbhistorik för ditt konto. Lägg in verifierade uppgifter med källänk. Uppgifterna ersätter inte Swehockeys data.</p><div>'+ (data||[]).map(item=>'<article class="player-card-game"><strong>'+esc(item.season)+' · '+esc(item.club)+'</strong><span>'+esc(item.league)+'</span><p>'+esc(item.details)+'</p>'+(safeHistoryUrl(item.source_url)?'<a href="'+esc(safeHistoryUrl(item.source_url))+'" target="_blank" rel="noopener noreferrer">Visa källa</a>':'')+'<small> · Kontrollerad '+esc(item.checked_on)+' · Egen uppgift</small><div><button type="button" data-history-edit="'+esc(item.id)+'">Redigera</button> <button type="button" data-history-delete="'+esc(item.id)+'">Ta bort</button></div></article>').join('')+'</div><h3 id="historyFormTitle">Lägg till klubb / övergång</h3><form id="historyForm"><div class="player-history-fields"><label>Säsong<input name="season" required maxlength="30" placeholder="2025/26"></label><label>Klubb<input name="club" required maxlength="120"></label><label>Liga<input name="league" maxlength="120"></label><label>Kontrollerad datum<input name="checked_on" type="date" required value="'+new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Stockholm',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())+'"></label><label class="history-wide">Källänk<input name="source_url" type="url" required maxlength="2000" placeholder="https://klubbens-webbplats/... "></label><label class="history-wide">Bakgrund / övergång / lån<textarea name="details" maxlength="1200" rows="3"></textarea></label></div><button type="submit">Spara historik</button> <button type="button" id="cancelHistoryEdit">Rensa formulär</button><p id="historyStatus" role="status"></p></form>';
+    const form=container.querySelector('#historyForm'),status=container.querySelector('#historyStatus');
+    const reset=()=>{editingId=null;form.reset();container.querySelector('#historyFormTitle').textContent='Lägg till klubb / övergång';};
+    container.querySelector('#cancelHistoryEdit').onclick=reset;
+    container.querySelectorAll('[data-history-edit]').forEach(button=>button.onclick=()=>{const item=data.find(item=>item.id===button.dataset.historyEdit);editingId=item.id;for(const field of ['season','club','league','source_url','checked_on','details'])form.elements.namedItem(field).value=item[field]||'';container.querySelector('#historyFormTitle').textContent='Redigera klubbhistorik';form.elements.namedItem('season').focus();});
+    container.querySelectorAll('[data-history-delete]').forEach(button=>button.onclick=async()=>{
+      if(!current())return;button.disabled=true;
+      const result=await client.from('commentator_player_history').delete().eq('id',button.dataset.historyDelete).eq('owner_id',ownerId).eq('player_id',row.player_id);
+      if(!current())return;
+      if(result.error){status.textContent='Kunde inte ta bort uppgiften.';button.disabled=false;return;}
+      await bindPlayerHistory(row);
+    });
+    form.onsubmit=async event=>{
+      event.preventDefault();if(!current())return;
+      const values=Object.fromEntries(new FormData(form)),url=safeHistoryUrl(values.source_url);
+      if(!url||!values.club.trim()||!values.season.trim()){status.textContent='Fyll i säsong, klubb och en giltig http- eller https-källänk.';return;}
+      const payload={...values,season:values.season.trim(),club:values.club.trim(),source_url:url,owner_id:ownerId,player_id:row.player_id,updated_at:new Date().toISOString()};
+      const buttons=[...container.querySelectorAll('button')];buttons.forEach(button=>button.disabled=true);status.textContent='Sparar…';
+      const result=editingId?await client.from('commentator_player_history').update(payload).eq('id',editingId).eq('owner_id',ownerId).eq('player_id',row.player_id):await client.from('commentator_player_history').insert(payload);
+      if(!current())return;
+      if(result.error){status.textContent='Kunde inte spara. Formuläret finns kvar; försök igen.';buttons.forEach(button=>button.disabled=false);return;}
+      await bindPlayerHistory(row);
+    };
+  }
   function openPlayerCard(row,tab='overview'){
     if(!row.player_id){
       const candidates=[...(state.searchRoster||[]),...state.seasonPlayerStats,...state.seasonGoalieStats].filter(item=>item.team_id===row.team_id&&sourceNameKey(humanSourceName(cleanLineupSourceName(item.source_name)))===sourceNameKey(humanSourceName(cleanLineupSourceName(row.source_name))));
@@ -3197,6 +3234,8 @@
       content='<div class="player-card-metrics">'+metric('Lag',getTeamName(row.team_id))+metric('Position',row.position||profile.primary_position)+metric('Ålder',age==null?null:age+' år')+metric('Född',profile.birth_date)+metric('Längd',profile.height_cm?profile.height_cm+' cm':null)+metric('Vikt',profile.weight_kg?profile.weight_kg+' kg':null)+metric('Fattning',profile.shoots_catches)+metric('Moderklubb',profile.youth_club)+'</div><p>Streck betyder att uppgiften saknas. Spelarbild och full karriärhistorik finns ännu inte i underlaget.</p>';
     }else if(tab==='stats'){
       content='<h3>Säsong</h3><div class="player-card-metrics">'+(goalie?metric('Matcher',goalie.games_played)+metric('SV%',goalie.save_pct)+metric('GAA',goalie.gaa)+metric('Vinster',goalie.wins)+metric('Förluster',goalie.losses):season?metric('Matcher',season.games_played)+metric('Mål',season.goals)+metric('Assist',season.assists)+metric('Poäng',season.points)+metric('Skott',season.shots)+metric('FO%',season.faceoff_pct)+metric('PIM',season.pim)+metric('+ / −',season.plus_minus):metric('Statistik','Ej publicerad'))+'</div><h3>Dagens match</h3>'+(goalie||row.position==='GK'?liveGoalieDetail(currentGoalieGameRow(row)):livePlayerDetail(currentPlayerGameRow(row)))+'<p>Liveuppgifter visas när de är publicerade för aktuell match.</p>';
+    }else if(tab==='history'){
+      content='<div id="playerHistory" aria-live="polite">Hämtar egen klubbhistorik…</div>';
     }else if(tab==='recent'){
       const games=(row.team_id===state.focusTeam?.id?state.focusForm:state.opponentForm)||[];
       const stats=(goalie||row.position==='GK'?state.recentGoalieStats:state.recentPlayerStats).filter(item=>item.team_id===row.team_id&&sameStatPlayer(item,row));
@@ -3206,11 +3245,12 @@
       content=notes.length?notes.map(note=>'<article class="player-card-game"><strong>'+esc(note.title||'Anteckning')+'</strong><p>'+esc(note.body)+'</p></article>').join(''):'<p>Inga spelaranteckningar för denna spelare.</p>';
       content+='<button type="button" id="playerCardNotes">Öppna Anteckningar</button>';
     }
-    playerCardDialog.innerHTML='<header><div><span>'+esc(getTeamName(row.team_id))+' · #'+esc(row.jersey_number??'–')+'</span><h2 id="playerCardTitle">'+nationalityMarkup(row.player_id)+esc(humanSourceName(cleanLineupSourceName(row.source_name)))+'</h2></div><button id="closePlayerCard" aria-label="Stäng spelarkort">×</button></header><nav aria-label="Spelarkort">'+[['overview','Översikt'],['stats','Statistik'],['recent','Senaste matcher'],['notes','Anteckningar']].map(([key,label])=>'<button type="button" data-card-tab="'+key+'" aria-pressed="'+(tab===key)+'">'+label+'</button>').join('')+'</nav><section>'+content+'</section>';
+    playerCardDialog.innerHTML='<header><div><span>'+esc(getTeamName(row.team_id))+' · #'+esc(row.jersey_number??'–')+'</span><h2 id="playerCardTitle">'+nationalityMarkup(row.player_id)+esc(humanSourceName(cleanLineupSourceName(row.source_name)))+'</h2></div><button id="closePlayerCard" aria-label="Stäng spelarkort">×</button></header><nav aria-label="Spelarkort">'+[['overview','Översikt'],['stats','Statistik'],['recent','Senaste matcher'],['history','Historik'],['notes','Anteckningar']].map(([key,label])=>'<button type="button" data-card-tab="'+key+'" aria-pressed="'+(tab===key)+'">'+label+'</button>').join('')+'</nav><section>'+content+'</section>';
     playerCardDialog.querySelector('#closePlayerCard').onclick=()=>playerCardDialog.close();
     playerCardDialog.querySelectorAll('[data-card-tab]').forEach(button=>button.onclick=()=>openPlayerCard(row,button.dataset.cardTab));
     playerCardDialog.querySelector('#playerCardNotes')?.addEventListener('click',()=>{playerCardDialog.close();renderDrawer('notes');});
     if(!playerCardDialog.open)playerCardDialog.showModal();
+    if(tab==='history')void bindPlayerHistory(row);
   }
   playerCardDialog.addEventListener('close',()=>{if(playerCardReturnFocus?.isConnected)playerCardReturnFocus.focus();});
   document.addEventListener('click',event=>{
