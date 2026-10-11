@@ -2962,6 +2962,25 @@
     '</div>';
   }
 
+  function lineupSeasonTotals(players,teamId){
+    const stats=state.seasonPlayerStats.filter(row=>row.team_id===teamId);
+    const seen=new Set();let goals=0,points=0,matched=0;
+    for(const player of players){
+      const name=sourceNameKey(humanSourceName(cleanLineupSourceName(player.source_name)));
+      const key=player.player_id||name;
+      if(seen.has(key))continue;seen.add(key);
+      const candidates=stats.filter(row=>player.player_id&&row.player_id?player.player_id===row.player_id:sourceNameKey(humanSourceName(cleanLineupSourceName(row.source_name)))===name);
+      if(candidates.length!==1)continue;
+      const row=candidates[0];
+      if(row.goals==null||row.points==null)continue;
+      goals+=Number(row.goals);points+=Number(row.points);matched++;
+    }
+    return {goals,points,matched,total:seen.size};
+  }
+  function lineupSeasonTotalsHtml(players,teamId){
+    const totals=lineupSeasonTotals(players,teamId);
+    return '<div class="lineup-season-totals"><span>SÄSONG · FEMMANS SPELARE</span><strong>'+ (totals.matched ? totals.goals+' mål · '+totals.points+' poäng' : 'Statistik saknas') +'</strong>'+(totals.matched<totals.total?'<small>Underlag för '+totals.matched+'/'+totals.total+' spelare · ofullständig summa</small>':'')+'</div>';
+  }
   function renderLineupTeam(teamId) {
     const ctx = lineupContextForTeam(teamId);
     const teamName = getTeamName(teamId);
@@ -2989,6 +3008,7 @@
       if (!line.length) return "";
       return '<article class="lineup-line">' +
         '<div class="lineup-line-head"><strong>' + lineNumber + ':A</strong><span>' + esc(teamName) + '</span></div>' +
+        lineupSeasonTotalsHtml([...byPos.values()],teamId)+
         '<div class="lineup-forwards">' +
           lineupSlot(byPos.get("LW"), "LW") +
           lineupSlot(byPos.get("CE"), "C") +
