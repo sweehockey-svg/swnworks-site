@@ -1254,7 +1254,7 @@
               (note.pinned?'<b>PINNAD</b>':'')+'</div>' +
               '<small>'+esc(shortDateOnly(note.updated_at||note.created_at))+'</small></div>' +
             (note.title?'<h3>'+esc(note.title)+'</h3>':'') +
-            '<p>'+esc(note.body)+'</p>' +
+            '<p>'+playerTextMarkup(note.body)+'</p>' +
             (tags?'<div class="note-tags">'+tags+'</div>':'') +
             '<div class="note-actions">' +
               '<button type="button" data-note-pin="'+esc(note.id)+'">'+(note.pinned?"TA BORT FRÅN STORY":"PINNA TILL STORY")+'</button>' +
@@ -2037,7 +2037,7 @@
           return '<div class="event-row ' + ((event.event_type === "goal" || isShootout) ? "goal" : "") + '">' +
             '<div class="event-time"><strong>' + esc(timePrimary) + '</strong><span>' + esc(timeSecondary) + '</span></div>' +
             '<div class="event-copy"><div><em>' + esc(label) + '</em>' + (rowTeamName ? '<span>' + esc(rowTeamName) + '</span>' : '') + '</div>' +
-            '<p>' + esc(event.description || "") + '</p></div>' +
+            '<p>' + playerTextMarkup(event.description,event.team_id) + '</p></div>' +
             '<div class="event-score">' + score + '</div>' +
           '</div>';
         }).join("") + '</div>'
@@ -2373,8 +2373,8 @@
     box.innerHTML=pinnedFactsHtml()+shown.map((fact,index)=>
       '<article class="fact-card '+(index===0?"primary ":"")+(fact.editorial?"editorial ":"")+'insight-card">' +
         '<span>'+esc(fact.tag)+'</span>' +
-        '<strong>'+esc(fact.title)+'</strong>' +
-        '<p>'+esc(fact.text)+'</p>' +
+        '<strong>'+playerTextMarkup(fact.title)+'</strong>' +
+        '<p>'+playerTextMarkup(fact.text)+'</p>' +
         '<button type="button" class="fact-pin" data-pin-quick="'+index+'" aria-pressed="'+aiWorkflowState().entries.some((entry)=>entry.pinned&&entry.key===aiPointKey(quickFactPoint(fact)))+'">'+(aiWorkflowState().entries.some((entry)=>entry.pinned&&entry.key===aiPointKey(quickFactPoint(fact)))?'LÖSGÖR FAKTA':'FÄST FAKTA')+'</button>' +
       '</article>'
     ).join("") + (!facts.length?'<article class="fact-card"><span>SNABBFAKTA</span><strong>Ingen verifierad fakta ännu.</strong><p>Väntar på mer matchdata.</p></article>':'') +
@@ -2414,7 +2414,7 @@
     if(!pinned.length&&!notes.length&&!aiWorkflowState().error) return '';
     return '<section class="pinned-facts"><h3>FÄST FAKTA · '+(pinned.length+notes.length)+'</h3><small>Pinnade NOTES + fästa fakta. Fästa fakta sparas i den här webbläsaren och uppdateras inte automatiskt.</small>'+
       (aiWorkflowState().error?'<p role="status">'+esc(aiWorkflowState().error)+'</p>':'')+
-      '<div class="pinned-facts-list">'+notes.map((note)=>'<article class="fact-card editorial"><span>NOTES · '+esc(noteScopeLabel(note))+'</span><strong>'+esc(note.title||'Anteckning')+'</strong><p>'+esc(note.body)+'</p></article>').join('')+
+      '<div class="pinned-facts-list">'+notes.map((note)=>'<article class="fact-card editorial"><span>NOTES · '+esc(noteScopeLabel(note))+'</span><strong>'+playerTextMarkup(note.title||'Anteckning')+'</strong><p>'+playerTextMarkup(note.body)+'</p></article>').join('')+
       pinned.map((entry,index)=>'<article class="fact-card"><span>SPARAD · '+esc(entry.point.label)+'</span><strong>'+esc(entry.point.text)+'</strong><button type="button" class="fact-pin" data-unpin-fact="'+index+'">LÖSGÖR FAKTA</button></article>').join('')+'</div></section>';
   }
 
@@ -2439,7 +2439,7 @@
       '<div class="story-grid">'+stories.map((fact,index)=>
         '<article class="story-card '+(fact.editorial?"editorial":"")+'">' +
           '<div class="story-index">'+String(index+1).padStart(2,"0")+'</div>' +
-          '<div><span>'+esc(fact.tag)+'</span><strong>'+esc(fact.title)+'</strong><p>'+esc(fact.text)+'</p></div>' +
+          '<div><span>'+esc(fact.tag)+'</span><strong>'+playerTextMarkup(fact.title)+'</strong><p>'+playerTextMarkup(fact.text)+'</p></div>' +
         '</article>'
       ).join("")+'</div>';
   }
@@ -2643,7 +2643,7 @@
     const usage=aiWorkflowState().entries.find((entry)=>entry.key===aiPointKey(point));
     return '<article class="ai-point '+(usage?.used?'ai-point-used':'')+'">'+
       '<b>'+String(index+1).padStart(2,"0")+'</b><div><span>'+esc(point.label||"PRATPUNKT")+'</span>'+
-      '<strong>'+esc(point.text||"")+'</strong><p>'+esc(point.why_now||"")+'</p>'+
+      '<strong>'+playerTextMarkup(point.text||"")+'</strong><p>'+esc(point.why_now||"")+'</p>'+
       aiSourcesHtml(point)+
       '<div class="ai-point-actions">'+
         '<button type="button" data-ai-action="used" data-ai-location="'+location+'" data-ai-index="'+index+'" aria-pressed="'+Boolean(usage?.used)+'">'+
@@ -3173,8 +3173,38 @@
       .sort((a,b)=>teams.indexOf(a.team_id)-teams.indexOf(b.team_id)||Number(a.jersey_number||0)-Number(b.jersey_number||0));
   }
 
-  function playerCardLink(row){
-    return '<button type="button" class="player-card-link" data-player-card="'+esc(JSON.stringify({team_id:row.team_id,player_id:row.player_id,source_name:row.source_name,jersey_number:row.jersey_number,position:row.position}))+'">'+nationalityMarkup(row.player_id)+esc(humanSourceName(cleanLineupSourceName(row.source_name)))+'</button>';
+  function playerTextMarkup(value,teamId){
+    const text=String(value||'');
+    const candidates=[...(state.searchRoster||[]),...state.seasonPlayerStats,...state.seasonGoalieStats,...state.recentPlayerStats,...state.recentGoalieStats,...state.currentPlayerStats,...state.currentGoalieStats];
+    const matches=[];
+    for(const row of candidates){
+      if(teamId&&row.team_id!==teamId)continue;
+      const name=humanSourceName(cleanLineupSourceName(row.source_name||''));
+      if(name.length<5)continue;
+      const start=text.toLocaleLowerCase('sv-SE').indexOf(name.toLocaleLowerCase('sv-SE'));
+      if(start<0)continue;
+      const before=text[start-1]||'',after=text[start+name.length]||'';
+      if(/[\p{L}]/u.test(before)||/[\p{L}]/u.test(after))continue;
+      const existing=matches.find(item=>item.start===start&&item.end===start+name.length);
+      if(existing){if(existing.row.player_id!==row.player_id||existing.row.team_id!==row.team_id)existing.ambiguous=true;continue;}
+      matches.push({start,end:start+name.length,row});
+    }
+    // Historical match participants can belong to the previous opponent.
+    // Keep their original name, number and team even if no profile is loaded.
+    if(teamId)for(const match of text.matchAll(/#(\d+)\s+([^#(),·]+?)(?=\s*\(\d+\)|\s*·|,\s*#|$)/g)){
+      const name=match[2].trim(),start=match.index+match[0].indexOf(match[2]);
+      if(name.includes('Ass:')||matches.some(item=>start>=item.start&&start<item.end))continue;
+      matches.push({start,end:start+name.length,row:{team_id:teamId,source_name:name,jersey_number:Number(match[1])}});
+    }
+    let result='',cursor=0;
+    for(const item of matches.filter(item=>!item.ambiguous).sort((a,b)=>a.start-b.start||b.end-a.end)){
+      if(item.start<cursor)continue;
+      result+=esc(text.slice(cursor,item.start))+playerCardLink(item.row,text.slice(item.start,item.end));cursor=item.end;
+    }
+    return result+esc(text.slice(cursor));
+  }
+  function playerCardLink(row,label){
+    return '<button type="button" class="player-card-link" data-player-card="'+esc(JSON.stringify({team_id:row.team_id,player_id:row.player_id,source_name:row.source_name,jersey_number:row.jersey_number,position:row.position}))+'">'+(label==null?nationalityMarkup(row.player_id)+esc(humanSourceName(cleanLineupSourceName(row.source_name))):esc(label))+'</button>';
   }
   const playerCardDialog=document.createElement('dialog');
   playerCardDialog.id='playerCardDialog';
@@ -3266,7 +3296,7 @@
       content='<p>Senaste fem matcher med publicerad individuell statistik i vårt underlag.</p>'+games.slice(0,5).map(game=>{const stat=stats.find(item=>item.game_id===game.id),opponent=game.home_team_id===row.team_id?game.away_team_id:game.home_team_id;return '<article class="player-card-game"><strong>'+esc(swedishDate(game.scheduled_start))+' · '+esc(getTeamName(opponent))+'</strong><span>'+esc(game.home_score??'–')+'–'+esc(game.away_score??'–')+' · '+(stat?goalie||row.position==='GK'?esc(stat.saves??'–')+'/'+esc(stat.shots_against??'–')+' räddningar · GAA '+esc(stat.gaa??'–'):esc(stat.goals??'–')+' mål · '+esc(stat.assists??'–')+' assist · '+esc(stat.points??'–')+' poäng':'Individuell matchstatistik saknas')+'</span></article>';}).join('');
     }else{
       const notes=row.player_id?currentEditorialNotes().filter(note=>note.scope_type==='player'&&note.player_id===row.player_id&&(!note.team_id||note.team_id===row.team_id)):[];
-      content=notes.length?notes.map(note=>'<article class="player-card-game"><strong>'+esc(note.title||'Anteckning')+'</strong><p>'+esc(note.body)+'</p></article>').join(''):'<p>Inga spelaranteckningar för denna spelare.</p>';
+      content=notes.length?notes.map(note=>'<article class="player-card-game"><strong>'+playerTextMarkup(note.title||'Anteckning')+'</strong><p>'+playerTextMarkup(note.body)+'</p></article>').join(''):'<p>Inga spelaranteckningar för denna spelare.</p>';
       content+='<button type="button" id="playerCardNotes">Öppna Anteckningar</button>';
     }
     playerCardDialog.innerHTML='<header><div><span>'+esc(getTeamName(row.team_id))+' · #'+esc(row.jersey_number??'–')+'</span><h2 id="playerCardTitle">'+nationalityMarkup(row.player_id)+esc(humanSourceName(cleanLineupSourceName(row.source_name)))+'</h2></div><button id="closePlayerCard" aria-label="Stäng spelarkort">×</button></header><nav aria-label="Spelarkort">'+[['overview','Översikt'],['stats','Statistik'],['recent','Senaste matcher'],['history','Historik'],['notes','Anteckningar']].map(([key,label])=>'<button type="button" data-card-tab="'+key+'" aria-pressed="'+(tab===key)+'">'+label+'</button>').join('')+'</nav><section>'+content+'</section>';
@@ -3277,10 +3307,26 @@
     if(tab==='history')void bindPlayerHistory(row);
   }
   playerCardDialog.addEventListener('close',()=>{playerCardBackdropPress=false;if(playerCardReturnFocus?.isConnected)playerCardReturnFocus.focus();});
-  document.addEventListener('click',event=>{
+  let playerCardOpenRequest=0;
+  document.addEventListener('click',async event=>{
     const button=event.target.closest?.('[data-player-card]');
     if(!button)return;
-    playerCardReturnFocus=button;openPlayerCard(JSON.parse(button.dataset.playerCard));
+    const request=++playerCardOpenRequest,row=JSON.parse(button.dataset.playerCard);
+    if(!row.player_id&&row.team_id){
+      const {data}=await client.from('team_rosters').select('player_id,source_name,jersey_number,position').eq('team_id',row.team_id);
+      const candidates=(data||[]).filter(item=>sourceNameKey(humanSourceName(cleanLineupSourceName(item.source_name)))===sourceNameKey(row.source_name));
+      const ids=new Set(candidates.map(item=>item.player_id).filter(Boolean));
+      if(ids.size===1){
+        row.player_id=candidates.find(item=>item.player_id).player_id;
+        row.position=candidates.find(item=>item.player_id===row.player_id).position;
+        if(!state.playerProfiles.has(row.player_id)){
+          const {data:profile}=await client.from('players').select('id,display_name,birth_date,nationality_code,shoots_catches,primary_position,height_cm,weight_kg,youth_club').eq('id',row.player_id).maybeSingle();
+          if(profile)state.playerProfiles.set(row.player_id,profile);
+        }
+      }
+    }
+    if(request!==playerCardOpenRequest)return;
+    playerCardReturnFocus=button;openPlayerCard(row);
   });
   function playerSearchResults(query) {
     if(!String(query||'').trim()) return '<p class="search-hint">Sök i båda lagen, även målvakter. Nummer matchas exakt.</p>';
@@ -3294,7 +3340,7 @@
       const notes=currentEditorialNotes().filter((note)=>note.scope_type==='player'&&note.player_id===row.player_id&&(!note.team_id||note.team_id===row.team_id));
       return '<article class="drawer-card player-search-card"><span>'+esc(getTeamName(row.team_id))+' · '+esc(goalie?'Målvakt':row.position||'Position ej publicerad')+'</span><strong>#'+esc(row.jersey_number??'–')+' '+playerCardLink(row)+'</strong><span>SÄSONG · '+esc(detail)+'</span>'+
         (goalie?liveGoalieDetail(currentGoalieGameRow(row)):livePlayerDetail(currentPlayerGameRow(row)))+
-        notes.map((note)=>'<p>NOTES · '+esc(note.title?note.title+': ':'')+esc(note.body)+'</p>').join('')+'</article>';
+        notes.map((note)=>'<p>NOTES · '+esc(note.title?note.title+': ':'')+playerTextMarkup(note.body)+'</p>').join('')+'</article>';
     }).join('');
   }
 
@@ -3739,7 +3785,7 @@
     const notes=currentEditorialNotes().filter((note)=>note.pinned);
     const points=aiWorkflowState().entries.filter((entry)=>entry.paused);
     return '<section class="pause-editorial"><h3>ATT TA UPP I PAUSEN · '+(notes.length+points.length)+'</h3><p>Matchens pinnade NOTES och dina sparade AI-punkter. Redaktionellt underlag.</p>'+
-      notes.map((note)=>'<article class="drawer-card"><span>NOTES · '+esc(noteScopeLabel(note))+'</span><strong>'+esc(note.title||'Anteckning')+'</strong><span>'+esc(note.body)+'</span></article>').join('')+
+      notes.map((note)=>'<article class="drawer-card"><span>NOTES · '+esc(noteScopeLabel(note))+'</span><strong>'+playerTextMarkup(note.title||'Anteckning')+'</strong><span>'+playerTextMarkup(note.body)+'</span></article>').join('')+
       points.map((entry)=>'<article class="drawer-card"><span>SPARAD AI-PUNKT'+(entry.used?' · REDAN ANVÄND':'')+'</span><strong>'+esc(entry.point.text)+'</strong>'+aiSourcesHtml(entry.point)+'</article>').join('')+
       (!notes.length&&!points.length?'<div class="notes-empty"><span>Pinna en anteckning i NOTES eller välj SPARA TILL PAUS i AI för att samla punkter här.</span></div>':'')+'</section>';
   }
@@ -3817,7 +3863,7 @@
           return '<div class="studio-event '+event.event_type+'">' +
             '<div><span>'+esc(event.clock_display||"–")+'</span><b>'+label+'</b></div>' +
             '<strong>'+esc(event.team_id?getTeamName(event.team_id):"")+'</strong>' +
-            '<p>'+esc(event.description||"")+'</p>' +
+            '<p>'+playerTextMarkup(event.description,event.team_id)+'</p>' +
           '</div>';
         }).join("")+'</div>'
       : '<div class="drawer-card"><strong>Inga mål eller utvisningar i perioden</strong><span>Eventflödet innehåller inga sådana händelser ännu.</span></div>';
@@ -3834,7 +3880,7 @@
     '</div>' +
     '<div class="studio-section-title"><span>3 TALKING POINTS</span><small>VERIFIERAD DATA</small></div>' +
     '<div class="studio-talking-points">'+talkingPoints.map((point,index)=>
-      '<article><b>'+String(index+1).padStart(2,"0")+'</b><div><span>'+esc(point.tag)+'</span><strong>'+esc(point.title)+'</strong><p>'+esc(point.text)+'</p></div></article>'
+      '<article><b>'+String(index+1).padStart(2,"0")+'</b><div><span>'+esc(point.tag)+'</span><strong>'+playerTextMarkup(point.title)+'</strong><p>'+playerTextMarkup(point.text)+'</p></div></article>'
     ).join("")+'</div>' +
     '<div class="studio-section-title"><span>PERIODENS HÄNDELSER</span><small>'+esc(periodLabel(period))+'</small></div>' +
     eventsHtml+studioEditorialHtml(game);
@@ -3956,7 +4002,7 @@
       if(isGoalie){
         const recent=aggregateRecentGoalie(row);
         return '<div class="overview-watch-row"><b>#'+esc(row.jersey_number??"–")+'</b><div><strong>'+
-          nationalityMarkup(row.player_id)+esc(humanSourceName(row.source_name))+'</strong><span>'+
+          playerCardLink(row)+'</strong><span>'+
           esc([age!=null?age+" år":null,"MV",formatPct(row.save_pct),row.gaa!=null?"GAA "+Number(row.gaa).toLocaleString("sv-SE",{maximumFractionDigits:2}):null].filter(Boolean).join(" · "))+
           '</span><small>S5 '+esc(recent.games)+' GP · '+esc(formatPct(recent.savePct))+' SV%</small></div></div>';
       }
@@ -3969,7 +4015,7 @@
         row.power_play_goals!=null?"PP-mål "+Number(row.power_play_goals||0):null
       ].filter(Boolean).join(" · ");
       return '<div class="overview-watch-row"><b>#'+esc(row.jersey_number??"–")+'</b><div><strong>'+
-        nationalityMarkup(row.player_id)+esc(humanSourceName(row.source_name))+'</strong><span>'+esc(extra)+
+        playerCardLink(row)+'</strong><span>'+esc(extra)+
         '</span><small>S5 '+esc(recent.games)+' GP · '+esc(recent.goals)+'+'+esc(recent.assists)+' · '+esc(recent.points)+' P'+
         (profile?.youth_club?' · moderklubb '+esc(profile.youth_club):'')+'</small></div></div>';
     }).join("")+'</div>';
@@ -4008,7 +4054,7 @@
         '<section><h3>HÅLL KOLL PÅ · '+esc(state.opponent.canonical_name)+'</h3>'+overviewWatchPlayers(state.opponent.id)+'</section>'+
       '</div>'+
       '<section class="pregame-stories"><h3>VIKTIGA VINKLAR</h3>'+
-        (stories.length?stories.map((fact)=>'<article><span>'+esc(fact.tag)+'</span><strong>'+esc(fact.title)+'</strong><small>'+esc(fact.text)+'</small></article>').join("")
+        (stories.length?stories.map((fact)=>'<article><span>'+esc(fact.tag)+'</span><strong>'+playerTextMarkup(fact.title)+'</strong><small>'+playerTextMarkup(fact.text)+'</small></article>').join("")
           :'<div class="overview-empty">Väntar på verifierade storylines.</div>')+
       '</section>'+
     '</section>';
@@ -4291,8 +4337,8 @@
     document.title=state.focusTeam.canonical_name+" · Commentator Cockpit";
     document.querySelector(".league-home-hero h2").textContent=state.focusTeam.canonical_name;
     document.querySelector(".league-home-hero p").textContent="Ingen match är importerad för laget i den här serien ännu. Anteckningar och tillgänglig säsongsstatistik kan användas som vanligt.";
-    const rows=state.seasonPlayerStats.map((row)=>'<article class="drawer-card"><strong>'+esc(humanSourceName(row.source_name))+'</strong><span>'+esc(row.games_played??"–")+' matcher · '+esc(row.goals??"–")+' mål · '+esc(row.assists??"–")+' assist · '+esc(row.points??"–")+' poäng</span></article>').join("");
-    const goalies=state.seasonGoalieStats.map((row)=>'<article class="drawer-card"><strong>'+esc(humanSourceName(row.source_name))+'</strong><span>'+esc(row.games_played??"–")+' matcher · SV% '+esc(formatPct(row.save_pct))+' · GAA '+esc(row.gaa??"–")+'</span></article>').join("");
+    const rows=state.seasonPlayerStats.map((row)=>'<article class="drawer-card"><strong>'+playerCardLink(row)+'</strong><span>'+esc(row.games_played??"–")+' matcher · '+esc(row.goals??"–")+' mål · '+esc(row.assists??"–")+' assist · '+esc(row.points??"–")+' poäng</span></article>').join("");
+    const goalies=state.seasonGoalieStats.map((row)=>'<article class="drawer-card"><strong>'+playerCardLink(row)+'</strong><span>'+esc(row.games_played??"–")+' matcher · SV% '+esc(formatPct(row.save_pct))+' · GAA '+esc(row.gaa??"–")+'</span></article>').join("");
     const special=state.seasonSpecialTeams.map((row)=>'<article class="drawer-card"><strong>Special teams</strong><span>PP '+esc(formatPct(row.pp_pct))+' · BP '+esc(formatPct(row.pk_pct))+'</span></article>').join("");
     document.getElementById("teamGrid").innerHTML='<section class="league-access-gate"><span>LAGARBETSYTA</span><strong>Ingen kommande match</strong><div class="league-gate-actions"><button type="button" id="noMatchNotes">ÖPPNA ANTECKNINGAR</button><button type="button" id="noMatchReload">UPPDATERA MATCHER</button></div>'+rows+goalies+special+(!rows&&!goalies&&!special?'<p>Ingen säsongsstatistik är importerad ännu.</p>':'')+'</section>';
     document.getElementById("noMatchNotes").addEventListener("click",()=>renderDrawer("notes"));
