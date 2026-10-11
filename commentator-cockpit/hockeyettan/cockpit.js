@@ -3234,6 +3234,16 @@
   function safeHistoryUrl(value){
     try{const url=new URL(value);return ['https:','http:'].includes(url.protocol)&&!url.username&&!url.password?url.href:null;}catch{return null;}
   }
+  function rosterHistoryRowHtml(item){
+    const leagues=[...new Set(item.sources.map(source=>String(source.league||'').trim()).filter(Boolean))];
+    const sources=new Map();
+    for(const source of item.sources){
+      const url=safeHistoryUrl(source.source_url);
+      if(url&&!sources.has(url))sources.set(url,source);
+    }
+    return '<article class="player-card-game player-history-row"><strong>'+esc(item.season)+' · '+esc(item.club)+'</strong><span>'+esc(leagues.join(' · '))+'</span>'+
+      (sources.size?'<details class="player-history-sources"><summary>Visa källor · '+sources.size+'</summary><div>'+Array.from(sources.entries()).map(([url,source],index)=>'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Källa '+(index+1)+(source.league?' · '+esc(source.league):'')+'</a>').join('')+'</div></details>':'')+'</article>';
+  }
   async function bindPlayerHistory(row){
     const request=++playerHistoryRequest,ownerId=state.authUser?.id,container=playerCardDialog.querySelector('#playerHistory');
     if(!row.player_id){container.textContent='Spelaren saknar en säker koppling till spelarregistret. Historik kan inte sparas ännu.';return;}
@@ -3256,7 +3266,7 @@
       if(!seasons.has(key))seasons.set(key,{season:item.season,club:item.club,sources:[]});
       seasons.get(key).sources.push(item);
     }
-    automaticSection.innerHTML='<h3>Klubbhistorik från Swehockey</h3><p>Importerade truppregistreringar, matchade på namn och födelsedatum. Registrering visar inte att spelaren spelat matcher eller när en övergång skedde. Underlaget täcker delar av tidigare svenska säsonger och kan vara ofullständigt.</p>'+ (automatic.error?'<p role="status">Swehockey-historiken kunde inte hämtas. Öppna fliken igen för att försöka på nytt.</p>':seasons.size?Array.from(seasons.values()).map(item=>'<article class="player-card-game player-history-row"><strong>'+esc(item.season)+' · '+esc(item.club)+'</strong><span>Registrerad i truppen</span><div>'+item.sources.map(source=>'<p>'+esc(source.league)+' · <a href="'+esc(safeHistoryUrl(source.source_url))+'" target="_blank" rel="noopener noreferrer">Swehockey: trupp</a></p>').join('')+'</div></article>').join(''):'<p>Ingen äldre klubbregistrering hittades för spelaren i det importerade underlaget.</p>')+'<h3>Egna kompletteringar</h3>';
+    automaticSection.innerHTML='<h3>Klubbhistorik från Swehockey</h3><p>Importerade truppregistreringar, matchade på namn och födelsedatum. Registrering visar inte att spelaren spelat matcher eller när en övergång skedde. Underlaget täcker delar av tidigare svenska säsonger och kan vara ofullständigt.</p>'+ (automatic.error?'<p role="status">Swehockey-historiken kunde inte hämtas. Öppna fliken igen för att försöka på nytt.</p>':seasons.size?Array.from(seasons.values()).map(rosterHistoryRowHtml).join(''):'<p>Ingen äldre klubbregistrering hittades för spelaren i det importerade underlaget.</p>')+'<h3>Egna kompletteringar</h3>';
     container.prepend(automaticSection);
     if(background.error||(background.data||[]).length){
       const backgroundSection=document.createElement('section');
