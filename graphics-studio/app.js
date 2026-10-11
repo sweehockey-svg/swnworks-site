@@ -843,16 +843,23 @@ function dl(blob,name){const a=document.createElement("a");a.href=URL.createObje
 function dataUrl(blob){return new Promise((ok,no)=>{const f=new FileReader();f.onload=()=>ok(f.result);f.onerror=no;f.readAsDataURL(blob)})}
 let logoAssetsPromise;
 async function inline(svg){
-  logoAssetsPromise ||= fetch('logo-assets.json?v=20261009-wv-41',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Loggorna kunde inte laddas. Uppdatera sidan och försök igen.');return r.json()});
+  logoAssetsPromise ||= fetch('logo-assets.json?v=20261011-export-logos',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Loggorna kunde inte laddas. Uppdatera sidan och försök igen.');return r.json()}).catch(error=>{logoAssetsPromise=null;throw new Error('Bildcachen kunde inte hämtas. Försök exportera igen.');});
   const logoAssets=await logoAssetsPromise;
   const d=new DOMParser().parseFromString(svg,"image/svg+xml"),ims=[...d.querySelectorAll("image")];
   const images=new Map();
   await Promise.all(ims.map(async el=>{
     const h=el.getAttribute('href')||'';if(!h||h.startsWith('data:'))return;
     if(!images.has(h))images.set(h,(async()=>{
-      const r=await fetch(logoAssets[h]||h,{mode:'cors',cache:'no-store',signal:AbortSignal.timeout(15000)});
-      if(!r.ok)throw new Error('En bild kunde inte exporteras. Uppdatera sidan och försök igen.');
-      return dataUrl(await r.blob());
+      const source=logoAssets[h]||h;
+      if(source.startsWith('data:'))return source;
+      try{
+        const r=await fetch(source,{mode:'cors',cache:'no-store',signal:AbortSignal.timeout(15000)});
+        if(!r.ok)throw new Error('HTTP '+r.status);
+        return await dataUrl(await r.blob());
+      }catch(error){
+        const filename=new URL(h,location.href).pathname.split('/').pop();
+        throw new Error('Bilden '+filename+' kunde inte exporteras. Uppdatera sidan och försök igen.');
+      }
     })());
     // Never silently remove images: an incomplete export is not a success.
     el.setAttribute('href',await images.get(h));
