@@ -219,7 +219,7 @@ function matchesSvg(){
   }).join(''));
 }
 function title(){return ($("#title").value||(S.kind==="roster"?rosterTeamName():TIT[S.kind])).trim().toUpperCase()}
-function subtitle(){if(S.kind==="roster")return ($("#subtitle").value||L.t("LAGPRESENTATION")+" · "+comp().label).toUpperCase();if(S.kind==="matches")return ($("#subtitle").value||matchDayLabel()+" · "+comp().label).toUpperCase();return ($("#subtitle").value||(S.kind==="table"?stageName()+" · "+groupName(S.group):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label)).trim().toUpperCase()}
+function subtitle(){if(S.kind==="roster")return ($("#subtitle").value||L.t("LAGPRESENTATION")+" · "+comp().label).toUpperCase();if(S.kind==="matches")return ($("#subtitle").value||matchDayLabel()+" · "+comp().label).toUpperCase();return ($("#subtitle").value||(S.kind==="table"?stageName()+(groupIds().length>1?" · "+groupName(S.group):""):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label)).trim().toUpperCase()}
 function defs(){return '<defs><linearGradient id="silver" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#edf1f4"/><stop offset=".8" stop-color="#a2adb6"/><stop offset="1" stop-color="#fff"/></linearGradient><linearGradient id="gold"><stop stop-color="#ffd95f"/><stop offset=".5" stop-color="#ffbd00"/><stop offset="1" stop-color="#d88700"/></linearGradient><linearGradient id="panel" x2="1" y2="1"><stop stop-color="#071d2c" stop-opacity=".97"/><stop offset="1" stop-color="#020b12" stop-opacity=".98"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#000" flood-opacity=".58"/></filter></defs>'}
 function background(W,H){
   const glow=(id,color,x,y)=>'<radialGradient id="'+id+'"><stop stop-color="'+color+'" stop-opacity=".48"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient>';
@@ -640,7 +640,7 @@ function base(content){
     (c.logo?'<image href="'+esc(c.logo)+'" x="'+(m+20)+'" y="40" width="72" height="72" preserveAspectRatio="xMidYMid meet"/>':'')+
     svgText(m+112,72,c.label,27,"#f4f7fa",800)+svgText(m+112,97,"SVENSK eHOCKEY",12,"#a2b6c9",700,'letter-spacing="2.4"')+
     '<line x1="'+m+'" y1="132" x2="'+(W-m)+'" y2="132" stroke="#7b9ab6" opacity=".24"/>'+
-    svgText(m,178,subtitle()+(['table','groups'].includes(S.kind)&&manualMatches.some(g=>Number(g.league)===S.league)?' · PRELIMINÄR':'') ,15,"#ffcf4a",700,'letter-spacing="3"')+svgText(m,252,title(),headingSize,"#f4f7fa",900,'letter-spacing="-2"')+
+    svgText(m,178,subtitle()+(['table','groups'].includes(S.kind)&&manualMatches.some(g=>Number(g.league)===S.league)?' · '+L.t('PRELIMINÄR'):'') ,15,"#ffcf4a",700,'letter-spacing="3"')+svgText(m,252,title(),headingSize,"#f4f7fa",900,'letter-spacing="-2"')+
     (rosterLogo?img(rosterLogo,W-m-rosterLogoSize,190,rosterLogoSize):'')+content+'<line x1="'+m+'" y1="'+(H-65)+'" x2="'+(W-m)+'" y2="'+(H-65)+'" stroke="#7b9ab6" opacity=".24"/>'+
     svgText(m,H-33,"SVENSK eHOCKEY",13,"#a2b6c9",700,'letter-spacing="1.5"')+
     svgText(W-m,H-33,"SWNWORKS",13,"#a2b6c9",700,'text-anchor="end" letter-spacing="2"')+'</svg>';
@@ -850,7 +850,7 @@ function build(){
 function render(){
   sync();if(S.kind==="roster")syncRosterPicker();$("#rosterTeamField").hidden=$("#rosterPlayersField").hidden=S.kind!=="roster";$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
   $("#png").disabled=$("#svg").disabled=dataLoading||playerDataError&&needsPlayers();
-  $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches"){syncMatchEditor();syncManualEditor();}$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=S.kind==="roster"||S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table";$("#countField").hidden=true;
+  $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches"){syncMatchEditor();syncManualEditor();}$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=S.kind==="roster"||S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table"||groupIds().length<=1;$("#countField").hidden=true;
 }
 function safe(){return (comp().code+(S.kind==="matches"?"-"+$("#matchDate").value+"-sida-"+(Number($("#matchPage").value)+1):"")+"-"+TIT[S.kind]).toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1200)}
