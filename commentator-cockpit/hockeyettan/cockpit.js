@@ -3180,6 +3180,18 @@
   playerCardDialog.id='playerCardDialog';
   playerCardDialog.setAttribute('aria-labelledby','playerCardTitle');
   document.body.appendChild(playerCardDialog);
+  const outsidePlayerCard=event=>{
+    const bounds=playerCardDialog.getBoundingClientRect();
+    return event.clientX<bounds.left||event.clientX>bounds.right||event.clientY<bounds.top||event.clientY>bounds.bottom;
+  };
+  let playerCardBackdropPress=false;
+  playerCardDialog.addEventListener('pointerdown',event=>{
+    playerCardBackdropPress=event.target===playerCardDialog&&outsidePlayerCard(event);
+  });
+  playerCardDialog.addEventListener('click',event=>{
+    if(playerCardBackdropPress&&event.target===playerCardDialog&&outsidePlayerCard(event))playerCardDialog.close();
+    playerCardBackdropPress=false;
+  });
   let playerCardReturnFocus=null;
   let playerHistoryRequest=0;
   function safeHistoryUrl(value){
@@ -3264,7 +3276,7 @@
     if(!playerCardDialog.open)playerCardDialog.showModal();
     if(tab==='history')void bindPlayerHistory(row);
   }
-  playerCardDialog.addEventListener('close',()=>{if(playerCardReturnFocus?.isConnected)playerCardReturnFocus.focus();});
+  playerCardDialog.addEventListener('close',()=>{playerCardBackdropPress=false;if(playerCardReturnFocus?.isConnected)playerCardReturnFocus.focus();});
   document.addEventListener('click',event=>{
     const button=event.target.closest?.('[data-player-card]');
     if(!button)return;
