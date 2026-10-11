@@ -5013,3 +5013,4 @@ html[data-topbar-hidden="true"] #showTopbar{position:fixed;top:8px;right:20px;z-
 .player-history-row>div{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px}
 .player-history-row p{margin:0;font-size:13px;line-height:1.5}
 .player-history-row small{font-size:11px;color:#a2b6c9}
+#playerCardDialog{width:min(1320px,96vw)}
