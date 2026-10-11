@@ -3232,9 +3232,10 @@
     if(!row.player_id){container.textContent='Spelaren saknar en säker koppling till spelarregistret. Historik kan inte sparas ännu.';return;}
     if(!ownerId){container.textContent='Logga in för att använda egen spelarhistorik.';return;}
     const current=()=>request===playerHistoryRequest&&container.isConnected&&state.authUser?.id===ownerId;
-    const [{data,error},automatic]=await Promise.all([
+    const [{data,error},automatic,background]=await Promise.all([
       client.from('commentator_player_history').select('id,season,club,league,details,source_url,checked_on,updated_at').eq('owner_id',ownerId).eq('player_id',row.player_id).order('season',{ascending:false}),
-      client.from('swehockey_player_history').select('season,club,league,source_url,checked_at').eq('player_id',row.player_id).order('season',{ascending:false})
+      client.from('swehockey_player_history').select('season,club,league,source_url,checked_at').eq('player_id',row.player_id).order('season',{ascending:false}),
+      client.from('player_background_sources').select('headline,details,source_label,source_url,published_on').eq('player_id',row.player_id).order('published_on',{ascending:false})
     ]);
     if(!current())return;
     if(error){container.textContent='Historiken kunde inte hämtas. Öppna fliken igen för att försöka på nytt.';return;}
@@ -3250,6 +3251,11 @@
     }
     automaticSection.innerHTML='<h3>Klubbhistorik från Swehockey</h3><p>Importerade truppregistreringar, matchade på namn och födelsedatum. Registrering visar inte att spelaren spelat matcher eller när en övergång skedde. Underlaget täcker delar av tidigare svenska säsonger och kan vara ofullständigt.</p>'+ (automatic.error?'<p role="status">Swehockey-historiken kunde inte hämtas. Öppna fliken igen för att försöka på nytt.</p>':seasons.size?Array.from(seasons.values()).map(item=>'<article class="player-card-game player-history-row"><strong>'+esc(item.season)+' · '+esc(item.club)+'</strong><span>Registrerad i truppen</span><div>'+item.sources.map(source=>'<p>'+esc(source.league)+' · <a href="'+esc(safeHistoryUrl(source.source_url))+'" target="_blank" rel="noopener noreferrer">Swehockey: trupp</a></p>').join('')+'</div></article>').join(''):'<p>Ingen äldre klubbregistrering hittades för spelaren i det importerade underlaget.</p>')+'<h3>Egna kompletteringar</h3>';
     container.prepend(automaticSection);
+    if(background.error||(background.data||[]).length){
+      const backgroundSection=document.createElement('section');
+      backgroundSection.innerHTML='<h3>Tidigare klubbar och bakgrund</h3><p>Uppgifter från klubbarnas publicerade artiklar. Statistik här avser den säsong eller period som artikeln beskriver.</p>'+(background.error?'<p role="status">Klubbarnas bakgrundsuppgifter kunde inte hämtas. Öppna fliken igen för att försöka på nytt.</p>':background.data.map(item=>'<article class="player-card-game"><strong>'+esc(item.headline)+'</strong><p>'+esc(item.details)+'</p><a href="'+esc(safeHistoryUrl(item.source_url))+'" target="_blank" rel="noopener noreferrer">'+esc(item.source_label)+'</a></article>').join(''));
+      automaticSection.lastElementChild.before(backgroundSection);
+    }
     const reset=()=>{editingId=null;form.reset();container.querySelector('#historyFormTitle').textContent='Lägg till klubb / övergång';};
     container.querySelector('#cancelHistoryEdit').onclick=reset;
     container.querySelectorAll('[data-history-edit]').forEach(button=>button.onclick=()=>{const item=data.find(item=>item.id===button.dataset.historyEdit);editingId=item.id;for(const field of ['season','club','league','source_url','checked_on','details'])form.elements.namedItem(field).value=item[field]||'';container.querySelector('#historyFormTitle').textContent='Redigera klubbhistorik';form.elements.namedItem('season').focus();});
