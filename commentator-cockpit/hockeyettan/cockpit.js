@@ -2950,6 +2950,11 @@
     return fallback ? { ...fallback, mode: "previous" } : null;
   }
 
+  function lineupIndividualStats(row){
+    const candidates=state.seasonPlayerStats.filter(item=>item.team_id===row.team_id&&(row.player_id&&item.player_id?row.player_id===item.player_id:sourceNameKey(humanSourceName(cleanLineupSourceName(row.source_name)))===sourceNameKey(humanSourceName(cleanLineupSourceName(item.source_name)))));
+    const stats=candidates.length===1?candidates[0]:null;
+    return '<small class="lineup-individual-stats">SÄSONG · '+(stats?esc(stats.games_played??'–')+' matcher · '+esc(stats.goals??'–')+' mål · '+esc(stats.assists??'–')+' assist · '+esc(stats.points??'–')+' poäng':'Statistik saknas')+'</small>';
+  }
   function lineupSlot(row, position) {
     if (!row) {
       return '<div class="lineup-slot empty"><span>' + esc(position) + '</span><strong>–</strong></div>';
@@ -2958,7 +2963,7 @@
     return '<div class="lineup-slot'+(changed?' lineup-slot-changed':'')+'">' +
       '<span>' + esc(position) + '</span>' +
       '<b>#' + esc(row.jersey_number ?? "–") + '</b>' +
-      '<strong>' + playerCardLink(row) + '</strong>' +
+      '<strong>' + playerCardLink(row) + '</strong>' +lineupIndividualStats(row)+
     '</div>';
   }
 
