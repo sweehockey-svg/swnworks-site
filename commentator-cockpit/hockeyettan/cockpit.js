@@ -2958,7 +2958,7 @@
     return '<div class="lineup-slot'+(changed?' lineup-slot-changed':'')+'">' +
       '<span>' + esc(position) + '</span>' +
       '<b>#' + esc(row.jersey_number ?? "–") + '</b>' +
-      '<strong>' + nationalityMarkup(row.player_id) + esc(humanSourceName(cleanLineupSourceName(row.source_name))) + '</strong>' +
+      '<strong>' + playerCardLink(row) + '</strong>' +
     '</div>';
   }
 
@@ -3024,13 +3024,13 @@
     const goaliesHtml = '<div class="lineup-goalies">' +
       goalies.map((row, i) =>
         '<div class="'+(ctx.mode !== "previous" && row.goalie_role === "starter" ? 'lineup-starter' : '')+'"><span>' + (ctx.mode !== "previous" && row.goalie_role === "starter" ? "STARTMÅLVAKT" : ctx.mode !== "previous" && goalies.some(goalie=>goalie.goalie_role === "starter") ? "RESERV" : ctx.mode !== "previous" ? "MÅLVAKT" : i === 0 ? "G1 · SENASTE" : "G2 · SENASTE") + '</span><b>#' + esc(row.jersey_number ?? "–") + '</b><strong>' +
-        nationalityMarkup(row.player_id) + esc(humanSourceName(cleanLineupSourceName(row.source_name))) + '</strong></div>'
+        playerCardLink(row) + '</strong></div>'
       ).join("") +
     '</div>';
 
     const extrasHtml = extras.length
       ? '<div class="lineup-extras"><span>EXTRA</span>' + extras.map((row) =>
-          '<strong>#' + esc(row.jersey_number ?? "–") + ' ' + esc(humanSourceName(cleanLineupSourceName(row.source_name))) + '</strong>'
+          '<strong>#' + esc(row.jersey_number ?? "–") + ' ' + playerCardLink(row) + '</strong>'
         ).join("") + '</div>'
       : "";
 
@@ -3168,6 +3168,51 @@
       .sort((a,b)=>teams.indexOf(a.team_id)-teams.indexOf(b.team_id)||Number(a.jersey_number||0)-Number(b.jersey_number||0));
   }
 
+  function playerCardLink(row){
+    return '<button type="button" class="player-card-link" data-player-card="'+esc(JSON.stringify({team_id:row.team_id,player_id:row.player_id,source_name:row.source_name,jersey_number:row.jersey_number,position:row.position}))+'">'+nationalityMarkup(row.player_id)+esc(humanSourceName(cleanLineupSourceName(row.source_name)))+'</button>';
+  }
+  const playerCardDialog=document.createElement('dialog');
+  playerCardDialog.id='playerCardDialog';
+  playerCardDialog.setAttribute('aria-labelledby','playerCardTitle');
+  document.body.appendChild(playerCardDialog);
+  let playerCardReturnFocus=null;
+  function openPlayerCard(row,tab='overview'){
+    if(!row.player_id){
+      const candidates=[...(state.searchRoster||[]),...state.seasonPlayerStats,...state.seasonGoalieStats].filter(item=>item.team_id===row.team_id&&sourceNameKey(humanSourceName(cleanLineupSourceName(item.source_name)))===sourceNameKey(humanSourceName(cleanLineupSourceName(row.source_name))));
+      const ids=[...new Set(candidates.map(item=>item.player_id).filter(Boolean))];
+      if(ids.length===1)row={...row,player_id:ids[0]};
+    }
+    const season=state.seasonPlayerStats.find(item=>item.team_id===row.team_id&&sameStatPlayer(item,row));
+    const goalie=state.seasonGoalieStats.find(item=>item.team_id===row.team_id&&sameStatPlayer(item,row));
+    const profile=state.playerProfiles.get(row.player_id)||{};
+    const metric=(label,value)=>'<div><span>'+esc(label)+'</span><strong>'+esc(value??'–')+'</strong></div>';
+    let content='';
+    if(tab==='overview'){
+      const age=profile.birth_date?ageOn(profile.birth_date,state.nextGame?.scheduled_start):null;
+      content='<div class="player-card-metrics">'+metric('Lag',getTeamName(row.team_id))+metric('Position',row.position||profile.primary_position)+metric('Ålder',age==null?null:age+' år')+metric('Född',profile.birth_date)+metric('Längd',profile.height_cm?profile.height_cm+' cm':null)+metric('Vikt',profile.weight_kg?profile.weight_kg+' kg':null)+metric('Fattning',profile.shoots_catches)+metric('Moderklubb',profile.youth_club)+'</div><p>Streck betyder att uppgiften saknas. Spelarbild och full karriärhistorik finns ännu inte i underlaget.</p>';
+    }else if(tab==='stats'){
+      content='<h3>Säsong</h3><div class="player-card-metrics">'+(goalie?metric('Matcher',goalie.games_played)+metric('SV%',goalie.save_pct)+metric('GAA',goalie.gaa)+metric('Vinster',goalie.wins)+metric('Förluster',goalie.losses):season?metric('Matcher',season.games_played)+metric('Mål',season.goals)+metric('Assist',season.assists)+metric('Poäng',season.points)+metric('Skott',season.shots)+metric('FO%',season.faceoff_pct)+metric('PIM',season.pim)+metric('+ / −',season.plus_minus):metric('Statistik','Ej publicerad'))+'</div><h3>Dagens match</h3>'+(goalie||row.position==='GK'?liveGoalieDetail(currentGoalieGameRow(row)):livePlayerDetail(currentPlayerGameRow(row)))+'<p>Liveuppgifter visas när de är publicerade för aktuell match.</p>';
+    }else if(tab==='recent'){
+      const games=(row.team_id===state.focusTeam?.id?state.focusForm:state.opponentForm)||[];
+      const stats=(goalie||row.position==='GK'?state.recentGoalieStats:state.recentPlayerStats).filter(item=>item.team_id===row.team_id&&sameStatPlayer(item,row));
+      content='<p>Senaste fem matcher med publicerad individuell statistik i vårt underlag.</p>'+games.slice(0,5).map(game=>{const stat=stats.find(item=>item.game_id===game.id),opponent=game.home_team_id===row.team_id?game.away_team_id:game.home_team_id;return '<article class="player-card-game"><strong>'+esc(swedishDate(game.scheduled_start))+' · '+esc(getTeamName(opponent))+'</strong><span>'+esc(game.home_score??'–')+'–'+esc(game.away_score??'–')+' · '+(stat?goalie||row.position==='GK'?esc(stat.saves??'–')+'/'+esc(stat.shots_against??'–')+' räddningar · GAA '+esc(stat.gaa??'–'):esc(stat.goals??'–')+' mål · '+esc(stat.assists??'–')+' assist · '+esc(stat.points??'–')+' poäng':'Individuell matchstatistik saknas')+'</span></article>';}).join('');
+    }else{
+      const notes=row.player_id?currentEditorialNotes().filter(note=>note.scope_type==='player'&&note.player_id===row.player_id&&(!note.team_id||note.team_id===row.team_id)):[];
+      content=notes.length?notes.map(note=>'<article class="player-card-game"><strong>'+esc(note.title||'Anteckning')+'</strong><p>'+esc(note.body)+'</p></article>').join(''):'<p>Inga spelaranteckningar för denna spelare.</p>';
+      content+='<button type="button" id="playerCardNotes">Öppna Anteckningar</button>';
+    }
+    playerCardDialog.innerHTML='<header><div><span>'+esc(getTeamName(row.team_id))+' · #'+esc(row.jersey_number??'–')+'</span><h2 id="playerCardTitle">'+nationalityMarkup(row.player_id)+esc(humanSourceName(cleanLineupSourceName(row.source_name)))+'</h2></div><button id="closePlayerCard" aria-label="Stäng spelarkort">×</button></header><nav aria-label="Spelarkort">'+[['overview','Översikt'],['stats','Statistik'],['recent','Senaste matcher'],['notes','Anteckningar']].map(([key,label])=>'<button type="button" data-card-tab="'+key+'" aria-pressed="'+(tab===key)+'">'+label+'</button>').join('')+'</nav><section>'+content+'</section>';
+    playerCardDialog.querySelector('#closePlayerCard').onclick=()=>playerCardDialog.close();
+    playerCardDialog.querySelectorAll('[data-card-tab]').forEach(button=>button.onclick=()=>openPlayerCard(row,button.dataset.cardTab));
+    playerCardDialog.querySelector('#playerCardNotes')?.addEventListener('click',()=>{playerCardDialog.close();renderDrawer('notes');});
+    if(!playerCardDialog.open)playerCardDialog.showModal();
+  }
+  playerCardDialog.addEventListener('close',()=>{if(playerCardReturnFocus?.isConnected)playerCardReturnFocus.focus();});
+  document.addEventListener('click',event=>{
+    const button=event.target.closest?.('[data-player-card]');
+    if(!button)return;
+    playerCardReturnFocus=button;openPlayerCard(JSON.parse(button.dataset.playerCard));
+  });
   function playerSearchResults(query) {
     if(!String(query||'').trim()) return '<p class="search-hint">Sök i båda lagen, även målvakter. Nummer matchas exakt.</p>';
     const rows=playerSearchRows(query);
@@ -3178,7 +3223,7 @@
       const detail=stats?(goalie?'SV% '+(stats.save_pct??'–')+' · GAA '+(stats.gaa??'–'):
         Number(stats.goals||0)+' mål · '+Number(stats.assists||0)+' assist · '+Number(stats.points||0)+' poäng'):'Säsongsstatistik ej publicerad';
       const notes=currentEditorialNotes().filter((note)=>note.scope_type==='player'&&note.player_id===row.player_id&&(!note.team_id||note.team_id===row.team_id));
-      return '<article class="drawer-card player-search-card"><span>'+esc(getTeamName(row.team_id))+' · '+esc(goalie?'Målvakt':row.position||'Position ej publicerad')+'</span><strong>#'+esc(row.jersey_number??'–')+' '+esc(humanSourceName(row.source_name))+'</strong><span>SÄSONG · '+esc(detail)+'</span>'+
+      return '<article class="drawer-card player-search-card"><span>'+esc(getTeamName(row.team_id))+' · '+esc(goalie?'Målvakt':row.position||'Position ej publicerad')+'</span><strong>#'+esc(row.jersey_number??'–')+' '+playerCardLink(row)+'</strong><span>SÄSONG · '+esc(detail)+'</span>'+
         (goalie?liveGoalieDetail(currentGoalieGameRow(row)):livePlayerDetail(currentPlayerGameRow(row)))+
         notes.map((note)=>'<p>NOTES · '+esc(note.title?note.title+': ':'')+esc(note.body)+'</p>').join('')+'</article>';
     }).join('');
@@ -3251,7 +3296,7 @@
             const liveRow=currentPlayerGameRow(row);
             return '<div class="player-stat-row' + (liveRow ? ' is-live' : '') + '">' +
               '<div class="player-stat-name"><b>#' + esc(row.jersey_number ?? "–") + '</b><span>' +
-                '<strong>' + nationalityMarkup(row.player_id) + esc(humanSourceName(row.source_name)) + '</strong>' +
+                '<strong>' + playerCardLink(row) + '</strong>' +
                 livePlayerDetail(liveRow) +
                 '<small>' + esc((row.position || "") + ' · ' + recentText) + '</small>' +
               '</span></div>' +
@@ -3318,7 +3363,7 @@
 
           return '<article class="goalie-card">' +
             '<div class="goalie-card-head"><span>SÄSONG</span><b>#' + esc(row.jersey_number ?? "–") + '</b></div>' +
-            '<h3>' + nationalityMarkup(row.player_id) + esc(humanSourceName(row.source_name)) + '</h3>' +
+            '<h3>' + playerCardLink(row) + '</h3>' +
             '<div class="goalie-metrics goalie-season-metrics">' +
               '<div><span>GP</span><strong>' + esc(row.games_played ?? 0) + '</strong></div>' +
               '<div><span>SV%</span><strong>' + esc(svPct) + '</strong></div>' +
@@ -4751,6 +4796,7 @@
     if(!target) return;
 
     if(
+      event.composedPath().includes(playerCardDialog) || target.closest('[data-player-card]') ||
       event.composedPath().includes(drawer) ||
       drawer.contains(target) ||
       target.closest(".deck-key") ||
