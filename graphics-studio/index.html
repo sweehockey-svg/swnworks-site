@@ -73,6 +73,16 @@
           <label><span>MATCHENS DATUM I GRAFIKEN</span><input id="matchEditDate" type="date"></label>
           <button class="refresh" id="matchEditSave" type="button">Spara matchdatum</button>
           <button class="refresh" id="matchEditReset" type="button">Återställ rapporteringsdatum</button>
+          <details><summary>Lägg till ett tillfälligt resultat</summary>
+          <p>Gruppspel · Sparas i denna webbläsare och räknas med i tabellgrafiken. Ersätts automatiskt när ett nytt rapporterat resultat med samma lag och mål hämtas.</p>
+          <label><span>DATUM</span><input id="manualDate" type="date"></label>
+          <label><span>HEMMALAG</span><select id="manualHome"></select></label>
+          <label><span>BORTALAG</span><select id="manualAway"></select></label>
+          <label><span>HEMMAMÅL</span><input id="manualHomeScore" type="number" min="0" max="99"></label>
+          <label><span>BORTAMÅL</span><input id="manualAwayScore" type="number" min="0" max="99"></label>
+          <label><span>AVGJORD</span><select id="manualOvertime"><option value="regular">Ordinarie tid · 3–0 poäng</option><option value="ot">OT / straffar · 2–1 poäng</option></select></label>
+          <button class="refresh" id="manualSave" type="button">Lägg till resultat</button>
+          <small id="manualMatchStatus" role="status"></small><div id="manualMatchList"></div></details>
           <small id="matchEditStatus" role="status">Ändringar sparas i den här webbläsaren och används i grafiken. Vid byte av hemma / borta följer lag, loggor och mål med.</small>
         </div>
         <label id="matchPageField" hidden><span>SIDA · HÖGST 8 MATCHER PER BILD</span><select id="matchPage"><option value="0">Sida 1</option></select></label>
@@ -113,7 +123,8 @@
 <script  type="text/plain" data-studio-src="https://www.svenskehockey.se/playerimages-manifest.js?v=20261006"></script>
 <script src="../broadcast-studio/broadcast-config.js?v=2"></script>
 <script  type="text/plain" data-studio-src="language.js?v=20261010-roster1"></script>
-<script  type="text/plain" data-studio-src="app.js?v=20261011-match-sides"></script>
+<script  type="text/plain" data-studio-src="manual-results.js?v=20261011-manual1"></script>
+<script type="text/plain" data-studio-src="app.js?v=20261011-manual1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script src="/studio-access.js?v=20261010-admin1"></script>
 </body>
 </html>
