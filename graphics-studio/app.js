@@ -524,11 +524,11 @@ function compactGoalies(rows,x,y,w,rowH,offset=4){
 }
 function tableSvg(){
   const r=standings(),g=geom(r.length||1),ls=logos(),size=Math.min(64,g.row-18);let o='<g filter="url(#shadow)"><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+(g.head+g.row*r.length)+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+g.m+'" y="'+g.top+'" width="'+g.width+'" height="'+g.head+'" fill="url(#gold)"/>';
-  const labels=[["#",.03],["LAG",.09],["GP",.67],["W",.75],["L",.82],["GD",.89],["PTS",.955]];
+  const labels=[["#",.03],["LAG",.09],["GP",.59],["W",.65],["L",.71],["OTW",.77],["OTL",.83],["GD",.89],["PTS",.955]];
   labels.forEach(([t,p])=>o+='<text x="'+(g.m+g.width*p)+'" y="'+(g.top+31)+'" text-anchor="'+(t==="LAG"?"start":"middle")+'" fill="#07121c" font-family="Arial" font-size="12" font-weight="950">'+t+'</text>');
-  r.forEach((x,i)=>{const y=g.top+g.head+i*g.row,cy=y+g.row/2,logo=x.team_logo_in_league||ls.get(String(x.sports_gamer_team_id))||"",tx=g.m+(S.logos?142:72),vals=[n(x.games_played),n(x.total_wins),n(x.losses),(n(x.goal_difference)>0?"+":"")+n(x.goal_difference),n(x.table_points)],xs=[.67,.75,.82,.89,.955],mark=standingMark(i);
-    o+='<rect x="'+g.m+'" y="'+y+'" width="'+g.width+'" height="'+g.row+'" fill="'+(i%2?"#061722":"#04121c")+'" fill-opacity=".95"/>'+(mark?'<rect x="'+g.m+'" y="'+y+'" width="5" height="'+g.row+'" fill="'+mark.color+'" fill-opacity="'+mark.opacity+'"/>':'')+'<text x="'+(g.m+28)+'" y="'+(cy+7)+'" fill="'+(i===0?"#ffbd00":"#eef3f6")+'" font-family="Arial" font-size="'+(g.row>=110?(i===0?29:25):(i===0?24:20))+'" font-weight="950">'+(i+1)+'</text>'+img(logo,g.m+65,cy-size/2,size)+'<text x="'+tx+'" y="'+(cy+7)+'" fill="#fff" font-family="Arial" font-size="'+(g.row>=110?24:S.format==="wide"?22:20)+'" font-weight="900">'+esc(clip(x.team_name_in_league,S.format==="wide"?36:26))+'</text>';
-    vals.forEach((v,k)=>o+='<text x="'+(g.m+g.width*xs[k])+'" y="'+(cy+7)+'" text-anchor="middle" fill="'+(k===4?"#ffbd00":"#e4ebef")+'" font-family="Arial" font-size="'+(g.row>=110?(k===4?28:24):(k===4?23:19))+'" font-weight="'+(k===4?950:750)+'">'+v+'</text>');
+  r.forEach((x,i)=>{const y=g.top+g.head+i*g.row,cy=y+g.row/2,logo=x.team_logo_in_league||ls.get(String(x.sports_gamer_team_id))||"",tx=g.m+(S.logos?142:72),vals=[n(x.games_played),n(x.wins),n(x.losses),n(x.overtime_wins),n(x.overtime_losses),(n(x.goal_difference)>0?"+":"")+n(x.goal_difference),n(x.table_points)],xs=[.59,.65,.71,.77,.83,.89,.955],mark=standingMark(i);
+    o+='<rect x="'+g.m+'" y="'+y+'" width="'+g.width+'" height="'+g.row+'" fill="'+(i%2?"#061722":"#04121c")+'" fill-opacity=".95"/>'+(mark?'<rect x="'+g.m+'" y="'+y+'" width="5" height="'+g.row+'" fill="'+mark.color+'" fill-opacity="'+mark.opacity+'"/>':'')+'<text x="'+(g.m+28)+'" y="'+(cy+7)+'" fill="'+(i===0?"#ffbd00":"#eef3f6")+'" font-family="Arial" font-size="'+(g.row>=110?(i===0?29:25):(i===0?24:20))+'" font-weight="950">'+(i+1)+'</text>'+img(logo,g.m+65,cy-size/2,size)+'<text x="'+tx+'" y="'+(cy+7)+'" fill="#fff" font-family="Arial" font-size="'+(g.row>=110?24:S.format==="wide"?22:20)+'" font-weight="900">'+esc(clip(x.team_name_in_league,S.format==="wide"?36:22))+'</text>';
+    vals.forEach((v,k)=>o+='<text x="'+(g.m+g.width*xs[k])+'" y="'+(cy+7)+'" text-anchor="middle" fill="'+(k===6?"#ffbd00":"#e4ebef")+'" font-family="Arial" font-size="'+(g.row>=110?(k===6?28:24):(k===6?23:19))+'" font-weight="'+(k===6?950:750)+'">'+v+'</text>');
   });return base(o+"</g>");
 }
 function compactTablePanel(rows,x,y,w,h,label){
@@ -536,15 +536,15 @@ function compactTablePanel(rows,x,y,w,h,label){
   let o='<g filter="url(#shadow)"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="url(#panel)" stroke="#ffbd00" stroke-opacity=".35"/><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+titleH+'" fill="url(#gold)"/><text x="'+(x+w/2)+'" y="'+(y+34)+'" text-anchor="middle" fill="#07121c" font-family="Arial" font-size="18" font-weight="950" letter-spacing="2">'+esc(label)+'</text>';
   const hy=y+titleH;
   o+='<rect x="'+x+'" y="'+hy+'" width="'+w+'" height="'+head+'" fill="#081923" fill-opacity=".96"/>';
-  const cols=[["#",.04],["LAG",.10],["GP",.68],["W",.76],["L",.83],["GD",.90],["PTS",.96]];
+  const cols=[["#",.04],["LAG",.10],["GP",.59],["W",.65],["L",.71],["OTW",.77],["OTL",.83],["GD",.89],["PTS",.955]];
   cols.forEach(([t,p])=>o+='<text x="'+(x+w*p)+'" y="'+(hy+36)+'" text-anchor="'+(t==="LAG"?"start":"middle")+'" fill="#9cb0bd" font-family="Arial" font-size="11" font-weight="900">'+t+'</text>');
   rows.forEach((r,i)=>{const ry=hy+head+i*rowH,cy=ry+rowH/2,logo=r.team_logo_in_league||ls.get(String(r.sports_gamer_team_id))||"",tx=x+(S.logos?96:52),mark=standingMark(i);
     o+='<rect x="'+x+'" y="'+ry+'" width="'+w+'" height="'+rowH+'" fill="'+(i%2?"#061722":"#04121c")+'"/>'+(mark?'<rect x="'+x+'" y="'+ry+'" width="4" height="'+rowH+'" fill="'+mark.color+'" fill-opacity="'+mark.opacity+'"/>':'')+
     '<text x="'+(x+22)+'" y="'+(cy+6)+'" fill="'+(i===0?"#ffbd00":"#eaf0f4")+'" font-family="Arial" font-size="'+(i===0?20:17)+'" font-weight="950">'+(i+1)+'</text>'+
     img(logo,x+50,cy-logoSize/2,logoSize)+
-    '<text x="'+tx+'" y="'+(cy+6)+'" fill="#fff" font-family="Arial" font-size="'+(w>700?18:15)+'" font-weight="900">'+esc(clip(r.team_name_in_league,w>700?28:18))+'</text>';
-    const vals=[n(r.games_played),n(r.total_wins),n(r.losses),(n(r.goal_difference)>0?"+":"")+n(r.goal_difference),n(r.table_points)],xs=[.68,.76,.83,.90,.96];
-    vals.forEach((v,k)=>o+='<text x="'+(x+w*xs[k])+'" y="'+(cy+6)+'" text-anchor="middle" fill="'+(k===4?"#ffbd00":"#e3eaee")+'" font-family="Arial" font-size="'+(k===4?19:15)+'" font-weight="'+(k===4?950:750)+'">'+v+'</text>');
+    '<text x="'+tx+'" y="'+(cy+6)+'" fill="#fff" font-family="Arial" font-size="'+(w>700?18:15)+'" font-weight="900">'+esc(clip(r.team_name_in_league,Math.max(8,Math.floor((w*.55-(tx-x))/((w>700?18:15)*.65)))))+'</text>';
+    const vals=[n(r.games_played),n(r.wins),n(r.losses),n(r.overtime_wins),n(r.overtime_losses),(n(r.goal_difference)>0?"+":"")+n(r.goal_difference),n(r.table_points)],xs=[.59,.65,.71,.77,.83,.89,.955];
+    vals.forEach((v,k)=>o+='<text x="'+(x+w*xs[k])+'" y="'+(cy+6)+'" text-anchor="middle" fill="'+(k===6?"#ffbd00":"#e3eaee")+'" font-family="Arial" font-size="'+(k===6?19:15)+'" font-weight="'+(k===6?950:750)+'">'+v+'</text>');
   });
   return o+'</g>';
 }

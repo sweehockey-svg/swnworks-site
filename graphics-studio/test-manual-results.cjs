@@ -1,13 +1,15 @@
 const assert=require('node:assert/strict');
 const {apply,reconcile}=require('./manual-results.js');
-const team=id=>({sports_gamer_team_id:id,statistics_stage:'regular',games_played:4,total_wins:2,losses:2,goals_for:10,goals_against:10,goal_difference:0,table_points:6});
+const team=id=>({sports_gamer_team_id:id,statistics_stage:'regular',games_played:4,total_wins:2,wins:2,overtime_wins:0,overtime_losses:0,losses:2,goals_for:10,goals_against:10,goal_difference:0,table_points:6});
 const teams=[team(1),team(2),{...team(1),statistics_stage:'playoffs'}];
 const game={id:'manual-a',league:532,homeId:'1',awayId:'2',home:'Finland',away:'Canada',homeScore:6,awayScore:2,overtime:false,knownIds:['old']};
 let adjusted=apply(teams,[game],532);
 assert.equal(adjusted[0].games_played,5);assert.equal(adjusted[0].total_wins,3);assert.equal(adjusted[0].table_points,9);assert.equal(adjusted[0].goal_difference,4);
 assert.equal(adjusted[1].losses,3);assert.equal(adjusted[1].table_points,6);assert.equal(adjusted[1].goal_difference,-4);
+assert.equal(adjusted[0].wins,3);assert.equal(adjusted[0].overtime_wins,0);
 assert.deepEqual(adjusted[2],teams[2]);assert.equal(teams[0].games_played,4);
 adjusted=apply(teams,[{...game,overtime:true}],532);assert.equal(adjusted[0].table_points,8);assert.equal(adjusted[1].table_points,7);assert.equal(adjusted[1].losses,2);
+assert.equal(adjusted[0].wins,2);assert.equal(adjusted[0].overtime_wins,1);assert.equal(adjusted[1].overtime_losses,1);
 assert.deepEqual(apply(teams,[game],527),teams);
 const official={id:'new',home:'Canada',away:'Finland',homeScore:2,awayScore:6};
 assert.equal(reconcile([game],[official],532).remaining.length,0);

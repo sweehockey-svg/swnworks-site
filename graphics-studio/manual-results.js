@@ -20,6 +20,9 @@ function apply(teams,pending,league){
    team.goals_for=Number(team.goals_for||0)+scored;team.goals_against=Number(team.goals_against||0)+conceded;
    team.goal_difference=Number(team.goal_difference||0)+scored-conceded;
    team.total_wins=Number(team.total_wins||0)+(win?1:0);
+   team.wins=Number(team.wins||0)+(win&&!g.overtime?1:0);
+   team.overtime_wins=Number(team.overtime_wins||0)+(win&&g.overtime?1:0);
+   team.overtime_losses=Number(team.overtime_losses||0)+(!win&&g.overtime?1:0);
    team.losses=Number(team.losses||0)+(!win&&!g.overtime?1:0);
    team.table_points=Number(team.table_points||0)+(win?(g.overtime?2:3):(g.overtime?1:0));
   }
