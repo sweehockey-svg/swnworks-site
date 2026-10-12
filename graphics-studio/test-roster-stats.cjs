@@ -11,8 +11,17 @@ assert.deepEqual(values(player),[['GP','6'],['G','3'],['A','5'],['P','8']]);
 ctx.S.stage='playoffs';assert.deepEqual(values(player),[['GP','2'],['G','1'],['A','2'],['P','3']]);
 ctx.S.stage='total';assert.deepEqual(values(player),[['GP','8'],['G','4'],['A','7'],['P','11']]);
 ctx.S.stage='regular';
+assert.equal(values({position:'G',regular_goalie_games:6,regular_goalie_save_percentage:.8217})[1][1],'82.2');
 assert.deepEqual(values({position:'G',regular_goalie_games:4,regular_goalie_save_percentage:80.5,regular_goalie_goals_against_average:2.25,regular_goalie_shutouts:1}),[['GP','4'],['SV%','80.5'],['GAA','2.25'],['SO','1']]);
 assert.deepEqual(values({position:'G',regular_goalie_games:0}),[['GP','0'],['SV%','–'],['GAA','–'],['SO','–']]);
 assert.deepEqual(values({position:'G',regular_goalie_games:1}),[['GP','1'],['SV%','–'],['GAA','–'],['SO','–']]);
 assert(source.includes('S.rosterStats?rosterStatsSvg('));
+ctx.measurePortrait=()=>{};ctx.esc=x=>x;ctx.portraitBounds=new Map();
+vm.runInContext(source.slice(source.indexOf('function rosterPortrait('),source.indexOf('function rosterStatsValues(')),ctx);
+for(const height of [400,900]){
+ ctx.portraitBounds.set('portrait',{left:20,top:30,width:300,height,headWidth:100,sourceW:500,sourceH:1000});
+ const box=ctx.rosterPortrait('portrait',0,0,200,300).match(/viewBox="([^"]+)"/)[1].split(' ').map(Number);
+ assert(Math.abs(100/box[2]-.42)<1e-9,'Head scale must be independent of torso length');
+ assert(Math.abs((30-box[1])/box[3]-.035)<1e-9,'Head top inset must be consistent');
+}
 console.log('Roster stats passed: skaters, goalies, stage selection, totals and missing statistics.');

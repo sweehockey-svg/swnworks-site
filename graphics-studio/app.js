@@ -827,13 +827,14 @@ function rosterGeometry(count,W,H){
 }
 function rosterPortrait(url,x,y,w,h){
  if(!url)return '';measurePortrait(url);const b=portraitBounds.get(url);
- // Fit the visible cutout, keeping the whole head and torso inside the card.
- return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+(b?[b.left,b.top,b.width,b.height].join(' '):[0,0,w,h].join(' '))+'" preserveAspectRatio="xMidYMax meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMax meet')+'"/></svg>';
+ // Use the same head scale and top inset, regardless of source torso length.
+ const cropW=b?b.headWidth/.42:w,cropH=cropW*h/w,crop=b?[b.left+(b.width-cropW)/2,b.top-cropH*.035,cropW,cropH]:[0,0,w,h];
+ return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMin slice')+'"/></svg>';
 }
 function rosterStatsValues(player){
  const goalie=rosterPosition(player)==='G',gp=goalie?gv(player,'gp'):ps(player,'skater_games');
  const value=(number,digits=0)=>number==null||!Number.isFinite(Number(number))?'–':Number(number).toLocaleString(L.locale,{minimumFractionDigits:digits,maximumFractionDigits:digits});
- if(goalie)return [['GP',value(gp)],['SV%',gp?value(gv(player,'save_percentage'),1):'–'],['GAA',gp?value(gv(player,'goals_against_average'),2):'–'],['SO',gp?value(gv(player,'shutouts')):'–']];
+ if(goalie){const sv=gv(player,'save_percentage'),percentage=sv==null?null:Number(sv)*(Number(sv)<=1?100:1);return [['GP',value(gp)],['SV%',gp?value(percentage,1):'–'],['GAA',gp?value(gv(player,'goals_against_average'),2):'–'],['SO',gp?value(gv(player,'shutouts')):'–']];}
  return [['GP',value(gp)],['G',gp?value(ps(player,'goals')):'–'],['A',gp?value(ps(player,'assists')):'–'],['P',gp?value(ps(player,'points')):'–']];
 }
 function rosterStatsSvg(player,x,y,w,h){
