@@ -828,9 +828,15 @@ function rosterGeometry(count,W,H){
 function rosterPortrait(url,x,y,w,h,count){
  if(!url)return '';measurePortrait(url);const b=portraitBounds.get(url);
  // Keep a consistent head scale where possible; short cutouts must also fill the photo height.
- const smallWide=S.format==='wide'&&count<=8,targetW=b?Math.max(b.headWidth/.42,smallWide?b.headWidth*3.2*w/h:0):w;
+ const smallWide=S.format==='wide'&&count<=8,targetW=b?Math.max(b.headWidth/.42,smallWide?b.headWidth*2.6*w/h:0):w;
  const cropW=b?Math.min(targetW,b.height*w/h/ .965):w,cropH=cropW*h/w,crop=b?[b.left+(b.width-cropW)/2,b.top-cropH*.035,cropW,cropH]:[0,0,w,h];
  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMin slice')+'"/></svg>';
+}
+function rosterAvatar(x,y,w,h,count){
+ const avatar=silhouetteSvg(x,y,w,h);
+ if(S.format!=='wide'||count>8)return avatar;
+ const cropW=Math.max(68/.42,68*2.6*w/h),cropH=cropW*h/w;
+ return avatar.replace('viewBox="0 0 200 260"','viewBox="'+[100-cropW/2,18-cropH*.035,cropW,cropH].join(' ')+'"');
 }
 function rosterStatsValues(player){
  const goalie=rosterPosition(player)==='G',gp=goalie?gv(player,'gp'):ps(player,'skater_games');
@@ -847,7 +853,7 @@ function rosterSvg(){
  let content=svgText(g.margin,310,players.length+' '+L.t('SPELARE')+(S.rosterStats?' · '+stageName():''),17,'#ffcf4a',800);
  if(!players.length)return base(content+svgText(W/2,(H+340)/2,L.t(team?'Välj minst en spelare':'Inga registrerade spelare'),26,'#a2b6c9',700,'text-anchor="middle"'));
  players.forEach((player,i)=>{const row=Math.floor(i/g.columns),rowCount=Math.min(g.columns,players.length-row*g.columns),offset=(g.width-(rowCount*g.w+(rowCount-1)*g.gap))/2,x=g.margin+offset+(i%g.columns)*(g.w+g.gap),y=g.top+row*(g.h+(g.rowGap||g.gap)),band=S.rosterStats?Math.min(126,Math.max(98,g.h*.4)):Math.min(72,Math.max(60,g.h*.23)),ph=g.h-band-12,portrait=portraitUrl(player),name=String(player.display_gamertag||''),size=Math.min(25,(g.w-22)/Math.max(1,name.length)*1.45),position=player.roster_preferred_position_abbreviation||player.regular_skater_position_abbreviation||player.playoff_skater_position_abbreviation||'–';
- content+='<g data-player-id="'+esc(rosterPlayerId(player))+'"><rect x="'+x+'" y="'+y+'" width="'+g.w+'" height="'+g.h+'" rx="14" fill="#12354f" stroke="#355369"/>'+(portrait?rosterPortrait(portrait,x+8,y+6,g.w-16,ph,players.length,player):silhouetteSvg(x+8,y+6,g.w-16,ph))+'<rect x="'+x+'" y="'+(y+g.h-band)+'" width="'+g.w+'" height="'+band+'" fill="#04131e"/>'+svgText(x+g.w/2,y+g.h-band+Math.min(size+5,band*.5),name,size,'#fff',900,'text-anchor="middle"')+svgText(x+g.w/2,(S.rosterStats?y+g.h-band+49:y+g.h-10),(player.player_number!=null?'#'+player.player_number+' · ':'')+position,Math.min(14,band*.24),'#ffcf4a',800,'text-anchor="middle"')+nationFlag(player,x+8,S.rosterStats?y+g.h-band+32:y+g.h-27,24)+(S.rosterStats?rosterStatsSvg(player,x,y+g.h-band+61,g.w,band-65):'')+'</g>';
+ content+='<g data-player-id="'+esc(rosterPlayerId(player))+'"><rect x="'+x+'" y="'+y+'" width="'+g.w+'" height="'+g.h+'" rx="14" fill="#12354f" stroke="#355369"/>'+(portrait?rosterPortrait(portrait,x+8,y+6,g.w-16,ph,players.length,player):rosterAvatar(x+8,y+6,g.w-16,ph,players.length))+'<rect x="'+x+'" y="'+(y+g.h-band)+'" width="'+g.w+'" height="'+band+'" fill="#04131e"/>'+svgText(x+g.w/2,y+g.h-band+Math.min(size+5,band*.5),name,size,'#fff',900,'text-anchor="middle"')+svgText(x+g.w/2,(S.rosterStats?y+g.h-band+49:y+g.h-10),(player.player_number!=null?'#'+player.player_number+' · ':'')+position,Math.min(14,band*.24),'#ffcf4a',800,'text-anchor="middle"')+nationFlag(player,x+8,S.rosterStats?y+g.h-band+32:y+g.h-27,24)+(S.rosterStats?rosterStatsSvg(player,x,y+g.h-band+61,g.w,band-65):'')+'</g>';
  });return base(content);
 }
 
