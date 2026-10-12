@@ -827,8 +827,8 @@ function rosterGeometry(count,W,H){
 }
 function rosterPortrait(url,x,y,w,h){
  if(!url)return '';measurePortrait(url);const b=portraitBounds.get(url);
- // Use the same head scale and top inset, regardless of source torso length.
- const cropW=b?b.headWidth/.42:w,cropH=cropW*h/w,crop=b?[b.left+(b.width-cropW)/2,b.top-cropH*.035,cropW,cropH]:[0,0,w,h];
+ // Keep a consistent head scale where possible; short cutouts must also fill the photo height.
+ const cropW=b?Math.min(b.headWidth/.42,b.height*w/h/ .965):w,cropH=cropW*h/w,crop=b?[b.left+(b.width-cropW)/2,b.top-cropH*.035,cropW,cropH]:[0,0,w,h];
  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMin slice')+'"/></svg>';
 }
 function rosterStatsValues(player){

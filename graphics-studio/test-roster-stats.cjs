@@ -18,10 +18,12 @@ assert.deepEqual(values({position:'G',regular_goalie_games:1}),[['GP','1'],['SV%
 assert(source.includes('S.rosterStats?rosterStatsSvg('));
 ctx.measurePortrait=()=>{};ctx.esc=x=>x;ctx.portraitBounds=new Map();
 vm.runInContext(source.slice(source.indexOf('function rosterPortrait('),source.indexOf('function rosterStatsValues(')),ctx);
-for(const height of [400,900]){
+for(const height of [200,400,900]){
  ctx.portraitBounds.set('portrait',{left:20,top:30,width:300,height,headWidth:100,sourceW:500,sourceH:1000});
  const box=ctx.rosterPortrait('portrait',0,0,200,300).match(/viewBox="([^"]+)"/)[1].split(' ').map(Number);
- assert(Math.abs(100/box[2]-.42)<1e-9,'Head scale must be independent of torso length');
+ assert(100/box[2]>=.42-1e-9,'Head must not shrink below the target scale');
+ assert(box[1]+box[3]<=30+height+1e-9,'Short cutouts must reach the bottom of the photo area');
+ if(height>=400)assert(Math.abs(100/box[2]-.42)<1e-9,'Long cutouts must keep the target head scale');
  assert(Math.abs((30-box[1])/box[3]-.035)<1e-9,'Head top inset must be consistent');
 }
 console.log('Roster stats passed: skaters, goalies, stage selection, totals and missing statistics.');
