@@ -26,4 +26,10 @@ for(const height of [200,400,900]){
  if(height>=400)assert(Math.abs(100/box[2]-.42)<1e-9,'Long cutouts must keep the target head scale');
  assert(Math.abs((30-box[1])/box[3]-.035)<1e-9,'Head top inset must be consistent');
 }
-console.log('Roster stats passed: skaters, goalies, stage selection, totals and missing statistics.');
+ctx.portraitBounds.set('portrait',{left:20,top:30,width:400,height:900,headWidth:100,sourceW:600,sourceH:1000});
+const cropWidth=count=>Number(ctx.rosterPortrait('portrait',0,0,280,180,count).match(/viewBox="([^"]+)"/)[1].split(' ')[2]);
+ctx.S.format='wide';
+const regularCrop=cropWidth(9);
+for(const count of [1,4,6,7,8])assert(cropWidth(count)>regularCrop,'Small 16:9 rosters must show more torso');
+ctx.S.format='portrait';assert.equal(cropWidth(8),regularCrop,'Instagram crop must stay unchanged');
+console.log('Roster stats and portrait crops passed, including small 16:9 rosters.');

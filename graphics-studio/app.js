@@ -825,10 +825,11 @@ function rosterGeometry(count,W,H){
  for(let columns=1;columns<=Math.min(8,Math.max(1,count));columns++){const rows=Math.ceil(Math.max(1,count)/columns),w=(width-gap*(columns-1))/columns,h=(height-gap*(rows-1))/rows;const score=Math.abs(Math.log((w/h)/.85))+(rows*columns-Math.max(1,count))*.025;if(!best||score<best.score)best={columns,rows,w,h,score};}
  return {...best,margin,top,gap,width};
 }
-function rosterPortrait(url,x,y,w,h){
+function rosterPortrait(url,x,y,w,h,count){
  if(!url)return '';measurePortrait(url);const b=portraitBounds.get(url);
  // Keep a consistent head scale where possible; short cutouts must also fill the photo height.
- const cropW=b?Math.min(b.headWidth/.42,b.height*w/h/ .965):w,cropH=cropW*h/w,crop=b?[b.left+(b.width-cropW)/2,b.top-cropH*.035,cropW,cropH]:[0,0,w,h];
+ const smallWide=S.format==='wide'&&count<=8,targetW=b?Math.max(b.headWidth/.42,smallWide?b.headWidth*3.2*w/h:0):w;
+ const cropW=b?Math.min(targetW,b.height*w/h/ .965):w,cropH=cropW*h/w,crop=b?[b.left+(b.width-cropW)/2,b.top-cropH*.035,cropW,cropH]:[0,0,w,h];
  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMin slice')+'"/></svg>';
 }
 function rosterStatsValues(player){
