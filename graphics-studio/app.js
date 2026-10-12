@@ -801,6 +801,8 @@ function rosterPlayers(){const unique=new Map();for(const player of S.players){i
 function rosterPlayerId(player){return String(player.sports_gamer_player_id??player.display_gamertag);}
 function rosterExclusions(){const key=S.league+':'+rosterTeamId;if(!rosterExcluded.has(key))rosterExcluded.set(key,new Set());return rosterExcluded.get(key);}
 function rosterPosition(player){
+  const goalieGames=n(player.regular_goalie_games)+n(player.playoff_goalie_games),skaterGames=n(player.regular_skater_games)+n(player.playoff_skater_games);
+  if(goalieGames>0&&skaterGames===0)return 'G';
   const position=String(player.roster_preferred_position_abbreviation||player.regular_skater_position_abbreviation||player.playoff_skater_position_abbreviation||'').toUpperCase();
   return position==='GK'?'G':position==='CE'?'C':position;
 }
@@ -852,7 +854,7 @@ function rosterSvg(){
  const players=selectedRoster(),{w:W,h:H}=format(),g=rosterGeometry(players.length,W,H),team=rosterTeamOptions().find(team=>team.id===rosterTeamId),logo=logos().get(rosterTeamId);
  let content=svgText(g.margin,310,players.length+' '+L.t('SPELARE')+(S.rosterStats?' · '+stageName():''),17,'#ffcf4a',800);
  if(!players.length)return base(content+svgText(W/2,(H+340)/2,L.t(team?'Välj minst en spelare':'Inga registrerade spelare'),26,'#a2b6c9',700,'text-anchor="middle"'));
- players.forEach((player,i)=>{const row=Math.floor(i/g.columns),rowCount=Math.min(g.columns,players.length-row*g.columns),offset=(g.width-(rowCount*g.w+(rowCount-1)*g.gap))/2,x=g.margin+offset+(i%g.columns)*(g.w+g.gap),y=g.top+row*(g.h+(g.rowGap||g.gap)),band=S.rosterStats?Math.min(126,Math.max(98,g.h*.4)):Math.min(72,Math.max(60,g.h*.23)),ph=g.h-band-12,portrait=portraitUrl(player),name=String(player.display_gamertag||''),size=Math.min(25,(g.w-22)/Math.max(1,name.length)*1.45),position=player.roster_preferred_position_abbreviation||player.regular_skater_position_abbreviation||player.playoff_skater_position_abbreviation||'–';
+ players.forEach((player,i)=>{const row=Math.floor(i/g.columns),rowCount=Math.min(g.columns,players.length-row*g.columns),offset=(g.width-(rowCount*g.w+(rowCount-1)*g.gap))/2,x=g.margin+offset+(i%g.columns)*(g.w+g.gap),y=g.top+row*(g.h+(g.rowGap||g.gap)),band=S.rosterStats?Math.min(126,Math.max(98,g.h*.4)):Math.min(72,Math.max(60,g.h*.23)),ph=g.h-band-12,portrait=portraitUrl(player),name=String(player.display_gamertag||''),size=Math.min(25,(g.w-22)/Math.max(1,name.length)*1.45),position=rosterPosition(player)||'–';
  content+='<g data-player-id="'+esc(rosterPlayerId(player))+'"><rect x="'+x+'" y="'+y+'" width="'+g.w+'" height="'+g.h+'" rx="14" fill="#12354f" stroke="#355369"/>'+(portrait?rosterPortrait(portrait,x+8,y+6,g.w-16,ph,players.length,player):rosterAvatar(x+8,y+6,g.w-16,ph,players.length))+'<rect x="'+x+'" y="'+(y+g.h-band)+'" width="'+g.w+'" height="'+band+'" fill="#04131e"/>'+svgText(x+g.w/2,y+g.h-band+Math.min(size+5,band*.5),name,size,'#fff',900,'text-anchor="middle"')+svgText(x+g.w/2,(S.rosterStats?y+g.h-band+49:y+g.h-10),(player.player_number!=null?'#'+player.player_number+' · ':'')+position,Math.min(14,band*.24),'#ffcf4a',800,'text-anchor="middle"')+nationFlag(player,x+8,S.rosterStats?y+g.h-band+32:y+g.h-27,24)+(S.rosterStats?rosterStatsSvg(player,x,y+g.h-band+61,g.w,band-65):'')+'</g>';
  });return base(content);
 }
