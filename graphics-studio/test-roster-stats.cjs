@@ -1,0 +1,18 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync(__dirname+'/app.js','utf8');
+const ctx={S:{stage:'regular'},L:{locale:'en-GB',t:x=>x},n:v=>Number(v)||0,rosterPosition:p=>p.position};
+vm.createContext(ctx);
+vm.runInContext(source.slice(source.indexOf('function ps('),source.indexOf('function qualificationPercent(')),ctx);
+vm.runInContext(source.slice(source.indexOf('function gv('),source.indexOf('function goalies(')),ctx);
+vm.runInContext(source.slice(source.indexOf('function rosterStatsValues('),source.indexOf('function rosterStatsSvg(')),ctx);
+const player={position:'RW',regular_skater_games:6,regular_goals:3,regular_assists:5,regular_points:8,playoff_skater_games:2,playoff_goals:1,playoff_assists:2,playoff_points:3};
+const values=p=>JSON.parse(JSON.stringify(ctx.rosterStatsValues(p)));
+assert.deepEqual(values(player),[['GP','6'],['G','3'],['A','5'],['P','8']]);
+ctx.S.stage='playoffs';assert.deepEqual(values(player),[['GP','2'],['G','1'],['A','2'],['P','3']]);
+ctx.S.stage='total';assert.deepEqual(values(player),[['GP','8'],['G','4'],['A','7'],['P','11']]);
+ctx.S.stage='regular';
+assert.deepEqual(values({position:'G',regular_goalie_games:4,regular_goalie_save_percentage:80.5,regular_goalie_goals_against_average:2.25,regular_goalie_shutouts:1}),[['GP','4'],['SV%','80.5'],['GAA','2.25'],['SO','1']]);
+assert.deepEqual(values({position:'G',regular_goalie_games:0}),[['GP','0'],['SV%','–'],['GAA','–'],['SO','–']]);
+assert.deepEqual(values({position:'G',regular_goalie_games:1}),[['GP','1'],['SV%','–'],['GAA','–'],['SO','–']]);
+assert(source.includes('S.rosterStats?rosterStatsSvg('));
+console.log('Roster stats passed: skaters, goalies, stage selection, totals and missing statistics.');
