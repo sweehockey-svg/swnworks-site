@@ -803,7 +803,11 @@ function rosterExclusions(){const key=S.league+':'+rosterTeamId;if(!rosterExclud
 function rosterPosition(player){
   const goalieGames=n(player.regular_goalie_games)+n(player.playoff_goalie_games),skaterGames=n(player.regular_skater_games)+n(player.playoff_skater_games);
   if(goalieGames>0&&skaterGames===0)return 'G';
-  const position=String(player.roster_preferred_position_abbreviation||player.regular_skater_position_abbreviation||player.playoff_skater_position_abbreviation||'').toUpperCase();
+  let position=String(player.roster_preferred_position_abbreviation||player.regular_skater_position_abbreviation||player.playoff_skater_position_abbreviation||'').toUpperCase();
+  if(skaterGames>0&&goalieGames===0&&(position==='G'||position==='GK')){
+    const actual=[player.regular_skater_position_abbreviation,player.playoff_skater_position_abbreviation].map(value=>String(value||'').toUpperCase());
+    position=actual.find(value=>value&&value!=='G'&&value!=='GK')||'–';
+  }
   return position==='GK'?'G':position==='CE'?'C':position;
 }
 function selectedRoster(){
