@@ -23,7 +23,7 @@ for(const headWidth of [200,350,450]){
  ctx.portraitBounds.set('template',{left:headWidth/2,top:headWidth/10,width:900,height:1500,headWidth,sourceW:1024,sourceH:1536});
  templateCrops.push(ctx.rosterPortrait('template',0,0,160,240,18).match(/viewBox="([^"]+)"/)[1]);
 }
-assert.deepEqual(templateCrops,['0 0 1024 1536','0 0 1024 1536','0 0 1024 1536'],'Template portraits must preserve identical canvas scaling');
+assert.deepEqual(templateCrops,['256 0 512 768','256 0 512 768','256 0 512 768'],'Template portraits must share the same chest crop');
 vm.runInContext(source.slice(source.indexOf('function rosterPosition('),source.indexOf('function selectedRoster(')),ctx);
 ctx.S.stage='regular';
 const goalieOnly={roster_preferred_position_abbreviation:'RD',regular_goalie_games:4,regular_skater_games:0,regular_goalie_save_percentage:.85};

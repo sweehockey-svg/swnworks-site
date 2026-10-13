@@ -834,7 +834,7 @@ function rosterGeometry(count,W,H){
 function rosterPortrait(url,x,y,w,h,count){
  if(!url)return '';measurePortrait(url);const b=portraitBounds.get(url);
  const template=b&&Math.abs(b.sourceW/b.sourceH-2/3)<.002;
- const cropW=b?(template?Math.min(b.sourceW,b.sourceH*w/h):Math.min(b.width,b.headWidth/.54)):w,cropH=cropW*h/w;
+ const cropW=b?(template?b.sourceH*.5*w/h:Math.min(b.width,b.headWidth/.54)):w,cropH=cropW*h/w;
  const crop=b?(template?[(b.sourceW-cropW)/2,0,cropW,cropH]:[b.left+(b.width-cropW)/2,Math.max(0,b.top),cropW,cropH]):[0,0,w,h];
  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMin slice')+'"/></svg>';
 }
