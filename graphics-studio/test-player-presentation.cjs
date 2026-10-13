@@ -24,6 +24,13 @@ const {chromium}=require('C:/Users/TheSw/.cache/codex-runtimes/codex-primary-run
   assert((await page.locator('#preview').textContent()).includes('82,5'));
   const outside=await page.locator('#preview svg').first().evaluate(svg=>[...svg.querySelectorAll('text')].some(t=>+t.getAttribute('y')>+svg.getAttribute('height')-20));assert.equal(outside,false);
  }
+ await page.fill('#playerNote','Test text with <safe> characters');
+ await page.evaluate(()=>window.testPlayer('portrait'));
+ assert((await page.locator('#preview').textContent()).includes('<safe>'));
+ await page.fill('#playerNote','');
+ await page.evaluate(()=>window.testPlayer('portrait'));
+ assert(!(await page.locator('#preview').textContent()).includes('<safe>'));
+ await page.fill('#playerNote','Meet the player');
  await page.evaluate(()=>window.testPlayer('portrait'));
  await page.waitForTimeout(500);
  await page.locator('#preview').screenshot({path:__dirname+'/../../player-presentation-proof.png'});
