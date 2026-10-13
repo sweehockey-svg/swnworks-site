@@ -863,22 +863,21 @@ function syncSinglePlayer(){
 function playerPresentationSvg(){
  const p=singlePlayer(),{w:W,h:H}=format(),m=Math.round(W*.052),wide=S.format==='wide';
  if(!p)return base(svgText(m,380,L.t('V\u00e4lj spelare'),28,'#fff',800));
- const photoX=m*.3,photoY=160,photoW=W*.54,photoH=H-photoY-85,url=portraitUrl(p),b=url?portraitBounds.get(url):null;
+ const name=$('#title').value||p.display_gamertag,photoX=W*.3,photoY=344,photoW=W-photoX-m*.4,photoH=H-photoY-85,url=portraitUrl(p),b=url?portraitBounds.get(url):null;
  if(url)measurePortrait(url);
  const crop=b?[0,0,b.sourceW,b.sourceH*.8]:[0,0,1024,1229];
  let content='<g data-single-player="'+esc(rosterPlayerId(p))+'">';
- content+=url?'<svg x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMax meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH);
- const infoX=W*.56,infoW=W-m-infoX,infoY=wide?H*.25:H*.3,name=$('#title').value||p.display_gamertag,logo=S.logos?logos().get(rosterTeamId):'';
- content+=svgText(infoX,infoY,$('#subtitle').value||L.t('SPELARPRESENTATION'),16,'#a2b6c9',800,'letter-spacing="2"');
- if(logo)content+=img(logo,infoX,infoY+24,66);
- content+=svgText(infoX+(logo?80:0),infoY+66,rosterTeamName(),Math.min(22,(infoW-(logo?80:0))/Math.max(1,rosterTeamName().length)*1.4),'#a2b6c9',800);
- content+=nationFlag(p,infoX,infoY+108,38)+svgText(infoX,infoY+184,name,fittedHeadingSize(name,wide?76:58,infoW),'#fff',900);
- content+=svgText(infoX,infoY+224,(rosterPosition(p)||'\u2013')+' \u00b7 '+(p.player_number!=null?'#'+p.player_number:''),26,'#ffcf4a',800);
- const cells=rosterStatsValues(p),goalie=rosterPosition(p)==='G',primary=goalie?cells[1][1]:cells[3][1];
- content+=svgText(infoX,infoY+310,primary,76,'#ffcf4a',900)+svgText(infoX,infoY+344,goalie?'SV%':L.t('PO\u00c4NG'),16,'#a2b6c9',800);
- const cellW=infoW/2,statY=infoY+380;
- content+=cells.map(([label,value],i)=>{const x=infoX+(i%2)*cellW,y=statY+Math.floor(i/2)*88;return '<line x1="'+x+'" y1="'+y+'" x2="'+x+'" y2="'+(y+60)+'" stroke="#ffcf4a"/>'+svgText(x+14,y+27,value,Math.min(34,(cellW-26)/(String(value).length*.68)),'#fff',900)+svgText(x+14,y+53,label,13,'#a2b6c9',800);}).join('');
- content+=svgText(infoX,statY+198,stageName(),16,'#a2b6c9',800)+'</g>';
+ content+=svgText(m,198,$('#subtitle').value||L.t('SPELARPRESENTATION'),16,'#a2b6c9',800,'letter-spacing="2"')+svgText(m,274,name,fittedHeadingSize(name,wide?86:76,W-m*2),'#fff',900)+'<line x1="'+m+'" y1="308" x2="'+(W-m)+'" y2="308" stroke="#ffcf4a" stroke-width="3"/>';
+ content+=url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMax meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH);
+ const infoX=m,infoW=W*.27-m,infoY=365,k=Math.min(1.5,(H-420)/850),logo=S.logos?logos().get(rosterTeamId):'';
+ content+=logo?img(logo,infoX,infoY,76):nationFlag(p,infoX,infoY,76);
+ content+=svgText(infoX,infoY+98,rosterTeamName(),Math.min(26,infoW/Math.max(1,rosterTeamName().length)*1.45),'#a2b6c9',800);
+ content+=svgText(infoX,infoY+142,(rosterPosition(p)||'\u2013')+(p.player_number!=null?' \u00b7 #'+p.player_number:''),26,'#ffcf4a',800);
+ const cells=rosterStatsValues(p),goalie=rosterPosition(p)==='G',primary=goalie?cells[1][1]:cells[3][1],primaryY=infoY+320*k;
+ content+=svgText(infoX,primaryY,primary,Math.min(150*k,infoW/Math.max(1,primary.length)*1.4),'#ffcf4a',900)+svgText(infoX,primaryY+40,goalie?'SV%':L.t('PO\u00c4NG'),18,'#a2b6c9',800,'letter-spacing="2"');
+ const secondary=goalie?[cells[0],cells[2],cells[3]]:cells.slice(0,3),statY=infoY+455*k;
+ content+=secondary.map(([label,value],i)=>{const y=statY+i*90*k;return svgText(infoX,y,value,Math.min(44*k,infoW*.55/Math.max(1,value.length)*1.4),'#fff',900)+svgText(infoX+infoW*.64,y-8,label,16,'#a2b6c9',800);}).join('');
+ content+=svgText(infoX,H-150,stageName(),16,'#a2b6c9',800)+'</g>';
  return base(content);
 }
 function rosterSvg(){
