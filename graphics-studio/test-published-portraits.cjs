@@ -4,5 +4,7 @@ vm.createContext(ctx);
 vm.runInContext(source.slice(source.indexOf('function portraitUrl('),source.indexOf('function portraitImage(')),ctx);
 const fresh='https://www.svenskehockey.se/assets/player-portraits/20261013/3227.png';
 assert.equal(ctx.portraitUrl({sports_gamer_player_id:3227,player_image:fresh}),fresh);
+const optimized='https://www.svenskehockey.se/web-images/player-portraits/20261013/3227.png.webp';
+assert.equal(ctx.portraitUrl({sports_gamer_player_id:3227,player_image:optimized}),optimized);
 assert.equal(ctx.portraitUrl({sports_gamer_player_id:3227,player_image:'https://sportsgamer.gg/old.png'}),'https://www.svenskehockey.se/players/3227.png');
 console.log('Published portraits take precedence over the legacy image list.');
