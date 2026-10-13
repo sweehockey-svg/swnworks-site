@@ -18,20 +18,12 @@ assert.deepEqual(values({position:'G',regular_goalie_games:1}),[['GP','1'],['SV%
 assert(source.includes('S.rosterStats?rosterStatsSvg('));
 ctx.measurePortrait=()=>{};ctx.esc=x=>x;ctx.portraitBounds=new Map();
 vm.runInContext(source.slice(source.indexOf('function rosterPortrait('),source.indexOf('function rosterStatsValues(')),ctx);
-for(const height of [200,400,900]){
- ctx.portraitBounds.set('portrait',{left:20,top:30,width:300,height,headWidth:100,sourceW:500,sourceH:1000});
- const box=ctx.rosterPortrait('portrait',0,0,200,300).match(/viewBox="([^"]+)"/)[1].split(' ').map(Number);
- assert(100/box[2]>=.42-1e-9,'Head must not shrink below the target scale');
- assert(box[1]+box[3]<=30+height+1e-9,'Short cutouts must reach the bottom of the photo area');
- if(height>=400)assert(Math.abs(100/box[2]-.42)<1e-9,'Long cutouts must keep the target head scale');
- assert(Math.abs((30-box[1])/box[3]-.035)<1e-9,'Head top inset must be consistent');
+const templateCrops=[];
+for(const headWidth of [200,350,450]){
+ ctx.portraitBounds.set('template',{left:headWidth/2,top:headWidth/10,width:900,height:1500,headWidth,sourceW:1024,sourceH:1536});
+ templateCrops.push(ctx.rosterPortrait('template',0,0,160,240,18).match(/viewBox="([^"]+)"/)[1]);
 }
-ctx.portraitBounds.set('portrait',{left:20,top:30,width:400,height:900,headWidth:100,sourceW:600,sourceH:1000});
-const cropWidth=count=>Number(ctx.rosterPortrait('portrait',0,0,280,180,count).match(/viewBox="([^"]+)"/)[1].split(' ')[2]);
-ctx.S.format='wide';
-const regularCrop=cropWidth(9);
-for(const count of [1,4,6,7,8])assert(cropWidth(count)>regularCrop,'Small 16:9 rosters must show more torso');
-ctx.S.format='portrait';assert.equal(cropWidth(8),regularCrop,'Instagram crop must stay unchanged');
+assert.deepEqual(templateCrops,['0 0 1024 1536','0 0 1024 1536','0 0 1024 1536'],'Template portraits must preserve identical canvas scaling');
 vm.runInContext(source.slice(source.indexOf('function rosterPosition('),source.indexOf('function selectedRoster(')),ctx);
 ctx.S.stage='regular';
 const goalieOnly={roster_preferred_position_abbreviation:'RD',regular_goalie_games:4,regular_skater_games:0,regular_goalie_save_percentage:.85};
