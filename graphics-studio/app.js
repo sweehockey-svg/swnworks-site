@@ -730,7 +730,7 @@ function portraitCrop(b,w,h){
  return {left:b.left+(b.width-cropW)/2,top:b.top,width:cropW,height:cropH};
 }
 function normalizedPortrait(url,x,y,w,h,id,framed=false){
- measurePortrait(url);const b=portraitBounds.get(url),player=S.players.find(p=>portraitUrl(p)===url),gt=String(player?.display_gamertag||'').trim().toLowerCase(),correction=gt==='wedux_'?1.18:/^borjee_+$/.test(gt)?1.14:1,crop=b?portraitCrop({...b,headWidth:b.headWidth/correction},w,h):null;
+ measurePortrait(url);const b=portraitBounds.get(url),crop=b?portraitCrop(b,w,h):null;
  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'"'+(crop?' viewBox="'+[crop.left,crop.top,crop.width,crop.height].join(' ')+'"':' viewBox="0 0 '+w+' '+h+'"')+' preserveAspectRatio="xMidYMin slice" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMin slice')+'"/></svg>';
 }
 async function readyPortraits(){build();await Promise.all([...portraitMeasurements.values()]);}
@@ -832,16 +832,15 @@ function rosterGeometry(count,W,H){
  return {...best,margin,top,gap,width};
 }
 function rosterPortrait(url,x,y,w,h,count){
- if(!url)return '';measurePortrait(url);const b=portraitBounds.get(url);
- // Team presentations use a closer, consistent bust crop. Keep the originals untouched.
- // A slightly larger head places the lower edge just below the shirt flag on
- // standard 1200x1600 portraits instead of showing the full upper body.
- const smallWide=S.format==='wide'&&count<=8;
- const headFraction=smallWide?.44:.48;
- const targetW=b?Math.max(b.headWidth/headFraction,smallWide?b.headWidth*2.35*w/h:0):w;
- const cropW=b?Math.min(targetW,b.width,b.height*w/h/.965):w;
+ if(!url)return '';
+ measurePortrait(url);
+ const b=portraitBounds.get(url);
+ // All players share the same head-based crop; never scale by gamer tag or body length.
+ // Source portraits stay unchanged. The visible window ends around the chest flag.
+ const headFraction=.54;
+ const cropW=b?Math.min(b.width,b.headWidth/headFraction):w;
  const cropH=cropW*h/w;
- const crop=b?[b.left+(b.width-cropW)/2,Math.max(0,b.top-cropH*.025),cropW,cropH]:[0,0,w,h];
+ const crop=b?[b.left+(b.width-cropW)/2,Math.max(0,b.top),cropW,cropH]:[0,0,w,h];
  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMin slice')+'"/></svg>';
 }
 function rosterAvatar(x,y,w,h,count){
