@@ -634,7 +634,7 @@ function fittedHeadingSize(value,maxSize,availableWidth){
 }
 function base(content){
   const {w:W,h:H}=format(),m=Math.round(W*.052),c=comp(),wide=S.format==="wide";
-  const rosterLogo=['roster','player'].includes(S.kind)&&S.logos?logos().get(rosterTeamId):'',rosterLogoSize=130,headingWidth=W-m*2-(rosterLogo?rosterLogoSize+30:0);
+  const rosterLogo=S.kind==='roster'&&S.logos?logos().get(rosterTeamId):'',rosterLogoSize=130,headingWidth=W-m*2-(rosterLogo?rosterLogoSize+30:0);
   const headingSize=fittedHeadingSize(title(),wide?82:70,headingWidth);
   return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+defs()+
     studioBackground(W,H)+
@@ -642,7 +642,7 @@ function base(content){
     (c.logo?'<image href="'+esc(c.logo)+'" x="'+(m+20)+'" y="40" width="72" height="72" preserveAspectRatio="xMidYMid meet"/>':'')+
     svgText(m+112,72,c.label,27,"#f4f7fa",800)+svgText(m+112,97,"SVENSK eHOCKEY",12,"#a2b6c9",700,'letter-spacing="2.4"')+
     '<line x1="'+m+'" y1="132" x2="'+(W-m)+'" y2="132" stroke="#7b9ab6" opacity=".24"/>'+
-    svgText(m,178,subtitle()+(['table','groups'].includes(S.kind)&&manualMatches.some(g=>Number(g.league)===S.league)?' Â· '+L.t('PRELIMINÃ„R'):'') ,15,"#ffcf4a",700,'letter-spacing="3"')+svgText(m,252,title(),headingSize,"#f4f7fa",900,'letter-spacing="-2"')+
+    (S.kind==='player'?'':svgText(m,178,subtitle()+(['table','groups'].includes(S.kind)&&manualMatches.some(g=>Number(g.league)===S.league)?' Â· '+L.t('PRELIMINÃ„R'):'') ,15,"#ffcf4a",700,'letter-spacing="3"')+svgText(m,252,title(),headingSize,"#f4f7fa",900,'letter-spacing="-2"'))+
     (rosterLogo?img(rosterLogo,W-m-rosterLogoSize,190,rosterLogoSize):'')+content+'<line x1="'+m+'" y1="'+(H-65)+'" x2="'+(W-m)+'" y2="'+(H-65)+'" stroke="#7b9ab6" opacity=".24"/>'+
     svgText(m,H-33,"SVENSK eHOCKEY",13,"#a2b6c9",700,'letter-spacing="1.5"')+
     svgText(W-m,H-33,"SWNWORKS",13,"#a2b6c9",700,'text-anchor="end" letter-spacing="2"')+'</svg>';
@@ -862,15 +862,23 @@ function syncSinglePlayer(){
 }
 function playerPresentationSvg(){
  const p=singlePlayer(),{w:W,h:H}=format(),m=Math.round(W*.052),wide=S.format==='wide';
- if(!p)return base(svgText(m,380,L.t('Välj spelare'),28,'#fff',800));
- const y=350,photoH=wide?H-y-100:H-y-380,photoW=Math.min(wide?W*.4:W-m*2,photoH*.85),x=wide?m:m+(W-m*2-photoW)/2,url=portraitUrl(p);
- let content=svgText(m,310,rosterTeamName(),24,'#ffcf4a',800);
- content+='<g data-single-player="'+esc(rosterPlayerId(p))+'"><rect x="'+x+'" y="'+y+'" width="'+photoW+'" height="'+photoH+'" rx="24" fill="#12354f" stroke="#355369"/>'+(url?rosterPortrait(url,x+8,y+8,photoW-16,photoH-16,1):rosterAvatar(x+8,y+8,photoW-16,photoH-16,1));
- const infoX=wide?W*.52:m,infoY=wide?390:H-330,infoW=wide?W-m-infoX:W-m*2;
- content+=nationFlag(p,infoX,infoY,46)+svgText(infoX+62,infoY+30,(p.player_number!=null?'#'+p.player_number+' · ':'')+(rosterPosition(p)||'–'),32,'#ffcf4a',900);
- content+=svgText(infoX,infoY+78,stageName(),19,'#a2b6c9',800);
- const cells=rosterStatsValues(p),cellW=infoW/4,statY=infoY+110;
- content+=cells.map(([label,value],i)=>'<rect x="'+(infoX+i*cellW)+'" y="'+statY+'" width="'+(cellW-10)+'" height="110" rx="14" fill="#04131e"/>'+svgText(infoX+i*cellW+18,statY+30,label,16,'#a2b6c9',800)+svgText(infoX+i*cellW+18,statY+82,value,Math.min(44,(cellW-36)/(String(value).length*.68)),'#fff',900)).join('')+'</g>';
+ if(!p)return base(svgText(m,380,L.t('V\u00e4lj spelare'),28,'#fff',800));
+ const photoX=m*.3,photoY=160,photoW=W*.54,photoH=H-photoY-85,url=portraitUrl(p),b=url?portraitBounds.get(url):null;
+ if(url)measurePortrait(url);
+ const crop=b?[0,0,b.sourceW,b.sourceH*.8]:[0,0,1024,1229];
+ let content='<g data-single-player="'+esc(rosterPlayerId(p))+'">';
+ content+=url?'<svg x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMax meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH);
+ const infoX=W*.56,infoW=W-m-infoX,infoY=wide?H*.25:H*.3,name=$('#title').value||p.display_gamertag,logo=S.logos?logos().get(rosterTeamId):'';
+ content+=svgText(infoX,infoY,$('#subtitle').value||L.t('SPELARPRESENTATION'),16,'#a2b6c9',800,'letter-spacing="2"');
+ if(logo)content+=img(logo,infoX,infoY+24,66);
+ content+=svgText(infoX+(logo?80:0),infoY+66,rosterTeamName(),Math.min(22,(infoW-(logo?80:0))/Math.max(1,rosterTeamName().length)*1.4),'#a2b6c9',800);
+ content+=nationFlag(p,infoX,infoY+108,38)+svgText(infoX,infoY+184,name,fittedHeadingSize(name,wide?76:58,infoW),'#fff',900);
+ content+=svgText(infoX,infoY+224,(rosterPosition(p)||'\u2013')+' \u00b7 '+(p.player_number!=null?'#'+p.player_number:''),26,'#ffcf4a',800);
+ const cells=rosterStatsValues(p),goalie=rosterPosition(p)==='G',primary=goalie?cells[1][1]:cells[3][1];
+ content+=svgText(infoX,infoY+310,primary,76,'#ffcf4a',900)+svgText(infoX,infoY+344,goalie?'SV%':L.t('PO\u00c4NG'),16,'#a2b6c9',800);
+ const cellW=infoW/2,statY=infoY+380;
+ content+=cells.map(([label,value],i)=>{const x=infoX+(i%2)*cellW,y=statY+Math.floor(i/2)*88;return '<line x1="'+x+'" y1="'+y+'" x2="'+x+'" y2="'+(y+60)+'" stroke="#ffcf4a"/>'+svgText(x+14,y+27,value,Math.min(34,(cellW-26)/(String(value).length*.68)),'#fff',900)+svgText(x+14,y+53,label,13,'#a2b6c9',800);}).join('');
+ content+=svgText(infoX,statY+198,stageName(),16,'#a2b6c9',800)+'</g>';
  return base(content);
 }
 function rosterSvg(){
