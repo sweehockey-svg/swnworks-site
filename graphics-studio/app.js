@@ -16,7 +16,7 @@ const C={
 const F={portrait:{w:1080,h:1350,label:"1080 × 1350"},square:{w:1080,h:1080,label:"1080 × 1080"},story:{w:1080,h:1920,label:"1080 × 1920"},wide:{w:1920,h:1080,label:"1920 × 1080"}};
 const TIT={table:"TABELLEN",groups:"GRUPPTABELLER",goals:"SKYTTELIGAN",points:"POÄNGLIGAN",assists:"ASSISTLIGAN",defender_points:"BACKLIGAN · POÄNG",defender_goals:"BACKLIGAN · MÅL",defender_assists:"BACKLIGAN · ASSIST",goalies:"MÅLVAKTSLIGAN",leaders:"LIGATOPPAR"};
 const S={kind:"table",league:527,stage:"regular",group:null,count:8,format:"portrait",bg:"gamenight",logos:true,teams:[],players:[]};
-TIT.roster='LAGPRESENTATION';
+TIT.roster='LAGPRESENTATION';TIT.player='SPELARPRESENTATION';
 TIT.matches='DAGENS RESULTAT';
 TIT.dim='DEFENSIV IMPACT';
 Object.assign(TIT,{points_average:'POÄNGSNITT',defender_points_average:'BACKLIGAN · POÄNGSNITT',penalties:'UTVISNINGSLIGAN',hits:'TACKLINGSLIGAN'});
@@ -220,8 +220,8 @@ function matchesSvg(){
     return '<rect x="'+m+'" y="'+(y+6)+'" width="'+(W-m*2)+'" height="'+(rowH-12)+'" rx="12" fill="#071d2c" fill-opacity=".9"/>'+team(g[1],true)+svgText(center,cy+14,g[3]+'–'+g[4],40,'#ffcf4a',900,'text-anchor="middle"')+team(g[2],false);
   }).join(''));
 }
-function title(){return ($("#title").value||(S.kind==="roster"?rosterTeamName():TIT[S.kind])).trim().toUpperCase()}
-function subtitle(){if(S.kind==="roster")return ($("#subtitle").value||L.t("LAGPRESENTATION")+" · "+comp().label).toUpperCase();if(S.kind==="matches")return ($("#subtitle").value||matchDayLabel()+" · "+comp().label).toUpperCase();return ($("#subtitle").value||(S.kind==="table"?stageName()+(groupIds().length>1?" · "+groupName(S.group):""):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label)).trim().toUpperCase()}
+function title(){return ($("#title").value||(S.kind==="player"?singlePlayer()?.display_gamertag||TIT.player:S.kind==="roster"?rosterTeamName():TIT[S.kind])).trim().toUpperCase()}
+function subtitle(){if(S.kind==="player")return ($("#subtitle").value||L.t(TIT.player)+" � "+comp().label).toUpperCase();if(S.kind==="roster")return ($("#subtitle").value||L.t("LAGPRESENTATION")+" · "+comp().label).toUpperCase();if(S.kind==="matches")return ($("#subtitle").value||matchDayLabel()+" · "+comp().label).toUpperCase();return ($("#subtitle").value||(S.kind==="table"?stageName()+(groupIds().length>1?" · "+groupName(S.group):""):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label)).trim().toUpperCase()}
 function defs(){return '<defs><linearGradient id="silver" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#edf1f4"/><stop offset=".8" stop-color="#a2adb6"/><stop offset="1" stop-color="#fff"/></linearGradient><linearGradient id="gold"><stop stop-color="#ffd95f"/><stop offset=".5" stop-color="#ffbd00"/><stop offset="1" stop-color="#d88700"/></linearGradient><linearGradient id="panel" x2="1" y2="1"><stop stop-color="#071d2c" stop-opacity=".97"/><stop offset="1" stop-color="#020b12" stop-opacity=".98"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#000" flood-opacity=".58"/></filter></defs>'}
 function background(W,H){
   const glow=(id,color,x,y)=>'<radialGradient id="'+id+'"><stop stop-color="'+color+'" stop-opacity=".48"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient>';
@@ -634,7 +634,7 @@ function fittedHeadingSize(value,maxSize,availableWidth){
 }
 function base(content){
   const {w:W,h:H}=format(),m=Math.round(W*.052),c=comp(),wide=S.format==="wide";
-  const rosterLogo=S.kind==='roster'&&S.logos?logos().get(rosterTeamId):'',rosterLogoSize=130,headingWidth=W-m*2-(rosterLogo?rosterLogoSize+30:0);
+  const rosterLogo=['roster','player'].includes(S.kind)&&S.logos?logos().get(rosterTeamId):'',rosterLogoSize=130,headingWidth=W-m*2-(rosterLogo?rosterLogoSize+30:0);
   const headingSize=fittedHeadingSize(title(),wide?82:70,headingWidth);
   return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+defs()+
     studioBackground(W,H)+
@@ -854,6 +854,25 @@ function rosterStatsSvg(player,x,y,w,h){
  const cells=rosterStatsValues(player),cellW=(w-12)/cells.length,labelSize=Math.min(12,cellW*.3),valueSize=Math.min(22,cellW*.5,h*.48);
  return '<g data-roster-stats="true"><line x1="'+(x+8)+'" y1="'+y+'" x2="'+(x+w-8)+'" y2="'+y+'" stroke="#355369"/>'+cells.map(([label,value],i)=>svgText(x+6+cellW*(i+.5),y+labelSize+4,label,labelSize,'#9bb5c6',700,'text-anchor="middle"')+svgText(x+6+cellW*(i+.5),y+h-2,value,Math.min(valueSize,(cellW-6)/(String(value).length*.68)),'#fff',900,'text-anchor="middle"')).join('')+'</g>';
 }
+let singlePlayerId='';
+function singlePlayer(){return rosterPlayers().find(p=>rosterPlayerId(p)===singlePlayerId)||rosterPlayers()[0];}
+function syncSinglePlayer(){
+ const players=rosterPlayers();if(!players.some(p=>rosterPlayerId(p)===singlePlayerId))singlePlayerId=players[0]?rosterPlayerId(players[0]):'';
+ $('#singlePlayer').innerHTML=players.map(p=>'<option value="'+esc(rosterPlayerId(p))+'"'+(rosterPlayerId(p)===singlePlayerId?' selected':'')+'>'+esc(p.display_gamertag)+'</option>').join('');
+}
+function playerPresentationSvg(){
+ const p=singlePlayer(),{w:W,h:H}=format(),m=Math.round(W*.052),wide=S.format==='wide';
+ if(!p)return base(svgText(m,380,L.t('V�lj spelare'),28,'#fff',800));
+ const y=350,photoH=wide?H-y-100:H-y-380,photoW=Math.min(wide?W*.4:W-m*2,photoH*.85),x=wide?m:m+(W-m*2-photoW)/2,url=portraitUrl(p);
+ let content=svgText(m,310,rosterTeamName(),24,'#ffcf4a',800);
+ content+='<g data-single-player="'+esc(rosterPlayerId(p))+'"><rect x="'+x+'" y="'+y+'" width="'+photoW+'" height="'+photoH+'" rx="24" fill="#12354f" stroke="#355369"/>'+(url?rosterPortrait(url,x+8,y+8,photoW-16,photoH-16,1):rosterAvatar(x+8,y+8,photoW-16,photoH-16,1));
+ const infoX=wide?W*.52:m,infoY=wide?390:H-330,infoW=wide?W-m-infoX:W-m*2;
+ content+=nationFlag(p,infoX,infoY,46)+svgText(infoX+62,infoY+30,(p.player_number!=null?'#'+p.player_number+' � ':'')+(rosterPosition(p)||'�'),32,'#ffcf4a',900);
+ content+=svgText(infoX,infoY+78,stageName(),19,'#a2b6c9',800);
+ const cells=rosterStatsValues(p),cellW=infoW/4,statY=infoY+110;
+ content+=cells.map(([label,value],i)=>'<rect x="'+(infoX+i*cellW)+'" y="'+statY+'" width="'+(cellW-10)+'" height="110" rx="14" fill="#04131e"/>'+svgText(infoX+i*cellW+18,statY+30,label,16,'#a2b6c9',800)+svgText(infoX+i*cellW+18,statY+82,value,Math.min(44,(cellW-36)/(String(value).length*.68)),'#fff',900)).join('')+'</g>';
+ return base(content);
+}
 function rosterSvg(){
  const players=selectedRoster(),{w:W,h:H}=format(),g=rosterGeometry(players.length,W,H),team=rosterTeamOptions().find(team=>team.id===rosterTeamId),logo=logos().get(rosterTeamId);
  let content=svgText(g.margin,310,players.length+' '+L.t('SPELARE')+(S.rosterStats?' · '+stageName():''),17,'#ffcf4a',800);
@@ -864,7 +883,7 @@ function rosterSvg(){
 }
 
 function build(){
-  let graphic=playerDataError&&needsPlayers()?base(svgText(format().w/2,format().h/2,'Spelardata kunde inte hämtas. Försök uppdatera.',24,'#ffcf4a',700,'text-anchor="middle"')):S.kind==="roster"?rosterSvg():S.kind==="matches"?matchesSvg():S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind);
+  let graphic=playerDataError&&needsPlayers()?base(svgText(format().w/2,format().h/2,'Spelardata kunde inte hämtas. Försök uppdatera.',24,'#ffcf4a',700,'text-anchor="middle"')):S.kind==="player"?playerPresentationSvg():S.kind==="roster"?rosterSvg():S.kind==="matches"?matchesSvg():S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind);
   const sports=$("#sender").value==="sportsgamer",name=sports?"SportsGamer":"SVENSK eHOCKEY",logo=sports?"../assets/sportsgamer-logo.png":"../assets/svensk-ehockey-logo.png";
   const {w,h}=format();
   graphic=graphic.replaceAll('SVENSK eHOCKEY',name);
@@ -881,13 +900,13 @@ function build(){
 function render(){
   sync();$("#minGamesField").hidden=!['goalies','points_average','defender_points_average','dim'].includes(S.kind);
   for(const kind of ['goalies','points_average','defender_points_average','dim']){const el=document.querySelector('[data-kind="'+kind+'"] small');if(el)el.textContent=(kind==='goalies'?'SV% · GAA':kind==='dim'?'(TA + INT + BS) / GP':L.t('Poäng per match'))+' · '+L.t('MINST')+' '+qualificationPercent()+' %';}
-  S.rosterStats=$("#rosterDisplay").value==="stats";$("#rosterDisplayField").hidden=S.kind!=="roster";if(S.kind==="roster")syncRosterPicker();$("#rosterTeamField").hidden=$("#rosterPlayersField").hidden=S.kind!=="roster";$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
+  S.rosterStats=$("#rosterDisplay").value==="stats";$("#rosterDisplayField").hidden=S.kind!=="roster";if(["roster","player"].includes(S.kind))syncRosterPicker();if(S.kind==="player")syncSinglePlayer();$("#singlePlayerField").hidden=S.kind!=="player";$("#rosterTeamField").hidden=!["roster","player"].includes(S.kind);$("#rosterPlayersField").hidden=S.kind!=="roster";$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
   const missingTieBreaks=S.league===527&&['table','groups'].includes(S.kind)&&(scheduleLoading||!!scheduleError);
   if(missingTieBreaks)$("#preview").innerHTML='<div style="color:white;padding:30px">'+esc(scheduleError||L.t('HÄMTAR…'))+'</div>';
-  $("#png").disabled=$("#svg").disabled=dataLoading||playerDataError&&needsPlayers()||missingTieBreaks;
+  $("#png").disabled=$("#svg").disabled=dataLoading||playerDataError&&needsPlayers()||missingTieBreaks||S.kind==="player"&&!singlePlayer();
   $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches"){syncMatchEditor();syncManualEditor();}$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=(S.kind==="roster"&&!S.rosterStats)||S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table"||groupIds().length<=1;$("#countField").hidden=true;
 }
-function safe(){return (comp().code+(S.kind==="matches"?"-"+$("#matchDate").value+"-sida-"+(Number($("#matchPage").value)+1):"")+"-"+TIT[S.kind]).toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
+function safe(){return (comp().code+(S.kind==="player"?"-"+(singlePlayer()?.display_gamertag||""):"")+(S.kind==="matches"?"-"+$("#matchDate").value+"-sida-"+(Number($("#matchPage").value)+1):"")+"-"+TIT[S.kind]).toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1200)}
 function dataUrl(blob){return new Promise((ok,no)=>{const f=new FileReader();f.onload=()=>ok(f.result);f.onerror=no;f.readAsDataURL(blob)})}
 let logoAssetsPromise;
@@ -919,6 +938,7 @@ async function expSvg(){await readyPortraits();const s=await inline(build());dl(
 async function expPng(){await readyPortraits();const s=await inline(build()),{w,h}=format(),u=URL.createObjectURL(new Blob([s],{type:"image/svg+xml;charset=utf-8"})),im=new Image();try{await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=u});const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(im,0,0,w,h);const b=await new Promise(ok=>c.toBlob(ok,"image/png",1));if(!b)throw new Error("PNG-export misslyckades");dl(b,safe()+".png")}finally{URL.revokeObjectURL(u)}}
 
 $$("[data-kind]").forEach(b=>b.onclick=()=>{$$("[data-kind]").forEach(x=>x.classList.toggle("active",x===b));S.kind=b.dataset.kind;if(S.kind==="matches")load();else render()});
+$("#singlePlayer").onchange=()=>{singlePlayerId=$("#singlePlayer").value;render()};
 $("#rosterTeam").onchange=()=>{rosterTeamId=$("#rosterTeam").value;render()};
 $("#rosterPlayers").onchange=event=>{const input=event.target;if(input.type!=="checkbox")return;const excluded=rosterExclusions();if(input.checked)excluded.delete(input.value);else excluded.add(input.value);render()};
 $("#rosterSelectAll").onclick=()=>{rosterExclusions().clear();render()};

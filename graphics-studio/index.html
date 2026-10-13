@@ -45,8 +45,9 @@
     <div class="hero"><span class="eyebrow">GRAPHICS STUDIO</span><h1>Från match till flöde.</h1><p>Välj en mall, anpassa din grafik och exportera den redo för publicering.</p></div>
 
     <section class="block">
-      <div class="head"><b>INNEHÅLL</b><span>17 MALLAR</span></div>
+      <div class="head"><b>INNEHÅLL</b><span>18 MALLAR</span></div>
       <div class="kinds">
+        <button class="kind" data-kind="player"><b>Spelarpresentation</b><small>V�lj lag och en spelare</small></button>
         <button class="kind" data-kind="roster"><b>Lagpresentation</b><small>Välj lag och spelare</small></button>
         <button class="kind" data-kind="matches"><b>Dagens resultat</b><small>Välj rapporteringsdag</small></button>
         <button class="kind active" data-kind="table"><b>Tabell</b><small>Aktuell grupp</small></button>
@@ -93,6 +94,7 @@
         <p id="matchListField" class="full" hidden>Rapporteringsdatum används automatiskt. Du kan välja ett annat datum för en enskild match nedan.</p>
         <label class="full"><span>SPRÅK</span><select id="language"><option value="sv">Svenska</option><option value="en">English</option><option value="fi">Suomi</option></select></label>
         <label id="rosterTeamField" class="full" hidden><span>LAG</span><select id="rosterTeam"></select></label>
+        <label id="singlePlayerField" class="full" hidden><span>SPELARE</span><select id="singlePlayer"></select></label>
         <label id="rosterDisplayField" class="full" hidden><span>SPELARKORT</span><select id="rosterDisplay"><option value="portraits">Bilder och namn</option><option value="stats">Bilder och spelarstatistik</option></select></label>
         <div id="rosterPlayersField" class="full" hidden><div class="roster-picker-head"><span id="rosterSelectionCount"></span><button type="button" id="rosterSelectAll">Välj alla</button></div><p>Alla registrerade spelare är valda från början. Avmarkera dem som inte ska vara med.</p><div id="rosterPlayers" class="roster-picker"></div></div>
         <label id="stageField"><span>PERIOD</span><select id="stage"><option value="regular">Gruppspel</option><option value="playoffs">Slutspel</option><option value="total">Totalt</option></select></label>
@@ -129,7 +131,7 @@
 <script  type="text/plain" data-studio-src="language.js?v=20261012-roster-stats"></script>
 <script  type="text/plain" data-studio-src="manual-results.js?v=20261011-overtime"></script>
 <script type="text/plain" data-studio-src="standings-order.js?v=20261011-scl-tiebreak"></script>
-<script type="text/plain" data-studio-src="app.js?v=20261013-optimized-portraits"></script>
+<script type="text/plain" data-studio-src="app.js?v=20261013-player-presentation"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script src="/studio-access.js?v=20261010-admin1"></script>
 </body>
 </html>
