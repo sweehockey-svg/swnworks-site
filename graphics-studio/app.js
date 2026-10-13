@@ -833,9 +833,15 @@ function rosterGeometry(count,W,H){
 }
 function rosterPortrait(url,x,y,w,h,count){
  if(!url)return '';measurePortrait(url);const b=portraitBounds.get(url);
- // Keep a consistent head scale where possible; short cutouts must also fill the photo height.
- const smallWide=S.format==='wide'&&count<=8,targetW=b?Math.max(b.headWidth/.42,smallWide?b.headWidth*2.6*w/h:0):w;
- const cropW=b?Math.min(targetW,b.height*w/h/ .965):w,cropH=cropW*h/w,crop=b?[b.left+(b.width-cropW)/2,b.top-cropH*.035,cropW,cropH]:[0,0,w,h];
+ // Team presentations use a closer, consistent bust crop. Keep the originals untouched.
+ // A slightly larger head places the lower edge just below the shirt flag on
+ // standard 1200x1600 portraits instead of showing the full upper body.
+ const smallWide=S.format==='wide'&&count<=8;
+ const headFraction=smallWide?.44:.48;
+ const targetW=b?Math.max(b.headWidth/headFraction,smallWide?b.headWidth*2.35*w/h:0):w;
+ const cropW=b?Math.min(targetW,b.width,b.height*w/h/.965):w;
+ const cropH=cropW*h/w;
+ const crop=b?[b.left+(b.width-cropW)/2,Math.max(0,b.top-cropH*.025),cropW,cropH]:[0,0,w,h];
  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMin slice')+'"/></svg>';
 }
 function rosterAvatar(x,y,w,h,count){
