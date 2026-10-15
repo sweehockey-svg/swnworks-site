@@ -902,10 +902,32 @@ content+=url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" wid
  return base(content+'</g>');
 }
 
+function playerPresentationInstagramSvg(p){
+ const {w:W,h:H}=format(),m=Math.round(W*.052),leftW=390;
+ const name=$('#title').value.trim()||p.display_gamertag,note=$('#playerNote').value.trim(),team=rosterTeamName(),logo=S.logos?logos().get(rosterTeamId):'';
+ const cells=rosterStatsValues(p),goalie=rosterPosition(p)==='G',primary=goalie?cells[1][1]:cells[3][1],secondary=goalie?[cells[0],cells[2],cells[3]]:cells.slice(0,3);
+ const url=portraitUrl(p),b=url?portraitBounds.get(url):null;
+ if(url)measurePortrait(url);
+ let content='<g data-single-player="'+esc(rosterPlayerId(p))+'" data-player-layout="instagram-editorial">';
+ content+='<rect x="'+m+'" y="183" width="44" height="4" rx="2" fill="#ffcf4a"/>'+svgText(m+62,194,$('#subtitle').value||L.t('SPELARPRESENTATION'),16,'#b4c9d7',800,'letter-spacing="2"');
+ content+=svgText(m,285,name,fittedHeadingSize(name,76,W-m*2),'#fff',900,'letter-spacing="-2"');
+ if(note)content+=svgText(m,330,note==='M\u00f6t spelaren'?L.t(note):note,Math.min(22,(W-m*2)/Math.max(1,note.length)/.6),'#b4c9d7',500);
+ content+='<line x1="'+m+'" y1="358" x2="'+(W-m)+'" y2="358" stroke="#7894a7" opacity=".3"/>';
+ const photoX=440,photoY=385,photoW=W-photoX,photoH=H-photoY;
+ const crop=b?[b.left,b.top,b.width,b.height*.8]:[0,0,1024,1229];
+ content+=url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin slice" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH);
+ content+=logo?img(logo,m,404,72):nationFlag(p,m,416,72);
+ content+=svgText(m,525,team,fittedHeadingSize(team,27,leftW),'#eef5f9',800)+svgText(m,566,(rosterPosition(p)||'–')+(p.player_number!=null?' · #'+p.player_number:''),21,'#ffcf4a',800);
+ content+='<rect x="'+m+'" y="615" width="'+leftW+'" height="208" rx="18" fill="#071a28" fill-opacity=".9" stroke="#426079"/><rect x="'+(m+18)+'" y="641" width="4" height="152" rx="2" fill="#ffcf4a"/>';
+ content+=svgText(m+38,689,goalie?'SV%':L.t('POÄNG'),21,'#b4c9d7',800,'letter-spacing="2"')+svgText(m+34,787,primary,Math.min(100,320/Math.max(1,String(primary).length)/.65),'#ffcf4a',900);
+ content+=secondary.map(([label,value],i)=>{const y=845+i*112;return '<rect x="'+m+'" y="'+y+'" width="'+leftW+'" height="94" rx="13" fill="#071a28" fill-opacity=".9" stroke="#426079" stroke-opacity=".6"/>'+svgText(m+24,y+61,value,Math.min(44,170/Math.max(1,String(value).length)/.65),'#fff',900)+svgText(m+220,y+54,label,18,'#b4c9d7',800,'letter-spacing="1.5"');}).join('');
+ return base(content+'</g>');
+}
 function playerPresentationSvg(){
  const p=singlePlayer(),{w:W,h:H}=format(),m=Math.round(W*.052),wide=S.format==='wide';
  if(!p)return base(svgText(m,380,L.t('V\u00e4lj spelare'),28,'#fff',800));
  if(wide)return playerPresentationWideSvg(p);
+ if(S.format==='portrait')return playerPresentationInstagramSvg(p);
  const note=$('#playerNote').value.trim(),name=$('#title').value||p.display_gamertag,photoX=W*.30,photoY=340,photoW=W-photoX,photoH=H-photoY+4,url=portraitUrl(p),b=url?portraitBounds.get(url):null;
  if(url)measurePortrait(url);
  const crop=b?[b.left,b.top,b.width,b.height*.8]:[0,0,1024,1229];
