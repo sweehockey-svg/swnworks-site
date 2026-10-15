@@ -29,6 +29,7 @@
 .roster-picker{display:grid;gap:6px;max-height:330px;overflow:auto}.roster-picker label{display:flex;align-items:center;gap:10px;padding:9px;border:1px solid #294052;border-radius:7px;cursor:pointer}.roster-picker input{width:18px;height:18px;flex:none}.roster-picker label span{font-size:12px;letter-spacing:0}.roster-picker-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.roster-picker-head button{width:auto;padding:7px 10px;border:1px solid #42556a;border-radius:5px;background:#142634;color:#fff;cursor:pointer}#rosterPlayersField p{font-size:12px;color:#9bb0c0}
 </style>
 <link rel="stylesheet" href="studio.css?v=20261006-1">
+<link rel="stylesheet" href="design-panel.css?v=20261015-1">
 <link rel="stylesheet" href="/studio-access.css?v=20261010-admin1"><script>document.documentElement.setAttribute("data-studio-locked","")</script>
 </head>
 <body>
@@ -47,7 +48,7 @@
     <section class="block">
       <div class="head"><b>INNEHÅLL</b><span>18 MALLAR</span></div>
       <div class="kinds">
-        <button class="kind" data-kind="player"><b>Spelarpresentation</b><small>V�lj lag och en spelare</small></button>
+        <button class="kind" data-kind="player"><b>Spelarpresentation</b><small>Välj lag och en spelare</small></button>
         <button class="kind" data-kind="roster"><b>Lagpresentation</b><small>Välj lag och spelare</small></button>
         <button class="kind" data-kind="matches"><b>Dagens resultat</b><small>Välj rapporteringsdag</small></button>
         <button class="kind active" data-kind="table"><b>Tabell</b><small>Aktuell grupp</small></button>
@@ -112,7 +113,7 @@
         <label><span>FORMAT</span><select id="format"><option value="portrait">Instagram 4:5 · 1080×1350</option><option value="square">Kvadrat · 1080×1080</option><option value="story">Story · 1080×1920</option><option value="wide">16:9 · 1920×1080</option></select></label>
         <label><span>BAKGRUND</span><select id="bg"><option value="gamenight">Arena Night</option><option value="wv">WV 4 Nations</option><option value="neon">Neon Rush</option><option value="champions">Champions Gold</option><option value="blue">Studio Blue</option><option value="ice">Ice</option><option value="smoke">Smoke</option></select></label>
         <label class="full"><span>EGEN RUBRIK · VALFRITT</span><input id="title" placeholder="Automatisk rubrik" maxlength="34"></label>
-        <label id="playerNoteField" class="full" hidden><span>FRITEXT � VALFRITT</span><input id="playerNote" value="M&#246;t spelaren" maxlength="80" placeholder="L&#228;mna tomt f&#246;r att d&#246;lja"></label>
+        <label id="playerNoteField" class="full" hidden><span>FRITEXT · VALFRITT</span><input id="playerNote" value="M&#246;t spelaren" maxlength="80" placeholder="L&#228;mna tomt f&#246;r att d&#246;lja"></label>
         <label class="full"><span>UNDERRUBRIK · VALFRITT</span><input id="subtitle" placeholder="Automatisk underrubrik" maxlength="64"></label>
       </div>
       <label class="toggle"><span><b>Visa lagloggor</b><small>Tabell och topplistor</small></span><input id="logos" type="checkbox" checked></label>
@@ -128,6 +129,7 @@
     <div class="hint">Förhandsvisningen skalar. Exporten använder alltid full upplösning.</div>
   </section>
 </main>
+<script src="design-panel.js?v=20261015-1"></script>
 <script  type="text/plain" data-studio-src="https://www.svenskehockey.se/playerimages-manifest.js?v=20261006"></script>
 <script src="../broadcast-studio/broadcast-config.js?v=2"></script>
 <script  type="text/plain" data-studio-src="language.js?v=20261012-roster-stats"></script>
