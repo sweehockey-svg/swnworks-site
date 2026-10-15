@@ -51,7 +51,12 @@ async function load(){
     const [teamsResult,playersResult]=await Promise.allSettled([rows("v_broadcast_teams_public"),rows("v_broadcast_players_public"),loadSchedule(false)]);
     if(request!==dataRequest||league!==S.league)return;
     if(teamsResult.status!=='fulfilled')throw teamsResult.reason;
-    S.teams=teamsResult.value;
+    S.teams=teamsResult.value.map(team=>{
+      // SportsGamer requires a country for these regional teams. That country
+      // is not their identity: always use their actual EU/NA crest.
+      const regional=league===532?{7093:'logo-assets/wv-na-20261010.png',7094:'logo-assets/wv-eu-20261010.png'}[Number(team.sports_gamer_team_id)]:null;
+      return regional?{...team,team_logo_in_league:new URL(regional,location.href).href}:team;
+    });
     playerDataError=playersResult.status!=='fulfilled';S.players=playerDataError?[]:playersResult.value;dataLoading=false;
     const reconciliation=ManualResults.reconcile(manualMatches,schedule,league);
     if(reconciliation.removed.length&&storeManualMatches(reconciliation.remaining))$("#manualMatchStatus").textContent=reconciliation.removed.length+' manuell match ersatt av rapporterat resultat.';
