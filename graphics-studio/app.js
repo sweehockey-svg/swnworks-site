@@ -860,9 +860,32 @@ function syncSinglePlayer(){
  const players=rosterPlayers();if(!players.some(p=>rosterPlayerId(p)===singlePlayerId))singlePlayerId=players[0]?rosterPlayerId(players[0]):'';
  $('#singlePlayer').innerHTML=players.map(p=>'<option value="'+esc(rosterPlayerId(p))+'"'+(rosterPlayerId(p)===singlePlayerId?' selected':'')+'>'+esc(p.display_gamertag)+'</option>').join('');
 }
+function playerPresentationWideSvg(p){
+ const {w:W,h:H}=format(),m=Math.round(W*.052),leftW=800,url=portraitUrl(p),b=url?portraitBounds.get(url):null;
+ if(url)measurePortrait(url);
+ const name=$('#title').value.trim()||p.display_gamertag,note=$('#playerNote').value.trim(),team=rosterTeamName(),logo=S.logos?logos().get(rosterTeamId):'';
+ const cells=rosterStatsValues(p),goalie=rosterPosition(p)==='G',primary=goalie?cells[1][1]:cells[3][1],secondary=goalie?[cells[0],cells[2],cells[3]]:cells.slice(0,3);
+ const photoX=958,photoY=170,photoW=850,photoH=H-photoY-66,crop=b?[0,0,b.sourceW,b.sourceH*.8]:[0,0,1024,1229];
+ let content='<g data-single-player="'+esc(rosterPlayerId(p))+'" data-player-layout="wide-editorial">';
+ content+='<defs><radialGradient id="playerSpotlight"><stop stop-color="#4a7a94" stop-opacity=".30"/><stop offset="1" stop-color="#4a7a94" stop-opacity="0"/></radialGradient></defs><ellipse cx="1390" cy="625" rx="520" ry="470" fill="url(#playerSpotlight)"/>';
+ content+='<rect x="'+m+'" y="182" width="48" height="4" rx="2" fill="#ffcf4a"/>'+svgText(m+66,190,$('#subtitle').value||L.t('SPELARPRESENTATION'),16,'#b4c9d7',800,'letter-spacing="2.6"');
+ content+=svgText(m,292,name,fittedHeadingSize(name,88,leftW),'#fff',900,'letter-spacing="-2"');
+ if(note)content+=svgText(m,345,note==='M\u00f6t spelaren'?L.t(note):note,Math.min(24,leftW/Math.max(1,note.length)/.58),'#b4c9d7',500);
+ content+='<line x1="'+m+'" y1="382" x2="'+(m+leftW)+'" y2="382" stroke="#7894a7" opacity=".3"/>';
+ content+=logo?img(logo,m,416,86):nationFlag(p,m,434,76);
+ content+=svgText(m+112,450,team,fittedHeadingSize(team,30,leftW-112),'#eef5f9',800)+svgText(m+112,487,(rosterPosition(p)||'\u2013')+(p.player_number!=null?' \u00b7 #'+p.player_number:''),21,'#ffcf4a',800,'letter-spacing="1"');
+ content+='<rect x="'+m+'" y="538" width="'+leftW+'" height="206" rx="18" fill="#071a28" fill-opacity=".78" stroke="#426079" stroke-opacity=".5"/><rect x="'+m+'" y="570" width="5" height="140" rx="2" fill="#ffcf4a"/>';
+ content+=svgText(m+36,678,primary,Math.min(130,470/Math.max(1,primary.length)*1.4),'#ffcf4a',900,'letter-spacing="-4"')+svgText(m+468,625,goalie?'SV%':L.t('PO\u00c4NG'),25,'#fff',800,'letter-spacing="2"')+svgText(m+468,663,goalie?L.t('M\u00c5LVAKT'):rosterPosition(p),16,'#a2b6c9',700,'letter-spacing="2"');
+ const gap=18,cellW=(leftW-gap*2)/3;
+ content+=secondary.map(([label,value],i)=>{const x=m+i*(cellW+gap);return '<rect x="'+x+'" y="772" width="'+cellW+'" height="136" rx="14" fill="#071a28" fill-opacity=".7" stroke="#426079" stroke-opacity=".4"/>'+svgText(x+26,828,value,Math.min(46,(cellW-52)/Math.max(1,value.length)/.65),'#fff',900)+svgText(x+26,874,label,16,'#a2b6c9',800,'letter-spacing="2"');}).join('');
+ content+=url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMax meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH);
+ return base(content+'</g>');
+}
+
 function playerPresentationSvg(){
  const p=singlePlayer(),{w:W,h:H}=format(),m=Math.round(W*.052),wide=S.format==='wide';
  if(!p)return base(svgText(m,380,L.t('V\u00e4lj spelare'),28,'#fff',800));
+ if(wide)return playerPresentationWideSvg(p);
  const note=$('#playerNote').value.trim(),name=$('#title').value||p.display_gamertag,photoX=W*.22,photoY=324,photoW=W-photoX,photoH=H-photoY+4,url=portraitUrl(p),b=url?portraitBounds.get(url):null;
  if(url)measurePortrait(url);
  const crop=b?[0,0,b.sourceW,b.sourceH*.8]:[0,0,1024,1229];
