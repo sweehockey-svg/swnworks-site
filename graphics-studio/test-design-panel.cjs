@@ -12,13 +12,16 @@ class Element{
 }
 const close=new Element(),controls=new Element(),toolbar=new Element(),layout=new Element(),design=new Element(),actions=new Element(),note=new Element(),created=[];
 controls.querySelector=s=>s==='.actions'?actions:note;
-const document={querySelector:s=>s==='.controls'?controls:s==='.toolbar'?toolbar:layout,getElementById:()=>({closest:()=>design}),createElement:()=>{const el=new Element();created.push(el);return el}};
+const tournament=new Element(),data=new Element();
+const document={querySelector:s=>s==='.controls'?controls:s==='.toolbar'?toolbar:layout,getElementById:id=>({closest:()=>id==='league'?tournament:id==='dataStatus'?data:design}),createElement:()=>{const el=new Element();created.push(el);return el}};
 const wide={matches:false,addEventListener(k,fn){this.change=fn}};
 vm.runInNewContext(fs.readFileSync(__dirname+'/design-panel.js','utf8'),{document,window:{matchMedia:()=>wide}});
 const [panel,body,button]=created;
 assert.equal(panel.open,false);
-assert.equal(body.children[0],design);
-assert.equal(body.children[1],actions);
+assert.equal(body.children[0],tournament);
+assert.equal(body.children[1],data);
+assert.equal(body.children[2],design);
+assert.equal(body.children[3],actions);
 assert.equal(layout.children[0],panel);
 assert.equal(toolbar.children[0],button);
 button.events.click();

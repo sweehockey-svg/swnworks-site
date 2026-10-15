@@ -10,6 +10,10 @@
   panel.innerHTML='<div class="design-panel-header"><div><span>GRAPHICS STUDIO</span><h2 id="designPanelTitle">Design & export</h2></div><button type="button" class="panel-close" aria-label="Stäng Design & export">✕</button></div>';
   const body=document.createElement('div');
   body.className='design-panel-body';
+  const tournament=document.getElementById('league')?.closest('section');
+  const data=document.getElementById('dataStatus')?.closest('section');
+  if(tournament)body.append(tournament);
+  if(data)body.append(data);
   body.append(design);
   const actions=controls.querySelector('.actions'),note=controls.querySelector('.note');
   if(actions)body.append(actions);
