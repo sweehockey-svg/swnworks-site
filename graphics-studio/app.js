@@ -912,7 +912,19 @@ function playerPresentationInstagramSvg(p){
  content+='<rect x="'+m+'" y="183" width="44" height="4" rx="2" fill="#ffcf4a"/>'+svgText(m+62,194,$('#subtitle').value||L.t('SPELARPRESENTATION'),16,'#b4c9d7',800,'letter-spacing="2"');
  content+=svgText(m,285,name,fittedHeadingSize(name,76,W-m*2-(logo?188:0)),'#fff',900,'letter-spacing="-2"');
  if(logo)content+=img(logo,W-m-168,158,168);
- if(note)content+=svgText(m,330,note==='M\u00f6t spelaren'?L.t(note):note,Math.min(22,(W-m*2)/Math.max(1,note.length)/.6),'#b4c9d7',500);
+ if(note){
+   const text=note==='M\u00f6t spelaren'?L.t(note):note;
+   const width=W-m*2-(logo?188:0),size=22,limit=Math.max(1,Math.floor(width/(size*.64))),lines=[];
+   let rest=text.trim();
+   while(rest&&lines.length<2){
+     if(rest.length<=limit){lines.push(rest);rest='';break}
+     let cut=rest.lastIndexOf(' ',limit);
+     if(cut<limit*.45)cut=limit;
+     lines.push(rest.slice(0,cut).trim());rest=rest.slice(cut).trim();
+   }
+   if(rest)lines[1]=lines[1].slice(0,Math.max(0,limit-1)).trimEnd()+'…';
+   content+=lines.map((line,i)=>svgText(m,322+i*27,line,size,'#b4c9d7',500)).join('');
+ }
  content+='<line x1="'+m+'" y1="358" x2="'+(W-m)+'" y2="358" stroke="#7894a7" opacity=".3"/>';
  const photoX=440,photoY=385,photoW=W-photoX,photoH=H-photoY;
  const crop=b?[b.left,b.top,b.width,b.height*.8]:[0,0,1024,1229];
