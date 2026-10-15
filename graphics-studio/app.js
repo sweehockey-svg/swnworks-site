@@ -905,6 +905,12 @@ function playerNationalityFlag(p,logo,x,y,w){
  if(logo&&S.league===532&&teamCountry&&teamCountry===aliases[country])return '';
  return nationFlag(p,x,y,w);
 }
+function presentationPosition(player){
+ const language=$('#language').value,index=language==='en'?1:language==='fi'?2:0;
+ const labels={C:['Center','Center','Keskushyökkääjä'],LW:['Vänsterforward','Left Wing','Vasen laitahyökkääjä'],RW:['Högerforward','Right Wing','Oikea laitahyökkääjä'],LD:['Vänsterback','Left Defense','Vasen puolustaja'],RD:['Högerback','Right Defense','Oikea puolustaja'],G:['Målvakt','Goaltender','Maalivahti']};
+ const position=rosterPosition(player);
+ return labels[position]?.[index]||position||'–';
+}
 function presentationStatLabel(label){
  const language=$('#language').value;
  const labels={GP:['MATCHER','GAMES','OTTELUT'],G:['MÅL','GOALS','MAALIT'],A:['ASSIST','ASSISTS','SYÖTÖT'],SO:['NOLLOR','SHUTOUTS','NOLLAPELIT']};
@@ -938,7 +944,7 @@ function playerPresentationWideSvg(p){
  if(logo)content+=img(logo,m,410,106);
  const teamX=m+(logo?130:0),flag=playerNationalityFlag(p,logo,teamX,467,40);
  content+=svgText(teamX,450,team,fittedHeadingSize(team,30,leftW-(logo?130:0)),'#eef5f9',800);
- content+=flag+svgText(teamX+(flag?58:0),490,(rosterPosition(p)||'\u2013')+(p.player_number!=null?' \u00b7 #'+p.player_number:''),21,'#ffcf4a',800,'letter-spacing="1"');
+content+=flag+svgText(teamX+(flag?58:0),490,presentationPosition(p)+(p.player_number!=null?' \u00b7 #'+p.player_number:''),21,'#ffcf4a',800,'letter-spacing="1"');
  if(Number(cells[0][1])>0){
 content+='<rect x="'+m+'" y="538" width="'+leftW+'" height="206" rx="18" fill="#071a28" fill-opacity=".78" stroke="#426079" stroke-opacity=".5"/><rect x="'+m+'" y="570" width="5" height="140" rx="2" fill="#ffcf4a"/>';
  content+=svgText(m+36,678,primary,Math.min(130,470/Math.max(1,primary.length)*1.4),'#ffcf4a',900,'letter-spacing="-4"')+svgText(m+468,625,goalie?'SV%':L.t('PO\u00c4NG'),25,'#fff',800,'letter-spacing="2"');
@@ -977,7 +983,7 @@ function playerPresentationInstagramSvg(p){
  const crop=b?[b.left,b.top,b.width,b.height*.8]:[0,0,1024,1229];
  content+=presentationShadow(url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin slice" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH));
  content+=playerNationalityFlag(p,logo,m,416,64);
- content+=svgText(m,525,team,fittedHeadingSize(team,27,leftW),'#eef5f9',800)+svgText(m,566,(rosterPosition(p)||'–')+(p.player_number!=null?' · #'+p.player_number:''),21,'#ffcf4a',800);
+ content+=svgText(m,525,team,fittedHeadingSize(team,27,leftW),'#eef5f9',800)+svgText(m,566,presentationPosition(p)+(p.player_number!=null?' · #'+p.player_number:''),21,'#ffcf4a',800);
  if(Number(cells[0][1])>0){
  content+='<rect x="'+m+'" y="615" width="'+leftW+'" height="208" rx="18" fill="#071a28" fill-opacity=".9" stroke="#426079"/><rect x="'+(m+18)+'" y="641" width="4" height="152" rx="2" fill="#ffcf4a"/>';
  content+=svgText(m+38,689,goalie?'SV%':L.t('POÄNG'),21,'#b4c9d7',800,'letter-spacing="2"')+svgText(m+34,787,primary,Math.min(100,320/Math.max(1,String(primary).length)/.65),'#ffcf4a',900);
@@ -1004,7 +1010,7 @@ function playerPresentationSvg(){
  const infoX=m,infoW=W*.28-m,infoY=365,k=S.format==='square'?.72:S.format==='story'?1.05:1,logo=S.logos?logos().get(rosterTeamId):'';
  content+=logo?img(logo,infoX,infoY,76):nationFlag(p,infoX,infoY,76);
  content+=svgText(infoX,infoY+120,rosterTeamName(),Math.min(26,infoW/Math.max(1,rosterTeamName().length)*1.45),'#a2b6c9',800);
- content+=svgText(infoX,infoY+164,(rosterPosition(p)||'\u2013')+(p.player_number!=null?' \u00b7 #'+p.player_number:''),26,'#ffcf4a',800);
+ content+=svgText(infoX,infoY+164,presentationPosition(p)+(p.player_number!=null?' \u00b7 #'+p.player_number:''),26,'#ffcf4a',800);
  const cells=rosterStatsValues(p),goalie=rosterPosition(p)==='G',primary=goalie?cells[1][1]:cells[3][1],primaryY=infoY+320*k;
  content+=svgText(infoX,primaryY,primary,Math.min(150*k,infoW/Math.max(1,primary.length)*1.4),'#ffcf4a',900)+svgText(infoX,primaryY+40,goalie?'SV%':L.t('PO\u00c4NG'),18,'#a2b6c9',800,'letter-spacing="2"');
  const secondary=goalie?[cells[0],cells[2],cells[3]]:cells.slice(0,3),statY=infoY+455*k;
