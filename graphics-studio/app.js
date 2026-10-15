@@ -826,7 +826,7 @@ function syncRosterPicker(){
 function rosterGeometry(count,W,H){
  const margin=Math.round(W*.052),top=340,bottom=H-90,gap=W>1500?22:16,width=W-margin*2,height=bottom-top;
  let best=null;
- if(W>1500&&count<=9){const rows=1,columns=Math.max(1,count),w=Math.min((width-gap*(columns-1))/columns,320),h=height;return {columns,rows,w,h,margin,top,gap,width};}
+ if(W>1500&&count<=9){const rows=1,columns=Math.max(1,count),w=Math.min((width-gap*(columns-1))/columns,320),h=Math.min(height,w*2.65),gridTop=top+(height-h)/2;return {columns,rows,w,h,margin,top:gridTop,gap,width};}
  if(W>1500&&count>=10&&count<=20){const rows=2,columns=Math.ceil(count/rows),w=(width-gap*(columns-1))/columns,h=(height-gap)/rows;return {columns,rows,w,h,margin,top,gap,width};}
  if(W>1500){const smallTeam=count>=6&&count<=8,ratio=smallTeam?.9:.64,rows=smallTeam?2:Math.ceil(Math.max(1,count)/8),columns=Math.ceil(Math.max(1,count)/rows),availableH=(height-gap*(rows-1))/rows,w=Math.min((width-gap*(columns-1))/columns,availableH*ratio,smallTeam?300:260),h=Math.min(availableH,w/ratio),gridTop=top+(height-(rows*h+(rows-1)*gap))/2;return {columns,rows,w,h,margin,top:gridTop,gap,width};}
  if(count>=6){const rows=count<=12?2:3,columns=Math.ceil(count/rows),w=(width-gap*(columns-1))/columns,rowGap=count>=11&&count<=12?48:gap,h=Math.min((height-rowGap*(rows-1))/rows,count>=11&&count<=12?w*2.65:Infinity),gridTop=top+(height-(rows*h+(rows-1)*rowGap))/2;return {columns,rows,w,h,margin,top:gridTop,gap,rowGap,width};}
@@ -837,7 +837,7 @@ function rosterPortrait(url,x,y,w,h,count){
  if(!url)return '';measurePortrait(url);const b=portraitBounds.get(url);
  const template=b&&Math.abs(b.sourceW/b.sourceH-2/3)<.002;
  const singleRow=S.format==='wide'&&count<=9,baseCropW=b?(template?b.sourceH*.5*w/h:Math.min(b.width,b.headWidth/.54)):w;
- const cropW=singleRow&&b?(template?Math.max(baseCropW*1.15,b.sourceW*.42):baseCropW*1.2):baseCropW,cropH=cropW*h/w;
+ const cropW=singleRow&&b?(template?Math.max(baseCropW*1.1,b.sourceW*.35):baseCropW*1.2):baseCropW,cropH=cropW*h/w;
  const crop=b?(template?[(b.sourceW-cropW)/2,0,cropW,cropH]:[b.left+(b.width-cropW)/2,Math.max(0,b.top),cropW,cropH]):[0,0,w,h];
  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMin slice')+'"/></svg>';
 }

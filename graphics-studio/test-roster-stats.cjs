@@ -26,7 +26,7 @@ for(const headWidth of [200,350,450]){
 assert.deepEqual(templateCrops,['256 0 512 768','256 0 512 768','256 0 512 768'],'Template portraits must share the same chest crop');
 ctx.S.format='wide';
 const singleRowCrop=ctx.rosterPortrait('template',0,0,150,560,9).match(/viewBox="([^"]+)"/)[1].split(' ').map(Number);
-assert(singleRowCrop[2]>=1024*.42,'Single-row portraits need enough width for the head and shoulders');
+assert(singleRowCrop[2]>=1024*.35,'Single-row portraits need enough width for the head and shoulders');
 ctx.S.format='portrait';
 
 vm.runInContext(source.slice(source.indexOf('function rosterPosition('),source.indexOf('function selectedRoster(')),ctx);
