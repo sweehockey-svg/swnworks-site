@@ -944,7 +944,7 @@ content+='<rect x="'+m+'" y="538" width="'+leftW+'" height="206" rx="18" fill="#
  content+=svgText(m+36,678,primary,Math.min(130,470/Math.max(1,primary.length)*1.4),'#ffcf4a',900,'letter-spacing="-4"')+svgText(m+468,625,goalie?'SV%':L.t('PO\u00c4NG'),25,'#fff',800,'letter-spacing="2"');
  const gap=18,cellW=(leftW-gap*2)/3;
 content+=secondary.map(([label,value],i)=>{const x=m+i*(cellW+gap);return '<rect x="'+x+'" y="772" width="'+cellW+'" height="136" rx="14" fill="#071a28" fill-opacity=".7" stroke="#426079" stroke-opacity=".4"/>'+svgText(x+26,828,value,Math.min(46,(cellW-52)/Math.max(1,value.length)/.65),'#fff',900)+svgText(x+26,874,presentationStatLabel(label),16,'#a2b6c9',800,'letter-spacing="2"');}).join('');
- }else{content+=svgText(m,610,L.t('Ingen matchstatistik ännu'),24,'#b4c9d7',600);}
+ }else{content+='<rect x="'+m+'" y="538" width="'+leftW+'" height="128" rx="18" fill="#071a28" fill-opacity=".78" stroke="#426079" stroke-opacity=".5"/><rect x="'+(m+20)+'" y="567" width="4" height="70" rx="2" fill="#ffcf4a" opacity=".7"/>'+svgText(m+44,611,L.t('Ingen matchstatistik ännu'),24,'#b4c9d7',600);}
 content+=presentationShadow(url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin slice" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH));
  return base(content+'</g>');
 }
@@ -982,7 +982,7 @@ function playerPresentationInstagramSvg(p){
  content+='<rect x="'+m+'" y="615" width="'+leftW+'" height="208" rx="18" fill="#071a28" fill-opacity=".9" stroke="#426079"/><rect x="'+(m+18)+'" y="641" width="4" height="152" rx="2" fill="#ffcf4a"/>';
  content+=svgText(m+38,689,goalie?'SV%':L.t('POÄNG'),21,'#b4c9d7',800,'letter-spacing="2"')+svgText(m+34,787,primary,Math.min(100,320/Math.max(1,String(primary).length)/.65),'#ffcf4a',900);
  content+=secondary.map(([label,value],i)=>{const y=845+i*112;return '<rect x="'+m+'" y="'+y+'" width="'+leftW+'" height="94" rx="13" fill="#071a28" fill-opacity=".9" stroke="#426079" stroke-opacity=".6"/>'+svgText(m+24,y+61,value,Math.min(44,170/Math.max(1,String(value).length)/.65),'#fff',900)+svgText(m+220,y+54,presentationStatLabel(label),18,'#b4c9d7',800,'letter-spacing="1.5"');}).join('');
- }else{content+=svgText(m,675,L.t('Ingen matchstatistik ännu'),24,'#b4c9d7',600);}
+ }else{content+='<rect x="'+m+'" y="615" width="'+leftW+'" height="128" rx="18" fill="#071a28" fill-opacity=".9" stroke="#426079" stroke-opacity=".6"/><rect x="'+(m+18)+'" y="642" width="4" height="74" rx="2" fill="#ffcf4a" opacity=".7"/>'+svgText(m+36,686,L.t('Ingen matchstatistik ännu'),20,'#b4c9d7',600);}
  return base(content+'</g>');
 }
 function playerPresentationSvg(){
