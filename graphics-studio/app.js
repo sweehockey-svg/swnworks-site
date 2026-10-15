@@ -898,6 +898,18 @@ function syncSinglePlayer(){
  const players=rosterPlayers();if(!players.some(p=>rosterPlayerId(p)===singlePlayerId))singlePlayerId=players[0]?rosterPlayerId(players[0]):'';
  $('#singlePlayer').innerHTML=players.map(p=>'<option value="'+esc(rosterPlayerId(p))+'"'+(rosterPlayerId(p)===singlePlayerId?' selected':'')+'>'+esc(p.display_gamertag)+'</option>').join('');
 }
+function matchingNationalTeam(p){
+ const country=String(p.player_country||p.country_code||'').toUpperCase();
+ const aliases={CAN:'ca',CA:'ca',SWE:'se',SE:'se',FIN:'fi',FI:'fi',USA:'us',US:'us'};
+ const teamCountry={7089:'fi',7090:'ca',7091:'se',7092:'us'}[Number(rosterTeamId)];
+ return S.league===532&&teamCountry===aliases[country]?teamCountry:null;
+}
+function playerTeamMark(p,logo,x,y,size){
+ const country=matchingNationalTeam(p);
+ if(!country)return img(logo,x,y,size);
+ const ratios={se:10/16,fi:11/18,ca:1/2,us:10/19},height=size*ratios[country];
+ return '<image data-national-team-flag="'+country+'" href="https://flagcdn.com/w320/'+country+'.png" x="'+x+'" y="'+(y+(size-height)/2)+'" width="'+size+'" height="'+height+'" preserveAspectRatio="xMidYMid meet"/>';
+}
 function playerNationalityFlag(p,logo,x,y,w){
  const country=String(p.player_country||p.country_code||'').toUpperCase();
  const aliases={CAN:'ca',CA:'ca',SWE:'se',SE:'se',FIN:'fi',FI:'fi',USA:'us',US:'us'};
@@ -941,7 +953,7 @@ function playerPresentationWideSvg(p){
    content+=lines.map((line,i)=>svgText(m,332+i*30,line,size,'#b4c9d7',500)).join('');
  }
  content+='<line x1="'+m+'" y1="382" x2="'+(m+leftW)+'" y2="382" stroke="#7894a7" opacity=".3"/>';
- if(logo)content+=img(logo,m,410,106);
+ if(logo)content+=playerTeamMark(p,logo,m,410,106);
  const teamX=m+(logo?130:0),flag=playerNationalityFlag(p,logo,teamX,467,40);
  content+=svgText(teamX,450,team,fittedHeadingSize(team,30,leftW-(logo?130:0)),'#eef5f9',800);
 content+=flag+svgText(teamX+(flag?58:0),490,presentationPosition(p)+(p.player_number!=null?' \u00b7 #'+p.player_number:''),21,'#ffcf4a',800,'letter-spacing="1"');
@@ -964,7 +976,7 @@ function playerPresentationInstagramSvg(p){
  let content='<g data-single-player="'+esc(rosterPlayerId(p))+'" data-player-layout="instagram-editorial">';
  content+='<rect x="'+m+'" y="183" width="44" height="4" rx="2" fill="#ffcf4a"/>'+svgText(m+62,194,$('#subtitle').value||L.t('SPELARPRESENTATION'),16,'#b4c9d7',800,'letter-spacing="2"');
  content+=svgText(m,285,name,fittedHeadingSize(name,76,W-m*2-(logo?188:0)),'#fff',900,'letter-spacing="-2"');
- if(logo)content+=img(logo,W-m-168,158,168);
+ if(logo)content+=playerTeamMark(p,logo,W-m-168,158,168);
  if(note){
    const text=note==='M\u00f6t spelaren'?L.t(note):note;
    const width=W-m*2-(logo?188:0),size=22,limit=Math.max(1,Math.floor(width/(size*.64))),lines=[];
