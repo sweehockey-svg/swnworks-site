@@ -62,9 +62,26 @@ function setStatus(t,m){$("#dataStatus").textContent=L.t(t);$("#topStatus").text
 function groupIds(){return [...new Set(S.teams.filter(x=>x.statistics_stage==="regular").map(x=>Number(x.effective_group_id)).filter(Number.isFinite))].sort((a,b)=>a-b)}
 function groupName(id){const ids=groupIds(),i=ids.indexOf(Number(id));return L.t("GRUPP")+" "+(i<0?Number(id):i+1)}
 function groups(){
-  const ids=groupIds();if(!ids.length){S.group=null;$("#group").innerHTML='<option>Ingen gruppdata</option>';return}
+  const ids=groupIds();filterGroups();if(!ids.length){S.group=null;$("#group").innerHTML='<option>Ingen gruppdata</option>';return}
   if(!ids.includes(Number(S.group)))S.group=ids[0];
   $("#group").innerHTML=ids.map(id=>'<option value="'+id+'"'+(id===S.group?' selected':'')+'>'+groupName(id)+'</option>').join("");
+}
+function filterGroups(){
+ const ids=groupIds(),select=$('#filterGroup');
+ if(!ids.includes(Number(S.filterGroup)))S.filterGroup=null;
+ const all=L.locale==='en-GB'?'All groups':L.locale==='fi-FI'?'Kaikki lohkot':'Alla grupper';
+ select.innerHTML='<option value="all"'+(S.filterGroup==null?' selected':'')+'>'+all+'</option>'+ids.map(id=>'<option value="'+id+'"'+(S.filterGroup===id?' selected':'')+'>'+groupName(id)+'</option>').join('');
+}
+function selectedGroupTeams(){return S.teams.filter(t=>t.statistics_stage==='regular'&&Number(t.effective_group_id)===Number(S.filterGroup));}
+function filteredPlayers(){
+ if(S.filterGroup==null)return S.players;
+ const ids=new Set(selectedGroupTeams().map(t=>String(t.sports_gamer_team_id)));
+ return S.players.filter(p=>ids.has(String(p.sports_gamer_team_id)));
+}
+function matchInSelectedGroup(g){
+ if(S.filterGroup==null)return true;
+ const teams=selectedGroupTeams(),ids=new Set(teams.map(t=>String(t.sports_gamer_team_id))),normalize=v=>String(v||'').normalize('NFC').trim().toLocaleLowerCase('sv').replace(/\s+/g,' '),names=new Set(teams.map(t=>normalize(t.team_name_in_league)).filter(Boolean));
+ return (g.homeId!=null&&ids.has(String(g.homeId)))||(g.awayId!=null&&ids.has(String(g.awayId)))||names.has(normalize(g.home))||names.has(normalize(g.away));
 }
 function logos(){const m=new Map();S.teams.forEach(t=>{const k=String(t.sports_gamer_team_id);if(t.team_logo_in_league&&!m.has(k))m.set(k,t.team_logo_in_league)});return m}
 function standingsForGroup(groupId){return StandingsOrder.rank(ManualResults.apply(S.teams,manualMatches,S.league).filter(x=>x.statistics_stage==="regular"&&Number(x.effective_group_id)===Number(groupId)),[...schedule,...manualMatches.filter(g=>Number(g.league)===Number(S.league)).map(g=>({...g,stage:'regular'}))],S.league)}
@@ -78,7 +95,7 @@ function isDefender(p){
   return /^(LD|RD|D)$/i.test(String(position).trim());
 }
 function skaters(metric,defendersOnly=false){
-  return S.players.filter(p=>!defendersOnly||isDefender(p)).map(p=>({...p,gp:ps(p,"skater_games"),g:ps(p,"goals"),a:ps(p,"assists"),p:ps(p,"points")})).filter(p=>p.gp>0).sort((a,b)=>b[metric]-a[metric]||b.p-a.p||b.g-a.g||String(a.display_gamertag||"").localeCompare(String(b.display_gamertag||""),"sv")).slice(0,S.count);
+  return filteredPlayers().filter(p=>!defendersOnly||isDefender(p)).map(p=>({...p,gp:ps(p,"skater_games"),g:ps(p,"goals"),a:ps(p,"assists"),p:ps(p,"points")})).filter(p=>p.gp>0).sort((a,b)=>b[metric]-a[metric]||b.p-a.p||b.g-a.g||String(a.display_gamertag||"").localeCompare(String(b.display_gamertag||""),"sv")).slice(0,S.count);
 }
 function teamGamesFor(p){
   return S.teams.filter(t=>String(t.sports_gamer_team_id)===String(p.sports_gamer_team_id)&&(S.stage==='total'||t.statistics_stage===(S.stage==='playoffs'?'playoffs':'regular'))).reduce((sum,t)=>sum+n(t.games_played),0);
@@ -89,14 +106,14 @@ function metricAvailable(p,key){
 }
 function extraLeaders(kind,defendersOnly=false){
   const average=kind==='points_average',field=average?'points':kind==='penalties'?'penalty_minutes':'hits';
-  return S.players.filter(p=>(!defendersOnly||isDefender(p))&&metricAvailable(p,field)).map(p=>{
+  return filteredPlayers().filter(p=>(!defendersOnly||isDefender(p))&&metricAvailable(p,field)).map(p=>{
     const gp=ps(p,'skater_games'),teamGames=teamGamesFor(p),total=ps(p,field);
     return {...p,gp,g:ps(p,'goals'),a:ps(p,'assists'),p:ps(p,'points'),teamGames,total,score:average?(gp?total/gp:0):total};
   }).filter(p=>p.gp>0&&(average?qualifiesForGames(p.gp,p.teamGames):p.score>0))
     .sort((a,b)=>b.score-a.score||b.p-a.p||b.gp-a.gp||String(a.display_gamertag||'').localeCompare(String(b.display_gamertag||''),'sv')).slice(0,3);
 }
 function dimPlayers(){
-  return S.players.map(p=>{
+  return filteredPlayers().map(p=>{
     const gp=ps(p,'skater_games'),ta=ps(p,'takeaways'),it=ps(p,'interceptions'),bs=ps(p,'blocked_shots');
     const teamGames=S.teams.filter(t=>String(t.sports_gamer_team_id)===String(p.sports_gamer_team_id)&&(S.stage==='total'||t.statistics_stage===(S.stage==='playoffs'?'playoffs':'regular'))).reduce((sum,t)=>sum+n(t.games_played),0);
     const stages=S.stage==='total'?['regular','playoff']:[S.stage==='playoffs'?'playoff':'regular'];
@@ -112,10 +129,10 @@ function gv(p,key){
   const a=p["regular_goalie_"+key],b=p["playoff_goalie_"+key],d=rg+pg;if((rg>0&&a==null)||(pg>0&&b==null))return null;return d?((a==null?0:Number(a))*rg+(b==null?0:Number(b))*pg)/d:null;
 }
 function goalies(){
-  return S.players.map(p=>({...p,gp:gv(p,"gp"),teamGames:teamGamesFor(p),sv:gv(p,"save_percentage"),gaa:gv(p,"goals_against_average"),so:gv(p,"shutouts")})).filter(p=>p.gp>0&&qualifiesForGames(p.gp,p.teamGames)&&p.sv!=null&&Number.isFinite(p.sv)).sort((a,b)=>b.sv-a.sv||(a.gaa??99)-(b.gaa??99)||b.gp-a.gp).slice(0,S.count);
+  return filteredPlayers().map(p=>({...p,gp:gv(p,"gp"),teamGames:teamGamesFor(p),sv:gv(p,"save_percentage"),gaa:gv(p,"goals_against_average"),so:gv(p,"shutouts")})).filter(p=>p.gp>0&&qualifiesForGames(p.gp,p.teamGames)&&p.sv!=null&&Number.isFinite(p.sv)).sort((a,b)=>b.sv-a.sv||(a.gaa??99)-(b.gaa??99)||b.gp-a.gp).slice(0,S.count);
 }
 function stageName(){return S.stage==="regular"?"GRUPPSPEL":S.stage==="playoffs"?"SLUTSPEL":"TOTALT"}
-function sync(){S.league=Number($("#league").value||527);S.stage=$("#stage").value;S.group=$("#group").value?Number($("#group").value):S.group;S.count=Number($("#count").value||8);S.format=$("#format").value;S.minGamesPercent=$("#minGamesPercent").value===""?50:Number($("#minGamesPercent").value);S.bg=$("#bg").value;S.logos=$("#logos").checked}
+function sync(){S.filterGroup=$('#filterGroup').value==='all'||!$('#filterGroup').value?null:Number($('#filterGroup').value);S.league=Number($("#league").value||527);S.stage=$("#stage").value;S.group=$("#group").value?Number($("#group").value):S.group;S.count=Number($("#count").value||8);S.format=$("#format").value;S.minGamesPercent=$("#minGamesPercent").value===""?50:Number($("#minGamesPercent").value);S.bg=$("#bg").value;S.logos=$("#logos").checked}
 let schedule=[],scheduleLoading=false,scheduleError="",scheduleRequest=0;
 const scheduleToken="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91anFudnJjemRhdnFicWFhdnVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3Mzg3NDEsImV4cCI6MjEwMDMxNDc0MX0.-yVDYCXkdslmUiXToldsCcWqPIv6tkPSCsIab_PAeBQ";
 const swedishDay=date=>new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Stockholm",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(date));
@@ -199,7 +216,7 @@ function matchPages(games){
 function matchesSvg(){
   const {w:W,h:H}=format(),m=Math.round(W*.052),top=300;
   if(scheduleLoading||scheduleError)return base(svgText(W/2,H/2,scheduleError||'Hämtar rapporterade matcher…',26,'#a2b6c9',700,'text-anchor="middle"'));
-  let games=[...schedule,...manualMatches.filter(g=>Number(g.league)===S.league)].filter(g=>effectiveMatchDay(g)===$("#matchDate").value).map(displayedMatch).map(g=>[new Date(g.date).toLocaleTimeString('sv-SE',{timeZone:'Europe/Stockholm',hour:'2-digit',minute:'2-digit'}),g.home,g.away,g.homeScore,g.awayScore]);
+  let games=[...schedule,...manualMatches.filter(g=>Number(g.league)===S.league)].filter(matchInSelectedGroup).filter(g=>effectiveMatchDay(g)===$("#matchDate").value).map(displayedMatch).map(g=>[new Date(g.date).toLocaleTimeString('sv-SE',{timeZone:'Europe/Stockholm',hour:'2-digit',minute:'2-digit'}),g.home,g.away,g.homeScore,g.awayScore]);
   if(!games.length)return base(svgText(W/2,H/2,'Inga rapporterade matcher på valt datum',28,'#a2b6c9',700,'text-anchor="middle"'));
   const pages=matchPages(games),pageCount=pages.length,pageSelect=$("#matchPage"),page=Math.min(Number(pageSelect.value)||0,pageCount-1);
   pageSelect.innerHTML=Array.from({length:pageCount},(_,i)=>'<option value="'+i+'"'+(i===page?' selected':'')+'>Sida '+(i+1)+' av '+pageCount+'</option>').join('');
@@ -221,7 +238,7 @@ function matchesSvg(){
   }).join(''));
 }
 function title(){return ($("#title").value||(S.kind==="player"?singlePlayer()?.display_gamertag||TIT.player:S.kind==="roster"?rosterTeamName():TIT[S.kind])).trim().toUpperCase()}
-function subtitle(){if(S.kind==="player")return ($("#subtitle").value||L.t(TIT.player)+" � "+comp().label).toUpperCase();if(S.kind==="roster")return ($("#subtitle").value||L.t("LAGPRESENTATION")+" · "+comp().label).toUpperCase();if(S.kind==="matches")return ($("#subtitle").value||matchDayLabel()+" · "+comp().label).toUpperCase();return ($("#subtitle").value||(S.kind==="table"?stageName()+(groupIds().length>1?" · "+groupName(S.group):""):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label)).trim().toUpperCase()}
+function subtitle(){if(S.kind==="player")return ($("#subtitle").value||L.t(TIT.player)+" � "+comp().label).toUpperCase();if(S.kind==="roster")return ($("#subtitle").value||L.t("LAGPRESENTATION")+" · "+comp().label).toUpperCase();if(S.kind==="matches")return ($("#subtitle").value||matchDayLabel()+(S.filterGroup!=null?" / "+groupName(S.filterGroup):"")+" · "+comp().label).toUpperCase();return ($("#subtitle").value||(S.kind==="table"?stageName()+(groupIds().length>1?" · "+groupName(S.group):""):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label+(S.filterGroup!=null?" / "+groupName(S.filterGroup):""))).trim().toUpperCase()}
 function defs(){return '<defs><linearGradient id="silver" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#edf1f4"/><stop offset=".8" stop-color="#a2adb6"/><stop offset="1" stop-color="#fff"/></linearGradient><linearGradient id="gold"><stop stop-color="#ffd95f"/><stop offset=".5" stop-color="#ffbd00"/><stop offset="1" stop-color="#d88700"/></linearGradient><linearGradient id="panel" x2="1" y2="1"><stop stop-color="#071d2c" stop-opacity=".97"/><stop offset="1" stop-color="#020b12" stop-opacity=".98"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#000" flood-opacity=".58"/></filter></defs>'}
 function background(W,H){
   const glow=(id,color,x,y)=>'<radialGradient id="'+id+'"><stop stop-color="'+color+'" stop-opacity=".48"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient>';
@@ -942,7 +959,7 @@ function render(){
   const missingTieBreaks=S.league===527&&['table','groups'].includes(S.kind)&&(scheduleLoading||!!scheduleError);
   if(missingTieBreaks)$("#preview").innerHTML='<div style="color:white;padding:30px">'+esc(scheduleError||L.t('HÄMTAR…'))+'</div>';
   $("#png").disabled=$("#svg").disabled=dataLoading||playerDataError&&needsPlayers()||missingTieBreaks||S.kind==="player"&&!singlePlayer();
-  $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches"){syncMatchEditor();syncManualEditor();}$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=(S.kind==="roster"&&!S.rosterStats)||S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table"||groupIds().length<=1;$("#countField").hidden=true;
+  $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches"){syncMatchEditor();syncManualEditor();}$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=(S.kind==="roster"&&!S.rosterStats)||S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table"||groupIds().length<=1;$("#filterGroupField").hidden=["table","groups","roster","player"].includes(S.kind)||groupIds().length<=1;$("#countField").hidden=true;
 }
 function safe(){return (comp().code+(S.kind==="player"?"-"+(singlePlayer()?.display_gamertag||""):"")+(S.kind==="matches"?"-"+$("#matchDate").value+"-sida-"+(Number($("#matchPage").value)+1):"")+"-"+TIT[S.kind]).toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1200)}
@@ -976,6 +993,7 @@ async function expSvg(){await readyPortraits();const s=await inline(build());dl(
 async function expPng(){await readyPortraits();const s=await inline(build()),{w,h}=format(),u=URL.createObjectURL(new Blob([s],{type:"image/svg+xml;charset=utf-8"})),im=new Image();try{await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=u});const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(im,0,0,w,h);const b=await new Promise(ok=>c.toBlob(ok,"image/png",1));if(!b)throw new Error("PNG-export misslyckades");dl(b,safe()+".png")}finally{URL.revokeObjectURL(u)}}
 
 $$("[data-kind]").forEach(b=>b.onclick=()=>{$$("[data-kind]").forEach(x=>x.classList.toggle("active",x===b));S.kind=b.dataset.kind;if(S.kind==="matches")load();else render()});
+$("#filterGroup").addEventListener("change",()=>{$("#matchPage").value="0";render()});
 $("#singlePlayer").onchange=()=>{singlePlayerId=$("#singlePlayer").value;render()};
 $("#rosterTeam").onchange=()=>{rosterTeamId=$("#rosterTeam").value;render()};
 $("#rosterPlayers").onchange=event=>{const input=event.target;if(input.type!=="checkbox")return;const excluded=rosterExclusions();if(input.checked)excluded.delete(input.value);else excluded.add(input.value);render()};
@@ -988,11 +1006,11 @@ $("#matchEditReset").onclick=()=>saveMatchDate(true);
 $("#matchEditSwap").onclick=toggleMatchSides;
 $("#manualSave").onclick=saveManualMatch;
 $("#manualMatchList").onclick=event=>{const id=event.target.dataset.removeManual;if(!id)return;if(storeManualMatches(manualMatches.filter(g=>g.id!==id))){render();$("#manualMatchStatus").textContent='Manuellt resultat borttaget.';}};
-["rosterDisplay","minGamesPercent","matchPage","matchDate","stage","group","count","format","bg","logos","sender"].forEach(id=>$("#"+id).addEventListener("change",render));
+["rosterDisplay","minGamesPercent","matchPage","matchDate","stage","group","filterGroup","count","format","bg","logos","sender"].forEach(id=>$("#"+id).addEventListener("change",render));
 try{$("#sender").value=localStorage.getItem('swn-graphics-sender')==='sportsgamer'?'sportsgamer':'seh';}catch{}
 $("#sender").addEventListener('change',()=>{try{localStorage.setItem('swn-graphics-sender',$("#sender").value);}catch{}});
 ["title","subtitle","playerNote"].forEach(id=>$("#"+id).addEventListener("input",render));
-$("#league").onchange=()=>{S.league=Number($("#league").value||527);S.group=null;if(S.league===532)$("#bg").value="wv";else if($("#bg").value==="wv")$("#bg").value="gamenight";load()};
+$("#league").onchange=()=>{S.league=Number($("#league").value||527);S.group=null;S.filterGroup=null;$("#filterGroup").value="all";if(S.league===532)$("#bg").value="wv";else if($("#bg").value==="wv")$("#bg").value="gamenight";load()};
 async function exportGraphic(type){
   if(dataLoading||playerDataError&&needsPlayers())return;
   if(S.kind==="matches"&&(scheduleLoading||scheduleError))return;

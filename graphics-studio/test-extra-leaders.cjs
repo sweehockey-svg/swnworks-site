@@ -1,6 +1,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const source=fs.readFileSync(__dirname+'/app.js','utf8');
 const ctx=vm.createContext({S:{stage:'regular',count:8,teams:[],players:[]},n:v=>v!=null&&Number.isFinite(Number(v))?Number(v):0});
+vm.runInContext(source.slice(source.indexOf('function filterGroups('),source.indexOf('function logos(')),ctx);
 vm.runInContext(source.slice(source.indexOf('function ps('),source.indexOf('function dimPlayers(')),ctx);
 const player=(id,gp,points,extra={})=>({sports_gamer_player_id:id,sports_gamer_team_id:1,display_gamertag:id,regular_skater_games:gp,regular_points:points,regular_goals:1,regular_assists:points-1,regular_skater_position_abbreviation:'LD',...extra});
 ctx.S.teams=[{sports_gamer_team_id:1,statistics_stage:'regular',games_played:6},{sports_gamer_team_id:1,statistics_stage:'playoffs',games_played:2}];

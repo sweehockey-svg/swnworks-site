@@ -2,6 +2,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const source=fs.readFileSync(__dirname+'/app.js','utf8');
 const ctx={S:{stage:'regular'},L:{locale:'en-GB',t:x=>x},n:v=>Number(v)||0,rosterPosition:p=>p.position};
 vm.createContext(ctx);
+vm.runInContext(source.slice(source.indexOf('function filterGroups('),source.indexOf('function logos(')),ctx);
 vm.runInContext(source.slice(source.indexOf('function ps('),source.indexOf('function qualificationPercent(')),ctx);
 vm.runInContext(source.slice(source.indexOf('function gv('),source.indexOf('function goalies(')),ctx);
 vm.runInContext(source.slice(source.indexOf('function rosterStatsValues('),source.indexOf('function rosterStatsSvg(')),ctx);

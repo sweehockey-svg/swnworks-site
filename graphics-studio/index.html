@@ -99,6 +99,7 @@
         <div id="rosterPlayersField" class="full" hidden><div class="roster-picker-head"><span id="rosterSelectionCount"></span><button type="button" id="rosterSelectAll">Välj alla</button></div><p>Alla registrerade spelare är valda från början. Avmarkera dem som inte ska vara med.</p><div id="rosterPlayers" class="roster-picker"></div></div>
         <label id="stageField"><span>PERIOD</span><select id="stage"><option value="regular">Gruppspel</option><option value="playoffs">Slutspel</option><option value="total">Totalt</option></select></label>
         <label id="groupField"><span>GRUPP</span><select id="group"><option>Hämtar…</option></select></label>
+        <label id="filterGroupField" hidden><span>GRUPP</span><select id="filterGroup"><option value="all">Alla grupper</option></select></label>
         <label id="minGamesField" hidden><span>MINSTA MATCHANDEL (%)</span><input id="minGamesPercent" type="number" min="0" max="100" step="1" value="50"></label>
         <label id="countField"><span>ANTAL</span><select id="count"><option value="5">Top 5</option><option value="8" selected>Top 8</option><option value="10">Top 10</option></select></label>
       </div>
@@ -132,7 +133,7 @@
 <script  type="text/plain" data-studio-src="language.js?v=20261012-roster-stats"></script>
 <script  type="text/plain" data-studio-src="manual-results.js?v=20261011-overtime"></script>
 <script type="text/plain" data-studio-src="standings-order.js?v=20261011-scl-tiebreak"></script>
-<script type="text/plain" data-studio-src="app.js?v=20261015-roster-avatar-fill"></script>
+<script type="text/plain" data-studio-src="app.js?v=20261015-stat-group-filter"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script src="/studio-access.js?v=20261010-admin1"></script>
 </body>
 </html>
