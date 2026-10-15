@@ -890,10 +890,22 @@ function playerPresentationWideSvg(p){
  content+='<defs><radialGradient id="playerSpotlight"><stop stop-color="#4a7a94" stop-opacity=".30"/><stop offset="1" stop-color="#4a7a94" stop-opacity="0"/></radialGradient></defs><ellipse cx="1390" cy="625" rx="520" ry="470" fill="url(#playerSpotlight)"/>';
  content+='<rect x="'+m+'" y="182" width="48" height="4" rx="2" fill="#ffcf4a"/>'+svgText(m+66,190,$('#subtitle').value||L.t('SPELARPRESENTATION'),16,'#b4c9d7',800,'letter-spacing="2.6"');
  content+=svgText(m,292,name,fittedHeadingSize(name,88,leftW),'#fff',900,'letter-spacing="-2"');
- if(note)content+=svgText(m,345,note==='M\u00f6t spelaren'?L.t(note):note,Math.min(24,leftW/Math.max(1,note.length)/.58),'#b4c9d7',500);
+ if(note){
+   let rest=(note==='M\u00f6t spelaren'?L.t(note):note).trim();
+   const size=24,limit=Math.floor(leftW/(size*.64)),lines=[];
+   while(rest&&lines.length<2){
+     if(rest.length<=limit){lines.push(rest);rest='';break}
+     let cut=rest.lastIndexOf(' ',limit);if(cut<limit*.45)cut=limit;
+     lines.push(rest.slice(0,cut).trim());rest=rest.slice(cut).trim();
+   }
+   if(rest)lines[1]=lines[1].slice(0,limit-1).trimEnd()+'…';
+   content+=lines.map((line,i)=>svgText(m,332+i*30,line,size,'#b4c9d7',500)).join('');
+ }
  content+='<line x1="'+m+'" y1="382" x2="'+(m+leftW)+'" y2="382" stroke="#7894a7" opacity=".3"/>';
- content+=logo?img(logo,m,416,86):nationFlag(p,m,434,76);
- content+=svgText(m+112,450,team,fittedHeadingSize(team,30,leftW-112),'#eef5f9',800)+svgText(m+112,487,(rosterPosition(p)||'\u2013')+(p.player_number!=null?' \u00b7 #'+p.player_number:''),21,'#ffcf4a',800,'letter-spacing="1"');
+ if(logo)content+=img(logo,m,410,106);
+ const teamX=m+(logo?130:0),flag=nationFlag(p,teamX,467,40);
+ content+=svgText(teamX,450,team,fittedHeadingSize(team,30,leftW-(logo?130:0)),'#eef5f9',800);
+ content+=flag+svgText(teamX+(flag?58:0),490,(rosterPosition(p)||'\u2013')+(p.player_number!=null?' \u00b7 #'+p.player_number:''),21,'#ffcf4a',800,'letter-spacing="1"');
  content+='<rect x="'+m+'" y="538" width="'+leftW+'" height="206" rx="18" fill="#071a28" fill-opacity=".78" stroke="#426079" stroke-opacity=".5"/><rect x="'+m+'" y="570" width="5" height="140" rx="2" fill="#ffcf4a"/>';
  content+=svgText(m+36,678,primary,Math.min(130,470/Math.max(1,primary.length)*1.4),'#ffcf4a',900,'letter-spacing="-4"')+svgText(m+468,625,goalie?'SV%':L.t('PO\u00c4NG'),25,'#fff',800,'letter-spacing="2"')+svgText(m+468,663,goalie?L.t('M\u00c5LVAKT'):rosterPosition(p),16,'#a2b6c9',700,'letter-spacing="2"');
  const gap=18,cellW=(leftW-gap*2)/3;
