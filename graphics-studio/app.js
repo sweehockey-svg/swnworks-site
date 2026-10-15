@@ -826,7 +826,8 @@ function syncRosterPicker(){
 function rosterGeometry(count,W,H){
  const margin=Math.round(W*.052),top=340,bottom=H-90,gap=W>1500?22:16,width=W-margin*2,height=bottom-top;
  let best=null;
- if(W>1500&&count>=9&&count<=20){const rows=2,columns=Math.ceil(count/rows),w=(width-gap*(columns-1))/columns,h=(height-gap)/rows;return {columns,rows,w,h,margin,top,gap,width};}
+ if(W>1500&&count<=9){const rows=1,columns=Math.max(1,count),w=Math.min((width-gap*(columns-1))/columns,320),h=height;return {columns,rows,w,h,margin,top,gap,width};}
+ if(W>1500&&count>=10&&count<=20){const rows=2,columns=Math.ceil(count/rows),w=(width-gap*(columns-1))/columns,h=(height-gap)/rows;return {columns,rows,w,h,margin,top,gap,width};}
  if(W>1500){const smallTeam=count>=6&&count<=8,ratio=smallTeam?.9:.64,rows=smallTeam?2:Math.ceil(Math.max(1,count)/8),columns=Math.ceil(Math.max(1,count)/rows),availableH=(height-gap*(rows-1))/rows,w=Math.min((width-gap*(columns-1))/columns,availableH*ratio,smallTeam?300:260),h=Math.min(availableH,w/ratio),gridTop=top+(height-(rows*h+(rows-1)*gap))/2;return {columns,rows,w,h,margin,top:gridTop,gap,width};}
  if(count>=6){const rows=count<=12?2:3,columns=Math.ceil(count/rows),w=(width-gap*(columns-1))/columns,rowGap=count>=11&&count<=12?48:gap,h=Math.min((height-rowGap*(rows-1))/rows,count>=11&&count<=12?w*2.65:Infinity),gridTop=top+(height-(rows*h+(rows-1)*rowGap))/2;return {columns,rows,w,h,margin,top:gridTop,gap,rowGap,width};}
  for(let columns=1;columns<=Math.min(8,Math.max(1,count));columns++){const rows=Math.ceil(Math.max(1,count)/columns),w=(width-gap*(columns-1))/columns,h=(height-gap*(rows-1))/rows;const score=Math.abs(Math.log((w/h)/.85))+(rows*columns-Math.max(1,count))*.025;if(!best||score<best.score)best={columns,rows,w,h,score};}

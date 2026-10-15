@@ -17,10 +17,10 @@ const {chromium}=require('C:/Users/TheSw/.cache/codex-runtimes/codex-primary-run
   const clipped=await page.locator('[data-player-id]').evaluateAll(cards=>cards.some(card=>{const rect=card.querySelector('rect'),bottom=+rect.getAttribute('y')+(+rect.getAttribute('height'));return [...card.querySelectorAll('text')].some(text=>+text.getAttribute('y')>bottom);}));
   assert.equal(clipped,false,format+' statistics extend outside cards');
  }
- for(const count of [17,18,19,20]){
+ for(const count of [1,5,6,8,9,10,17,18,19,20]){
   await page.evaluate(count=>window.testRoster('wide',false,count),count);
   const layout=await page.locator('[data-player-id]').evaluateAll(cards=>({count:cards.length,rows:[...new Set(cards.map(card=>card.querySelector('rect').getAttribute('y')))].length,inside:cards.every(card=>{const r=card.querySelector('rect');return +r.getAttribute('x')>=0&&+r.getAttribute('x')+(+r.getAttribute('width'))<=1920&&+r.getAttribute('y')+(+r.getAttribute('height'))<=990;})}));
-  assert.equal(layout.count,count);assert.equal(layout.rows,2);assert.equal(layout.inside,true);
+  assert.equal(layout.count,count);assert.equal(layout.rows,count<=9?1:2);assert.equal(layout.inside,true);
  }
  await page.evaluate(()=>window.testRoster('wide',true));
  await page.locator('#preview').screenshot({path:__dirname+'/../../roster-stats-proof.png'});
