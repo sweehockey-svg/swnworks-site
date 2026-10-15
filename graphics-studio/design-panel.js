@@ -15,7 +15,8 @@
   if(actions)body.append(actions);
   if(note)body.append(note);
   panel.append(body);
-  document.querySelector('.layout').append(panel);
+  const layout=document.querySelector('.layout'),wide=window.matchMedia('(min-width: 1100px)');
+  layout.append(panel);
   const open=document.createElement('button');
   open.type='button';
   open.className='design-panel-open';
@@ -24,12 +25,22 @@
   open.setAttribute('aria-controls',panel.id);
   open.setAttribute('aria-expanded','false');
   preview.append(open);
-  open.addEventListener('click',()=>{panel.showModal();open.setAttribute('aria-expanded','true')});
+  function showPanel(){
+    if(wide.matches){layout.classList.add('design-docked');panel.show()}
+    else panel.showModal();
+    open.setAttribute('aria-expanded','true');
+  }
+  open.addEventListener('click',()=>{if(panel.open)panel.close();else showPanel()});
   panel.querySelector('.panel-close').addEventListener('click',()=>panel.close());
   panel.addEventListener('click',event=>{
     if(event.target!==panel)return;
     const r=panel.getBoundingClientRect();
     if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)panel.close();
   });
-  panel.addEventListener('close',()=>{open.setAttribute('aria-expanded','false');open.focus()});
+  panel.addEventListener('close',()=>{layout.classList.remove('design-docked');open.setAttribute('aria-expanded','false');open.focus()});
+  wide.addEventListener('change',()=>{
+    if(panel.open)panel.close();
+    if(wide.matches)showPanel();
+  });
+  if(wide.matches)showPanel();
 })();

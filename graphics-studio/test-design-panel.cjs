@@ -1,18 +1,20 @@
 const vm=require('node:vm'),fs=require('node:fs'),assert=require('node:assert/strict');
 class Element{
-  constructor(){this.children=[];this.events={};this.attrs={};this.open=false}
+  constructor(){this.children=[];this.events={};this.attrs={};this.open=false;this.classList={add(){},remove(){}}}
   append(...nodes){this.children.push(...nodes)}
   setAttribute(k,v){this.attrs[k]=v}
   addEventListener(k,fn){this.events[k]=fn}
   querySelector(){return close}
   showModal(){this.open=true}
+  show(){this.open=true}
   close(){this.open=false;this.events.close()}
   focus(){this.focused=true}
 }
 const close=new Element(),controls=new Element(),toolbar=new Element(),layout=new Element(),design=new Element(),actions=new Element(),note=new Element(),created=[];
 controls.querySelector=s=>s==='.actions'?actions:note;
 const document={querySelector:s=>s==='.controls'?controls:s==='.toolbar'?toolbar:layout,getElementById:()=>({closest:()=>design}),createElement:()=>{const el=new Element();created.push(el);return el}};
-vm.runInNewContext(fs.readFileSync(__dirname+'/design-panel.js','utf8'),{document});
+const wide={matches:false,addEventListener(k,fn){this.change=fn}};
+vm.runInNewContext(fs.readFileSync(__dirname+'/design-panel.js','utf8'),{document,window:{matchMedia:()=>wide}});
 const [panel,body,button]=created;
 assert.equal(panel.open,false);
 assert.equal(body.children[0],design);
@@ -26,4 +28,10 @@ close.events.click();
 assert.equal(panel.open,false);
 assert.equal(button.attrs['aria-expanded'],'false');
 assert.equal(button.focused,true);
+wide.matches=true;wide.change();
+assert.equal(panel.open,true);
+button.events.click();
+assert.equal(panel.open,false);
+wide.matches=false;wide.change();
+assert.equal(panel.open,false);
 console.log('Design panel passed: closed by default, existing controls moved intact, open/close and focus restoration.');
