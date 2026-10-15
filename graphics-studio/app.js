@@ -238,7 +238,7 @@ function matchesSvg(){
   }).join(''));
 }
 function title(){return ($("#title").value||(S.kind==="player"?singlePlayer()?.display_gamertag||TIT.player:S.kind==="roster"?rosterTeamName():TIT[S.kind])).trim().toUpperCase()}
-function subtitle(){if(S.kind==="player")return ($("#subtitle").value||L.t(TIT.player)+" � "+comp().label).toUpperCase();if(S.kind==="roster")return ($("#subtitle").value||L.t("LAGPRESENTATION")+" · "+comp().label).toUpperCase();if(S.kind==="matches")return ($("#subtitle").value||matchDayLabel()+(S.filterGroup!=null?" / "+groupName(S.filterGroup):"")+" · "+comp().label).toUpperCase();return ($("#subtitle").value||(S.kind==="table"?stageName()+(groupIds().length>1?" · "+groupName(S.group):""):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label+(S.filterGroup!=null?" / "+groupName(S.filterGroup):""))).trim().toUpperCase()}
+function subtitle(){if(S.kind==="player")return ($("#subtitle").value||L.t(TIT.player)+" � "+comp().label).toUpperCase();if(S.kind==="roster")return ($("#subtitle").value||L.t("LAGPRESENTATION")+" · "+comp().label).toUpperCase();if(S.kind==="matches")return ($("#subtitle").value||matchDayLabel()+(S.filterGroup!=null?" / "+groupName(S.filterGroup):"")+" · "+comp().label).toUpperCase();return ($("#subtitle").value||(S.kind==="table"?stageName()+(groupIds().length>1?" · "+groupName(S.group):""):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label+(S.filterGroup!=null?" / "+groupName(S.filterGroup):""))).trim().toUpperCase()}
 function defs(){return '<defs><linearGradient id="silver" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#edf1f4"/><stop offset=".8" stop-color="#a2adb6"/><stop offset="1" stop-color="#fff"/></linearGradient><linearGradient id="gold"><stop stop-color="#ffd95f"/><stop offset=".5" stop-color="#ffbd00"/><stop offset="1" stop-color="#d88700"/></linearGradient><linearGradient id="panel" x2="1" y2="1"><stop stop-color="#071d2c" stop-opacity=".97"/><stop offset="1" stop-color="#020b12" stop-opacity=".98"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#000" flood-opacity=".58"/></filter></defs>'}
 function background(W,H){
   const glow=(id,color,x,y)=>'<radialGradient id="'+id+'"><stop stop-color="'+color+'" stop-opacity=".48"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient>';
@@ -898,7 +898,7 @@ function playerPresentationWideSvg(p){
  content+=svgText(m+36,678,primary,Math.min(130,470/Math.max(1,primary.length)*1.4),'#ffcf4a',900,'letter-spacing="-4"')+svgText(m+468,625,goalie?'SV%':L.t('PO\u00c4NG'),25,'#fff',800,'letter-spacing="2"')+svgText(m+468,663,goalie?L.t('M\u00c5LVAKT'):rosterPosition(p),16,'#a2b6c9',700,'letter-spacing="2"');
  const gap=18,cellW=(leftW-gap*2)/3;
  content+=secondary.map(([label,value],i)=>{const x=m+i*(cellW+gap);return '<rect x="'+x+'" y="772" width="'+cellW+'" height="136" rx="14" fill="#071a28" fill-opacity=".7" stroke="#426079" stroke-opacity=".4"/>'+svgText(x+26,828,value,Math.min(46,(cellW-52)/Math.max(1,value.length)/.65),'#fff',900)+svgText(x+26,874,label,16,'#a2b6c9',800,'letter-spacing="2"');}).join('');
- content+=url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMax meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH);
+content+=url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin slice" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH);
  return base(content+'</g>');
 }
 
@@ -906,9 +906,9 @@ function playerPresentationSvg(){
  const p=singlePlayer(),{w:W,h:H}=format(),m=Math.round(W*.052),wide=S.format==='wide';
  if(!p)return base(svgText(m,380,L.t('V\u00e4lj spelare'),28,'#fff',800));
  if(wide)return playerPresentationWideSvg(p);
- const note=$('#playerNote').value.trim(),name=$('#title').value||p.display_gamertag,photoX=W*.22,photoY=324,photoW=W-photoX,photoH=H-photoY+4,url=portraitUrl(p),b=url?portraitBounds.get(url):null;
+ const note=$('#playerNote').value.trim(),name=$('#title').value||p.display_gamertag,photoX=W*.30,photoY=340,photoW=W-photoX,photoH=H-photoY+4,url=portraitUrl(p),b=url?portraitBounds.get(url):null;
  if(url)measurePortrait(url);
- const crop=b?[0,0,b.sourceW,b.sourceH*.8]:[0,0,1024,1229];
+ const crop=b?[b.left,b.top,b.width,b.height*.8]:[0,0,1024,1229];
  let content='<g data-single-player="'+esc(rosterPlayerId(p))+'">';
  content+=svgText(m,198,$('#subtitle').value||L.t('SPELARPRESENTATION'),16,'#a2b6c9',800,'letter-spacing="2"')+svgText(m,274,name,fittedHeadingSize(name,wide?86:76,note?W*.55:W-m*2),'#fff',900)+'<line x1="'+m+'" y1="308" x2="'+(W-m)+'" y2="308" stroke="#ffcf4a" stroke-width="3"/>';
  if(note){
@@ -917,7 +917,7 @@ function playerPresentationSvg(){
   content+=lines.slice(0,3).map((text,i)=>svgText(x,214+i*28,text,Math.min(size,width/Math.max(1,text.length)/.56),'#a2b6c9',600)).join('');
  }
  content+=url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMax meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH);
- const infoX=m,infoW=W*.27-m,infoY=365,k=Math.min(1.5,(H-420)/850),logo=S.logos?logos().get(rosterTeamId):'';
+ const infoX=m,infoW=W*.28-m,infoY=365,k=S.format==='square'?.72:S.format==='story'?1.05:1,logo=S.logos?logos().get(rosterTeamId):'';
  content+=logo?img(logo,infoX,infoY,76):nationFlag(p,infoX,infoY,76);
  content+=svgText(infoX,infoY+120,rosterTeamName(),Math.min(26,infoW/Math.max(1,rosterTeamName().length)*1.45),'#a2b6c9',800);
  content+=svgText(infoX,infoY+164,(rosterPosition(p)||'\u2013')+(p.player_number!=null?' \u00b7 #'+p.player_number:''),26,'#ffcf4a',800);
