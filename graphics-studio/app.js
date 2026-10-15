@@ -905,6 +905,14 @@ function playerNationalityFlag(p,logo,x,y,w){
  if(logo&&S.league===532&&teamCountry&&teamCountry===aliases[country])return '';
  return nationFlag(p,x,y,w);
 }
+function presentationStatLabel(label){
+ const language=$('#language').value;
+ const labels={GP:['MATCHER','GAMES','OTTELUT'],G:['MÅL','GOALS','MAALIT'],A:['ASSIST','ASSISTS','SYÖTÖT'],SO:['NOLLOR','SHUTOUTS','NOLLAPELIT']};
+ return labels[label]?.[language==='en'?1:language==='fi'?2:0]||label;
+}
+function presentationShadow(photo){
+ return '<defs><filter id="presentationPortraitShadow" x="-25%" y="-15%" width="150%" height="140%" color-interpolation-filters="sRGB"><feDropShadow dx="-12" dy="10" stdDeviation="18" flood-color="#000" flood-opacity=".32"/></filter></defs><g filter="url(#presentationPortraitShadow)">'+photo+'</g>';
+}
 function playerPresentationWideSvg(p){
  const {w:W,h:H}=format(),m=Math.round(W*.052),leftW=800,url=portraitUrl(p),b=url?portraitBounds.get(url):null;
  if(url)measurePortrait(url);
@@ -935,9 +943,9 @@ function playerPresentationWideSvg(p){
 content+='<rect x="'+m+'" y="538" width="'+leftW+'" height="206" rx="18" fill="#071a28" fill-opacity=".78" stroke="#426079" stroke-opacity=".5"/><rect x="'+m+'" y="570" width="5" height="140" rx="2" fill="#ffcf4a"/>';
  content+=svgText(m+36,678,primary,Math.min(130,470/Math.max(1,primary.length)*1.4),'#ffcf4a',900,'letter-spacing="-4"')+svgText(m+468,625,goalie?'SV%':L.t('PO\u00c4NG'),25,'#fff',800,'letter-spacing="2"');
  const gap=18,cellW=(leftW-gap*2)/3;
- content+=secondary.map(([label,value],i)=>{const x=m+i*(cellW+gap);return '<rect x="'+x+'" y="772" width="'+cellW+'" height="136" rx="14" fill="#071a28" fill-opacity=".7" stroke="#426079" stroke-opacity=".4"/>'+svgText(x+26,828,value,Math.min(46,(cellW-52)/Math.max(1,value.length)/.65),'#fff',900)+svgText(x+26,874,label,16,'#a2b6c9',800,'letter-spacing="2"');}).join('');
+content+=secondary.map(([label,value],i)=>{const x=m+i*(cellW+gap);return '<rect x="'+x+'" y="772" width="'+cellW+'" height="136" rx="14" fill="#071a28" fill-opacity=".7" stroke="#426079" stroke-opacity=".4"/>'+svgText(x+26,828,value,Math.min(46,(cellW-52)/Math.max(1,value.length)/.65),'#fff',900)+svgText(x+26,874,presentationStatLabel(label),16,'#a2b6c9',800,'letter-spacing="2"');}).join('');
  }else{content+=svgText(m,610,L.t('Ingen matchstatistik ännu'),24,'#b4c9d7',600);}
-content+=url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin slice" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH);
+content+=presentationShadow(url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin slice" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH));
  return base(content+'</g>');
 }
 
@@ -967,13 +975,13 @@ function playerPresentationInstagramSvg(p){
  content+='<line x1="'+m+'" y1="358" x2="'+(W-m)+'" y2="358" stroke="#7894a7" opacity=".3"/>';
  const photoX=440,photoY=385,photoW=W-photoX,photoH=H-photoY;
  const crop=b?[b.left,b.top,b.width,b.height*.8]:[0,0,1024,1229];
- content+=url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin slice" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH);
+ content+=presentationShadow(url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMin slice" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH));
  content+=playerNationalityFlag(p,logo,m,416,64);
  content+=svgText(m,525,team,fittedHeadingSize(team,27,leftW),'#eef5f9',800)+svgText(m,566,(rosterPosition(p)||'–')+(p.player_number!=null?' · #'+p.player_number:''),21,'#ffcf4a',800);
  if(Number(cells[0][1])>0){
  content+='<rect x="'+m+'" y="615" width="'+leftW+'" height="208" rx="18" fill="#071a28" fill-opacity=".9" stroke="#426079"/><rect x="'+(m+18)+'" y="641" width="4" height="152" rx="2" fill="#ffcf4a"/>';
  content+=svgText(m+38,689,goalie?'SV%':L.t('POÄNG'),21,'#b4c9d7',800,'letter-spacing="2"')+svgText(m+34,787,primary,Math.min(100,320/Math.max(1,String(primary).length)/.65),'#ffcf4a',900);
- content+=secondary.map(([label,value],i)=>{const y=845+i*112;return '<rect x="'+m+'" y="'+y+'" width="'+leftW+'" height="94" rx="13" fill="#071a28" fill-opacity=".9" stroke="#426079" stroke-opacity=".6"/>'+svgText(m+24,y+61,value,Math.min(44,170/Math.max(1,String(value).length)/.65),'#fff',900)+svgText(m+220,y+54,label,18,'#b4c9d7',800,'letter-spacing="1.5"');}).join('');
+ content+=secondary.map(([label,value],i)=>{const y=845+i*112;return '<rect x="'+m+'" y="'+y+'" width="'+leftW+'" height="94" rx="13" fill="#071a28" fill-opacity=".9" stroke="#426079" stroke-opacity=".6"/>'+svgText(m+24,y+61,value,Math.min(44,170/Math.max(1,String(value).length)/.65),'#fff',900)+svgText(m+220,y+54,presentationStatLabel(label),18,'#b4c9d7',800,'letter-spacing="1.5"');}).join('');
  }else{content+=svgText(m,675,L.t('Ingen matchstatistik ännu'),24,'#b4c9d7',600);}
  return base(content+'</g>');
 }
@@ -992,7 +1000,7 @@ function playerPresentationSvg(){
   for(const word of text.split(/\s+/)){const next=line?line+' '+word:word;if(next.length*size*.56>width&&line){lines.push(line);line=word;}else line=next;}if(line)lines.push(line);
   content+=lines.slice(0,3).map((text,i)=>svgText(x,214+i*28,text,Math.min(size,width/Math.max(1,text.length)/.56),'#a2b6c9',600)).join('');
  }
- content+=url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMax meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH);
+ content+=presentationShadow(url?'<svg data-spotlight-photo="true" x="'+photoX+'" y="'+photoY+'" width="'+photoW+'" height="'+photoH+'" viewBox="'+crop.join(' ')+'" preserveAspectRatio="xMidYMax meet" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:1024)+'" height="'+(b?b.sourceH:1536)+'" preserveAspectRatio="none"/></svg>':silhouetteSvg(photoX,photoY,photoW,photoH));
  const infoX=m,infoW=W*.28-m,infoY=365,k=S.format==='square'?.72:S.format==='story'?1.05:1,logo=S.logos?logos().get(rosterTeamId):'';
  content+=logo?img(logo,infoX,infoY,76):nationFlag(p,infoX,infoY,76);
  content+=svgText(infoX,infoY+120,rosterTeamName(),Math.min(26,infoW/Math.max(1,rosterTeamName().length)*1.45),'#a2b6c9',800);
@@ -1000,7 +1008,7 @@ function playerPresentationSvg(){
  const cells=rosterStatsValues(p),goalie=rosterPosition(p)==='G',primary=goalie?cells[1][1]:cells[3][1],primaryY=infoY+320*k;
  content+=svgText(infoX,primaryY,primary,Math.min(150*k,infoW/Math.max(1,primary.length)*1.4),'#ffcf4a',900)+svgText(infoX,primaryY+40,goalie?'SV%':L.t('PO\u00c4NG'),18,'#a2b6c9',800,'letter-spacing="2"');
  const secondary=goalie?[cells[0],cells[2],cells[3]]:cells.slice(0,3),statY=infoY+455*k;
- content+=secondary.map(([label,value],i)=>{const y=statY+i*90*k,size=Math.min(44*k,infoW*.55/Math.max(1,value.length)*1.4),labelX=infoX+Math.max(54,value.length*size*.64+18);return svgText(infoX,y,value,size,'#fff',900)+svgText(labelX,y-8,label,16,'#a2b6c9',800);}).join('');
+ content+=secondary.map(([label,value],i)=>{const y=statY+i*90*k,size=Math.min(44*k,infoW*.55/Math.max(1,value.length)*1.4),labelX=infoX+Math.max(54,value.length*size*.64+18);return svgText(infoX,y,value,size,'#fff',900)+svgText(labelX,y-8,presentationStatLabel(label),16,'#a2b6c9',800);}).join('');
  content+='</g>';
  return base(content);
 }

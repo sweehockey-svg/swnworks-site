@@ -1,0 +1,15 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync(__dirname+'/app.js','utf8');
+let language='sv';
+const context=vm.createContext({$:()=>({value:language})});
+vm.runInContext(source.slice(source.indexOf('function presentationStatLabel('),source.indexOf('function playerPresentationWideSvg(')),context);
+assert.equal(context.presentationStatLabel('GP'),'MATCHER');
+assert.equal(context.presentationStatLabel('G'),'MÅL');
+assert.equal(context.presentationStatLabel('A'),'ASSIST');
+language='en';assert.equal(context.presentationStatLabel('GP'),'GAMES');
+language='fi';assert.equal(context.presentationStatLabel('SO'),'NOLLAPELIT');
+assert.equal(context.presentationStatLabel('GAA'),'GAA');
+const photo='<svg data-spotlight-photo="true"></svg>',result=context.presentationShadow(photo);
+assert(result.includes(photo));assert(result.includes('feDropShadow'));
+assert(result.includes('filter="url(#presentationPortraitShadow)"'));
+console.log('Presentation polish passed: localized labels and export-compatible SVG shadow.');
