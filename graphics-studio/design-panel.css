@@ -2,6 +2,11 @@
 .toolbar{gap:12px;flex-wrap:wrap}.toolbar .badges{margin-left:auto}.design-panel-open{margin-left:auto}
 .preview .toolbar,.preview .stage,.preview .hint{max-width:none;margin-left:0;margin-right:0}
 .preview{padding-left:20px;padding-right:20px}
+.controls{min-width:0;overflow-x:hidden}
+.kinds{grid-template-columns:repeat(2,minmax(0,1fr))}
+.kind{min-width:0;overflow-wrap:anywhere}
+.controls .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.controls select,.controls input{min-width:0;max-width:100%}
 .design-panel{position:fixed;inset:0 0 0 auto;margin:0;width:min(390px,100%);height:100dvh;max-height:100dvh;max-width:100%;padding:0;border:0;border-left:1px solid #344a61;background:#101a26;color:#f4f7fa;box-shadow:-20px 0 70px #0008;overflow:auto}
 .design-panel::backdrop{background:#02070b66}
 .design-panel-header{position:sticky;top:0;z-index:4;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px;background:#101a26;border-bottom:1px solid #344a61}
@@ -12,8 +17,8 @@
 @media(min-width:701px) and (max-width:980px){.layout{grid-template-columns:260px minmax(0,1fr)}.controls{max-height:calc(100dvh - 76px);position:sticky;top:76px;overflow:auto;padding:18px 14px}.kinds{grid-template-columns:1fr 1fr}.preview{position:sticky;top:76px;align-self:start;padding:20px 16px}.stage{height:calc(100dvh - 190px);min-height:300px;padding:10px}#preview svg{max-height:calc(100dvh - 230px)}}
 @media(max-width:700px){.design-panel-open{padding:10px 12px}.toolbar .badges{display:none}}
 @media(min-width:1100px){
-  .layout{grid-template-columns:300px minmax(0,1fr)}
-  .layout.design-docked{grid-template-columns:300px minmax(0,1fr) 320px}
+  .layout{grid-template-columns:360px minmax(0,1fr)}
+  .layout.design-docked{grid-template-columns:360px minmax(0,1fr) 340px}
   .design-docked .design-panel{position:sticky;inset:auto;top:76px;align-self:start;width:100%;height:calc(100dvh - 76px);max-height:calc(100dvh - 76px);box-shadow:none}
   .design-docked .design-panel-header{padding:16px}
   .design-docked .design-panel-header h2{font-size:19px}
