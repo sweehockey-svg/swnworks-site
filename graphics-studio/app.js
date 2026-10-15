@@ -818,6 +818,7 @@ function rosterPlayers(){const unique=new Map();for(const player of S.players){i
 function rosterPlayerId(player){return String(player.sports_gamer_player_id??player.display_gamertag);}
 function rosterExclusions(){const key=S.league+':'+rosterTeamId;if(!rosterExcluded.has(key))rosterExcluded.set(key,new Set());return rosterExcluded.get(key);}
 function rosterPosition(player){
+  if(player.graphicPosition)return player.graphicPosition;
   const goalieGames=n(player.regular_goalie_games)+n(player.playoff_goalie_games),skaterGames=n(player.regular_skater_games)+n(player.playoff_skater_games);
   if(goalieGames>0&&skaterGames===0)return 'G';
   let position=String(player.roster_preferred_position_abbreviation||player.regular_skater_position_abbreviation||player.playoff_skater_position_abbreviation||'').toUpperCase();
@@ -875,7 +876,19 @@ function rosterStatsSvg(player,x,y,w,h){
  return '<g data-roster-stats="true"><line x1="'+(x+8)+'" y1="'+y+'" x2="'+(x+w-8)+'" y2="'+y+'" stroke="#355369"/>'+cells.map(([label,value],i)=>svgText(x+6+cellW*(i+.5),y+labelSize+4,label,labelSize,'#9bb5c6',700,'text-anchor="middle"')+svgText(x+6+cellW*(i+.5),y+h-2,value,Math.min(valueSize,(cellW-6)/(String(value).length*.68)),'#fff',900,'text-anchor="middle"')).join('')+'</g>';
 }
 let singlePlayerId='';
-function singlePlayer(){return rosterPlayers().find(p=>rosterPlayerId(p)===singlePlayerId)||rosterPlayers()[0];}
+const playerOverrides=new Map();
+function playerOverrideKey(p){return [S.league,rosterTeamId,rosterPlayerId(p)].join(':')}
+function singlePlayer(){
+ const p=rosterPlayers().find(p=>rosterPlayerId(p)===singlePlayerId)||rosterPlayers()[0];
+ return p?{...p,...(playerOverrides.get(playerOverrideKey(p))||{})}:p;
+}
+function syncPlayerOverrides(){
+ const field=$('#playerOverrides');field.hidden=S.kind!=='player';
+ if(field.hidden)return;
+ const p=singlePlayer(),override=p?playerOverrides.get(playerOverrideKey(p))||{}:{};
+ $('#playerPosition').value=override.graphicPosition||'';
+ $('#playerNumber').value=override.player_number??'';
+}
 function syncSinglePlayer(){
  const players=rosterPlayers();if(!players.some(p=>rosterPlayerId(p)===singlePlayerId))singlePlayerId=players[0]?rosterPlayerId(players[0]):'';
  $('#singlePlayer').innerHTML=players.map(p=>'<option value="'+esc(rosterPlayerId(p))+'"'+(rosterPlayerId(p)===singlePlayerId?' selected':'')+'>'+esc(p.display_gamertag)+'</option>').join('');
@@ -1000,6 +1013,7 @@ function build(){
   return L.svg(graphic,[$("#title").value,$("#subtitle").value,$("#playerNote").value,comp().label,...S.teams.map(t=>t.team_name_in_league),...S.players.map(p=>p.display_gamertag)]);
 }
 function render(){
+  syncPlayerOverrides();
   sync();$("#minGamesField").hidden=!['goalies','points_average','defender_points_average','dim'].includes(S.kind);
   for(const kind of ['goalies','points_average','defender_points_average','dim']){const el=document.querySelector('[data-kind="'+kind+'"] small');if(el)el.textContent=(kind==='goalies'?'SV% · GAA':kind==='dim'?'(TA + INT + BS) / GP':L.t('Poäng per match'))+' · '+L.t('MINST')+' '+qualificationPercent()+' %';}
   S.rosterStats=$("#rosterDisplay").value==="stats";$("#rosterDisplayField").hidden=S.kind!=="roster";if(["roster","player"].includes(S.kind))syncRosterPicker();if(S.kind==="player")syncSinglePlayer();$("#singlePlayerField").hidden=$("#playerNoteField").hidden=S.kind!=="player";$("#rosterTeamField").hidden=!["roster","player"].includes(S.kind);$("#rosterPlayersField").hidden=S.kind!=="roster";$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
@@ -1057,6 +1071,20 @@ $("#manualMatchList").onclick=event=>{const id=event.target.dataset.removeManual
 try{$("#sender").value=localStorage.getItem('swn-graphics-sender')==='sportsgamer'?'sportsgamer':'seh';}catch{}
 $("#sender").addEventListener('change',()=>{try{localStorage.setItem('swn-graphics-sender',$("#sender").value);}catch{}});
 ["title","subtitle","playerNote"].forEach(id=>$("#"+id).addEventListener("input",render));
+function updatePlayerOverride(){
+ const p=singlePlayer();if(!p)return;
+ const position=$('#playerPosition').value,raw=$('#playerNumber').value;
+ if(!$('#playerNumber').checkValidity())return;
+ const override={};
+ if(['LW','C','RW','LD','RD','G'].includes(position))override.graphicPosition=position;
+ if(raw!=='')override.player_number=Number(raw);
+ playerOverrides.set(playerOverrideKey(p),override);render();
+}
+$('#playerPosition').addEventListener('change',updatePlayerOverride);
+$('#playerNumber').addEventListener('input',updatePlayerOverride);
+$('#playerOverrideReset').addEventListener('click',()=>{
+ const p=singlePlayer();if(p)playerOverrides.delete(playerOverrideKey(p));render();
+});
 $("#league").onchange=()=>{S.league=Number($("#league").value||527);S.group=null;S.filterGroup=null;$("#filterGroup").value="all";if(S.league===532)$("#bg").value="wv";else if($("#bg").value==="wv")$("#bg").value="gamenight";load()};
 async function exportGraphic(type){
   if(dataLoading||playerDataError&&needsPlayers())return;

@@ -95,6 +95,12 @@
         <label class="full"><span>SPRÅK</span><select id="language"><option value="sv">Svenska</option><option value="en">English</option><option value="fi">Suomi</option></select></label>
         <label id="rosterTeamField" class="full" hidden><span>LAG</span><select id="rosterTeam"></select></label>
         <label id="singlePlayerField" class="full" hidden><span>SPELARE</span><select id="singlePlayer"></select></label>
+        <div id="playerOverrides" class="full" hidden>
+          <label><span>POSITION · ENDAST GRAFIKEN</span><select id="playerPosition"><option value="">Automatisk från profil</option><option>LW</option><option>C</option><option>RW</option><option>LD</option><option>RD</option><option>G</option></select></label>
+          <label><span>TRÖJNUMMER · ENDAST GRAFIKEN</span><input id="playerNumber" type="number" min="0" max="99" step="1" placeholder="Automatiskt från profil"></label>
+          <button id="playerOverrideReset" type="button" class="refresh">Återställ från spelarprofil</button>
+          <small>Ändrar bara denna spelarpresentation, inte spelarregistret. Återställs när sidan laddas om.</small>
+        </div>
         <label id="rosterDisplayField" class="full" hidden><span>SPELARKORT</span><select id="rosterDisplay"><option value="portraits">Bilder och namn</option><option value="stats">Bilder och spelarstatistik</option></select></label>
         <div id="rosterPlayersField" class="full" hidden><div class="roster-picker-head"><span id="rosterSelectionCount"></span><button type="button" id="rosterSelectAll">Välj alla</button></div><p>Alla registrerade spelare är valda från början. Avmarkera dem som inte ska vara med.</p><div id="rosterPlayers" class="roster-picker"></div></div>
         <label id="stageField"><span>PERIOD</span><select id="stage"><option value="regular">Gruppspel</option><option value="playoffs">Slutspel</option><option value="total">Totalt</option></select></label>
@@ -134,7 +140,7 @@
 <script  type="text/plain" data-studio-src="language.js?v=20261012-roster-stats"></script>
 <script  type="text/plain" data-studio-src="manual-results.js?v=20261011-overtime"></script>
 <script type="text/plain" data-studio-src="standings-order.js?v=20261011-scl-tiebreak"></script>
-<script type="text/plain" data-studio-src="app.js?v=20261016-wide-note-country"></script>
+<script type="text/plain" data-studio-src="app.js?v=20261016-player-overrides"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script src="/studio-access.js?v=20261010-admin1"></script>
 </body>
 </html>
