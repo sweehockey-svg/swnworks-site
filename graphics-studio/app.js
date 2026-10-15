@@ -844,8 +844,8 @@ function rosterPortrait(url,x,y,w,h,count){
 function rosterAvatar(x,y,w,h,count){
  const avatar=silhouetteSvg(x,y,w,h);
  if(S.format!=='wide'||count>20)return avatar;
- const cropW=Math.max(68/.42,68*2.6*w/h),cropH=cropW*h/w;
- return avatar.replace('viewBox="0 0 200 260"','viewBox="'+[100-cropW/2,18-cropH*.035,cropW,cropH].join(' ')+'"');
+ const cropH=240,cropW=cropH*w/h;
+ return avatar.replace('viewBox="0 0 200 260"','viewBox="'+[100-cropW/2,8,cropW,cropH].join(' ')+'"');
 }
 function rosterStatsValues(player){
  const goalie=rosterPosition(player)==='G',gp=goalie?gv(player,'gp'):ps(player,'skater_games');
