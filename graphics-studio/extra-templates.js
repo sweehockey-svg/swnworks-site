@@ -135,25 +135,27 @@ window.createExtraGraphicsTemplates=function(api){
    const slots=['LW','C','RW','LD','RD','G'],ids=slots.map(s=>value('extraSix'+s)).filter(Boolean);
    if(new Set(ids).size!==ids.length)return missing('Välj olika spelare till varje position');
    const rinkW=W-m*2,rinkH=height;
-   out+='<defs><linearGradient id="weeklyCard" x2="0" y2="1"><stop stop-color="#173c55"/><stop offset="1" stop-color="#061724"/></linearGradient></defs><rect x="'+m+'" y="'+top+'" width="'+rinkW+'" height="'+rinkH+'" rx="38" fill="#071a28" fill-opacity=".46" stroke="#66879d" stroke-opacity=".3"/><line x1="'+m+'" y1="'+(top+rinkH*.5)+'" x2="'+(W-m)+'" y2="'+(top+rinkH*.5)+'" stroke="#a9c4d5" stroke-opacity=".18" stroke-width="2"/><circle cx="'+W/2+'" cy="'+(top+rinkH*.5)+'" r="'+Math.min(80,rinkW*.08)+'" fill="none" stroke="#89a8bc" stroke-opacity=".2"/>';
+   out+='<defs><linearGradient id="weeklyCard" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#19425e"/><stop offset=".55" stop-color="#102d42"/><stop offset="1" stop-color="#091a28"/></linearGradient><linearGradient id="weeklyRink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b263a" stop-opacity=".75"/><stop offset="1" stop-color="#07121b" stop-opacity=".35"/></linearGradient></defs><rect x="'+m+'" y="'+top+'" width="'+rinkW+'" height="'+rinkH+'" rx="38" fill="url(#weeklyRink)" stroke="#66879d" stroke-opacity=".28"/><line x1="'+m+'" y1="'+(top+rinkH*.5)+'" x2="'+(W-m)+'" y2="'+(top+rinkH*.5)+'" stroke="#a9c4d5" stroke-opacity=".11" stroke-width="2"/><circle cx="'+W/2+'" cy="'+(top+rinkH*.5)+'" r="'+Math.min(80,rinkW*.08)+'" fill="none" stroke="#89a8bc" stroke-opacity=".12"/>';
    const points=[[.17,.17],[.5,.17],[.83,.17],[.32,.50],[.68,.50],[.5,.83]],cw=rinkW*.30,ch=Math.min(380,rinkH*.29);
    slots.forEach((slot,i)=>{
     const p=find('extraSix'+slot),[cx,cy]=points[i],x=m+rinkW*cx-cw/2,y=top+rinkH*cy-ch/2;
     const selected=weeklySelections[slot],auto=p&&selected&&String(p.sports_gamer_player_id)===String(selected.source_player_id)&&String(p.sports_gamer_team_id)===String(selected.source_team_id);
     const metric=auto?(slot==='G'?(100*Number(selected.saves)/(Number(selected.saves)+Number(selected.goals_allowed))).toFixed(1)+' %':slot==='LD'||slot==='RD'?'DIM '+(Number(selected.defensive_actions)/Number(selected.games)).toFixed(2):value('extraForwardMetric')==='average'?((Number(selected.goals)+Number(selected.assists))/Number(selected.games)).toFixed(2)+' P/GP':(Number(selected.goals)+Number(selected.assists))+' P'):'';
-    const band=Math.max(68,ch*.33),photoH=ch-band,nameSize=p?Math.min(27,(cw-26)/Math.max(1,p.display_gamertag.length)/.66):24;
-    out+='<g data-weekly-slot="'+slot+'"><rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+ch+'" rx="14" fill="url(#weeklyCard)" stroke="#456479"/>';
+    const band=Math.max(76,ch*.34),photoH=ch-band,nameSize=p?Math.min(27,(cw-30)/Math.max(1,p.display_gamertag.length)/.68):24;
+    out+='<g data-weekly-slot="'+slot+'"><rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+ch+'" rx="14" fill="url(#weeklyCard)" stroke="#54758a" stroke-width="1.5"/>';
+    out+='<path d="M '+(x+cw*.68)+' '+y+' H '+(x+cw-14)+' L '+(x+cw*.55)+' '+(y+photoH)+' H '+(x+cw*.34)+' Z" fill="#a5c5dd" opacity=".045"/>';
     if(p){
      const url=portraitUrl(p),logo=lm.get(String(p.sports_gamer_team_id));
-     if(url)out+=normalizedPortrait(url,x+8,y+5,cw-16,photoH,'weekly-'+slot,true,.75);
+     if(url)out+=normalizedPortrait(url,x+5,y+3,cw-10,photoH+3,'weekly-'+slot,true,.82);
      else out+='<circle cx="'+(x+cw/2)+'" cy="'+(y+photoH*.3)+'" r="'+photoH*.18+'" fill="#385568"/><path d="M '+(x+cw*.15)+' '+(y+photoH)+' Q '+(x+cw*.18)+' '+(y+photoH*.55)+' '+(x+cw/2)+' '+(y+photoH*.55)+' Q '+(x+cw*.82)+' '+(y+photoH*.55)+' '+(x+cw*.85)+' '+(y+photoH)+' Z" fill="#385568"/>';
-     if(S.logos&&logo)out+=img(logo,x+cw-44,y+10,34);
-     out+='<rect x="'+x+'" y="'+(y+photoH)+'" width="'+cw+'" height="'+band+'" rx="10" fill="#06131f"/>';
-     out+=text(x+12,y+photoH+band*.42,p.display_gamertag,nameSize);
-     out+=text(x+12,y+ch-12,metric||'MANUELLT VAL',Math.min(18,band*.25),'#ffcf4a');
-     if(auto)out+=text(x+cw-12,y+ch-12,selected.games+' GP',Math.min(16,band*.23),'#a8bdcc','end');
+     out+='<rect x="'+x+'" y="'+(y+photoH-2)+'" width="'+cw+'" height="'+(band+2)+'" rx="10" fill="#06131f"/><path d="M '+(x+12)+' '+(y+photoH-2)+' H '+(x+cw-12)+'" stroke="#54758a" stroke-opacity=".35"/>';
+     out+=text(x+13,y+photoH+band*.41,p.display_gamertag,nameSize);
+     out+='<path d="M '+(x+13)+' '+(y+photoH+band*.51)+' H '+(x+cw-13)+'" stroke="#638097" stroke-opacity=".30"/>';
+     out+=text(x+13,y+ch-13,metric||'MANUELLT VAL',Math.min(20,band*.26),'#ffcf4a');
+     if(auto)out+=text(x+cw-13,y+ch-13,selected.games+' GP',Math.min(16,band*.23),'#a8bdcc','end');
+     if(S.logos&&logo)out+=img(logo,x+cw-53,y+11,42);
     }else out+=text(x+cw/2,y+ch*.56,'Välj spelare',Math.min(24,cw*.09),'#a8bdcc','middle');
-    out+='<rect x="'+(x+10)+'" y="'+(y+10)+'" width="44" height="30" rx="7" fill="#ffcf4a"/>'+text(x+32,y+32,slot,18,'#071a28','middle')+'</g>';
+    out+='<rect x="'+(x+10)+'" y="'+(y+10)+'" width="48" height="31" rx="6" fill="#ffcf4a"/>'+text(x+34,y+33,slot,19,'#071a28','middle')+'</g>';
    });
   }else{
    if(!pa)return missing('Välj spelare i högerpanelen');
