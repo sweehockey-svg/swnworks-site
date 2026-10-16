@@ -751,8 +751,13 @@ function portraitCrop(b,w,h){
  const cropW=Math.min(width,b.height*w/h),cropH=cropW*h/w;
  return {left:b.left+(b.width-cropW)/2,top:b.top,width:cropW,height:cropH};
 }
-function normalizedPortrait(url,x,y,w,h,id,framed=false){
+function normalizedPortrait(url,x,y,w,h,id,framed=false,zoom=1){
  measurePortrait(url);const b=portraitBounds.get(url),crop=b?portraitCrop(b,w,h):null;
+ if(crop&&zoom>0&&zoom<1){
+  const expanded=crop.width/zoom;
+  crop.left-=(expanded-crop.width)/2;crop.width=expanded;crop.height=expanded*h/w;
+  crop.top-=crop.height*.035;
+ }
  return '<svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'"'+(crop?' viewBox="'+[crop.left,crop.top,crop.width,crop.height].join(' ')+'"':' viewBox="0 0 '+w+' '+h+'"')+' preserveAspectRatio="xMidYMin slice" overflow="hidden"><image href="'+esc(url)+'" width="'+(b?b.sourceW:w)+'" height="'+(b?b.sourceH:h)+'" preserveAspectRatio="'+(b?'none':'xMidYMin slice')+'"/></svg>';
 }
 async function readyPortraits(){build();await Promise.all([...portraitMeasurements.values()]);}

@@ -136,11 +136,11 @@ window.createExtraGraphicsTemplates=function(api){
     const p=find('extraSix'+slot),[cx,cy]=points[i],x=m+rinkW*cx-cw/2,y=top+rinkH*cy-ch/2;
     const selected=weeklySelections[slot],auto=p&&selected&&String(p.sports_gamer_player_id)===String(selected.source_player_id)&&String(p.sports_gamer_team_id)===String(selected.source_team_id);
     const metric=auto?(slot==='G'?(100*Number(selected.saves)/(Number(selected.saves)+Number(selected.goals_allowed))).toFixed(1)+' %':slot==='LD'||slot==='RD'?'DIM '+(Number(selected.defensive_actions)/Number(selected.games)).toFixed(2):(Number(selected.goals)+Number(selected.assists))+' P'):'';
-    const band=Math.max(58,ch*.27),photoH=ch-band,nameSize=p?Math.min(27,(cw-26)/Math.max(1,p.display_gamertag.length)/.66):24;
+    const band=Math.max(68,ch*.33),photoH=ch-band,nameSize=p?Math.min(27,(cw-26)/Math.max(1,p.display_gamertag.length)/.66):24;
     out+='<g data-weekly-slot="'+slot+'"><rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+ch+'" rx="14" fill="url(#weeklyCard)" stroke="#456479"/>';
     if(p){
      const url=portraitUrl(p),logo=lm.get(String(p.sports_gamer_team_id));
-     if(url)out+=normalizedPortrait(url,x+8,y+5,cw-16,photoH,'weekly-'+slot,true);
+     if(url)out+=normalizedPortrait(url,x+8,y+5,cw-16,photoH,'weekly-'+slot,true,.75);
      else out+='<circle cx="'+(x+cw/2)+'" cy="'+(y+photoH*.3)+'" r="'+photoH*.18+'" fill="#385568"/><path d="M '+(x+cw*.15)+' '+(y+photoH)+' Q '+(x+cw*.18)+' '+(y+photoH*.55)+' '+(x+cw/2)+' '+(y+photoH*.55)+' Q '+(x+cw*.82)+' '+(y+photoH*.55)+' '+(x+cw*.85)+' '+(y+photoH)+' Z" fill="#385568"/>';
      if(S.logos&&logo)out+=img(logo,x+cw-44,y+10,34);
      out+='<rect x="'+x+'" y="'+(y+photoH)+'" width="'+cw+'" height="'+band+'" rx="10" fill="#06131f"/>';
