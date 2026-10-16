@@ -40,7 +40,7 @@ window.createExtraGraphicsTemplates=function(api){
   input('extraSeriesResults','TIDIGARE RESULTAT','text','playoff_series','maxlength="100" placeholder="T.ex. 3–2 · 1–4 · 5–1"')+
   input('extraWelcome','PRESENTATIONSTEXT','text','welcome_player','maxlength="100" placeholder="T.ex. Välkommen till laget!"')+
   input('extraWeek','VECKA · START SÖNDAG','date','weekly_six')+
-  '<div class="full" data-extra-kinds="weekly_six"><button id="extraAutoWeek" class="refresh" type="button">Fyll med veckans bästa</button><p id="extraWeekStatus" class="note" role="status">Söndag–torsdag, svensk tid. Minst 50 % av lagets veckomatcher. Forwards: poäng. Backar: DIM. Målvakt: räddningsprocent.</p></div>'+
+  '<div class="full" data-extra-kinds="weekly_six"><button id="extraAutoWeek" class="refresh" type="button">Fyll med veckans bästa</button><p id="extraWeekStatus" class="note" role="status">Söndag–torsdag, svensk tid. Forwards: alla forwardspoäng, minst 2 matcher. Backar: DIM från båda backsidorna. Backar och målvakt: minst 2 matcher och 50 % av lagets veckomatcher. Placering på vanligaste positionen.</p></div>'+
   ['LW','C','RW','LD','RD','G'].map(slot=>select('extraSix'+slot,slot,'weekly_six')).join('')+'</div>';
  (document.querySelector('.design-panel-body')||document.querySelector('.controls')).prepend(section);
  const get=id=>document.getElementById(id),value=id=>get(id).value;

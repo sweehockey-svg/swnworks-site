@@ -30,7 +30,7 @@ begin
  bool_and(goalie_saves is not null and goalie_goals_allowed is not null) goalie_complete
  from rows where (skater_games>0 or goalie_games>0) group by 1,2,3
  ), qualified as (
- select s.*,t.games team_games from stats s join team_games t on t.team_id=s.source_team_id where s.games*2>=t.games and s.games>0
+ select s.*,t.games team_games from stats s join team_games t on t.team_id=s.source_team_id where s.games>0
  )
  select jsonb_build_object('supported',true,'start',p_sunday,'end',p_sunday+4,
  'matches',(select count(*) from matches),
