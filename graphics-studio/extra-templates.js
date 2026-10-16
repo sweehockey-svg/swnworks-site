@@ -1,6 +1,6 @@
 /* Manual editorial selections. Never writes match, roster or player records. */
 window.createExtraGraphicsTemplates=function(api){
- const {S,TIT,format,base,logos,img,svgText,esc,portraitUrl,normalizedPortrait,rosterStatsValues}=api;
+ const {S,TIT,format,base,logos,img,svgText,esc,portraitUrl,normalizedPortrait,rosterStatsValues,nationFlag}=api;
  const definitions=[
   ['game_night','MATCHDAG','Matchdag / Game Night','Lag, datum, tid och sändning'],
   ['final_score','SLUTRESULTAT','Slutresultat','Resultat och utvalda målskyttar'],
@@ -149,7 +149,10 @@ window.createExtraGraphicsTemplates=function(api){
      if(url)out+=normalizedPortrait(url,x+5,y+3,cw-10,photoH+3,'weekly-'+slot,true,.73);
      else out+='<circle cx="'+(x+cw/2)+'" cy="'+(y+photoH*.3)+'" r="'+photoH*.18+'" fill="#385568"/><path d="M '+(x+cw*.15)+' '+(y+photoH)+' Q '+(x+cw*.18)+' '+(y+photoH*.55)+' '+(x+cw/2)+' '+(y+photoH*.55)+' Q '+(x+cw*.82)+' '+(y+photoH*.55)+' '+(x+cw*.85)+' '+(y+photoH)+' Z" fill="#385568"/>';
      out+='<rect x="'+x+'" y="'+(y+photoH-2)+'" width="'+cw+'" height="'+(band+2)+'" rx="10" fill="#06131f"/><path d="M '+(x+12)+' '+(y+photoH-2)+' H '+(x+cw-12)+'" stroke="#e6bd68" stroke-opacity=".7"/>';
-     out+=text(x+13,y+photoH+band*.41,p.display_gamertag,nameSize);
+     const flag=nationFlag(p,x+13,y+photoH+band*.41-23,29),nameX=x+13+(flag?38:0);
+     const fittedNameSize=Math.min(nameSize,(cw-26-(flag?38:0))/Math.max(1,p.display_gamertag.length)/.68);
+     if(flag)out+=flag;
+     out+=text(nameX,y+photoH+band*.41,p.display_gamertag,fittedNameSize);
      out+='<path d="M '+(x+13)+' '+(y+photoH+band*.51)+' H '+(x+cw-13)+'" stroke="#d4b36a" stroke-opacity=".55"/>';
      out+=text(x+13,y+ch-13,metric||'MANUELLT VAL',Math.min(20,band*.26),'#ffcf4a');
      if(auto)out+=text(x+cw-13,y+ch-13,selected.games+' GP',Math.min(16,band*.23),'#a8bdcc','end');
