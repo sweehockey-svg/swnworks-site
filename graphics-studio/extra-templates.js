@@ -136,7 +136,7 @@ window.createExtraGraphicsTemplates=function(api){
    if(new Set(ids).size!==ids.length)return missing('Välj olika spelare till varje position');
    const rinkW=W-m*2,rinkH=height;
    out+='<defs><linearGradient id="weeklyCard" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#19425e"/><stop offset=".55" stop-color="#102d42"/><stop offset="1" stop-color="#091a28"/></linearGradient><linearGradient id="weeklyRink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b263a" stop-opacity=".75"/><stop offset="1" stop-color="#07121b" stop-opacity=".35"/></linearGradient></defs><rect x="'+m+'" y="'+top+'" width="'+rinkW+'" height="'+rinkH+'" rx="38" fill="url(#weeklyRink)" stroke="#66879d" stroke-opacity=".28"/><line x1="'+m+'" y1="'+(top+rinkH*.5)+'" x2="'+(W-m)+'" y2="'+(top+rinkH*.5)+'" stroke="#a9c4d5" stroke-opacity=".11" stroke-width="2"/><circle cx="'+W/2+'" cy="'+(top+rinkH*.5)+'" r="'+Math.min(80,rinkW*.08)+'" fill="none" stroke="#89a8bc" stroke-opacity=".12"/>';
-   const points=[[.17,.17],[.5,.17],[.83,.17],[.32,.50],[.68,.50],[.5,.83]],cw=rinkW*.30,ch=Math.min(380,rinkH*.29);
+   const points=[[.17,.17],[.5,.17],[.83,.17],[.32,.50],[.68,.50],[.5,.83]],cw=rinkW*.315,ch=Math.min(410,rinkH*.307);
    slots.forEach((slot,i)=>{
     const p=find('extraSix'+slot),[cx,cy]=points[i],x=m+rinkW*cx-cw/2,y=top+rinkH*cy-ch/2;
     const selected=weeklySelections[slot],auto=p&&selected&&String(p.sports_gamer_player_id)===String(selected.source_player_id)&&String(p.sports_gamer_team_id)===String(selected.source_team_id);
