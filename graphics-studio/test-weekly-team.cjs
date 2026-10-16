@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),weekly=require('./weekly-team.js');
+assert.equal(weekly.sunday(new Date('2026-10-16T12:00:00Z')),'2026-10-11');
+assert.equal(weekly.sunday(new Date('2026-10-17T22:30:00Z')),'2026-10-18');
+assert.equal(weekly.sunday(new Date('2026-10-25T01:30:00Z')),'2026-10-25');
+const row=(id,pos,extra={})=>({source_team_id:1,source_player_id:id,position:pos,games:3,team_games:6,goals:1,assists:2,dim_complete:true,defensive_actions:12,goalie_complete:true,saves:30,goals_allowed:3,...extra});
+const candidates=[row(1,'LW'),row(2,'LW',{goals:99,games:2}),row(3,'C'),row(4,'RW'),row(5,'LD'),row(6,'RD'),row(7,'G'),row(8,'G',{saves:90,goals_allowed:30}),row(9,'LD',{dim_complete:false,defensive_actions:100})];
+const available=new Set(candidates.map(p=>p.source_team_id+':'+p.source_player_id)),picks=weekly.select(candidates,available);
+assert.equal(Object.keys(picks).length,6);
+assert.equal(picks.LW.source_player_id,1);
+assert.equal(picks.LD.source_player_id,5);
+assert.equal(picks.G.source_player_id,7);
+assert.equal(weekly.select([],available).G,undefined);
+assert.equal(weekly.select([row(1,'G',{saves:0,goals_allowed:0})],available).G,undefined);
+assert.equal(weekly.select([row(1,'C')],new Set()).C,undefined);
+console.log('Weekly team passed: Stockholm dates, Sunday rollover, DST, 50% boundary, points/DIM/SV ranking and missing data.');

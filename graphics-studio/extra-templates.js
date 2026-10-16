@@ -39,9 +39,37 @@ window.createExtraGraphicsTemplates=function(api){
   input('extraSeriesAway','BORTA · MATCHVINSTER','number','playoff_series','min="0" max="4" step="1" value="0"')+
   input('extraSeriesResults','TIDIGARE RESULTAT','text','playoff_series','maxlength="100" placeholder="T.ex. 3–2 · 1–4 · 5–1"')+
   input('extraWelcome','PRESENTATIONSTEXT','text','welcome_player','maxlength="100" placeholder="T.ex. Välkommen till laget!"')+
+  input('extraWeek','VECKA · START SÖNDAG','date','weekly_six')+
+  '<div class="full" data-extra-kinds="weekly_six"><button id="extraAutoWeek" class="refresh" type="button">Fyll med veckans bästa</button><p id="extraWeekStatus" class="note" role="status">Söndag–torsdag, svensk tid. Minst 50 % av lagets veckomatcher. Forwards: poäng. Backar: DIM. Målvakt: räddningsprocent.</p></div>'+
   ['LW','C','RW','LD','RD','G'].map(slot=>select('extraSix'+slot,slot,'weekly_six')).join('')+'</div>';
  (document.querySelector('.design-panel-body')||document.querySelector('.controls')).prepend(section);
  const get=id=>document.getElementById(id),value=id=>get(id).value;
+ let weeklyPeriod='',weeklySelections={},weekLoading=false,weeklyLeague=S.league;
+ get('extraWeek').value=window.GraphicsWeeklyTeam.sunday();
+ get('extraWeek').addEventListener('change',()=>{weeklyPeriod='';weeklySelections={};});
+ get('extraAutoWeek').addEventListener('click',async()=>{
+  if(weekLoading)return;
+  const date=value('extraWeek'),league=S.league,status=get('extraWeekStatus'),button=get('extraAutoWeek');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||new Date(date+'T12:00:00Z').getUTCDay()!==0){status.textContent='Välj en söndag som veckostart.';return;}
+  weekLoading=true;button.disabled=true;status.textContent='Hämtar veckans matchstatistik…';
+  try{
+   const session=await window.SWNStudioAccess.session(),cfg=window.EHOCKEY_CONFIG;
+   const response=await fetch(cfg.supabaseUrl.replace(/\/+$/,'')+'/rest/v1/rpc/graphics_weekly_candidates',{method:'POST',headers:{apikey:cfg.supabasePublishableKey,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({p_league:league,p_sunday:date})});
+   if(!response.ok)throw new Error('Kunde inte hämta veckounderlaget. Kontrollera inloggningen och försök igen.');
+   const data=await response.json();
+   if(league!==S.league||date!==value('extraWeek'))return;
+   if(!data.supported)throw new Error(data.message||'Matchunderlag saknas för denna turnering.');
+   if(!data.matches)throw new Error('Inga importerade matcher söndag–torsdag denna vecka. Dina val har behållits.');
+   if(!data.complete)throw new Error('Matchunderlaget är ofullständigt. Automatvalet har inte ändrat dina spelare.');
+   const picks=window.GraphicsWeeklyTeam.select(data.candidates,new Set(S.players.map(playerKey)));
+   weeklySelections=picks;weeklyPeriod=data.start+' – '+data.end;
+   for(const slot of ['LW','C','RW','LD','RD','G'])get('extraSix'+slot).value=picks[slot]?picks[slot].source_team_id+':'+picks[slot].source_player_id:'';
+   const count=Object.keys(picks).length;
+   status.textContent=weeklyPeriod+' · '+count+'/6 platser fyllda från '+data.matches+' matcher.'+(count<6?' Övriga positioner saknar kvalificerat underlag.':' Du kan ändra valen manuellt.');
+   api.render();
+  }catch(error){if(league===S.league)status.textContent=error.message;}
+  finally{weekLoading=false;button.disabled=false;}
+ });
  section.addEventListener('input',()=>api.render());section.addEventListener('change',()=>api.render());
  function options(id,rows,label){
   const el=get(id),selected=el.value,html='<option value="">Välj…</option>'+rows.map(r=>'<option value="'+esc(r.id)+'">'+esc(label(r))+'</option>').join('');
@@ -49,6 +77,7 @@ window.createExtraGraphicsTemplates=function(api){
  }
  const playerKey=p=>String(p.sports_gamer_team_id)+':'+String(p.sports_gamer_player_id);
  function sync(){
+  if(weeklyLeague!==S.league){weeklyLeague=S.league;weeklyPeriod='';weeklySelections={};}
   section.hidden=!kinds.has(S.kind);if(section.hidden)return;
   section.querySelectorAll('[data-extra-kinds]').forEach(el=>el.hidden=!el.dataset.extraKinds.split(' ').includes(S.kind));
   const teams=[...new Map(S.teams.map(t=>[String(t.sports_gamer_team_id),{...t,id:String(t.sports_gamer_team_id)}])).values()];
@@ -97,12 +126,18 @@ window.createExtraGraphicsTemplates=function(api){
     out+=text(m+30,boxY+55,'BÄST AV '+best+(ha===max||hb===max?' · SERIEN AVGJORD':''),28,'#ffcf4a')+lines(value('extraSeriesResults'),m+30,boxY+110,W-m*2-60);
    }
   }else if(S.kind==='weekly_six'){
+   if(weeklyPeriod)out+=text(m,295,weeklyPeriod+' · SÖNDAG–TORSDAG',17,'#ffcf4a');
    const slots=['LW','C','RW','LD','RD','G'],ids=slots.map(s=>value('extraSix'+s)).filter(Boolean);
    if(new Set(ids).size!==ids.length)return missing('Välj olika spelare till varje position');
    const rinkW=W-m*2,rinkH=height;
    out+='<rect x="'+m+'" y="'+top+'" width="'+rinkW+'" height="'+rinkH+'" rx="70" fill="#163448" stroke="#66879d"/><line x1="'+m+'" y1="'+(top+rinkH*.5)+'" x2="'+(W-m)+'" y2="'+(top+rinkH*.5)+'" stroke="#bb5159" stroke-width="4"/><circle cx="'+W/2+'" cy="'+(top+rinkH*.5)+'" r="70" fill="none" stroke="#89a8bc"/>';
    const points=[[.17,.17],[.5,.17],[.83,.17],[.32,.50],[.68,.50],[.5,.80]],cw=rinkW*.27,ch=Math.min(230,rinkH*.27);
-   slots.forEach((slot,i)=>{const p=find('extraSix'+slot),[cx,cy]=points[i],x=m+rinkW*cx-cw/2,y=top+rinkH*cy-ch/2;out+=p?player(p,x,y,cw,ch,slot):panel(x,y,cw,ch)+text(x+cw/2,y+ch/2,slot,30,'#bdd4e5','middle');});
+   slots.forEach((slot,i)=>{
+    const p=find('extraSix'+slot),[cx,cy]=points[i],x=m+rinkW*cx-cw/2,y=top+rinkH*cy-ch/2;
+    const selected=weeklySelections[slot],auto=p&&selected&&String(p.sports_gamer_player_id)===String(selected.source_player_id)&&String(p.sports_gamer_team_id)===String(selected.source_team_id);
+    const metric=auto?(slot==='G'?(100*Number(selected.saves)/(Number(selected.saves)+Number(selected.goals_allowed))).toFixed(1)+' %':slot==='LD'||slot==='RD'?'DIM '+(Number(selected.defensive_actions)/Number(selected.games)).toFixed(2):(Number(selected.goals)+Number(selected.assists))+' P'):'';
+    out+=p?player(p,x,y,cw,ch,slot+(metric?' · '+metric:'')):panel(x,y,cw,ch)+text(x+cw/2,y+ch/2,slot,30,'#bdd4e5','middle');
+   });
   }else{
    if(!pa)return missing('Välj spelare i högerpanelen');
    if(S.kind==='player_duel'){

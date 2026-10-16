@@ -3,7 +3,7 @@ const fields=new Map(),buttons=[],counter={};
 const el=()=>({dataset:{},value:'',hidden:false,append(n){buttons.push(n)},prepend(){},closest(){return null},checkValidity(){return true},querySelectorAll(){return []},querySelector(){return counter},addEventListener(){}});
 const list=el();list.closest=()=>({querySelector:()=>counter});list.querySelectorAll=()=>Array(18+buttons.length);
 const document={createElement:()=>el(),getElementById:id=>{if(!fields.has(id))fields.set(id,el());return fields.get(id)},querySelector:s=>s==='.kinds'?list:el()};
-const context={window:{},document};vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/extra-templates.js','utf8'),context);
+const context={window:{GraphicsWeeklyTeam:require('./weekly-team.js')},document};vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/extra-templates.js','utf8'),context);
 const S={kind:'game_night',logos:true,teams:[{sports_gamer_team_id:1,team_name_in_league:'Alpha'},{sports_gamer_team_id:2,team_name_in_league:'Beta'}],players:Array.from({length:6},(_,i)=>({sports_gamer_player_id:i+1,sports_gamer_team_id:1,display_gamertag:'Player '+i,team_name_in_league:'Alpha'}))};
 let size={w:1080,h:1350};
 const escape=t=>String(t??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
