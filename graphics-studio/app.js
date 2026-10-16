@@ -1090,12 +1090,15 @@ async function inline(svg){
         if(!r.ok)throw new Error('HTTP '+r.status);
         return await dataUrl(await r.blob());
       }catch(error){
-        const filename=new URL(h,location.href).pathname.split('/').pop();
-        throw new Error('Bilden '+filename+' kunde inte exporteras. Uppdatera sidan och försök igen.');
+        // An unavailable remote image must not block the entire PNG/SVG export.
+        // The preview already shows missing images as blank; keep that behavior.
+        console.warn('Graphics export: could not load image',h,error);
+        return null;
       }
     })());
-    // Never silently remove images: an incomplete export is not a success.
-    el.setAttribute('href',await images.get(h));
+    const embedded=await images.get(h);
+    if(embedded)el.setAttribute('href',embedded);
+    else el.remove();
   }));
   return new XMLSerializer().serializeToString(d.documentElement);
 }
