@@ -194,29 +194,47 @@ window.createExtraGraphicsTemplates=function(api){
      const x=m+(wide?index*(cardW+gap):0),y=seriesTop+(wide?0:index*(cardH+gap)),max=mode==='pure_bo5'?5:6;
      const games=Array.from({length:max},(_,i)=>({game:i+1,time:value(prefix+'Game'+(i+1)+'Time').trim(),optional:get(prefix+'Game'+(i+1)+'Optional').checked})).filter(g=>g.time);
      const showRemaining=get(prefix==='extraSecond'?'extraSecondShowRemaining':'extraShowRemaining').checked;
-     const rest=games.slice(1),logoSize=wide?76:98,first=games[0],inner=26;
+     const rest=games.slice(1),logoSize=wide?78:104,first=games[0],inner=26;
      const label=mode==='pure_bo5'?'PURE BO5':'AGGREGATED BO3';
-     // A compact broadcast-style matchup banner instead of oversized schedule panels.
+     const showItems=showRemaining&&rest.length>0;
      out+='<g data-matchday-series="'+(index+1)+'">';
-     out+='<rect x="'+x+'" y="'+y+'" width="'+cardW+'" height="'+cardH+'" rx="14" fill="#041522" fill-opacity=".91" stroke="#29475b" stroke-opacity=".8"/>';
-     out+='<rect x="'+x+'" y="'+(y+47)+'" width="4" height="83" rx="2" fill="#ffca40"/>';
-     out+=text(x+inner,y+30,label,16,'#ffcf4a');
-     out+=text(x+cardW-inner,y+30,'0'+(index+1),14,'#68899d','end');
-     const teamY=y+44,nameY=y+logoSize*.62+49;
+     // Gold framed, broadcast-style card inspired by the approved reference.
+     out+='<rect x="'+x+'" y="'+y+'" width="'+cardW+'" height="'+cardH+'" rx="14" fill="#031626" fill-opacity=".94" stroke="#e1b34a" stroke-opacity=".76" stroke-width="2"/>';
+     out+='<path d="M '+(x+4)+' '+(y+4)+' H '+(x+cardW-4)+'" stroke="#86a4b7" stroke-opacity=".55"/>';
+     out+='<path d="M '+x+' '+(y+8)+' L '+(x+wide*0+Math.min(195,cardW*.25))+' '+(y+8)+' L '+(x+Math.min(179,cardW*.23))+' '+(y+36)+' H '+x+' Z" fill="#ffca40"/>';
+     out+=text(x+24,y+28,label,17,'#071826');
+     out+=text(x+cardW-inner,y+26,'0'+(index+1),14,'#8aabbd','end');
+     const teamY=y+52,nameY=y+116;
      const aLogo=lm.get(String(ta.sports_gamer_team_id)),bLogo=lm.get(String(tb.sports_gamer_team_id));
-     if(S.logos&&aLogo)out+=img(aLogo,x+inner,teamY,logoSize);
-     if(S.logos&&bLogo)out+=img(bLogo,x+cardW-inner-logoSize,teamY,logoSize);
-     const nameSize=wide?29:42,nameLeft=x+inner+logoSize+13,nameRight=x+cardW-inner-logoSize-13;
-     out+=text(nameLeft,nameY,short(ta),Math.min(nameSize,(cardW*.28)/Math.max(1,short(ta).length)/.6));
-     out+=text(nameRight,nameY,short(tb),Math.min(nameSize,(cardW*.28)/Math.max(1,short(tb).length)/.6),'#fff','end');
-     out+=text(x+cardW/2,nameY,'VS',17,'#ffcf4a','middle');
-     out+='<path d="M '+(x+inner)+' '+(y+139)+' H '+(x+cardW-inner)+'" stroke="#597486" stroke-opacity=".35"/>';
+     const leftLogoX=x+inner,rightLogoX=x+cardW*.595;
+     if(S.logos&&aLogo)out+=img(aLogo,leftLogoX,teamY,logoSize);
+     if(S.logos&&bLogo)out+=img(bLogo,rightLogoX,teamY,logoSize);
+     const leftName=short(ta),rightName=short(tb);
+     const leftX=leftLogoX+logoSize+15,rightX=rightLogoX+logoSize+15;
+     const leftMax=Math.max(105,x+cardW*.43-leftX),rightMax=Math.max(105,x+cardW-inner-rightX);
+     const nameSize=wide?32:43;
+     out+=text(leftX,nameY,leftName,Math.min(nameSize,leftMax/Math.max(1,leftName.length)/.57));
+     out+=text(rightX,nameY,rightName,Math.min(nameSize,rightMax/Math.max(1,rightName.length)/.57));
+     const midX=x+cardW*.52;
+     out+='<path d="M '+(midX-33)+' '+(y+68)+' V '+(y+133)+' M '+(midX+33)+' '+(y+68)+' V '+(y+133)+'" stroke="#698597" stroke-opacity=".30"/>';
+     out+=text(midX,y+116,'VS',19,'#ffcf4a','middle');
+     out+='<path d="M '+(x+inner)+' '+(y+159)+' H '+(x+cardW-inner)+'" stroke="#8ba3b3" stroke-opacity=".35"/>';
      if(first){
       const time=first.time+(first.optional?' *':'');
       out+='<g data-series-row="'+first.game+'" data-series-start="true">';
-      out+=text(x+inner,y+164,(english?'SERIES START':'SERIESTART')+' · G'+first.game,15,'#a7bfd1');
-      out+=text(x+inner,y+214,time,Math.min(wide?36:46,(cardW-inner*2)/Math.max(1,time.length)/.59),'#ffcf4a');
+      out+=text(x+inner,y+188,(english?'SERIES START':'SERIESTART')+' · G'+first.game,16,'#a7bfd1');
+      const startSize=Math.min(wide?42:54,(cardW-inner*2)/Math.max(1,time.length)/.59);
+      out+=text(x+inner,y+246,time,startSize,'#ffcf4a');
+      const lineStart=Math.min(x+cardW-inner-18,x+inner+Math.max(190,time.length*startSize*.59)+25);
+      if(lineStart<x+cardW-inner-20)out+='<path d="M '+lineStart+' '+(y+237)+' H '+(x+cardW-inner)+'" stroke="#d2a53b" stroke-opacity=".7"/>';
       out+='</g>';
+     }else out+=text(x+inner,y+244,'Lägg till seriestart',23,'#9fb8c9');
+     if(showItems){
+      const compact=compactGameTimes(rest,x+inner,y+286,cardW-inner*2,wide?32:34,wide?17:20);
+      out+=compact.markup;
+      if(games.some(g=>g.optional))out+=text(x+cardW-inner,y+cardH-13,english?'* IF NECESSARY':'* VID BEHOV',12,'#8ba6b7','end');
+     }
+     out+='</g>';
      }else out+=text(x+inner,y+208,'Lägg till matchtider',21,'#9fb8c9');
      if(showRemaining){
       const compact=compactGameTimes(rest,x+inner,y+265,cardW-inner*2,wide?32:33,wide?17:20);
