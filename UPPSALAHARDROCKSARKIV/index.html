@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090a0c">
+  <meta name="description" content="Uppsala Hårdrocksarkiv – en kartläggning av Uppsalas hårdrock, metal, band, människor och kopplingar.">
+  <title>Uppsala Hårdrocksarkiv</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=2.9">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="top-line" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#/" aria-label="Uppsala Hårdrocksarkiv – startsida">
+      <span class="brand-mark">U</span>
+      <span class="brand-copy">
+        <strong>UPPSALA</strong>
+        <span>HÅRDROCKSARKIV</span>
+      </span>
+    </a>
+
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Meny</button>
+    <nav class="site-nav" id="site-nav" aria-label="Huvudmeny">
+      <a data-route="/" href="#/">Start</a>
+      <a data-route="/tidslinje" href="#/tidslinje">Tidslinje</a>
+      <a data-route="/band" href="#/band">Band</a>
+      <a data-route="/personer" href="#/personer">Personer</a>
+      <a data-route="/utgavor" href="#/utgavor">Utgåvor</a>
+      <a data-route="/natverket" href="#/natverket">Nätverket</a>
+      <a data-route="/kallor" href="#/kallor">Källor</a>
+    </nav>
+  </header>
+
+  <main id="app" class="app-shell" aria-live="polite">
+    <section class="page-loading">
+      <div class="section-kicker">UPPSALA HÅRDROCKSARKIV</div>
+      <h1>Hämtar arkivet…</h1>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div>
+      <strong>UPPSALA HÅRDROCKSARKIV</strong>
+      <p>Ett pågående kartläggningsprojekt. Fakta kompletteras och korrigeras när bättre källor hittas.</p>
+    </div>
+    <div class="footer-status"><span class="signal-dot"></span><span id="sync-label">Hämtar arkivet…</span><span class="site-version">WEBB V2.11</span></div>
+  </footer>
+
+  <script src="config.js?v=2.7"></script>
+  <script src="release-covers.js?v=2.10"></script>
+  <script src="app.js?v=2.11"></script>
+</body>
+</html>
