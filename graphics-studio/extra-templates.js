@@ -24,25 +24,29 @@ window.createExtraGraphicsTemplates=function(api){
  const input=(id,label,type,kinds,extra='')=>field(id,label,'<input id="ID" type="'+type+'" '+extra+'>',kinds);
  const teamKinds='game_night final_score playoff_series welcome_player',players='match_mvp player_duel welcome_player';
  const seriesOptions='<option value="pure_bo5">Pure BO5</option><option value="aggregated_bo3">Aggregated BO3</option>';
- const compactGameTimes=(games,left,top,width,lineHeight,fontSize=20)=>{
+ const compactGameTimes=(games,left,top,width,lineHeight=47,fontSize=20)=>{
   if(!games.length)return {markup:'',rows:0};
-  const labels=games.map(g=>'G'+g.game+' '+g.time+(g.optional?' *':''));
-  const join=a=>a.join('  -  ');
-  const estimate=(s,size)=>s.length*size*.61;
-  let rows=[labels];
-  if(estimate(join(labels),fontSize)>width&&labels.length>1){
-   let best=null;
-   for(let cut=1;cut<labels.length;cut++){
-    const candidate=[labels.slice(0,cut),labels.slice(cut)];
-    const widest=Math.max(...candidate.map(row=>estimate(join(row),fontSize)));
-    if(!best||widest<best.widest)best={candidate,widest};
+  // Flow each game's label at its natural size; never shrink a whole schedule into tiny text.
+  const items=games.map(g=>({label:'G'+g.game+'  '+g.time+(g.optional?' *':''),game:g.game}));
+  const measure=s=>s.length*fontSize*.57+25;
+  const rows=[[]];
+  let used=0;
+  for(const item of items){
+   const itemWidth=measure(item.label),remaining=width-used;
+   if(rows[rows.length-1].length&&itemWidth>remaining){
+    rows.push([]);used=0;
    }
-   rows=best.candidate;
+   rows[rows.length-1].push(item);used+=itemWidth+16;
   }
   let markup='';
   rows.forEach((row,i)=>{
-   const label=join(row),size=Math.min(fontSize,width/Math.max(1,label.length)/.61);
-   markup+='<g data-secondary-time="true">'+text(left,top+i*lineHeight,label,Math.max(10,size),'#b4c8d7')+'</g>';
+   let cursor=left;
+   row.forEach((item,j)=>{
+    const w=measure(item.label),size=Math.min(fontSize,(width-(cursor-left)-12)/Math.max(1,item.label.length)/.57);
+    markup+='<g data-series-row="'+item.game+'" data-secondary-time="true">'+text(cursor,top+i*lineHeight,item.label,Math.max(16,size),'#d3e2ed')+'</g>';
+    cursor+=w;
+    if(j<row.length-1){markup+=text(cursor-11,top+i*lineHeight,'·',fontSize,'#ffcf4a');cursor+=16;}
+   });
   });
   return {markup,rows:rows.length};
  };
@@ -181,28 +185,29 @@ window.createExtraGraphicsTemplates=function(api){
     if(!a2||!b2)return missing('Välj båda lagen för serie 2');
     if(String(a2.sports_gamer_team_id)===String(b2.sports_gamer_team_id))return missing('Välj två olika lag för serie 2');
     const english=(window.GraphicsLanguage?.locale||'sv').startsWith('en'),gap=24,footer=(value('extraDate')||value('extraWatch'))?64:0;
-    const cardW=wide?(W-m*2-gap)/2:W-m*2,cardH=wide?height-footer:(height-footer-gap)/2,head=Math.min(154,cardH*.32);
+    const cardW=wide?(W-m*2-gap)/2:W-m*2,cardH=wide?Math.min(height-footer,400):Math.min(370,(height-footer-gap)/2);
+    const seriesTop=wide?top:top+Math.max(0,(height-footer-(cardH*2+gap))/2);
     const specs=[[a,b,'extra',value('extraFirstFormat')||'pure_bo5'],[a2,b2,'extraSecond',value('extraSecondFormat')||'aggregated_bo3']];
     specs.forEach(([ta,tb,prefix,mode],index)=>{
-     const x=m+(wide?index*(cardW+gap):0),y=top+(wide?0:index*(cardH+gap)),max=mode==='pure_bo5'?5:6;
+     const x=m+(wide?index*(cardW+gap):0),y=seriesTop+(wide?0:index*(cardH+gap)),max=mode==='pure_bo5'?5:6;
      const games=Array.from({length:max},(_,i)=>({game:i+1,time:value(prefix+'Game'+(i+1)+'Time').trim(),optional:get(prefix+'Game'+(i+1)+'Optional').checked})).filter(g=>g.time);
-     const logoSize=Math.min(86,Math.max(34,head-60)),primaryH=Math.min(106,cardH*.25),rest=games.slice(1),lineCount=Math.max(1,Math.ceil(rest.length/2)),lineH=Math.min(42,(cardH-head-primaryH-45)/lineCount);
+     const logoSize=wide?54:72,head=106,primaryH=100,lineH=42,rest=games.slice(1);
      out+='<g data-matchday-series="'+(index+1)+'">'+panel(x,y,cardW,cardH);
-     [[ta,x+20],[tb,x+cardW-20-logoSize]].forEach(([t,lx])=>{const logo=lm.get(String(t.sports_gamer_team_id));if(S.logos&&logo)out+=img(logo,lx,y+16,logoSize);});
-     const nameSpace=cardW*.34-logoSize/2;
      const short=t=>Number(S.league)===532?({'4N Finland':'FIN','4N Sweden':'SWE','4N Team EU':'EU','4N Team NA':'NA','4N Canada':'CAN','4N USA':'USA'}[t.team_name_in_league]||t.team_name_in_league):t.team_name_in_league;
-     out+=text(x+logoSize+31,y+logoSize*.7+16,short(ta),Math.min(42,nameSpace/Math.max(1,short(ta).length)/.65));
-     out+=text(x+cardW-logoSize-31,y+logoSize*.7+16,short(tb),Math.min(42,nameSpace/Math.max(1,short(tb).length)/.65),'#fff','end');
-     out+=text(x+cardW/2,y+logoSize*.7+16,'VS',24,'#ffcf4a','middle');
-     out+=text(x+24,y+head-19,mode==='pure_bo5'?'PURE BO5':'AGGREGATED BO3',W===H?18:21,'#ffcf4a');
-     out+='<path d="M '+(x+24)+' '+(y+head-5)+' H '+(x+cardW-24)+'" stroke="#66879d" stroke-opacity=".35"/>';
-     if(!games.length)out+=text(x+24,y+head+50,'Lägg till matchtider',24,'#a8bdcc');
+     const leftName=short(ta),rightName=short(tb);
+     [[ta,x+19],[tb,x+cardW-19-logoSize]].forEach(([t,lx])=>{const logo=lm.get(String(t.sports_gamer_team_id));if(S.logos&&logo)out+=img(logo,lx,y+17,logoSize);});
+     out+=text(x+logoSize+31,y+logoSize*.68+18,leftName,Math.min(37,(cardW*.32-logoSize)/Math.max(1,leftName.length)/.58));
+     out+=text(x+cardW-logoSize-30,y+logoSize*.68+18,rightName,Math.min(37,(cardW*.32-logoSize)/Math.max(1,rightName.length)/.58),'#fff','end');
+     out+=text(x+cardW/2,y+logoSize*.68+18,'VS',23,'#ffcf4a','middle');
+     out+=text(x+22,y+head-19,mode==='pure_bo5'?'PURE BO5':'AGGREGATED BO3',18,'#ffcf4a');
+     out+='<path d="M '+(x+22)+' '+(y+head-6)+' H '+(x+cardW-22)+'" stroke="#66879d" stroke-opacity=".35"/>';
+     if(!games.length)out+=text(x+22,y+head+48,'Lägg till matchtider',23,'#a8bdcc');
      if(games.length){
       const first=games[0],start=first.time+(first.optional?' *':'');
-      out+='<g data-series-row="'+first.game+'" data-series-start="true">'+text(x+24,y+head+23,(english?'SERIES START':'SERIESTART')+' · G'+first.game,16,'#a8bdcc')+text(x+24,y+head+primaryH*.78,start,Math.min(44,primaryH*.43,(cardW-48)/Math.max(1,start.length)/.66),'#ffcf4a')+'</g>';
-      const compact=compactGameTimes(rest,x+24,y+head+primaryH+lineH*.7,cardW-48,lineH,22);
+      out+='<g data-series-row="'+first.game+'" data-series-start="true">'+text(x+22,y+head+26,(english?'SERIES START':'SERIESTART')+' · G'+first.game,16,'#a8bdcc')+text(x+22,y+head+77,start,Math.min(43,(cardW-44)/Math.max(1,start.length)/.58),'#ffcf4a')+'</g>';
+      const compact=compactGameTimes(rest,x+22,y+head+primaryH+30,cardW-44,lineH,wide?17:20);
       out+=compact.markup;
-      if(games.some(g=>g.optional))out+=text(x+24,y+head+primaryH+Math.max(1,compact.rows)*lineH+24,english?'* IF NECESSARY':'* VID BEHOV',14,'#829cac');
+      if(games.some(g=>g.optional))out+=text(x+22,y+head+primaryH+30+Math.max(1,compact.rows)*lineH+3,english?'* IF NECESSARY':'* VID BEHOV',13,'#839bad');
      }
      out+='</g>';
     });
