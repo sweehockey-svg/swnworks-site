@@ -27,7 +27,7 @@ window.createExtraGraphicsTemplates=function(api){
   select('extraTeamA','HEMMALAG / NYTT LAG',teamKinds)+select('extraTeamB','BORTALAG','game_night final_score playoff_series')+
   select('extraPlayerA','SPELARE',players)+select('extraPlayerB','MOTSPELARE','player_duel')+
   field('extraMatchMode','MATCHDAG · UPPLÄGG','<select id="ID"><option value="single">En match</option><option value="pure_bo5">Pure BO5 · upp till 5 matcher</option><option value="aggregated_bo3">Aggregated BO3 · upp till 6 matcher</option></select>','game_night')+
-  '<div class="full" id="extraScheduleFields" data-extra-kinds="game_night"><p class="note">En serie per grafik. Skriv tidszonerna som de ska visas, t.ex. 21:00 FIN / 20:00 SE. Ingen automatisk tidsomräkning. Tomma tidsrader visas inte.</p>'+Array.from({length:6},(_,i)=>'<div data-series-game="'+(i+1)+'" style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:12px"><label><span>G'+(i+1)+' · TID / TIDSZON</span><input id="extraGame'+(i+1)+'Time" type="text" maxlength="46" placeholder="T.ex. 21:00 FIN / 20:00 SE"></label><label style="padding-top:18px;white-space:nowrap"><input id="extraGame'+(i+1)+'Optional" type="checkbox" '+(i>=3?'checked':'')+'> Vid behov</label></div>').join('')+'</div>'+
+  '<div class="full" id="extraScheduleFields" data-extra-kinds="game_night"><p class="note">En serie per grafik. Skriv tidszonerna som de ska visas, t.ex. 21:00 FIN / 20:00 SE. Ingen automatisk tidsomräkning. Tomma tidsrader visas inte.</p>'+Array.from({length:6},(_,i)=>'<div data-series-game="'+(i+1)+'" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;margin-bottom:12px"><label><span>G'+(i+1)+' · TID / TIDSZON</span><input id="extraGame'+(i+1)+'Time" type="text" maxlength="46" placeholder="T.ex. 21:00 FIN / 20:00 SE"></label><label style="padding-top:18px;white-space:nowrap"><input id="extraGame'+(i+1)+'Optional" type="checkbox" style="width:16px;height:16px;accent-color:#ffcf4a;margin:0 5px 0 0;vertical-align:middle" '+(i>=3?'checked':'')+'> Vid behov</label></div>').join('')+'</div>'+
   input('extraDate','DATUM','date','game_night')+input('extraTime','TID · SVENSK TID','time','game_night')+
   input('extraWatch','SE MATCHEN PÅ','text','game_night','maxlength="80" placeholder="T.ex. Match-TV / Twitch-kanal"')+
   input('extraHomeScore','HEMMAMÅL','number','final_score','min="0" max="99" step="1" value="0"')+
@@ -54,7 +54,7 @@ window.createExtraGraphicsTemplates=function(api){
   const mode=value('extraMatchMode')||'single';
   get('extraScheduleFields').hidden=S.kind!=='game_night'||mode==='single';
   const timeLabel=get('extraTime').closest('label');if(timeLabel)timeLabel.hidden=S.kind!=='game_night'||mode!=='single';
-  section.querySelectorAll('[data-series-game]').forEach(el=>el.hidden=Number(el.dataset.seriesGame)>(mode==='pure_bo5'?5:6));
+  section.querySelectorAll('[data-series-game]').forEach(el=>{el.hidden=Number(el.dataset.seriesGame)>(mode==='pure_bo5'?5:6);el.style.display=el.hidden?'none':'grid';});
  }
  get('extraMatchMode').addEventListener('change',()=>{
   const limit=value('extraMatchMode')==='aggregated_bo3'?4:3;
