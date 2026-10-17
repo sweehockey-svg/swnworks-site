@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),weekly=require('./weekly-team.js');
+assert.equal(weekly.periodLabel('2026-10-05','2026-10-15'),'5–15 OKTOBER 2026');
+assert.equal(weekly.periodLabel('2026-10-15','2026-10-15'),'15 OKTOBER 2026');
+assert.equal(weekly.periodLabel('2026-09-30','2026-10-15'),'30 SEPTEMBER – 15 OKTOBER 2026');
+assert.equal(weekly.periodLabel('2025-12-30','2026-01-02'),'30 DECEMBER 2025 – 2 JANUARI 2026');
+assert.equal(weekly.periodLabel('2026-10-05','2026-10-15','en-GB'),'5–15 OCTOBER 2026');
+const rows=[{source_team_id:1,source_player_id:7,position:'G',games:2,saves:938,goals_allowed:62,goalie_complete:true},{source_team_id:2,source_player_id:7,position:'G',games:2,saves:0,goals_allowed:100,goalie_complete:true}];
+const p=weekly.periodPlayer(rows,1,7,'G');
+assert.equal(weekly.periodMetric(p,'G'),'93,8 SV%');
+assert.equal(weekly.periodMetric(p,'G','total','en-GB'),'93.8 SV%');
+assert.equal(weekly.periodMetric({...p,goalie_complete:false},'G'),'');
+assert.equal(weekly.periodMetric({...p,saves:0,goals_allowed:0},'G'),'');
+assert.equal(weekly.periodPlayer(rows,1,999,'G'),null);
+assert.equal(weekly.periodPlayer(rows,1,7,'LW'),null);
+console.log('Editorial date ranges and manual player period metrics: localized SV%, missing stats, zero shots, team and role isolation passed.');

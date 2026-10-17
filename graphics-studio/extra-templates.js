@@ -48,16 +48,16 @@ window.createExtraGraphicsTemplates=function(api){
  if(tournament?.after)tournament.after(section);
  else (document.querySelector('.design-panel-body')||document.querySelector('.controls')).prepend(section);
  const get=id=>document.getElementById(id),value=id=>get(id).value;
- let weeklyPeriod='',weeklySelections={},weekLoading=false,weeklyLeague=S.league,weeklyGroup=S.filterGroup;
+ let weeklyPeriod='',weeklyDates=null,weeklyCandidates=[],weeklySelections={},weekLoading=false,weeklyLeague=S.league,weeklyGroup=S.filterGroup;
  function groupTeams(){return S.filterGroup==null?S.teams:S.teams.filter(t=>t.statistics_stage==='regular'&&Number(t.effective_group_id)===Number(S.filterGroup));}
  function groupPlayers(){const ids=new Set(groupTeams().map(t=>String(t.sports_gamer_team_id)));return S.filterGroup==null?S.players:S.players.filter(p=>ids.has(String(p.sports_gamer_team_id)));}
  get('extraWeek').value=window.GraphicsWeeklyTeam.sunday();
  const initialEnd=new Date(get('extraWeek').value+'T12:00:00Z');initialEnd.setUTCDate(initialEnd.getUTCDate()+4);
  get('extraWeekEnd').value=initialEnd.toISOString().slice(0,10);
- get('extraWeekEnd').addEventListener('change',()=>{weeklyPeriod='';weeklySelections={};});
- get('extraWeek').addEventListener('change',()=>{weeklyPeriod='';weeklySelections={};});
+ get('extraWeekEnd').addEventListener('change',()=>{weeklyPeriod='';weeklyDates=null;weeklyCandidates=[];weeklySelections={};});
+ get('extraWeek').addEventListener('change',()=>{weeklyPeriod='';weeklyDates=null;weeklyCandidates=[];weeklySelections={};});
  get('extraForwardMetric').addEventListener('change',()=>{
-  weeklyPeriod='';weeklySelections={};
+  weeklyPeriod='';weeklyDates=null;weeklyCandidates=[];weeklySelections={};
   get('extraWeekStatus').textContent='Urvalsmetoden har ändrats. Klicka Fyll med periodens bästa för att göra ett nytt urval. Snittläget kräver minst 2 matcher och 50 % av lagets matcher under perioden.';
  });
  get('extraAutoWeek').addEventListener('click',async()=>{
@@ -75,7 +75,7 @@ window.createExtraGraphicsTemplates=function(api){
    if(!data.matches)throw new Error('Inga importerade matcher under vald period. Dina val har behållits.');
    if(!data.complete)throw new Error('Matchunderlaget är ofullständigt. Automatvalet har inte ändrat dina spelare.');
    const picks=window.GraphicsWeeklyTeam.select(data.candidates,new Set(groupPlayers().map(playerKey)),forwardMetric);
-   weeklySelections=picks;weeklyPeriod=data.start===data.end?data.start:data.start+' – '+data.end;
+   weeklySelections=picks;weeklyCandidates=data.candidates;weeklyDates={start:data.start,end:data.end};weeklyPeriod=window.GraphicsWeeklyTeam.periodLabel(data.start,data.end,window.GraphicsLanguage?.locale||'sv-SE');
    for(const slot of ['LW','C','RW','LD','RD','G'])get('extraSix'+slot).value=picks[slot]?picks[slot].source_team_id+':'+picks[slot].source_player_id:'';
    const count=Object.keys(picks).length;
    status.textContent=weeklyPeriod+' · '+(forwardMetric==='average'?'Forwards: poäng per match.':'Forwards: totalpoäng.')+' '+count+'/6 platser fyllda från '+data.matches+' matcher.'+(count<6?' Övriga positioner saknar kvalificerat underlag.':' Du kan ändra valen manuellt.');
@@ -91,7 +91,7 @@ window.createExtraGraphicsTemplates=function(api){
  const playerKey=p=>String(p.sports_gamer_team_id)+':'+String(p.sports_gamer_player_id);
  function sync(){
   TIT.weekly_six=value('extraWeek')&&value('extraWeek')===value('extraWeekEnd')?'DAGENS LAG':'VECKANS LAG';
-  if(weeklyLeague!==S.league||weeklyGroup!==S.filterGroup){weeklyLeague=S.league;weeklyGroup=S.filterGroup;weeklyPeriod='';weeklySelections={};for(const slot of ['LW','C','RW','LD','RD','G'])get('extraSix'+slot).value='';}
+  if(weeklyLeague!==S.league||weeklyGroup!==S.filterGroup){weeklyLeague=S.league;weeklyGroup=S.filterGroup;weeklyPeriod='';weeklyDates=null;weeklyCandidates=[];weeklySelections={};for(const slot of ['LW','C','RW','LD','RD','G'])get('extraSix'+slot).value='';}
   section.hidden=!kinds.has(S.kind);if(section.hidden)return;
   section.querySelectorAll('[data-extra-kinds]').forEach(el=>el.hidden=!el.dataset.extraKinds.split(' ').includes(S.kind));
   const teams=[...new Map(groupTeams().map(t=>[String(t.sports_gamer_team_id),{...t,id:String(t.sports_gamer_team_id)}])).values()];
@@ -140,7 +140,7 @@ window.createExtraGraphicsTemplates=function(api){
     out+=text(m+30,boxY+55,'BÄST AV '+best+(ha===max||hb===max?' · SERIEN AVGJORD':''),28,'#ffcf4a')+lines(value('extraSeriesResults'),m+30,boxY+110,W-m*2-60);
    }
   }else if(S.kind==='weekly_six'){
-   if(weeklyPeriod)out+=text(m,295,weeklyPeriod,17,'#ffcf4a');
+   if(weeklyDates)out+=text(m,295,window.GraphicsWeeklyTeam.periodLabel(weeklyDates.start,weeklyDates.end,window.GraphicsLanguage?.locale||'sv-SE'),17,'#ffcf4a');
    const slots=['LW','C','RW','LD','RD','G'],ids=slots.map(s=>value('extraSix'+s)).filter(Boolean);
    if(new Set(ids).size!==ids.length)return missing('Välj olika spelare till varje position');
    const rinkW=W-m*2,rinkH=height;
@@ -149,7 +149,8 @@ window.createExtraGraphicsTemplates=function(api){
    slots.forEach((slot,i)=>{
     const p=find('extraSix'+slot),[cx,cy]=points[i],x=m+rinkW*cx-cw/2,y=top+rinkH*cy-ch/2;
     const selected=weeklySelections[slot],auto=p&&selected&&String(p.sports_gamer_player_id)===String(selected.source_player_id)&&String(p.sports_gamer_team_id)===String(selected.source_team_id);
-    const metric=auto?(slot==='G'?(100*Number(selected.saves)/(Number(selected.saves)+Number(selected.goals_allowed))).toFixed(1)+' %':slot==='LD'||slot==='RD'?'DIM '+(Number(selected.defensive_actions)/Number(selected.games)).toFixed(2):value('extraForwardMetric')==='average'?((Number(selected.goals)+Number(selected.assists))/Number(selected.games)).toFixed(2)+' P/GP':(Number(selected.goals)+Number(selected.assists))+' P'):'';
+    const periodStats=p?window.GraphicsWeeklyTeam.periodPlayer(weeklyCandidates,p.sports_gamer_team_id,p.sports_gamer_player_id,slot):null;
+    const metric=window.GraphicsWeeklyTeam.periodMetric(periodStats,slot,value('extraForwardMetric'),window.GraphicsLanguage?.locale||'sv-SE');
     const band=Math.max(76,ch*.34),photoH=ch-band,nameSize=p?Math.min(27,(cw-30)/Math.max(1,p.display_gamertag.length)/.68):24;
     out+='<g data-weekly-slot="'+slot+'"><rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+ch+'" rx="14" fill="url(#weeklyCard)" stroke="#d5ad54" stroke-width="2"/>';
     out+='<path d="M '+(x+cw*.68)+' '+y+' H '+(x+cw-14)+' L '+(x+cw*.55)+' '+(y+photoH)+' H '+(x+cw*.34)+' Z" fill="#a5c5dd" opacity=".045"/>';
@@ -164,7 +165,7 @@ window.createExtraGraphicsTemplates=function(api){
      out+=text(nameX,y+photoH+band*.41,p.display_gamertag,fittedNameSize);
      out+='<path d="M '+(x+13)+' '+(y+photoH+band*.51)+' H '+(x+cw-13)+'" stroke="#d4b36a" stroke-opacity=".55"/>';
      out+=text(x+13,y+ch-13,metric||'MANUELLT VAL',Math.min(20,band*.26),'#ffcf4a');
-     if(auto)out+=text(x+cw-13,y+ch-13,selected.games+' GP',Math.min(16,band*.23),'#a8bdcc','end');
+     if(periodStats&&metric)out+=text(x+cw-13,y+ch-13,periodStats.games+' GP',Math.min(16,band*.23),'#a8bdcc','end');
      if(S.logos&&logo)out+=img(logo,x+cw-58,y+11,46);
     }else out+=text(x+cw/2,y+ch*.56,'Välj spelare',Math.min(24,cw*.09),'#a8bdcc','middle');
     out+='<rect x="'+(x+10)+'" y="'+(y+10)+'" width="48" height="31" rx="5" fill="#ffcf4a"/>'+text(x+34,y+33,slot,19,'#071a28','middle')+'</g>';
