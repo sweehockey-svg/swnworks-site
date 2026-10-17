@@ -33,6 +33,14 @@ for(const mode of ['pure_bo5','aggregated_bo3']){
  }
 }
 set('extraGame6Time','');assert.equal((templates.graphic().match(/data-series-row=/g)||[]).length,5);
+set('extraMatchMode','double_series');set('extraSecondTeamA',2);set('extraSecondTeamB',1);set('extraFirstFormat','pure_bo5');set('extraSecondFormat','aggregated_bo3');
+for(let i=1;i<=6;i++){set('extraSecondGame'+i+'Time','24:00 CET');document.getElementById('extraSecondGame'+i+'Optional').checked=i>4;}
+for(const [w,h] of [[1080,1350],[1080,1080],[1080,1920],[1920,1080]]){
+ size={w,h};const svg=templates.graphic();assert.equal((svg.match(/data-matchday-series=/g)||[]).length,2);assert.equal((svg.match(/data-series-row=/g)||[]).length,11);assert(!/NaN|undefined/.test(svg));
+ assert(svg.includes('PURE BO5')&&svg.includes('AGGREGATED BO3'));
+ for(const m of svg.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)){assert(+m[1]+ +m[3]<=w+1);assert(+m[2]+ +m[4]<=h-90);}
+}
+set('extraSecondTeamB',2);assert(templates.graphic().includes('två olika lag för serie 2'));
 set('extraMatchMode','single');assert(!templates.graphic().includes('data-series-row'));
 console.log('Series matchday passed: both formats, optional games, custom timezone text, blank rows, safe bounds and original single match.');
 S.kind='weekly_six';size={w:1920,h:1080};
