@@ -201,7 +201,7 @@ window.createExtraGraphicsTemplates=function(api){
      // Gold framed, broadcast-style card inspired by the approved reference.
      out+='<rect x="'+x+'" y="'+y+'" width="'+cardW+'" height="'+cardH+'" rx="14" fill="#031626" fill-opacity=".94" stroke="#e1b34a" stroke-opacity=".76" stroke-width="2"/>';
      out+='<path d="M '+(x+4)+' '+(y+4)+' H '+(x+cardW-4)+'" stroke="#86a4b7" stroke-opacity=".55"/>';
-     const tagW=Math.min(cardW-45,Math.max(194,label.length*10.7+56));
+     const tagW=Math.min(cardW-45,Math.max(210,label.length*15+105));
      out+='<path d="M '+x+' '+(y+8)+' L '+(x+tagW)+' '+(y+8)+' L '+(x+tagW-20)+' '+(y+36)+' H '+x+' Z" fill="#ffca40"/>';
      out+=text(x+24,y+28,label,17,'#071826');
      out+=text(x+cardW-inner,y+26,'0'+(index+1),14,'#8aabbd','end');
