@@ -235,13 +235,6 @@ window.createExtraGraphicsTemplates=function(api){
       if(games.some(g=>g.optional))out+=text(x+cardW-inner,y+cardH-13,english?'* IF NECESSARY':'* VID BEHOV',12,'#8ba6b7','end');
      }
      out+='</g>';
-     }else out+=text(x+inner,y+208,'Lägg till matchtider',21,'#9fb8c9');
-     if(showRemaining){
-      const compact=compactGameTimes(rest,x+inner,y+265,cardW-inner*2,wide?32:33,wide?17:20);
-      out+=compact.markup;
-     }
-     if(showRemaining&&games.some(g=>g.optional))out+=text(x+cardW-inner,y+cardH-13,english?'* IF NECESSARY':'* VID BEHOV',12,'#7894a8','end');
-     out+='</g>';
     });
     if(footer){const date=value('extraDate'),label=date&&window.GraphicsWeeklyTeam?window.GraphicsWeeklyTeam.periodLabel(date,date,window.GraphicsLanguage?.locale||'sv-SE'):date;out+=text(m,bottom-32,label,20,'#ffcf4a')+text(m,bottom-7,value('extraWatch'),18,'#a8bdcc');}
     return base(out);
