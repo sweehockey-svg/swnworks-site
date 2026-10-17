@@ -24,6 +24,28 @@ window.createExtraGraphicsTemplates=function(api){
  const input=(id,label,type,kinds,extra='')=>field(id,label,'<input id="ID" type="'+type+'" '+extra+'>',kinds);
  const teamKinds='game_night final_score playoff_series welcome_player',players='match_mvp player_duel welcome_player';
  const seriesOptions='<option value="pure_bo5">Pure BO5</option><option value="aggregated_bo3">Aggregated BO3</option>';
+ const compactGameTimes=(games,left,top,width,lineHeight,fontSize=20)=>{
+  if(!games.length)return {markup:'',rows:0};
+  const labels=games.map(g=>'G'+g.game+' '+g.time+(g.optional?' *':''));
+  const join=a=>a.join('  -  ');
+  const estimate=(s,size)=>s.length*size*.61;
+  let rows=[labels];
+  if(estimate(join(labels),fontSize)>width&&labels.length>1){
+   let best=null;
+   for(let cut=1;cut<labels.length;cut++){
+    const candidate=[labels.slice(0,cut),labels.slice(cut)];
+    const widest=Math.max(...candidate.map(row=>estimate(join(row),fontSize)));
+    if(!best||widest<best.widest)best={candidate,widest};
+   }
+   rows=best.candidate;
+  }
+  let markup='';
+  rows.forEach((row,i)=>{
+   const label=join(row),size=Math.min(fontSize,width/Math.max(1,label.length)/.61);
+   markup+='<g data-secondary-time="true">'+text(left,top+i*lineHeight,label,Math.max(10,size),'#b4c8d7')+'</g>';
+  });
+  return {markup,rows:rows.length};
+ };
  const scheduleInputs=(prefix,attr,mandatory)=>Array.from({length:6},(_,i)=>'<div '+attr+'="'+(i+1)+'" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;margin-bottom:12px"><label><span>G'+(i+1)+' · TID / TIDSZON</span><input id="'+prefix+'Game'+(i+1)+'Time" type="text" maxlength="46" placeholder="T.ex. 21:00 FIN / 20:00 SE"></label><label style="padding-top:18px;white-space:nowrap"><input id="'+prefix+'Game'+(i+1)+'Optional" type="checkbox" style="width:16px;height:16px;accent-color:#ffcf4a;margin:0 5px 0 0;vertical-align:middle" '+(i>=mandatory?'checked':'')+'> Vid behov</label></div>').join('');
  section.innerHTML='<div class="head"><b>MALLENS UPPGIFTER</b></div><p class="note">Manuella val gäller bara grafiken. Kontrollera uppgifterna före publicering.</p><div class="grid">'+
   select('extraTeamA','HEMMALAG / NYTT LAG',teamKinds)+select('extraTeamB','BORTALAG','game_night final_score playoff_series')+
@@ -178,11 +200,9 @@ window.createExtraGraphicsTemplates=function(api){
      if(games.length){
       const first=games[0],start=first.time+(first.optional?' *':'');
       out+='<g data-series-row="'+first.game+'" data-series-start="true">'+text(x+24,y+head+23,(english?'SERIES START':'SERIESTART')+' · G'+first.game,16,'#a8bdcc')+text(x+24,y+head+primaryH*.78,start,Math.min(44,primaryH*.43,(cardW-48)/Math.max(1,start.length)/.66),'#ffcf4a')+'</g>';
-      rest.forEach((g,i)=>{
-       const column=i%2,row=Math.floor(i/2),tx=x+24+column*(cardW-48)/2,ty=y+head+primaryH+row*lineH+lineH*.68,label='G'+g.game+'  '+g.time+(g.optional?' *':'');
-       out+='<g data-series-row="'+g.game+'" data-secondary-time="true">'+text(tx,ty,label,Math.min(22,lineH*.58,((cardW-48)/2-16)/Math.max(1,label.length)/.64),'#b4c8d7')+'</g>';
-      });
-      if(games.some(g=>g.optional))out+=text(x+24,y+head+primaryH+lineCount*lineH+24,english?'* IF NECESSARY':'* VID BEHOV',14,'#829cac');
+      const compact=compactGameTimes(rest,x+24,y+head+primaryH+lineH*.7,cardW-48,lineH,22);
+      out+=compact.markup;
+      if(games.some(g=>g.optional))out+=text(x+24,y+head+primaryH+Math.max(1,compact.rows)*lineH+24,english?'* IF NECESSARY':'* VID BEHOV',14,'#829cac');
      }
      out+='</g>';
     });
@@ -209,12 +229,9 @@ window.createExtraGraphicsTemplates=function(api){
     if(games.length){
      const first=games[0],startLabel=first.time+(first.optional?' *':'');
      out+='<g data-series-row="'+first.game+'" data-series-start="true">'+text(right+24,sy+head+24,(english?'SERIES START':'SERIESTART')+' · G'+first.game,17,'#a8bdcc')+text(right+24,sy+head+72,startLabel,Math.min(40,(sw-48)/Math.max(1,startLabel.length)/.66),'#ffcf4a')+'</g>';
-     rest.forEach((g,i)=>{
-      const tx=right+24+(i%2)*(sw-48)/2,ty=sy+head+primaryH+Math.floor(i/2)*lineH+lineH*.65;
-      const label='G'+g.game+'  '+g.time+(g.optional?' *':'');
-      out+='<g data-series-row="'+g.game+'" data-secondary-time="true">'+text(tx,ty,label,Math.min(22,((sw-48)/2-12)/Math.max(1,label.length)/.66),'#b4c8d7')+'</g>';
-     });
-     if(games.some(g=>g.optional))out+=text(right+24,sy+head+primaryH+lineCount*lineH+20,english?'* IF NECESSARY':'* VID BEHOV',15,'#829cac');
+     const compact=compactGameTimes(rest,right+24,sy+head+primaryH+lineH*.7,sw-48,lineH,22);
+     out+=compact.markup;
+     if(games.some(g=>g.optional))out+=text(right+24,sy+head+primaryH+Math.max(1,compact.rows)*lineH+20,english?'* IF NECESSARY':'* VID BEHOV',15,'#829cac');
     }else out+=text(right+24,sy+head+55,'Lägg till matchtider i panelen',24,'#a8bdcc');
     if(footer>18){
      out+='<path d="M '+(right+20)+' '+(sy+sh-footer)+' H '+(right+sw-20)+'" stroke="#66879d" stroke-opacity=".3"/>';
