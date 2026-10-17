@@ -54,13 +54,13 @@ window.createExtraGraphicsTemplates=function(api){
  get('extraWeek').addEventListener('change',()=>{weeklyPeriod='';weeklySelections={};});
  get('extraForwardMetric').addEventListener('change',()=>{
   weeklyPeriod='';weeklySelections={};
-  get('extraWeekStatus').textContent='Urvalsmetoden har ändrats. Klicka Fyll med veckans bästa för att göra ett nytt urval. Snittläget kräver minst 2 matcher och 50 % av lagets veckomatcher.';
+  get('extraWeekStatus').textContent='Urvalsmetoden har ändrats. Klicka Fyll med periodens bästa för att göra ett nytt urval. Snittläget kräver minst 2 matcher och 50 % av lagets matcher under perioden.';
  });
  get('extraAutoWeek').addEventListener('click',async()=>{
   if(weekLoading)return;
   const date=value('extraWeek'),end=value('extraWeekEnd'),league=S.league,forwardMetric=value('extraForwardMetric')||'total',status=get('extraWeekStatus'),button=get('extraAutoWeek');
   if(!window.GraphicsWeeklyTeam.validRange(date,end)){status.textContent='Välj giltiga start- och slutdatum. Slutdatum får inte vara före startdatum.';return;}
-  weekLoading=true;button.disabled=true;status.textContent='Hämtar veckans matchstatistik…';
+  weekLoading=true;button.disabled=true;status.textContent='Hämtar periodens matchstatistik…';
   try{
    const session=await window.SWNStudioAccess.session(),cfg=window.EHOCKEY_CONFIG;
    const response=await fetch(cfg.supabaseUrl.replace(/\/+$/,'')+'/rest/v1/rpc/graphics_period_candidates',{method:'POST',headers:{apikey:cfg.supabasePublishableKey,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({p_league:league,p_start:date,p_end:end})});
