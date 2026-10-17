@@ -603,3 +603,8 @@ button, input { font: inherit; }
   .band-card.has-media .band-card-image{height:52%}
   .band-card.has-media .band-title{margin-top:155px;font-size:34px}
 }
+
+.credit-release { min-width:0; }
+.credit-release strong { display:block; }
+.credit-band { display:block; margin-top:5px; color:var(--muted); font-size:12px; line-height:1.5; }
+.credit-band:empty { display:none; }
