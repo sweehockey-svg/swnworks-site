@@ -25,3 +25,18 @@ S.kind='player_duel';set('extraPlayerB','1:1');assert(templates.graphic().includ
 S.kind='weekly_six';set('extraSixG','1:1');assert(templates.graphic().includes('olika spelare'));
 S.kind='playoff_series';set('extraSeriesHome',4);assert(templates.graphic().includes('Kontrollera'));
 console.log('Seven templates passed in all four formats; duplicate selections, series validation and appended order verified.');
+S.teams[0].statistics_stage='regular';S.teams[0].effective_group_id=10;
+S.teams[1].statistics_stage='regular';S.teams[1].effective_group_id=20;
+S.players.push({sports_gamer_team_id:2,sports_gamer_player_id:99,display_gamertag:'Other group',team_name_in_league:'Beta'});
+for(const button of buttons){
+ S.kind=button.dataset.kind;S.filterGroup=10;templates.sync();
+ assert(fields.get('extraTeamA').innerHTML.includes('Alpha'));
+ assert(!fields.get('extraTeamA').innerHTML.includes('Beta'));
+ assert(!fields.get('extraPlayerA').innerHTML.includes('Other group'));
+}
+S.kind='weekly_six';set('extraSixG','1:1');S.filterGroup=20;templates.sync();
+assert.equal(fields.get('extraSixG').value,'');
+assert(fields.get('extraSixG').innerHTML.includes('Other group'));
+assert(!fields.get('extraSixG').innerHTML.includes('Player 1'));
+S.filterGroup=null;templates.sync();assert(fields.get('extraSixG').innerHTML.includes('Player 1'));
+console.log('All seven templates filter teams/players by group; changing group clears weekly selections; all groups restores options.');

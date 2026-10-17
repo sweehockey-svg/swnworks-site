@@ -13,6 +13,13 @@
   const tournament=document.getElementById('league')?.closest('section');
   const data=document.getElementById('dataStatus')?.closest('section');
   if(tournament)body.append(tournament);
+  // Keep tournament and group choices above the template-specific fields.
+  if(tournament){
+    for(const id of ['groupField','filterGroupField']){
+      const field=document.getElementById(id);
+      if(field)tournament.insertBefore(field,document.getElementById('refresh'));
+    }
+  }
   if(data)body.append(data);
   body.append(design);
   const actions=controls.querySelector('.actions'),note=controls.querySelector('.note');

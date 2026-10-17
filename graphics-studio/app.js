@@ -1060,6 +1060,7 @@ function build(){
   return L.svg(graphic,[$("#title").value,$("#subtitle").value,$("#playerNote").value,comp().label,...S.teams.map(t=>t.team_name_in_league),...S.players.map(p=>p.display_gamertag)]);
 }
 function render(){
+  sync();
   extraTemplates.sync();
   syncPlayerOverrides();
   sync();$("#minGamesField").hidden=!['goalies','points_average','defender_points_average','dim'].includes(S.kind);
@@ -1069,7 +1070,7 @@ function render(){
   if(missingTieBreaks)$("#preview").innerHTML='<div style="color:white;padding:30px">'+esc(scheduleError||L.t('HÄMTAR…'))+'</div>';
   $("#png").disabled=$("#svg").disabled=dataLoading||playerDataError&&needsPlayers()||missingTieBreaks||S.kind==="player"&&!singlePlayer();
   $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches"){syncMatchEditor();syncManualEditor();}$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=(S.kind==="roster"&&!S.rosterStats)||S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table"||groupIds().length<=1;$("#filterGroupField").hidden=["table","groups","roster","player"].includes(S.kind)||groupIds().length<=1;$("#countField").hidden=true;
-  if(extraTemplates.has(S.kind)){$("#filterGroupField").hidden=true;$("#stageField").hidden=S.kind!=="player_duel";}
+  if(extraTemplates.has(S.kind)){$("#filterGroupField").hidden=groupIds().length<=1;$("#stageField").hidden=S.kind!=="player_duel";}
 }
 function safe(){return (comp().code+(S.kind==="player"?"-"+(singlePlayer()?.display_gamertag||""):"")+(S.kind==="matches"?"-"+$("#matchDate").value+"-sida-"+(Number($("#matchPage").value)+1):"")+"-"+TIT[S.kind]).toLowerCase().replace(/å/g,"a").replace(/ä/g,"a").replace(/ö/g,"o").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1200)}
@@ -1152,4 +1153,3 @@ $("#refresh").onclick=()=>{load()};$("#svg").onclick=()=>exportGraphic("svg");$(
 $("#language").onchange=()=>{L.set($("#language").value);groups();render()};
 L.applyUi();render();load();
 })();
-
