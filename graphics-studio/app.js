@@ -751,8 +751,13 @@ function portraitCrop(b,w,h){
  const cropW=Math.min(width,b.height*w/h),cropH=cropW*h/w;
  return {left:b.left+(b.width-cropW)/2,top:b.top,width:cropW,height:cropH};
 }
+function weeklyPortraitCrop(b,w,h){
+ // Use the body silhouette, not hair/head width, to keep the same photo scale.
+ const cropW=Math.min(b.width*.62,b.height*w/h);
+ return {left:b.left+(b.width-cropW)/2,top:b.top,width:cropW,height:cropW*h/w};
+}
 function normalizedPortrait(url,x,y,w,h,id,framed=false,zoom=1){
- measurePortrait(url);const b=portraitBounds.get(url),crop=b?portraitCrop(b,w,h):null;
+ measurePortrait(url);const b=portraitBounds.get(url),crop=b?(String(id).startsWith('weekly-')?weeklyPortraitCrop(b,w,h):portraitCrop(b,w,h)):null;
  if(crop&&zoom>0&&zoom<1){
   const expanded=crop.width/zoom;
   crop.left-=(expanded-crop.width)/2;crop.width=expanded;crop.height=expanded*h/w;
