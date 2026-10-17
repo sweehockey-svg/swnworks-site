@@ -202,16 +202,20 @@ window.createExtraGraphicsTemplates=function(api){
     });
     out+=text(mid,teamY+logoSize*.62,'VS',wide?40:32,'#ffcf4a','middle');
     const date=value('extraDate'),dateLabel=date&&window.GraphicsWeeklyTeam?window.GraphicsWeeklyTeam.periodLabel(date,date,window.GraphicsLanguage?.locale||'sv-SE'):date;
-    const sy=wide?top:teamY+logoSize+66,head=56,footer=(dateLabel||value('extraWatch'))?68:18,rows=Math.max(games.length,1),rh=Math.min(wide?90:H>=1350?104:82,(bottom-sy-head-footer)/rows),sh=head+rows*rh+footer;
+    const sy=wide?top:teamY+logoSize+66,head=56,footer=(dateLabel||value('extraWatch'))?68:18;
+    const rest=games.slice(1),lineCount=Math.max(1,Math.ceil(rest.length/2)),primaryH=94,lineH=44;
+    const sh=Math.min(bottom-sy,head+primaryH+lineCount*lineH+46+footer);
     out+=panel(right,sy,sw,sh)+text(right+24,sy+35,english?'SERIES SCHEDULE':'SERIESCHEMA',21,'#ffcf4a');
-    if(games.length)games.forEach((g,i)=>{
-     const y=sy+head+i*rh,badgeW=english?154:135;
-     out+='<g data-series-row="'+g.game+'"><path d="M '+(right+20)+' '+y+' H '+(right+sw-20)+'" stroke="#66879d" stroke-opacity=".3"/><rect x="'+(right+20)+'" y="'+(y+rh*.22)+'" width="48" height="'+(rh*.56)+'" rx="6" fill="'+(g.optional?'#173246':'#ffcf4a')+'"/>'+text(right+44,y+rh*.61,'G'+g.game,20,g.optional?'#b9cedc':'#071a28','middle');
-     const available=sw-110-(g.optional?badgeW:0),size=Math.min(26,available/Math.max(1,g.time.length)/.66);
-     out+=text(right+88,y+rh*.61,g.time,size,'#fff');
-     if(g.optional)out+=text(right+sw-22,y+rh*.61,english?'IF NECESSARY':'VID BEHOV',17,'#a8bdcc','end');
-     out+='</g>';
-    });else out+=text(right+24,sy+head+rh*.6,'Lägg till matchtider i panelen',24,'#a8bdcc');
+    if(games.length){
+     const first=games[0],startLabel=first.time+(first.optional?' *':'');
+     out+='<g data-series-row="'+first.game+'" data-series-start="true">'+text(right+24,sy+head+24,(english?'SERIES START':'SERIESTART')+' · G'+first.game,17,'#a8bdcc')+text(right+24,sy+head+72,startLabel,Math.min(40,(sw-48)/Math.max(1,startLabel.length)/.66),'#ffcf4a')+'</g>';
+     rest.forEach((g,i)=>{
+      const tx=right+24+(i%2)*(sw-48)/2,ty=sy+head+primaryH+Math.floor(i/2)*lineH+lineH*.65;
+      const label='G'+g.game+'  '+g.time+(g.optional?' *':'');
+      out+='<g data-series-row="'+g.game+'" data-secondary-time="true">'+text(tx,ty,label,Math.min(22,((sw-48)/2-12)/Math.max(1,label.length)/.66),'#b4c8d7')+'</g>';
+     });
+     if(games.some(g=>g.optional))out+=text(right+24,sy+head+primaryH+lineCount*lineH+20,english?'* IF NECESSARY':'* VID BEHOV',15,'#829cac');
+    }else out+=text(right+24,sy+head+55,'Lägg till matchtider i panelen',24,'#a8bdcc');
     if(footer>18){
      out+='<path d="M '+(right+20)+' '+(sy+sh-footer)+' H '+(right+sw-20)+'" stroke="#66879d" stroke-opacity=".3"/>';
      out+=text(right+24,sy+sh-37,dateLabel||'',19,'#ffcf4a')+text(right+24,sy+sh-14,value('extraWatch'),Math.min(17,(sw-48)/Math.max(1,value('extraWatch').length)/.65),'#a8bdcc');
