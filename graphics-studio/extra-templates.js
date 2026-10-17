@@ -186,7 +186,7 @@ window.createExtraGraphicsTemplates=function(api){
     if(!a2||!b2)return missing('Välj båda lagen för serie 2');
     if(String(a2.sports_gamer_team_id)===String(b2.sports_gamer_team_id))return missing('Välj två olika lag för serie 2');
     const english=(window.GraphicsLanguage?.locale||'sv').startsWith('en'),gap=34,footer=(value('extraDate')||value('extraWatch'))?64:0;
-    const cardW=wide?(W-m*2-gap)/2:W-m*2,cardH=wide?Math.min(395,height-footer):340;
+    const cardW=wide?(W-m*2-gap)/2:W-m*2,cardH=wide?Math.min(395,height-footer):374;
     const seriesTop=wide?top+Math.max(0,(height-footer-cardH)/2):top+Math.max(0,(height-footer-(cardH*2+gap))/2-48);
     const specs=[[a,b,'extra',value('extraFirstFormat')||'pure_bo5'],[a2,b2,'extraSecond',value('extraSecondFormat')||'aggregated_bo3']];
     const short=t=>Number(S.league)===532?({'4N Finland':'Finland','4N Sweden':'Sweden','4N Team EU':'Team EU','4N Team NA':'Team NA','4N Canada':'Canada','4N USA':'USA'}[t.team_name_in_league]||t.team_name_in_league):t.team_name_in_league;
@@ -201,7 +201,7 @@ window.createExtraGraphicsTemplates=function(api){
      // Gold framed, broadcast-style card inspired by the approved reference.
      out+='<rect x="'+x+'" y="'+y+'" width="'+cardW+'" height="'+cardH+'" rx="14" fill="#031626" fill-opacity=".94" stroke="#e1b34a" stroke-opacity=".76" stroke-width="2"/>';
      out+='<path d="M '+(x+4)+' '+(y+4)+' H '+(x+cardW-4)+'" stroke="#86a4b7" stroke-opacity=".55"/>';
-     out+='<path d="M '+x+' '+(y+8)+' L '+(x+wide*0+Math.min(195,cardW*.25))+' '+(y+8)+' L '+(x+Math.min(179,cardW*.23))+' '+(y+36)+' H '+x+' Z" fill="#ffca40"/>';
+     out+='<path d="M '+x+' '+(y+8)+' L '+(x+Math.min(195,cardW*.25))+' '+(y+8)+' L '+(x+Math.min(179,cardW*.23))+' '+(y+36)+' H '+x+' Z" fill="#ffca40"/>';
      out+=text(x+24,y+28,label,17,'#071826');
      out+=text(x+cardW-inner,y+26,'0'+(index+1),14,'#8aabbd','end');
      const teamY=y+52,nameY=y+116;
