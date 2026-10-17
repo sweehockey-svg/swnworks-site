@@ -28,6 +28,8 @@ const headers=()=>{const h={apikey:KEY,Accept:"application/json"};if(/^eyJ[^.]+\
 let transientData=null;
 async function useTransientData(data){
   if(Number(data.league_id)!==S.league||Date.parse(data.expires_at)<=Date.now())return;
+  data=await window.GraphicsTransientData.withPortraits(data);
+  if(Number(data.league_id)!==S.league||Date.parse(data.expires_at)<=Date.now())return;
   transientData=data;
   await load();
 }

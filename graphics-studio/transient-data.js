@@ -40,5 +40,22 @@
   pending.set(key,task);
   try{return await task;}finally{pending.delete(key);}
  }
- window.GraphicsTransientData={request,valid};
+ async function withPortraits(data){
+  const cfg=window.EHOCKEY_CONFIG||{},ids=[...new Set(data.players.map(p=>Number(p.sports_gamer_player_id)).filter(id=>Number.isSafeInteger(id)&&id>0))],images=new Map();
+  // Read only published image metadata. Never create/import a player profile.
+  const groups=[];for(let i=0;i<ids.length;i+=100)groups.push(ids.slice(i,i+100));
+  await Promise.all(groups.map(async group=>{
+   const url=String(cfg.supabaseUrl).replace(/\/+$/,'')+'/rest/v1/v_ehockey_player_self_profiles_public?select=sports_gamer_player_id,image_url&sports_gamer_player_id=in.('+group.join(',')+')&order=approved_at.desc.nullslast,updated_at.desc.nullslast';
+   const key=cfg.supabasePublishableKey||cfg.supabaseAnonKey,headers={apikey:key,Accept:'application/json'};
+   if(/^eyJ[^.]+\.[^.]+\.[^.]+$/.test(key))headers.Authorization='Bearer '+key;
+   const response=await fetch(url,{headers,signal:AbortSignal.timeout(15000),cache:'no-store'});
+   if(!response.ok)throw new Error('Kunde inte koppla publicerade spelarbilder. Dina tidigare val har behållits. Försök igen.');
+   for(const p of await response.json()){
+    const id=Number(p.sports_gamer_player_id),url=String(p.image_url||'').trim();
+    if(group.includes(id)&&url&&!images.has(id))images.set(id,url);
+   }
+  }));
+  return {...data,players:data.players.map(p=>({...p,player_image:images.get(Number(p.sports_gamer_player_id))||p.player_image||''}))};
+ }
+ window.GraphicsTransientData={request,valid,withPortraits};
 })();

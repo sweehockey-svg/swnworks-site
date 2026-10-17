@@ -22,6 +22,15 @@ function setup(responses){
  await assert.rejects(failed.api.request(scope),/Administratör/);
  // A failed request must not stay stuck in the in-flight map.
  failed.ctx.fetch=t.ctx.fetch;await assert.rejects(failed.api.request(scope));
- assert(!/localStorage|sessionStorage|indexedDB|\/rest\/v1/.test(source));
+ assert(!/localStorage|sessionStorage|indexedDB/.test(source));
+ const portraits=setup([]);let imageCalls=0;
+ portraits.ctx.fetch=async(url,options)=>{
+  imageCalls++;assert(url.includes('select=sports_gamer_player_id,image_url&'));assert.equal(options.method,undefined);
+  return {ok:true,json:async()=>[{sports_gamer_player_id:'9804',image_url:'published-canadian.png'},{sports_gamer_player_id:'5240',image_url:'published-american.png'},{sports_gamer_player_id:'7',image_url:'newest.png'},{sports_gamer_player_id:'7',image_url:'old.png'},{sports_gamer_player_id:'9999',image_url:'unrequested.png'}]};
+ };
+ const original={...data,players:[{sports_gamer_player_id:9804,player_country:'CA',player_image:''},{sports_gamer_player_id:5240,player_country:'US',player_image:'source.png'},{sports_gamer_player_id:7,player_image:'source.png'},{sports_gamer_player_id:8,player_image:'fallback.png'}]};
+ const linked=await portraits.api.withPortraits(original);
+ assert.equal(linked.players[0].player_image,'published-canadian.png');assert.equal(linked.players[1].player_image,'published-american.png');assert.equal(linked.players[2].player_image,'newest.png');assert.equal(linked.players[3].player_image,'fallback.png');assert.equal(original.players[0].player_image,'');assert.equal(imageCalls,1);
+ portraits.ctx.fetch=async()=>({ok:false});await assert.rejects(portraits.api.withPortraits(original),/publicerade spelarbilder/);
  console.log('Transient data: single-flight, polling, memory cache, scope, expiry, auth failures and no persistent storage passed.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
