@@ -158,18 +158,20 @@ window.createExtraGraphicsTemplates=function(api){
     });
     out+=text(mid,teamY+logoSize*.62,'VS',wide?40:32,'#ffcf4a','middle');
     const date=value('extraDate'),dateLabel=date&&window.GraphicsWeeklyTeam?window.GraphicsWeeklyTeam.periodLabel(date,date,window.GraphicsLanguage?.locale||'sv-SE'):date;
-    const sy=wide?top:teamY+logoSize+66,head=56,footer=68,rows=Math.max(games.length,1),rh=Math.min(wide?78:82,(bottom-sy-head-footer)/rows),sh=head+rows*rh+footer;
+    const sy=wide?top:teamY+logoSize+66,head=56,footer=(dateLabel||value('extraWatch'))?68:18,rows=Math.max(games.length,1),rh=Math.min(wide?90:H>=1350?104:82,(bottom-sy-head-footer)/rows),sh=head+rows*rh+footer;
     out+=panel(right,sy,sw,sh)+text(right+24,sy+35,english?'SERIES SCHEDULE':'SERIESCHEMA',21,'#ffcf4a');
     if(games.length)games.forEach((g,i)=>{
      const y=sy+head+i*rh,badgeW=english?154:135;
      out+='<g data-series-row="'+g.game+'"><path d="M '+(right+20)+' '+y+' H '+(right+sw-20)+'" stroke="#66879d" stroke-opacity=".3"/><rect x="'+(right+20)+'" y="'+(y+rh*.22)+'" width="48" height="'+(rh*.56)+'" rx="6" fill="'+(g.optional?'#173246':'#ffcf4a')+'"/>'+text(right+44,y+rh*.61,'G'+g.game,20,g.optional?'#b9cedc':'#071a28','middle');
      const available=sw-110-(g.optional?badgeW:0),size=Math.min(26,available/Math.max(1,g.time.length)/.66);
      out+=text(right+88,y+rh*.61,g.time,size,'#fff');
-     if(g.optional)out+=text(right+sw-22,y+rh*.61,english?'IF NECESSARY':'VID BEHOV',13,'#a8bdcc','end');
+     if(g.optional)out+=text(right+sw-22,y+rh*.61,english?'IF NECESSARY':'VID BEHOV',17,'#a8bdcc','end');
      out+='</g>';
     });else out+=text(right+24,sy+head+rh*.6,'Lägg till matchtider i panelen',24,'#a8bdcc');
-    out+='<path d="M '+(right+20)+' '+(sy+sh-footer)+' H '+(right+sw-20)+'" stroke="#66879d" stroke-opacity=".3"/>';
-    out+=text(right+24,sy+sh-37,dateLabel||'',19,'#ffcf4a')+text(right+24,sy+sh-14,value('extraWatch'),Math.min(17,(sw-48)/Math.max(1,value('extraWatch').length)/.65),'#a8bdcc');
+    if(footer>18){
+     out+='<path d="M '+(right+20)+' '+(sy+sh-footer)+' H '+(right+sw-20)+'" stroke="#66879d" stroke-opacity=".3"/>';
+     out+=text(right+24,sy+sh-37,dateLabel||'',19,'#ffcf4a')+text(right+24,sy+sh-14,value('extraWatch'),Math.min(17,(sw-48)/Math.max(1,value('extraWatch').length)/.65),'#a8bdcc');
+    }
     return base(out);
    }
    const cw=(W-m*2)*.42,y=top+height*.09;
