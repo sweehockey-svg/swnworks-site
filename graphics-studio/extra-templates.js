@@ -75,7 +75,7 @@ window.createExtraGraphicsTemplates=function(api){
    if(!data.matches)throw new Error('Inga importerade matcher under vald period. Dina val har behållits.');
    if(!data.complete)throw new Error('Matchunderlaget är ofullständigt. Automatvalet har inte ändrat dina spelare.');
    const picks=window.GraphicsWeeklyTeam.select(data.candidates,new Set(groupPlayers().map(playerKey)),forwardMetric);
-   weeklySelections=picks;weeklyPeriod=data.start+' – '+data.end;
+   weeklySelections=picks;weeklyPeriod=data.start===data.end?data.start:data.start+' – '+data.end;
    for(const slot of ['LW','C','RW','LD','RD','G'])get('extraSix'+slot).value=picks[slot]?picks[slot].source_team_id+':'+picks[slot].source_player_id:'';
    const count=Object.keys(picks).length;
    status.textContent=weeklyPeriod+' · '+(forwardMetric==='average'?'Forwards: poäng per match.':'Forwards: totalpoäng.')+' '+count+'/6 platser fyllda från '+data.matches+' matcher.'+(count<6?' Övriga positioner saknar kvalificerat underlag.':' Du kan ändra valen manuellt.');
@@ -90,6 +90,7 @@ window.createExtraGraphicsTemplates=function(api){
  }
  const playerKey=p=>String(p.sports_gamer_team_id)+':'+String(p.sports_gamer_player_id);
  function sync(){
+  TIT.weekly_six=value('extraWeek')&&value('extraWeek')===value('extraWeekEnd')?'DAGENS LAG':'VECKANS LAG';
   if(weeklyLeague!==S.league||weeklyGroup!==S.filterGroup){weeklyLeague=S.league;weeklyGroup=S.filterGroup;weeklyPeriod='';weeklySelections={};for(const slot of ['LW','C','RW','LD','RD','G'])get('extraSix'+slot).value='';}
   section.hidden=!kinds.has(S.kind);if(section.hidden)return;
   section.querySelectorAll('[data-extra-kinds]').forEach(el=>el.hidden=!el.dataset.extraKinds.split(' ').includes(S.kind));

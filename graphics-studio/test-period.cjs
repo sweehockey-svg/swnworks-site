@@ -8,8 +8,11 @@ const document={createElement:el,getElementById:id=>{if(!fields.has(id))fields.s
 let request,resolveRequest;
 const context={document,window:{GraphicsWeeklyTeam:weekly,SWNStudioAccess:{session:async()=>({access_token:'test'})},EHOCKEY_CONFIG:{supabaseUrl:'https://example.invalid',supabasePublishableKey:'test'}},fetch:async(url,options)=>{request={url,body:JSON.parse(options.body)};return new Promise(resolve=>{resolveRequest=()=>resolve({ok:true,json:async()=>({supported:true,matches:1,complete:true,start:'2026-10-12',end:'2026-10-16',candidates:[]})})})}};
 vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/extra-templates.js','utf8'),context);
-const templates=context.window.createExtraGraphicsTemplates({S:{kind:'weekly_six',league:532,players:[],teams:[]},TIT:{},esc:String,render(){}});
+const titles={};
+const templates=context.window.createExtraGraphicsTemplates({S:{kind:'weekly_six',league:532,players:[],teams:[]},TIT:titles,esc:String,render(){}});
 const get=id=>document.getElementById(id);
+get('extraWeek').value='2026-10-15';get('extraWeekEnd').value='2026-10-15';templates.sync();assert.equal(titles.weekly_six,'DAGENS LAG');
+get('extraWeekEnd').value='2026-10-16';templates.sync();assert.equal(titles.weekly_six,'VECKANS LAG');
 get('extraWeek').value='2026-10-12';get('extraWeekEnd').value='2026-10-16';get('extraForwardMetric').value='total';
 (async()=>{
  const pending=get('extraAutoWeek').events.click();await new Promise(setImmediate);
@@ -20,6 +23,7 @@ get('extraWeek').value='2026-10-12';get('extraWeekEnd').value='2026-10-16';get('
  const languageContext={window:{},localStorage:{getItem:()=>null,setItem(){}},NodeFilter:{SHOW_TEXT:4},document:{documentElement:{},querySelector:()=>({}),body:{},createTreeWalker:()=>({nextNode:()=>false}),querySelectorAll:()=>[]}};
  vm.createContext(languageContext);vm.runInContext(fs.readFileSync(__dirname+'/language.js','utf8'),languageContext);
  const L=languageContext.window.GraphicsLanguage;
+ L.set('en');assert.equal(L.t('DAGENS LAG'),'TEAM OF THE DAY');
  for(const [lang,title] of [['en','TEAM OF THE WEEK'],['fi','VIIKON JOUKKUE'],['sv','VECKANS LAG']]){L.set(lang);assert.equal(L.t('VECKANS LAG'),title)}
  console.log('Custom period: weekday starts, inclusive single day, invalid dates, RPC parameters, stale responses and three languages passed.');
 })().catch(error=>{console.error(error);process.exitCode=1});
