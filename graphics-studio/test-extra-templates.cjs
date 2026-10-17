@@ -21,6 +21,18 @@ for(const [w,h] of [[1080,1350],[1080,1080],[1080,1920],[1920,1080]]){
  size={w,h};
  for(const button of buttons){S.kind=button.dataset.kind;const svg=templates.graphic();assert(svg.startsWith('<svg>'));assert(!/NaN|undefined/.test(svg),S.kind);assert(!svg.includes('Välj'),S.kind);}
 }
+S.kind='weekly_six';size={w:1920,h:1080};
+const wideSvg=templates.graphic(),cards=[...wideSvg.matchAll(/data-weekly-slot="([^"]+)"[^>]*><rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)].map(m=>({slot:m[1],x:+m[2],y:+m[3],w:+m[4],h:+m[5]}));
+assert.equal(cards.length,6);
+for(let i=0;i<cards.length;i++){
+ const card=cards[i];assert(card.h/card.w>1.8,'Landscape cards must be portrait-shaped');
+ assert(card.x>=0&&card.x+card.w<=1920&&card.y>=320&&card.y+card.h<1000);
+ if(i)assert(card.x>=cards[i-1].x+cards[i-1].w,'Cards must not overlap');
+}
+assert(cards[3].x-(cards[2].x+cards[2].w)>30,'Forward and defense groups have a clear gap');
+assert(cards[5].x-(cards[4].x+cards[4].w)>30,'Goalie has a clear group gap');
+assert(wideSvg.includes('BACKAR')&&wideSvg.includes('MÅLVAKT'));
+console.log('16:9: six tall portrait cards, no overlap, role groups and safe canvas bounds passed.');
 S.kind='player_duel';set('extraPlayerB','1:1');assert(templates.graphic().includes('olika spelare'));
 S.kind='weekly_six';set('extraSixG','1:1');assert(templates.graphic().includes('olika spelare'));
 S.kind='playoff_series';set('extraSeriesHome',4);assert(templates.graphic().includes('Kontrollera'));
