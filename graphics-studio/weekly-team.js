@@ -38,6 +38,10 @@
   }
   return selected;
  }
- root.GraphicsWeeklyTeam={sunday,select};
+ function validRange(start,end){
+  const valid=s=>/^\d{4}-\d{2}-\d{2}$/.test(s)&&Number.isFinite(Date.parse(s+'T12:00:00Z'))&&new Date(s+'T12:00:00Z').toISOString().slice(0,10)===s;
+  return valid(start)&&valid(end)&&start>='2020-01-01'&&end>=start;
+ }
+ root.GraphicsWeeklyTeam={sunday,select,validRange};
  if(typeof module==='object')module.exports=root.GraphicsWeeklyTeam;
 })(typeof window==='object'?window:globalThis);

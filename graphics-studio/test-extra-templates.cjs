@@ -8,6 +8,7 @@ const S={kind:'game_night',logos:true,teams:[{sports_gamer_team_id:1,team_name_i
 let size={w:1080,h:1350};
 const escape=t=>String(t??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const api={S,TIT:{},format:()=>size,base:s=>'<svg>'+s+'</svg>',logos:()=>new Map([['1','logo1'],['2','logo2']]),img:(u,x,y,w)=>'<image href="'+escape(u)+'"/>',svgText:(x,y,t,size)=>'<text x="'+x+'" y="'+y+'">'+escape(t)+'</text>',esc:escape,portraitUrl:()=>'',normalizedPortrait:()=>'',rosterStatsValues:()=>[['GP',4],['G',2],['A',3],['P',5]],render(){}};
+api.nationFlag=()=>'';
 const templates=context.window.createExtraGraphicsTemplates(api);
 assert.equal(buttons.length,7);assert.equal(counter.textContent,'25 MALLAR');
 assert.equal(buttons.at(-1).dataset.kind,'welcome_player');
