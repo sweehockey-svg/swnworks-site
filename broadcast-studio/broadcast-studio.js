@@ -62,6 +62,7 @@
     { sports_gamer_team_id: 3252, team_name_in_league: "Västerås IK", team_logo_in_league: "https://sportsgamer.gg/storage/team-logos/520/3252/VIK-prima%CC%88r@4x_20260612-174642.png" }
   ];
   const data = { teams: [], players: [], playoffs: [] };
+  let tournamentDataRequest=0,currentSourceReference=null,sourcePayload=null,sourceProvider=null;
   const COMMENTATORS = {
     mkine: { name: 'Marko “mkine” Mäkinen', image: '' },
     flacken: { name: 'Peter “Flacken” Novara', image: 'https://www.svenskehockey.se/players/flacken.png' },
@@ -490,7 +491,7 @@
     $("#dataStatus").textContent = Object.entries(status).map(([key, state]) => labels[key] + ": " + ({ loading: tx("loading"), ready: tx("ready"), empty: tx("empty"), error: tx("loadError") }[state])).join(" · ");
   }
 
-  async function loadPart(key, view, render) {
+  async function loadPart(key, view, render, request=tournamentDataRequest) {
     const leagueId=activeLeagueId;
     try {
       const cfg=window.EHOCKEY_CONFIG||{};
@@ -502,13 +503,13 @@
       const response=await fetch(url,{headers,signal:AbortSignal.timeout(15000),cache:"no-store"});
       if(!response.ok)throw new Error(view+" HTTP "+response.status);
       const rows=await response.json();
-      if(activeLeagueId!==leagueId)return;
+      if(activeLeagueId!==leagueId||(key!=="playoffs"&&request!==tournamentDataRequest))return;
       if(!Array.isArray(rows)||rows.some(row=>!row||!same(row.sports_gamer_league_id,leagueId)||row.sports_gamer_team_id==null||typeof row.team_name_in_league!=="string"||(key==="players"&&(row.sports_gamer_player_id==null||typeof row.display_gamertag!=="string"))))throw new Error(view+": "+tx("loadError"));
       data[key]=key==="players"?[...new Map(rows.map(p=>[p.sports_gamer_team_id+":"+p.sports_gamer_player_id,p])).values()]:rows;
       status[key]=rows.length?"ready":"empty";
       render();
     } catch(error) {
-      if(activeLeagueId!==leagueId)return;
+      if(activeLeagueId!==leagueId||(key!=="playoffs"&&request!==tournamentDataRequest))return;
       status[key]="error";
       console.error("Broadcast "+key+":",error);
     }
@@ -516,13 +517,15 @@
   }
 
   async function loadTournamentData(){
+    const request=++tournamentDataRequest;
+    sourceProvider?.reset();currentSourceReference=null;sourcePayload=null;
     data.teams=[];data.players=[];data.playoffs=[];lineups.clear();
     status.teams="loading";status.players="loading";status.playoffs="loading";
     renderStatus();renderAllCompetitionData();
     await Promise.all([
-      loadPart("teams","v_broadcast_teams_public",()=>{renderTeams();renderStats();renderTable();renderTeamCompare();renderFormGuide();renderOffense();renderRoad();renderLineup();}),
-      loadPart("players","v_broadcast_players_public",()=>{renderLineup();renderLeaders();renderScorers();renderDefenseLeaders();renderGoalieLeaders();renderOffense();renderRoleMatchups();}),
-      loadPart("playoffs","v_broadcast_playoffs_public",renderRoad)
+      loadPart("teams","v_broadcast_teams_public",()=>{renderTeams();renderStats();renderTable();renderTeamCompare();renderFormGuide();renderOffense();renderRoad();renderLineup();},request),
+      loadPart("players","v_broadcast_players_public",()=>{renderLineup();renderLeaders();renderScorers();renderDefenseLeaders();renderGoalieLeaders();renderOffense();renderRoleMatchups();},request),
+      loadPart("playoffs","v_broadcast_playoffs_public",renderRoad,request)
     ]);
   }
 
@@ -541,7 +544,7 @@
 
   function renderSeries(){const bo=Number($("#seriesFormat")?.value||5),need=Math.ceil(bo/2),hw=Math.max(0,Math.min(need,Number($("#seriesHome")?.value||0))),aw=Math.max(0,Math.min(need,Number($("#seriesAway")?.value||0))),round=($("#seriesRound")?.value||tx("playoffs")).trim().toLocaleUpperCase(LOCALE),h=selectedTeam("home"),a=selectedTeam("away");$("#seriesHomeScore").textContent=hw;$("#seriesAwayScore").textContent=aw;$("#seriesKicker").textContent=round+" · "+seriesBestOf(bo);const dots=(wins)=>Array.from({length:need},(_,i)=>'<i class="'+(i<wins?"won":"")+'"></i>').join("");$("#seriesHomeDots").innerHTML=dots(hw);$("#seriesAwayDots").innerHTML=dots(aw);const done=hw===need||aw===need;$("#seriesTitle").textContent=done?(hw===need?h.team_name_in_league:a.team_name_in_league)+" "+tx("winsSeries"):tx("seriesState");$("#seriesNext").textContent=done?tx("seriesDone")+" · "+hw+"–"+aw:tx("nextMatch")+" · "+(hw+aw+1);const showResults=!!$("#seriesShowResults")?.checked,results=Array.from({length:bo},(_,i)=>($("#seriesR"+(i+1))?.value||"").trim()).map((v,i)=>v?'<span><b>M'+(i+1)+'</b> '+esc(v.replace(/\s+/g,""))+'</span>':"").filter(Boolean),resultBox=$("#seriesResults");if(resultBox){resultBox.hidden=!showResults||!results.length;$("#seriesResultsList").innerHTML=results.join("");}for(let i=1;i<=7;i++){const label=$("#seriesR"+i)?.closest("label");if(label)label.hidden=i>bo;}["seriesHome","seriesAway"].forEach(id=>{const el=$("#"+id);if(el)el.max=need;});}
 
-  function studioState(){const ls={};["home","away"].forEach(side=>{const l=lineupFor(side);ls[side]={};SLOTS.forEach(slot=>ls[side][slot]=l[slot]||"");});return {matchName:String(window.__sehTwitchState?.matchName||""),leagueId:activeLeagueId,theme:$("#theme")?.value||"broadcast",backgroundPackage:$("#theme")?.value||"broadcast",graphicsPackage:$("#graphicsPackage")?.value||"standard",seriesFormat:$("#seriesFormat")?.value||"5",seriesRound:$("#seriesRound")?.value||tx("playoffs"),seriesHome:$("#seriesHome")?.value||"0",seriesAway:$("#seriesAway")?.value||"0",seriesShowResults:!!$("#seriesShowResults")?.checked,seriesResults:Array.from({length:7},(_,i)=>$("#seriesR"+(i+1))?.value||""),scene:activeScene,lineupSide:$("#lineupSide").value,home:$("#home").value,away:$("#away").value,hs:$("#hs").value,as:$("#as").value,headline:$("#headline").value,subline:$("#subline").value,commentator1:$("#commentator1").value,commentator2:$("#commentator2").value,person:$("#person").value,role:$("#role").value,videoSource:$("#videoSource")?.value||"twitch",hlsUrl:$("#hlsUrl")?.value||"",twitchChannel:$("#twitchChannel")?.value||"",twitchShow:$("#showTwitch")?.checked!==false,twitchMute:$("#muteTwitch")?.checked!==false,liveTeamStripShow:$("#showLiveTeamStrip")?.checked!==false,liveCommentatorsShow:!!$("#showLiveCommentators")?.checked,lineups:ls};}
+  function studioState(){const ls={};["home","away"].forEach(side=>{const l=lineupFor(side);ls[side]={};SLOTS.forEach(slot=>ls[side][slot]=l[slot]||"");});return {transientSource:currentSourceReference,matchName:String(window.__sehTwitchState?.matchName||""),leagueId:activeLeagueId,theme:$("#theme")?.value||"broadcast",backgroundPackage:$("#theme")?.value||"broadcast",graphicsPackage:$("#graphicsPackage")?.value||"standard",seriesFormat:$("#seriesFormat")?.value||"5",seriesRound:$("#seriesRound")?.value||tx("playoffs"),seriesHome:$("#seriesHome")?.value||"0",seriesAway:$("#seriesAway")?.value||"0",seriesShowResults:!!$("#seriesShowResults")?.checked,seriesResults:Array.from({length:7},(_,i)=>$("#seriesR"+(i+1))?.value||""),scene:activeScene,lineupSide:$("#lineupSide").value,home:$("#home").value,away:$("#away").value,hs:$("#hs").value,as:$("#as").value,headline:$("#headline").value,subline:$("#subline").value,commentator1:$("#commentator1").value,commentator2:$("#commentator2").value,person:$("#person").value,role:$("#role").value,videoSource:$("#videoSource")?.value||"twitch",hlsUrl:$("#hlsUrl")?.value||"",twitchChannel:$("#twitchChannel")?.value||"",twitchShow:$("#showTwitch")?.checked!==false,twitchMute:$("#muteTwitch")?.checked!==false,liveTeamStripShow:$("#showLiveTeamStrip")?.checked!==false,liveCommentatorsShow:!!$("#showLiveCommentators")?.checked,lineups:ls};}
   function applyScene(name,side){
     const next=name||"opening";
     const nextSide=side||$("#lineupSide").value;
@@ -596,11 +599,12 @@
       screen.classList.remove("scene-switching");
     },420);
   }
-  function applyRemoteState(s){if(!s||typeof s!=="object")return;remoteApplying=true;const incomingLeague=Number(s.leagueId||activeLeagueId);if(COMPETITIONS[incomingLeague]&&incomingLeague!==activeLeagueId){activeLeagueId=incomingLeague;if($("#tournament"))$("#tournament").value=String(activeLeagueId);applyCompetitionChrome(false);loadTournamentData();}setTheme(s.backgroundPackage||s.theme||"broadcast");setGraphicsPackage(s.graphicsPackage||"standard");if($("#videoSource")&&s.videoSource!==undefined)$("#videoSource").value=s.videoSource||"twitch";if($("#hlsUrl")&&s.hlsUrl!==undefined)$("#hlsUrl").value=s.hlsUrl||"";if($("#twitchChannel")&&s.twitchChannel!==undefined)$("#twitchChannel").value=s.twitchChannel||"";if($("#showTwitch")&&s.twitchShow!==undefined)$("#showTwitch").checked=!!s.twitchShow;if($("#muteTwitch")&&s.twitchMute!==undefined)$("#muteTwitch").checked=!!s.twitchMute;if($("#showLiveTeamStrip")&&s.liveTeamStripShow!==undefined)$("#showLiveTeamStrip").checked=!!s.liveTeamStripShow;if($("#showLiveCommentators")&&s.liveCommentatorsShow!==undefined)$("#showLiveCommentators").checked=!!s.liveCommentatorsShow;$("#screen")?.classList.toggle("live-team-strip-off",$("#showLiveTeamStrip")?.checked===false);$("#screen")?.classList.toggle("live-commentators-off",!$("#showLiveCommentators")?.checked);window.__sehTwitchState=s;["home","away"].forEach(id=>{if(s[id]!==undefined&&$("#"+id)){const el=$("#"+id),v=String(s[id]);if(v&&![...el.options].some(o=>o.value===v))el.add(new Option(tx("team"),v));el.value=v;}});["hs","as","headline","subline","commentator1","commentator2","person","role","seriesFormat","seriesRound","seriesHome","seriesAway"].forEach(id=>{if(s[id]!==undefined&&$("#"+id))$("#"+id).value=s[id];});if($("#seriesShowResults")&&s.seriesShowResults!==undefined)$("#seriesShowResults").checked=!!s.seriesShowResults;if(Array.isArray(s.seriesResults))s.seriesResults.slice(0,7).forEach((v,i)=>{const el=$("#seriesR"+(i+1));if(el)el.value=v||"";});if(s.lineups){["home","away"].forEach(side=>{if(!s.lineups[side])return;const key=side+":"+String(selectedTeam(side).sports_gamer_team_id);const next={};SLOTS.forEach(slot=>next[slot]=String(s.lineups[side][slot]||""));lineups.set(key,next);});}applyScene(s.scene,s.lineupSide);window.dispatchEvent(new CustomEvent("seh:twitch-state",{detail:s}));renderMatch();renderSeries();renderLineup();renderStats();renderTable();renderTeamCompare();renderScorers();renderFormGuide();renderOffense();renderDefenseLeaders();renderGoalieLeaders();renderRoad();renderLeaders();renderRoleMatchups();remoteApplying=false;}
+  function applyRemoteState(s){if(!s||typeof s!=="object")return;remoteApplying=true;const incomingLeague=Number(s.leagueId||activeLeagueId);if(COMPETITIONS[incomingLeague]&&incomingLeague!==activeLeagueId){activeLeagueId=incomingLeague;if($("#tournament"))$("#tournament").value=String(activeLeagueId);applyCompetitionChrome(false);loadTournamentData();}if(Object.hasOwn(s,"transientSource"))void sourceProvider?.receive(s.transientSource);setTheme(s.backgroundPackage||s.theme||"broadcast");setGraphicsPackage(s.graphicsPackage||"standard");if($("#videoSource")&&s.videoSource!==undefined)$("#videoSource").value=s.videoSource||"twitch";if($("#hlsUrl")&&s.hlsUrl!==undefined)$("#hlsUrl").value=s.hlsUrl||"";if($("#twitchChannel")&&s.twitchChannel!==undefined)$("#twitchChannel").value=s.twitchChannel||"";if($("#showTwitch")&&s.twitchShow!==undefined)$("#showTwitch").checked=!!s.twitchShow;if($("#muteTwitch")&&s.twitchMute!==undefined)$("#muteTwitch").checked=!!s.twitchMute;if($("#showLiveTeamStrip")&&s.liveTeamStripShow!==undefined)$("#showLiveTeamStrip").checked=!!s.liveTeamStripShow;if($("#showLiveCommentators")&&s.liveCommentatorsShow!==undefined)$("#showLiveCommentators").checked=!!s.liveCommentatorsShow;$("#screen")?.classList.toggle("live-team-strip-off",$("#showLiveTeamStrip")?.checked===false);$("#screen")?.classList.toggle("live-commentators-off",!$("#showLiveCommentators")?.checked);window.__sehTwitchState=s;["home","away"].forEach(id=>{if(s[id]!==undefined&&$("#"+id)){const el=$("#"+id),v=String(s[id]);if(v&&![...el.options].some(o=>o.value===v))el.add(new Option(tx("team"),v));el.value=v;}});["hs","as","headline","subline","commentator1","commentator2","person","role","seriesFormat","seriesRound","seriesHome","seriesAway"].forEach(id=>{if(s[id]!==undefined&&$("#"+id))$("#"+id).value=s[id];});if($("#seriesShowResults")&&s.seriesShowResults!==undefined)$("#seriesShowResults").checked=!!s.seriesShowResults;if(Array.isArray(s.seriesResults))s.seriesResults.slice(0,7).forEach((v,i)=>{const el=$("#seriesR"+(i+1));if(el)el.value=v||"";});if(s.lineups){["home","away"].forEach(side=>{if(!s.lineups[side])return;const key=side+":"+String(selectedTeam(side).sports_gamer_team_id);const next={};SLOTS.forEach(slot=>next[slot]=String(s.lineups[side][slot]||""));lineups.set(key,next);});}applyScene(s.scene,s.lineupSide);window.dispatchEvent(new CustomEvent("seh:twitch-state",{detail:s}));renderMatch();renderSeries();renderLineup();renderStats();renderTable();renderTeamCompare();renderScorers();renderFormGuide();renderOffense();renderDefenseLeaders();renderGoalieLeaders();renderRoad();renderLeaders();renderRoleMatchups();remoteApplying=false;}
   async function remoteRequest(method,body){const cfg=window.EHOCKEY_CONFIG||{};if(!cfg.supabaseUrl||!cfg.supabasePublishableKey)return;const key=String(cfg.supabasePublishableKey),headers={apikey:key,Accept:"application/json","Content-Type":"application/json"};if(/^eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(key))headers.Authorization="Bearer "+key;if(method!=="GET"){const session=await window.SWNStudioAccess?.session();if(!session)throw new Error("Admininloggning krävs.");headers.Authorization="Bearer "+session.access_token;}const url=String(cfg.supabaseUrl).replace(/\/+$/,"")+"/rest/v1/broadcast_studio_state?channel=eq."+encodeURIComponent(REMOTE_CHANNEL);const res=await fetch(url,{method,headers,body:body?JSON.stringify(body):undefined,cache:"no-store"});if(!res.ok)throw new Error("Broadcast state HTTP "+res.status);return method==="GET"?res.json():null;}
   // Preparing a match must never publish its state to the program output.
-  let programState=null,programHeld=true,canResumeProgram=false;
+  let programState=null,programHeld=true,canResumeProgram=false,takeSequence=0;
   function holdProgram(){
+    takeSequence++;
     if(!programHeld)programState=structuredClone(studioState());
     programHeld=true;clearTimeout(remoteTimer);
   }
@@ -617,10 +621,17 @@
   window.__sehStudioHasProgram=()=>!!programState||!programHeld;
   window.__sehStudioHoldOutput=holdProgram;
   window.__sehStudioRestore=s=>{holdProgram();applyRemoteState(s);};
-  window.__sehStudioTake=s=>{
-    clearTimeout(remoteTimer);applyRemoteState(s);
+  window.__sehStudioTake=async s=>{
+    holdProgram();const seq=++takeSequence;clearTimeout(remoteTimer);applyRemoteState(s);
+    if(s.transientSource){
+      const ref=window.BroadcastTransientSource.reference(s.transientSource,activeLeagueId);
+      if(!ref||Date.parse(ref.expires_at)<=Date.now()||!await sourceProvider?.receive(ref))return false;
+    }
+    if(seq!==takeSequence||Number(s.leagueId||activeLeagueId)!==activeLeagueId)return false;
+    applyRemoteState(s);
     programState=structuredClone(studioState());programHeld=false;canResumeProgram=true;
     publicNoMatch=false;publicNextMatch=null;publishState();
+    return true;
   };
   window.__sehStudioIdle=enabled=>{
     if(!enabled&&!canResumeProgram)return publicNoMatch;
@@ -740,6 +751,25 @@
   renderRoleMatchups();
   renderStatus();
   applyCompetitionChrome(false);
+  const temporaryStatus=document.createElement('small');temporaryStatus.id='transientBroadcastStatus';temporaryStatus.className='control-note';temporaryStatus.setAttribute('role','status');temporaryStatus.setAttribute('aria-live','polite');
+  if(!OBS_MODE&&!VIEWER_MODE){
+    const button=document.createElement('button');button.type='button';button.id='fetchBroadcastData';button.className='button';button.textContent='Hämta från SportsGamer';
+    $('#tournament')?.closest('label')?.after(button,temporaryStatus);
+    temporaryStatus.textContent='Tillfällig hämtning. Inga spelare importeras till registret. Kan ta någon minut.';
+    button.addEventListener('click',async()=>{if(button.disabled)return;button.disabled=true;try{const applied=await sourceProvider.refresh();if(applied)publishState();}finally{button.disabled=false;}});
+  }
+  sourceProvider=window.BroadcastTransientSource?.create({
+    getLeague:()=>activeLeagueId,
+    onStatus:message=>{temporaryStatus.textContent=message;},
+    onLegacy:()=>{if(currentSourceReference){currentSourceReference=null;sourcePayload=null;void loadTournamentData();}},
+    onData:(payload,reference)=>{
+      tournamentDataRequest++;sourcePayload=payload;currentSourceReference=reference;
+      data.teams=payload.teams;data.players=[...new Map(payload.players.map(p=>[p.sports_gamer_team_id+':'+p.sports_gamer_player_id,p])).values()];
+      status.teams=data.teams.length?'ready':'empty';status.players=data.players.length?'ready':'empty';
+      document.documentElement.dataset.broadcastDataSource='temporary';
+      renderAllCompetitionData();renderStatus();
+    }
+  });
   loadTournamentData();
 })();
 

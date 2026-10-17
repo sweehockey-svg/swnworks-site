@@ -78,19 +78,23 @@
       };row.append(remove);get('deskMatches').append(row);
     });get('deskUpdate').disabled=!active;
   };
-  const takeMatch=(m,channel)=>{
-    remember();active=m.id;onAir=m.id;
+  const takeMatch=async(m,channel)=>{
+    remember();active=m.id;
     get('deskName').value=m.name;get('deskStreams').value=m.streams.join('\n');
     const state={...m.state,matchName:m.name};
     if(channel)Object.assign(state,{videoSource:'twitch',twitchChannel:channel,twitchShow:true,scene:'live'});
-    window.__sehStudioTake(state);noMatch=false;updateIdle();persist();render();
+    if(await window.__sehStudioTake(state)===false){get('deskMessage').textContent='Matchen har inte bytts i sändning. Hämta aktuellt SportsGamer-underlag och försök igen.';return;}
+    onAir=m.id;noMatch=false;updateIdle();persist();render();
     get('deskOnAir').textContent='I sändning: '+m.name+(channel?' · '+channel:'');
     get('deskMessage').textContent='Sändningen har bytt till '+m.name+'.';
   };
-  get('deskTake').onclick=()=>{
-    remember();onAir=active;
+  get('deskTake').onclick=async()=>{
+    const button=get('deskTake');if(button.disabled)return;button.disabled=true;
+    remember();
     const name=get('deskName').value.trim()||matches.find(m=>m.id===active)?.name||'Aktuell match';
-    window.__sehStudioTake({...window.__sehStudioSnapshot(),matchName:name});
+    let accepted;try{accepted=await window.__sehStudioTake({...window.__sehStudioSnapshot(),matchName:name});}finally{button.disabled=false;}
+    if(accepted===false){get('deskMessage').textContent='Matchen har inte bytts i sändning. Hämta aktuellt SportsGamer-underlag och försök igen.';return;}
+    onAir=active;
     noMatch=false;updateIdle();persist();render();
     get('deskOnAir').textContent='I sändning: '+name;
     get('deskMessage').textContent='Förberedd match visas nu i sändningen.';

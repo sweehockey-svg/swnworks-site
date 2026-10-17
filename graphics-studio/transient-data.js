@@ -30,9 +30,10 @@
     result=await call({action:'status',request_id:id});
     if(result.state==='completed'){
      if(!valid(result.data,options))throw new Error('Resultatet har fel period eller har gått ut. Försök igen.');
-     cache.set(key,{data:result.data,until:Date.now()+15*60*1000});
+     const data=result.broadcast_ticket?{...result.data,broadcast_ticket:result.broadcast_ticket}:result.data;
+     cache.set(key,{data,until:Date.now()+15*60*1000});
      while(cache.size>4)cache.delete(cache.keys().next().value);
-     return result.data;
+     return data;
     }
    }
    throw new Error('Hämtningen tar för lång tid. Försök igen senare. Dina val har behållits.');
