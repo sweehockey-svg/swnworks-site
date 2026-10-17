@@ -41,7 +41,8 @@
   <aside class="controls">
     <section class="block" style="padding-top:0" aria-label="Turnering och uppdatering">
       <label><span>TURNERING</span><select id="league"><option value="527" selected>SCL 27</option><option value="529">FCL 27</option><option value="532">WV 4 Nations 2026</option><option value="523">WECL</option><option value="524">GCL 13 · Div I</option><option value="525">GCL 13 · Div II</option><option value="526">GCL 13 · Pokal</option><option value="520">SEC 21</option></select></label>
-      <button class="refresh" id="refresh">↻ Uppdatera live-data</button>
+      <button class="refresh" id="refresh">Hämta från SportsGamer</button>
+      <p class="note" id="transientFetchStatus" role="status">Tillfällig hämtning, utan import till spelarregistret. Kan ta någon minut.</p>
     </section>
 
     <section class="block">
@@ -141,8 +142,9 @@
 <script  type="text/plain" data-studio-src="manual-results.js?v=20261011-overtime"></script>
 <script type="text/plain" data-studio-src="standings-order.js?v=20261011-scl-tiebreak"></script>
 <script type="text/plain" data-studio-src="weekly-team.js?v=20261017-editorial"></script>
-<script type="text/plain" data-studio-src="extra-templates.js?v=20261017-wide-team"></script>
-<script type="text/plain" data-studio-src="app.js?v=20261017-weekly-crop"></script>
+<script type="text/plain" data-studio-src="transient-data.js?v=20261017-session"></script>
+<script type="text/plain" data-studio-src="extra-templates.js?v=20261017-session"></script>
+<script type="text/plain" data-studio-src="app.js?v=20261017-session"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script src="/studio-access.js?v=20261010-admin1"></script>
 </body>
 </html>

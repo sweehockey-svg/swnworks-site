@@ -66,14 +66,23 @@ window.createExtraGraphicsTemplates=function(api){
   if(!window.GraphicsWeeklyTeam.validRange(date,end)){status.textContent='Välj giltiga start- och slutdatum. Slutdatum får inte vara före startdatum.';return;}
   weekLoading=true;button.disabled=true;status.textContent='Hämtar periodens matchstatistik…';
   try{
+   let data,payload;
+   if(window.GraphicsTransientData){
+    payload=await window.GraphicsTransientData.request({league,start:date,end,onProgress:message=>{if(league===S.league)status.textContent=message;}});
+    if(league!==S.league||group!==S.filterGroup||date!==value('extraWeek')||end!==value('extraWeekEnd')||forwardMetric!==(value('extraForwardMetric')||'total'))return;
+    data=payload.weekly;
+   }else{
    const session=await window.SWNStudioAccess.session(),cfg=window.EHOCKEY_CONFIG;
    const response=await fetch(cfg.supabaseUrl.replace(/\/+$/,'')+'/rest/v1/rpc/graphics_period_candidates',{method:'POST',headers:{apikey:cfg.supabasePublishableKey,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({p_league:league,p_start:date,p_end:end})});
    if(!response.ok)throw new Error('Kunde inte hämta veckounderlaget. Kontrollera inloggningen och försök igen.');
-   const data=await response.json();
+   data=await response.json();
+   }
    if(league!==S.league||group!==S.filterGroup||date!==value('extraWeek')||end!==value('extraWeekEnd')||forwardMetric!==(value('extraForwardMetric')||'total'))return;
    if(!data.supported)throw new Error(data.message||'Matchunderlag saknas för denna turnering.');
-   if(!data.matches)throw new Error('Inga importerade matcher under vald period. Dina val har behållits.');
+   if(!data.matches)throw new Error('Inga matcher under vald period. Dina val har behållits.');
    if(!data.complete)throw new Error('Matchunderlaget är ofullständigt. Automatvalet har inte ändrat dina spelare.');
+   if(payload)await api.useTransientData(payload);
+   if(league!==S.league||group!==S.filterGroup||date!==value('extraWeek')||end!==value('extraWeekEnd')||forwardMetric!==(value('extraForwardMetric')||'total'))return;
    const picks=window.GraphicsWeeklyTeam.select(data.candidates,new Set(groupPlayers().map(playerKey)),forwardMetric);
    weeklySelections=picks;weeklyCandidates=data.candidates;weeklyDates={start:data.start,end:data.end};weeklyPeriod=window.GraphicsWeeklyTeam.periodLabel(data.start,data.end,window.GraphicsLanguage?.locale||'sv-SE');
    for(const slot of ['LW','C','RW','LD','RD','G'])get('extraSix'+slot).value=picks[slot]?picks[slot].source_team_id+':'+picks[slot].source_player_id:'';

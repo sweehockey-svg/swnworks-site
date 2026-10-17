@@ -2,7 +2,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const source=fs.readFileSync(__dirname+'/app.js','utf8');
 (async()=>{
  const elements={},ctx={SUPA:'https://example.test',KEY:'public',S:{league:527,kind:'table',teams:[],players:[]},headers:()=>({}),AbortSignal,setTimeout:fn=>fn(),localStorage:{getItem:()=>null,setItem:()=>{}},ManualResults:{reconcile:()=>({removed:[]})},schedule:[],groups:()=>{},render:()=>ctx.rendered=true,L:{t:x=>x},console:{error:()=>{}},esc:String,$:id=>elements[id]||=( {} )};
- vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('async function rows('),source.indexOf('function groupIds(')),ctx);
+ vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('let transientData='),source.indexOf('function groupIds(')),ctx);
  let calls=0;ctx.fetch=async()=>({ok:++calls>1,status:500,json:async()=>['ready']});
  assert.deepEqual(await ctx.rows('players'),['ready']);assert.equal(calls,2);
  calls=0;ctx.fetch=async()=>{calls++;return {ok:false,status:401};};await assert.rejects(ctx.rows('players'),/401/);assert.equal(calls,1);

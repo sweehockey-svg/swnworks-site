@@ -25,7 +25,17 @@ const n=v=>v!==null&&v!==undefined&&v!==""&&Number.isFinite(Number(v))?Number(v)
 const clip=(v,l)=>{v=String(v||"");return v.length>l?v.slice(0,l-1)+"…":v};
 const comp=()=>C[S.league]||{label:"TURNERING",code:"",logo:""}, format=()=>F[S.format]||F.portrait;
 const headers=()=>{const h={apikey:KEY,Accept:"application/json"};if(/^eyJ[^.]+\.[^.]+\.[^.]+$/.test(KEY))h.Authorization="Bearer "+KEY;return h};
+let transientData=null;
+async function useTransientData(data){
+  if(Number(data.league_id)!==S.league||Date.parse(data.expires_at)<=Date.now())return;
+  transientData=data;
+  await load();
+}
 async function rows(view){
+  if(transientData&&Number(transientData.league_id)===S.league&&Date.parse(transientData.expires_at)>Date.now()){
+    if(view==='v_broadcast_teams_public')return transientData.teams;
+    if(view==='v_broadcast_players_public')return transientData.players;
+  }
   if(!SUPA||!KEY)throw new Error("Supabase-konfiguration saknas");
   const u=SUPA+"/rest/v1/"+view+"?sports_gamer_league_id=eq."+S.league+"&select=*";
   for(let attempt=0;attempt<2;attempt++){
@@ -1111,7 +1121,7 @@ async function inline(svg){
 async function expSvg(){await readyPortraits();const s=await inline(build());dl(new Blob([s],{type:"image/svg+xml;charset=utf-8"}),safe()+".svg")}
 async function expPng(){await readyPortraits();const s=await inline(build()),{w,h}=format(),u=URL.createObjectURL(new Blob([s],{type:"image/svg+xml;charset=utf-8"})),im=new Image();try{await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=u});const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(im,0,0,w,h);const b=await new Promise(ok=>c.toBlob(ok,"image/png",1));if(!b)throw new Error("PNG-export misslyckades");dl(b,safe()+".png")}finally{URL.revokeObjectURL(u)}}
 
-const extraTemplates=window.createExtraGraphicsTemplates({S,TIT,format,base,logos,img,svgText,esc,portraitUrl,normalizedPortrait,rosterStatsValues,nationFlag,render});
+const extraTemplates=window.createExtraGraphicsTemplates({S,TIT,format,base,logos,img,svgText,esc,portraitUrl,normalizedPortrait,rosterStatsValues,nationFlag,render,useTransientData});
 $$("[data-kind]").forEach(b=>b.onclick=()=>{$$("[data-kind]").forEach(x=>x.classList.toggle("active",x===b));S.kind=b.dataset.kind;if(S.kind==="matches")load();else render()});
 $("#filterGroup").addEventListener("change",()=>{$("#matchPage").value="0";render()});
 $("#singlePlayer").onchange=()=>{singlePlayerId=$("#singlePlayer").value;render()};
@@ -1154,7 +1164,18 @@ async function exportGraphic(type){
   try{await (type==="png"?expPng():expSvg())}catch(e){console.error("Graphics export:",e);$("#dataStatus").textContent=e.message;alert(e.message)}
   finally{$("#png").disabled=$("#svg").disabled=false;button.textContent=label}
 }
-$("#refresh").onclick=()=>{load()};$("#svg").onclick=()=>exportGraphic("svg");$("#png").onclick=()=>exportGraphic("png");
+$("#refresh").textContent='Hämta från SportsGamer';
+$("#refresh").onclick=async()=>{
+ const button=$("#refresh"),status=$("#transientFetchStatus"),league=S.league;
+ const start=$("#extraWeek")?.value,end=$("#extraWeekEnd")?.value;
+ button.disabled=true;button.title='';button.textContent='Hämtar…';
+ try{
+  const data=await window.GraphicsTransientData.request({league,start,end,onProgress:message=>{status.textContent=message;}});
+  if(league===S.league){await useTransientData(data);status.textContent='Hämtat från SportsGamer. Används tillfälligt på denna sida, utan registerimport.';}
+  else status.textContent='Hämtningen är klar för tidigare vald liga. Den nya ligans grafik har inte ändrats.';
+ }catch(error){status.textContent=error.message;}
+ finally{button.disabled=false;button.textContent='Hämta från SportsGamer';}
+};$("#svg").onclick=()=>exportGraphic("svg");$("#png").onclick=()=>exportGraphic("png");
 $("#language").onchange=()=>{L.set($("#language").value);groups();render()};
 L.applyUi();render();load();
 })();
