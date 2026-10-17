@@ -38,6 +38,7 @@ for(let i=1;i<=6;i++){set('extraSecondGame'+i+'Time','24:00 CET');document.getEl
 for(const [w,h] of [[1080,1350],[1080,1080],[1080,1920],[1920,1080]]){
  size={w,h};const svg=templates.graphic();assert.equal((svg.match(/data-matchday-series=/g)||[]).length,2);assert.equal((svg.match(/data-series-row=/g)||[]).length,11);assert(!/NaN|undefined/.test(svg));
  assert(svg.includes('PURE BO5')&&svg.includes('AGGREGATED BO3'));
+ assert.equal((svg.match(/data-series-start=/g)||[]).length,2);assert.equal((svg.match(/data-secondary-time=/g)||[]).length,9);
  for(const m of svg.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)){assert(+m[1]+ +m[3]<=w+1);assert(+m[2]+ +m[4]<=h-90);}
 }
 set('extraSecondTeamB',2);assert(templates.graphic().includes('två olika lag för serie 2'));

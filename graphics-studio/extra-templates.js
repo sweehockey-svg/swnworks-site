@@ -159,26 +159,31 @@ window.createExtraGraphicsTemplates=function(api){
     if(!a2||!b2)return missing('Välj båda lagen för serie 2');
     if(String(a2.sports_gamer_team_id)===String(b2.sports_gamer_team_id))return missing('Välj två olika lag för serie 2');
     const english=(window.GraphicsLanguage?.locale||'sv').startsWith('en'),gap=24,footer=(value('extraDate')||value('extraWatch'))?64:0;
-    const cardW=wide?(W-m*2-gap)/2:W-m*2,cardH=wide?height-footer:(height-footer-gap)/2,head=W===H?94:112;
+    const cardW=wide?(W-m*2-gap)/2:W-m*2,cardH=wide?height-footer:(height-footer-gap)/2,head=Math.min(154,cardH*.32);
     const specs=[[a,b,'extra',value('extraFirstFormat')||'pure_bo5'],[a2,b2,'extraSecond',value('extraSecondFormat')||'aggregated_bo3']];
     specs.forEach(([ta,tb,prefix,mode],index)=>{
      const x=m+(wide?index*(cardW+gap):0),y=top+(wide?0:index*(cardH+gap)),max=mode==='pure_bo5'?5:6;
      const games=Array.from({length:max},(_,i)=>({game:i+1,time:value(prefix+'Game'+(i+1)+'Time').trim(),optional:get(prefix+'Game'+(i+1)+'Optional').checked})).filter(g=>g.time);
-     const logoSize=W===H?44:58,rh=(cardH-head-14)/Math.max(games.length,1),font=Math.min(27,rh*.48);
+     const logoSize=Math.min(86,Math.max(34,head-60)),primaryH=Math.min(106,cardH*.25),rest=games.slice(1),lineCount=Math.max(1,Math.ceil(rest.length/2)),lineH=Math.min(42,(cardH-head-primaryH-45)/lineCount);
      out+='<g data-matchday-series="'+(index+1)+'">'+panel(x,y,cardW,cardH);
      [[ta,x+20],[tb,x+cardW-20-logoSize]].forEach(([t,lx])=>{const logo=lm.get(String(t.sports_gamer_team_id));if(S.logos&&logo)out+=img(logo,lx,y+16,logoSize);});
      const nameSpace=cardW*.34-logoSize/2;
-     out+=text(x+logoSize+31,y+42,ta.team_name_in_league,Math.min(28,nameSpace/Math.max(1,ta.team_name_in_league.length)/.65));
-     out+=text(x+cardW-logoSize-31,y+42,tb.team_name_in_league,Math.min(28,nameSpace/Math.max(1,tb.team_name_in_league.length)/.65),'#fff','end');
-     out+=text(x+cardW/2,y+42,'VS',20,'#ffcf4a','middle');
+     const short=t=>Number(S.league)===532?({'4N Finland':'FIN','4N Sweden':'SWE','4N Team EU':'EU','4N Team NA':'NA','4N Canada':'CAN','4N USA':'USA'}[t.team_name_in_league]||t.team_name_in_league):t.team_name_in_league;
+     out+=text(x+logoSize+31,y+logoSize*.7+16,short(ta),Math.min(42,nameSpace/Math.max(1,short(ta).length)/.65));
+     out+=text(x+cardW-logoSize-31,y+logoSize*.7+16,short(tb),Math.min(42,nameSpace/Math.max(1,short(tb).length)/.65),'#fff','end');
+     out+=text(x+cardW/2,y+logoSize*.7+16,'VS',24,'#ffcf4a','middle');
      out+=text(x+24,y+head-19,mode==='pure_bo5'?'PURE BO5':'AGGREGATED BO3',W===H?18:21,'#ffcf4a');
-     if(!games.length)out+=text(x+24,y+head+rh*.5,'Lägg till matchtider',24,'#a8bdcc');
-     games.forEach((g,i)=>{
-      const gy=y+head+i*rh,baseline=gy+rh*.63,badgeH=Math.min(38,rh*.65),badgeW=42,tag=g.optional?(english?'IF NECESSARY':'VID BEHOV'):'';
-      out+='<g data-series-row="'+g.game+'"><path d="M '+(x+20)+' '+gy+' H '+(x+cardW-20)+'" stroke="#66879d" stroke-opacity=".3"/><rect x="'+(x+20)+'" y="'+(gy+(rh-badgeH)/2)+'" width="'+badgeW+'" height="'+badgeH+'" rx="5" fill="'+(g.optional?'#173246':'#ffcf4a')+'"/>'+text(x+41,baseline,'G'+g.game,Math.min(20,rh*.43),g.optional?'#b9cedc':'#071a28','middle');
-      const room=cardW-100-(g.optional?150:0),size=Math.min(font,room/Math.max(1,g.time.length)/.66);
-      out+=text(x+78,baseline,g.time,size)+text(x+cardW-20,baseline,tag,Math.min(17,rh*.32),'#a8bdcc','end')+'</g>';
-     });
+     out+='<path d="M '+(x+24)+' '+(y+head-5)+' H '+(x+cardW-24)+'" stroke="#66879d" stroke-opacity=".35"/>';
+     if(!games.length)out+=text(x+24,y+head+50,'Lägg till matchtider',24,'#a8bdcc');
+     if(games.length){
+      const first=games[0],start=first.time+(first.optional?' *':'');
+      out+='<g data-series-row="'+first.game+'" data-series-start="true">'+text(x+24,y+head+23,(english?'SERIES START':'SERIESTART')+' · G'+first.game,16,'#a8bdcc')+text(x+24,y+head+primaryH*.78,start,Math.min(44,primaryH*.43,(cardW-48)/Math.max(1,start.length)/.66),'#ffcf4a')+'</g>';
+      rest.forEach((g,i)=>{
+       const column=i%2,row=Math.floor(i/2),tx=x+24+column*(cardW-48)/2,ty=y+head+primaryH+row*lineH+lineH*.68,label='G'+g.game+'  '+g.time+(g.optional?' *':'');
+       out+='<g data-series-row="'+g.game+'" data-secondary-time="true">'+text(tx,ty,label,Math.min(22,lineH*.58,((cardW-48)/2-16)/Math.max(1,label.length)/.64),'#b4c8d7')+'</g>';
+      });
+      if(games.some(g=>g.optional))out+=text(x+24,y+head+primaryH+lineCount*lineH+24,english?'* IF NECESSARY':'* VID BEHOV',14,'#829cac');
+     }
      out+='</g>';
     });
     if(footer){const date=value('extraDate'),label=date&&window.GraphicsWeeklyTeam?window.GraphicsWeeklyTeam.periodLabel(date,date,window.GraphicsLanguage?.locale||'sv-SE'):date;out+=text(m,bottom-32,label,20,'#ffcf4a')+text(m,bottom-7,value('extraWatch'),18,'#a8bdcc');}
