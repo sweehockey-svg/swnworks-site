@@ -21,6 +21,20 @@ for(const [w,h] of [[1080,1350],[1080,1080],[1080,1920],[1920,1080]]){
  size={w,h};
  for(const button of buttons){S.kind=button.dataset.kind;const svg=templates.graphic();assert(svg.startsWith('<svg>'));assert(!/NaN|undefined/.test(svg),S.kind);assert(!svg.includes('Välj'),S.kind);}
 }
+S.kind='game_night';
+for(const mode of ['pure_bo5','aggregated_bo3']){
+ set('extraMatchMode',mode);
+ for(let i=1;i<=6;i++){set('extraGame'+i+'Time',i===1?'2pm / 21:00 FIN':'21:30 CET');document.getElementById('extraGame'+i+'Optional').checked=i>(mode==='pure_bo5'?3:4);}
+ for(const [w,h] of [[1080,1350],[1080,1080],[1080,1920],[1920,1080]]){
+  size={w,h};const svg=templates.graphic();assert(!/NaN|undefined/.test(svg));
+  assert.equal((svg.match(/data-series-row=/g)||[]).length,mode==='pure_bo5'?5:6);
+  assert.equal((svg.match(/VID BEHOV/g)||[]).length,2);assert(svg.includes('2pm / 21:00 FIN'));
+  for(const m of svg.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)){assert(+m[1]+ +m[3]<=w+1);assert(+m[2]+ +m[4]<=h-90);}
+ }
+}
+set('extraGame6Time','');assert.equal((templates.graphic().match(/data-series-row=/g)||[]).length,5);
+set('extraMatchMode','single');assert(!templates.graphic().includes('data-series-row'));
+console.log('Series matchday passed: both formats, optional games, custom timezone text, blank rows, safe bounds and original single match.');
 S.kind='weekly_six';size={w:1920,h:1080};
 const wideSvg=templates.graphic(),cards=[...wideSvg.matchAll(/data-weekly-slot="([^"]+)"[^>]*><rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)].map(m=>({slot:m[1],x:+m[2],y:+m[3],w:+m[4],h:+m[5]}));
 assert.equal(cards.length,6);

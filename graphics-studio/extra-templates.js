@@ -26,6 +26,8 @@ window.createExtraGraphicsTemplates=function(api){
  section.innerHTML='<div class="head"><b>MALLENS UPPGIFTER</b></div><p class="note">Manuella val gäller bara grafiken. Kontrollera uppgifterna före publicering.</p><div class="grid">'+
   select('extraTeamA','HEMMALAG / NYTT LAG',teamKinds)+select('extraTeamB','BORTALAG','game_night final_score playoff_series')+
   select('extraPlayerA','SPELARE',players)+select('extraPlayerB','MOTSPELARE','player_duel')+
+  field('extraMatchMode','MATCHDAG · UPPLÄGG','<select id="ID"><option value="single">En match</option><option value="pure_bo5">Pure BO5 · upp till 5 matcher</option><option value="aggregated_bo3">Aggregated BO3 · upp till 6 matcher</option></select>','game_night')+
+  '<div class="full" id="extraScheduleFields" data-extra-kinds="game_night"><p class="note">En serie per grafik. Skriv tidszonerna som de ska visas, t.ex. 21:00 FIN / 20:00 SE. Ingen automatisk tidsomräkning. Tomma tidsrader visas inte.</p>'+Array.from({length:6},(_,i)=>'<div data-series-game="'+(i+1)+'" style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:12px"><label><span>G'+(i+1)+' · TID / TIDSZON</span><input id="extraGame'+(i+1)+'Time" type="text" maxlength="46" placeholder="T.ex. 21:00 FIN / 20:00 SE"></label><label style="padding-top:18px;white-space:nowrap"><input id="extraGame'+(i+1)+'Optional" type="checkbox" '+(i>=3?'checked':'')+'> Vid behov</label></div>').join('')+'</div>'+
   input('extraDate','DATUM','date','game_night')+input('extraTime','TID · SVENSK TID','time','game_night')+
   input('extraWatch','SE MATCHEN PÅ','text','game_night','maxlength="80" placeholder="T.ex. Match-TV / Twitch-kanal"')+
   input('extraHomeScore','HEMMAMÅL','number','final_score','min="0" max="99" step="1" value="0"')+
@@ -48,6 +50,16 @@ window.createExtraGraphicsTemplates=function(api){
  if(tournament?.after)tournament.after(section);
  else (document.querySelector('.design-panel-body')||document.querySelector('.controls')).prepend(section);
  const get=id=>document.getElementById(id),value=id=>get(id).value;
+ function scheduleFields(){
+  const mode=value('extraMatchMode')||'single';
+  get('extraScheduleFields').hidden=S.kind!=='game_night'||mode==='single';
+  const timeLabel=get('extraTime').closest('label');if(timeLabel)timeLabel.hidden=S.kind!=='game_night'||mode!=='single';
+  section.querySelectorAll('[data-series-game]').forEach(el=>el.hidden=Number(el.dataset.seriesGame)>(mode==='pure_bo5'?5:6));
+ }
+ get('extraMatchMode').addEventListener('change',()=>{
+  const limit=value('extraMatchMode')==='aggregated_bo3'?4:3;
+  for(let i=1;i<=6;i++)get('extraGame'+i+'Optional').checked=i>limit;
+ });
  let weeklyPeriod='',weeklyDates=null,weeklyCandidates=[],weeklySelections={},weekLoading=false,weeklyLeague=S.league,weeklyGroup=S.filterGroup;
  function groupTeams(){return S.filterGroup==null?S.teams:S.teams.filter(t=>t.statistics_stage==='regular'&&Number(t.effective_group_id)===Number(S.filterGroup));}
  function groupPlayers(){const ids=new Set(groupTeams().map(t=>String(t.sports_gamer_team_id)));return S.filterGroup==null?S.players:S.players.filter(p=>ids.has(String(p.sports_gamer_team_id)));}
@@ -103,6 +115,7 @@ window.createExtraGraphicsTemplates=function(api){
   if(weeklyLeague!==S.league||weeklyGroup!==S.filterGroup){weeklyLeague=S.league;weeklyGroup=S.filterGroup;weeklyPeriod='';weeklyDates=null;weeklyCandidates=[];weeklySelections={};for(const slot of ['LW','C','RW','LD','RD','G'])get('extraSix'+slot).value='';}
   section.hidden=!kinds.has(S.kind);if(section.hidden)return;
   section.querySelectorAll('[data-extra-kinds]').forEach(el=>el.hidden=!el.dataset.extraKinds.split(' ').includes(S.kind));
+  scheduleFields();
   const teams=[...new Map(groupTeams().map(t=>[String(t.sports_gamer_team_id),{...t,id:String(t.sports_gamer_team_id)}])).values()];
   const players=[...new Map(groupPlayers().map(p=>[playerKey(p),{...p,id:playerKey(p)}])).values()];
   for(const id of ['extraTeamA','extraTeamB'])options(id,teams,t=>t.team_name_in_league);
@@ -132,6 +145,33 @@ window.createExtraGraphicsTemplates=function(api){
   if(['game_night','final_score','playoff_series'].includes(S.kind)){
    if(!a||!b)return missing('Välj två lag i högerpanelen');
    if(String(a.sports_gamer_team_id)===String(b.sports_gamer_team_id))return missing('Välj två olika lag');
+   if(S.kind==='game_night'&&value('extraMatchMode')&&value('extraMatchMode')!=='single'){
+    const aggregated=value('extraMatchMode')==='aggregated_bo3',count=aggregated?6:5,english=(window.GraphicsLanguage?.locale||'sv').startsWith('en');
+    const games=Array.from({length:count},(_,i)=>({game:i+1,time:value('extraGame'+(i+1)+'Time').trim(),optional:get('extraGame'+(i+1)+'Optional').checked})).filter(g=>g.time);
+    const label=aggregated?'AGGREGATED BO3':'PURE BO5',left=wide?m:m,right=wide?W*.49:m,sw=wide?W*.458:W-m*2;
+    const logoSize=wide?150:110,teamsW=wide?W*.37:W-m*2,teamY=top+18,mid=left+teamsW/2;
+    out+=text(left,top-20,label,22,'#ffcf4a');
+    [[a,left+teamsW*.22],[b,left+teamsW*.78]].forEach(([t,cx])=>{
+     const logo=lm.get(String(t.sports_gamer_team_id));
+     if(S.logos&&logo)out+=img(logo,cx-logoSize/2,teamY,logoSize);
+     out+=text(cx,teamY+logoSize+37,t.team_name_in_league,Math.min(29,teamsW*.43/Math.max(1,t.team_name_in_league.length)/.65),'#fff','middle');
+    });
+    out+=text(mid,teamY+logoSize*.62,'VS',wide?40:32,'#ffcf4a','middle');
+    const date=value('extraDate'),dateLabel=date&&window.GraphicsWeeklyTeam?window.GraphicsWeeklyTeam.periodLabel(date,date,window.GraphicsLanguage?.locale||'sv-SE'):date;
+    const sy=wide?top:teamY+logoSize+66,head=56,footer=68,rows=Math.max(games.length,1),rh=Math.min(wide?78:82,(bottom-sy-head-footer)/rows),sh=head+rows*rh+footer;
+    out+=panel(right,sy,sw,sh)+text(right+24,sy+35,english?'SERIES SCHEDULE':'SERIESCHEMA',21,'#ffcf4a');
+    if(games.length)games.forEach((g,i)=>{
+     const y=sy+head+i*rh,badgeW=english?154:135;
+     out+='<g data-series-row="'+g.game+'"><path d="M '+(right+20)+' '+y+' H '+(right+sw-20)+'" stroke="#66879d" stroke-opacity=".3"/><rect x="'+(right+20)+'" y="'+(y+rh*.22)+'" width="48" height="'+(rh*.56)+'" rx="6" fill="'+(g.optional?'#173246':'#ffcf4a')+'"/>'+text(right+44,y+rh*.61,'G'+g.game,20,g.optional?'#b9cedc':'#071a28','middle');
+     const available=sw-110-(g.optional?badgeW:0),size=Math.min(26,available/Math.max(1,g.time.length)/.66);
+     out+=text(right+88,y+rh*.61,g.time,size,'#fff');
+     if(g.optional)out+=text(right+sw-22,y+rh*.61,english?'IF NECESSARY':'VID BEHOV',13,'#a8bdcc','end');
+     out+='</g>';
+    });else out+=text(right+24,sy+head+rh*.6,'Lägg till matchtider i panelen',24,'#a8bdcc');
+    out+='<path d="M '+(right+20)+' '+(sy+sh-footer)+' H '+(right+sw-20)+'" stroke="#66879d" stroke-opacity=".3"/>';
+    out+=text(right+24,sy+sh-37,dateLabel||'',19,'#ffcf4a')+text(right+24,sy+sh-14,value('extraWatch'),Math.min(17,(sw-48)/Math.max(1,value('extraWatch').length)/.65),'#a8bdcc');
+    return base(out);
+   }
    const cw=(W-m*2)*.42,y=top+height*.09;
    out+=team(a,m,y,cw)+team(b,W-m-cw,y,cw);
    const centerY=y+105;
