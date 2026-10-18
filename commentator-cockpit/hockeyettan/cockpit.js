@@ -275,7 +275,7 @@
     "Sollentuna HC":"https://files.eliteprospects.com/layout/logos/cc541b05-7688-43b7-b473-907585078062_large.png",
     "Strömsbro IF":"https://files.eliteprospects.com/layout/logos/5b96a076-5d3d-4ccc-b3c2-dff4f449d616_large.png",
     "Surahammars IF":"https://files.eliteprospects.com/layout/logos/f4f38399-7162-4743-ae2d-a617ce931e8b_original.png",
-    "Vallentuna Hockey":"https://edg01-prd-de-ixn.solidtango.com/cache/media_file/resize1280x720/798fa9ef-468f-4181-905c-10acbb153dcc.jpg?cb=921d0fc60bc59efdaa159fc05a0cfc5b",
+    "Vallentuna Hockey":"https://cdn.sportadmin.se/2412/d214ea7801b7fc1b9afe4fc5a273120249a9189e056390c621115512406d7a48_L.png",
     "Väsby IK HK":"https://cdn.api.everysport.com/logos/ishockey/v_sby_ik_hk_183229/1638186314447.png.cropped.png",
     "Wings HC Arlanda":"https://cdn.api.everysport.com/logos/ishockey/wings_hc_arlanda_1209/1580983580402.png",
     "Borås HC":"https://cdn.api.everysport.com/logos/ishockey/bor_s_hc_87521/1636622668942.png.cropped.png",
@@ -295,12 +295,14 @@
     "Mörrums GoIS IK":"https://files.livearenasports.com/files/892be289-ec35-4ee0-8eb7-461a94c44e0a",
     "Nyköpings SK":"https://vectorportal.com/storage/nykopingshockey_3948.jpg",
     "Tingsryds AIF":"https://pbs.twimg.com/profile_images/1856462130343444481/fN5SpDhr_400x400.jpg",
-    "Tranås AIF":"https://www.targetaid.com/media/yo4naz2r/tran-s-back.jpg",
-    "Tyringe SoSS":"https://pbs.twimg.com/profile_images/1965118781870477312/H1mpzluE_400x400.jpg",
+    "Tranås AIF":"https://www.hockeyettan.se/wp-content/uploads/2016/09/taif-logotype.png",
+    "Tyringe SoSS":"https://www.tsos.com/wp-content/uploads/2024/12/tsos400.png",
     "Västerviks IK":"https://edg01-prd-se-ixn.solidtango.com/cache/media_file/resize1280x720/3ad3d7f7-ddc2-47c9-9fee-b76529ed8c4f.png?cb=f75ebc0da6d7e4ca8c064823e7f93f6e"
   });
 
   function teamLogoUrl(name) {
+    // These legacy feed URLs are broken or point to a background instead of a crest.
+    if (["Tranås AIF", "Tyringe SoSS", "Vallentuna Hockey"].includes(name)) return TEAM_LOGOS[name];
     return state.teamByName.get(name)?.logo_url || TEAM_LOGOS[name] || "";
   }
 
