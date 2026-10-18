@@ -34,6 +34,12 @@ function setup(){
  assert.equal(await op.refresh(),false);assert(clears>=3);assert.equal(await op.receive(ref),false);
  t.window.GraphicsTransientData.request=async()=>payload();await op.refresh();
  [...t.timers.values()].at(-1)();assert.equal(await op.receive(ref),false,'Expired session must clear its source');
+ const eightHour=setup(),broadcastExpires=new Date(Date.now()+8*3600000).toISOString();let installed;
+ eightHour.window.GraphicsTransientData.request=async()=>({...payload(),broadcast_expires_at:broadcastExpires});
+ const long=eightHour.api.create({getLeague:()=>532,allowRemote:false,onData:(data,reference)=>installed={data,reference}});
+ assert.equal(await long.refresh(),true);
+ assert.equal(installed.reference.expires_at,broadcastExpires);assert.equal(installed.data.expires_at,broadcastExpires);
+ const clock=Date.now;try{Date.now=()=>clock()+5*3600000;assert(eightHour.api.validData(installed.data,532));}finally{Date.now=clock;}
  assert(!source.includes('v_broadcast_teams_public'));assert(!source.includes('v_broadcast_players_public'));assert(!source.includes('async function loadPart('));
  const section=source.slice(source.indexOf('function clearTournamentData('),source.indexOf('function setTheme('));
  const empty={data:{teams:[1],players:[1],playoffs:[1]},lineups:new Map(),status:{},tournamentDataRequest:0,currentSourceReference:ref,sourcePayload:payload(),sourceProvider:{reset(){}},document:{documentElement:{dataset:{}}},$:()=>({value:'old'}),renderStatus(){},renderAllCompetitionData(){}};
