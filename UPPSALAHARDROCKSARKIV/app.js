@@ -1071,7 +1071,7 @@
           <label class="network-search-label" for="network-search">SÖK BAND ELLER PERSON</label>
           <input id="network-search" type="search" list="network-options" placeholder="Sök bland alla dokumenterade band och personer…" autocomplete="off">
           <datalist id="network-options">${[...bands.map(b=>b.canonical_name),...people.map(p=>p.canonical_name)].map(n=>`<option value="${escapeHtml(n)}">`).join('')}</datalist>
-          <div class="network-toolbar-row"><div class="network-tabs"><button class="active" data-mode="explore">Utforska</button><button data-mode="all">Hela nätverket</button></div><label class="network-depth-label">Kopplingar <select id="network-depth"><option value="1">1 nivå</option><option value="2">2 nivåer</option></select></label><label class="network-label-toggle"><input id="network-labels" type="checkbox" checked> Visa namn</label></div>
+          <div class="network-toolbar-row"><div class="network-tabs"><button class="active" data-mode="explore">Utforska</button><button data-mode="all">Hela nätverket</button></div><label class="network-depth-label">Kopplingar <select id="network-depth"><option value="1">1 nivå</option><option value="2">2 nivåer</option></select></label><label class="network-label-toggle"><input id="network-labels" type="checkbox" checked> Visa namn</label><button id="network-fullscreen" class="network-fullscreen-btn" type="button" aria-pressed="false">⛶ Visa helskärm</button></div>
         </div>
         <div class="network-layout"><div class="network-shell"><svg id="network" viewBox="0 0 1200 720" aria-label="Interaktiv karta över band och personer" role="img"><g id="network-scene"></g></svg>
           <div class="network-map-controls"><button id="net-plus" title="Zooma in" aria-label="Zooma in">+</button><button id="net-minus" title="Zooma ut" aria-label="Zooma ut">−</button><button id="net-reset" title="Anpassa nätverket till vyn" aria-label="Visa hela nätverket">⤢</button><span id="net-zoom-level">100%</span></div><div class="network-hint">Scrolla för att zooma · Dra för att flytta</div>
@@ -1081,6 +1081,19 @@
       </section>`;
     const svg = $('#network'), scene = $('#network-scene'), details = $('#network-details');
     const search=$('#network-search');
+    const networkPage=$('.network-page');
+    const fullscreenBtn=$('#network-fullscreen');
+    function setFullscreen(enabled){
+      networkPage.classList.toggle('network-is-fullscreen',enabled);
+      document.body.classList.toggle('network-body-fullscreen',enabled);
+      fullscreenBtn.textContent=enabled?'✕ Stäng helskärm':'⛶ Visa helskärm';
+      fullscreenBtn.setAttribute('aria-pressed',String(enabled));
+      fullscreenBtn.setAttribute('aria-label',enabled?'Stäng helskärmsvyn':'Öppna nätverket i helskärm');
+      resetView();
+    }
+    fullscreenBtn.addEventListener('click',()=>setFullscreen(!networkPage.classList.contains('network-is-fullscreen')));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&networkPage.isConnected&&networkPage.classList.contains('network-is-fullscreen'))setFullscreen(false);});
+
     function focusedGraph() {
       const bandIds=new Set([selected]),peopleIds=new Set(bandPerson.get(selected)||[]),edges=[];
       if(depth===2){
