@@ -56,7 +56,7 @@
   let activeScene = "opening", remoteApplying = false, remoteTimer = 0;
   let displayedLineupSide = "home", sceneTransitionTimer = 0, lineupTransitionTimer = 0;
   const SLOTS = ["LW", "C", "RW", "LD", "G", "RD"];
-  // Match identity is editorial. Historical numbers only come from Supabase.
+  // Editorial logo references only; statistics require a fresh SportsGamer fetch.
   const SEC_MATCH_TEAMS = [
     { sports_gamer_team_id: 7046, team_name_in_league: "Daankerzquad", team_logo_in_league: "https://sportsgamer.gg/storage/team-logos/520/7046/Daankerzquad_20260610-013637.png" },
     { sports_gamer_team_id: 3252, team_name_in_league: "Västerås IK", team_logo_in_league: "https://sportsgamer.gg/storage/team-logos/520/3252/VIK-prima%CC%88r@4x_20260612-174642.png" }
@@ -68,7 +68,7 @@
     flacken: { name: 'Peter “Flacken” Novara', image: 'https://www.svenskehockey.se/players/flacken.png' },
     wizrob: { name: 'Robert “Wizrob” Olovsson', image: 'https://www.svenskehockey.se/players/Wizrob.png' }
   };
-  const status = { teams: "loading", players: "loading", playoffs: "loading" };
+  const status = { teams: "empty", players: "empty", playoffs: "empty" };
   const lineups = new Map();
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -80,7 +80,7 @@
     ? (percent ? Math.round(100 * Number(n) / Number(d)) + "%" : (Number(n) / Number(d)).toFixed(1)) : "–";
   const total = (a, b) => number(a) === null && number(b) === null ? null : (number(a) ?? 0) + (number(b) ?? 0);
   const logo = t => t.team_logo_in_league || t.current_global_team_logo || "";
-  const fallbackTeams = () => activeLeagueId === 520 ? SEC_MATCH_TEAMS : [];
+  const fallbackTeams = () => [];
   const team = id => data.teams.find(t => same(t.sports_gamer_team_id, id)) || fallbackTeams().find(t => same(t.sports_gamer_team_id, id)) || { sports_gamer_team_id:id||"", team_name_in_league:tx("team") };
   const selectedTeam = side => team($("#" + side).value);
   const roster = t => data.players.filter(p => same(p.sports_gamer_team_id, t.sports_gamer_team_id));
@@ -491,42 +491,17 @@
     $("#dataStatus").textContent = Object.entries(status).map(([key, state]) => labels[key] + ": " + ({ loading: tx("loading"), ready: tx("ready"), empty: tx("empty"), error: tx("loadError") }[state])).join(" · ");
   }
 
-  async function loadPart(key, view, render, request=tournamentDataRequest) {
-    const leagueId=activeLeagueId;
-    try {
-      const cfg=window.EHOCKEY_CONFIG||{};
-      if(!cfg.supabaseUrl||!cfg.supabasePublishableKey)throw new Error(tx("missingSupabase"));
-      const apiKey=String(cfg.supabasePublishableKey);
-      const headers={apikey:apiKey,Accept:"application/json"};
-      if(/^eyJ[A-Za-z0-9_-]*\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(apiKey))headers.Authorization="Bearer "+apiKey;
-      const url=String(cfg.supabaseUrl).replace(/\/+$/,"")+"/rest/v1/"+view+"?select=*&sports_gamer_league_id=eq."+leagueId;
-      const response=await fetch(url,{headers,signal:AbortSignal.timeout(15000),cache:"no-store"});
-      if(!response.ok)throw new Error(view+" HTTP "+response.status);
-      const rows=await response.json();
-      if(activeLeagueId!==leagueId||(key!=="playoffs"&&request!==tournamentDataRequest))return;
-      if(!Array.isArray(rows)||rows.some(row=>!row||!same(row.sports_gamer_league_id,leagueId)||row.sports_gamer_team_id==null||typeof row.team_name_in_league!=="string"||(key==="players"&&(row.sports_gamer_player_id==null||typeof row.display_gamertag!=="string"))))throw new Error(view+": "+tx("loadError"));
-      data[key]=key==="players"?[...new Map(rows.map(p=>[p.sports_gamer_team_id+":"+p.sports_gamer_player_id,p])).values()]:rows;
-      status[key]=rows.length?"ready":"empty";
-      render();
-    } catch(error) {
-      if(activeLeagueId!==leagueId||(key!=="playoffs"&&request!==tournamentDataRequest))return;
-      status[key]="error";
-      console.error("Broadcast "+key+":",error);
-    }
-    renderStatus();
-  }
-
-  async function loadTournamentData(){
-    const request=++tournamentDataRequest;
-    sourceProvider?.reset();currentSourceReference=null;sourcePayload=null;
+  function clearTournamentData(){
+    tournamentDataRequest++;currentSourceReference=null;sourcePayload=null;
     data.teams=[];data.players=[];data.playoffs=[];lineups.clear();
-    status.teams="loading";status.players="loading";status.playoffs="loading";
+    ['hs','as','seriesHome','seriesAway'].forEach(id=>{if($('#'+id))$('#'+id).value='0';});
+    status.teams="empty";status.players="empty";status.playoffs="empty";
+    document.documentElement.dataset.broadcastDataSource='empty';
     renderStatus();renderAllCompetitionData();
-    await Promise.all([
-      loadPart("teams","v_broadcast_teams_public",()=>{renderTeams();renderStats();renderTable();renderTeamCompare();renderFormGuide();renderOffense();renderRoad();renderLineup();},request),
-      loadPart("players","v_broadcast_players_public",()=>{renderLineup();renderLeaders();renderScorers();renderDefenseLeaders();renderGoalieLeaders();renderOffense();renderRoleMatchups();},request),
-      loadPart("playoffs","v_broadcast_playoffs_public",renderRoad,request)
-    ]);
+  }
+  function loadTournamentData(){
+    sourceProvider?.reset();clearTournamentData();
+    const note=$('#transientBroadcastStatus');if(note)note.textContent='Ingen statistik hämtad. Klicka Hämta från SportsGamer.';
   }
 
   function setTheme(name){
@@ -623,6 +598,7 @@
   window.__sehStudioRestore=s=>{holdProgram();applyRemoteState(s);};
   window.__sehStudioTake=async s=>{
     holdProgram();const seq=++takeSequence;clearTimeout(remoteTimer);applyRemoteState(s);
+    if(!s.transientSource)return false;
     if(s.transientSource){
       const ref=window.BroadcastTransientSource.reference(s.transientSource,activeLeagueId);
       if(!ref||Date.parse(ref.expires_at)<=Date.now()||!await sourceProvider?.receive(ref))return false;
@@ -755,22 +731,25 @@
   if(!OBS_MODE&&!VIEWER_MODE){
     const button=document.createElement('button');button.type='button';button.id='fetchBroadcastData';button.className='button';button.textContent='Hämta från SportsGamer';
     $('#tournament')?.closest('label')?.after(button,temporaryStatus);
-    temporaryStatus.textContent='Tillfällig hämtning. Inga spelare importeras till registret. Kan ta någon minut.';
+    temporaryStatus.textContent='Ingen statistik hämtad. Klicka Hämta från SportsGamer.';
     button.addEventListener('click',async()=>{if(button.disabled)return;button.disabled=true;try{const applied=await sourceProvider.refresh();if(applied)publishState();}finally{button.disabled=false;}});
   }
   sourceProvider=window.BroadcastTransientSource?.create({
     getLeague:()=>activeLeagueId,
+    allowRemote:OBS_MODE||VIEWER_MODE,
     onStatus:message=>{temporaryStatus.textContent=message;},
-    onLegacy:()=>{if(currentSourceReference){currentSourceReference=null;sourcePayload=null;void loadTournamentData();}},
+    onLegacy:clearTournamentData,
     onData:(payload,reference)=>{
       tournamentDataRequest++;sourcePayload=payload;currentSourceReference=reference;
       data.teams=payload.teams;data.players=[...new Map(payload.players.map(p=>[p.sports_gamer_team_id+':'+p.sports_gamer_player_id,p])).values()];
-      status.teams=data.teams.length?'ready':'empty';status.players=data.players.length?'ready':'empty';
+      status.teams=data.teams.length?'ready':'empty';status.players=data.players.length?'ready':'empty';status.playoffs='empty';
       document.documentElement.dataset.broadcastDataSource='temporary';
       renderAllCompetitionData();renderStatus();
     }
   });
   loadTournamentData();
+  window.addEventListener('pagehide',()=>loadTournamentData());
+  window.addEventListener('pageshow',event=>{if(event.persisted)loadTournamentData();});
 })();
 
 

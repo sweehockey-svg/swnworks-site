@@ -8,7 +8,7 @@
   return {league_id:Number(league),ticket:ref.ticket,expires_at:ref.expires_at};
  }
  function validData(data,league){
-  return data?.schema_version===1&&Number(data.league_id)===Number(league)&&Date.parse(data.expires_at)>Date.now()&&Array.isArray(data.teams)&&Array.isArray(data.players)&&data.teams.length<=10000&&data.players.length<=20000&&[...data.teams,...data.players].every(p=>Number(p.sports_gamer_league_id)===Number(league)&&Number(p.sports_gamer_team_id)>0&&typeof p.team_name_in_league==='string')&&data.players.every(p=>Number(p.sports_gamer_player_id)>0&&typeof p.display_gamertag==='string');
+  return data?.schema_version===1&&Number(data.league_id)===Number(league)&&Number.isFinite(Date.parse(data.fetched_at))&&Date.parse(data.expires_at)>Date.now()&&Array.isArray(data.teams)&&Array.isArray(data.players)&&data.teams.length<=10000&&data.players.length<=20000&&[...data.teams,...data.players].every(p=>Number(p.sports_gamer_league_id)===Number(league)&&Number(p.sports_gamer_team_id)>0&&typeof p.team_name_in_league==='string')&&data.players.every(p=>Number(p.sports_gamer_player_id)>0&&typeof p.display_gamertag==='string');
  }
  async function read(ref){
   if(Date.parse(ref.expires_at)<=Date.now())throw Error('Underlaget har gått ut. Hämta igen i Broadcast Studio.');
@@ -25,36 +25,43 @@
    return data;
   })();pending.set(ref.ticket,task);try{return await task;}finally{pending.delete(ref.ticket);}
  }
- function create({getLeague,onData,onStatus=()=>{},onLegacy=()=>{}}){
-  let generation=0,lastTicket='',lastLeague=null,waiting=null;
-  const reset=()=>{generation++;lastTicket='';lastLeague=null;waiting=null;};
+ function create({getLeague,onData,onStatus=()=>{},onLegacy=()=>{},allowRemote=true}){
+  let generation=0,lastTicket='',lastLeague=null,waiting=null,expiryTimer=null;
+  const sessionTickets=new Set();
+  function reset(){generation++;lastTicket='';lastLeague=null;waiting=null;clearTimeout(expiryTimer);expiryTimer=null;sessionTickets.clear();window.GraphicsTransientData?.clear?.();}
+  function clear(){lastTicket='';lastLeague=null;clearTimeout(expiryTimer);expiryTimer=null;onLegacy();}
+  function install(data,ref,seq){
+   if(seq!==generation||Number(getLeague())!==ref.league_id||Date.parse(ref.expires_at)<=Date.now())return false;
+   onData(data,ref);lastTicket=ref.ticket;lastLeague=ref.league_id;clearTimeout(expiryTimer);
+   expiryTimer=setTimeout(()=>{if(seq===generation){reset();onLegacy();onStatus('Underlaget har gått ut. Hämta från SportsGamer igen.');}},Math.max(1,Date.parse(ref.expires_at)-Date.now()+1));
+   onStatus('Hämtat från SportsGamer: '+new Date(data.fetched_at).toLocaleString('sv-SE',{timeZone:'Europe/Stockholm',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'. Endast i denna öppna session.');
+   return true;
+  }
   async function receive(raw){
    if(raw===null){reset();onLegacy();return false;}
    const league=Number(getLeague()),ref=reference(raw,league);
-   if(!ref){onStatus('Ogiltig datakoppling. Senast fungerande underlag är kvar.');return false;}
-   if(lastTicket===ref.ticket&&lastLeague===league){if(Date.parse(ref.expires_at)<=Date.now())onStatus('Underlaget har gått ut. Senast fungerande data visas; hämta igen i studion.');return true;}
+   if(!ref||Date.parse(ref.expires_at)<=Date.now()||(!allowRemote&&!sessionTickets.has(ref.ticket))){generation++;clear();onStatus('Ingen aktuell statistik i denna session. Hämta från SportsGamer.');return false;}
+   if(lastTicket===ref.ticket&&lastLeague===league)return true;
    if(waiting?.ticket===ref.ticket)return waiting.promise;
-   const seq=++generation;
+   const seq=++generation;clear();
    const task=(async()=>{try{
     onStatus('Läser tillfälligt sändningsunderlag…');const data=await read(ref);
-    if(seq!==generation||Number(getLeague())!==league)return false;
-    onData(data,ref);lastTicket=ref.ticket;lastLeague=league;onStatus('Tillfälligt SportsGamer-underlag · samma källa som operatören.');return true;
-   }catch(error){if(seq===generation)onStatus(error.message+' Senast fungerande underlag är kvar.');return false;}})();
+    return install(data,ref,seq);
+   }catch(error){if(seq===generation){clear();onStatus(error.message+' Ingen statistik visas.');}return false;}})();
    waiting={ticket:ref.ticket,promise:task};try{return await task;}finally{if(waiting?.promise===task)waiting=null;}
   }
   async function refresh(){
-   const league=Number(getLeague()),seq=++generation;
+   const league=Number(getLeague()),seq=++generation;clear();sessionTickets.clear();window.GraphicsTransientData?.clear?.();
    const end=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Stockholm',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()),startDate=new Date(end+'T12:00:00Z');startDate.setUTCDate(startDate.getUTCDate()-6);
    try{
-    const payload=await window.GraphicsTransientData.request({league,start:startDate.toISOString().slice(0,10),end,onProgress:message=>{if(seq===generation&&Number(getLeague())===league)onStatus(message);}});
+    const payload=await window.GraphicsTransientData.request({league,start:startDate.toISOString().slice(0,10),end,fresh:true,onProgress:message=>{if(seq===generation&&Number(getLeague())===league)onStatus(message);}});
     if(seq!==generation||Number(getLeague())!==league)return false;
     const ref=reference({league_id:league,ticket:payload.broadcast_ticket,expires_at:payload.expires_at},league);
     if(!ref||!validData(payload,league))throw Error('Underlaget saknar giltig koppling till OBS. Försök igen.');
     const data=await window.GraphicsTransientData.withPortraits(payload);
-    if(seq!==generation||Number(getLeague())!==league)return false;
-    onData(data,ref);lastTicket=ref.ticket;lastLeague=league;
-    onStatus('Hämtat tillfälligt från SportsGamer. Kopplingen följer med när matchen tas till sändning.');return true;
-   }catch(error){if(seq===generation)onStatus(error.message+' Senast fungerande underlag är kvar.');return false;}
+    if(!install(data,ref,seq))return false;
+    sessionTickets.add(ref.ticket);return true;
+   }catch(error){if(seq===generation){clear();onStatus(error.message+' Ingen statistik visas.');}return false;}
   }
   return {receive,refresh,reset};
  }
