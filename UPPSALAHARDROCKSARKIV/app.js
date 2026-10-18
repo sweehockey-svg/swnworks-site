@@ -1045,40 +1045,174 @@
       <section class="section page-section first-section">${sourceList(ordered)}</section>`;
   }
 
-  function networkData() {
-    const networkBands = uppsalaBands();
-    const bandScore = new Map(networkBands.map(b => [b.id, membershipsForBand(b.id).length + state.relations.filter(r => r.from_band_id === b.id || r.to_band_id === b.id).length * 3]));
-    const selectedBands = [...networkBands].sort((a,b) => (bandScore.get(b.id)||0)-(bandScore.get(a.id)||0)).slice(0, 16);
-    const selectedBandIds = new Set(selectedBands.map(b => b.id));
-    const selectedPeople = state.people.filter(p => membershipsForPerson(p.id).filter(m => selectedBandIds.has(m.band_id)).length >= 2 || ['John S. Swahn','Dave Janney','Jakob Bergström'].includes(p.canonical_name)).slice(0,26);
-    return {selectedBands, selectedPeople, selectedBandIds};
-  }
-
   function renderNetwork() {
-    const {selectedBands, selectedPeople, selectedBandIds} = networkData();
-    app.innerHTML = `${pageHeader('VEM LEDER VIDARE TILL VEM?','Nätverket','En koncentrerad karta över de starkaste kopplingarna i materialet. Klicka på ett namn för att öppna dess egen sida.')}
-      <section class="section page-section first-section"><div class="network-shell"><svg id="network" viewBox="0 0 1400 900" role="img" aria-label="Nätverk över band och musiker i Uppsala hårdrocksscen"></svg><div class="network-legend"><span><i class="legend-band"></i> Band</span><span><i class="legend-person"></i> Person</span><span><i class="legend-line"></i> Medlemskap</span></div></div><p class="network-note">Visar de mest sammankopplade noderna i den nuvarande kartläggningen. Fler band och personer finns på sina respektive indexsidor.</p></section>`;
-    const svg = $('#network');
-    const cx=700, cy=445, rx=510, ry=300;
-    const bPos = new Map();
-    selectedBands.forEach((b,i) => { const a=(Math.PI*2*i/selectedBands.length)-Math.PI/2; bPos.set(b.id,[cx+Math.cos(a)*rx,cy+Math.sin(a)*ry]); });
-    const pPos = new Map();
-    selectedPeople.forEach((p,i) => {
-      const ms = membershipsForPerson(p.id).filter(m => selectedBandIds.has(m.band_id));
-      if (!ms.length) return;
-      const x=ms.reduce((s,m)=>s+bPos.get(m.band_id)[0],0)/ms.length;
-      const y=ms.reduce((s,m)=>s+bPos.get(m.band_id)[1],0)/ms.length;
-      const jitter=(i%5-2)*16;
-      pPos.set(p.id,[x+jitter,y+((i*37)%70)-35]);
+    const bands = uppsalaBands().slice().sort((a,b) => a.canonical_name.localeCompare(b.canonical_name,'sv'));
+    const people = state.people;
+    const bandById = new Map(bands.map(b => [String(b.id), b]));
+    const personById = new Map(people.map(p => [String(p.id), p]));
+    const memberships = state.memberships || [];
+    const relationEdges = state.relations.filter(r => bandById.has(String(r.from_band_id)) && bandById.has(String(r.to_band_id)));
+    const bandPerson = new Map(bands.map(b => [String(b.id), []]));
+    const personBands = new Map(people.map(p => [String(p.id), []]));
+    memberships.forEach(m => {
+      const bid=String(m.band_id), pid=String(m.person_id);
+      if (!bandById.has(bid) || !personById.has(pid)) return;
+      bandPerson.get(bid).push(pid);
+      personBands.get(pid).push(bid);
     });
-    let html='';
-    selectedPeople.forEach(p => membershipsForPerson(p.id).filter(m=>selectedBandIds.has(m.band_id)).forEach(m => {
-      if (!pPos.has(p.id)) return; const [x1,y1]=pPos.get(p.id), [x2,y2]=bPos.get(m.band_id); html += `<line class="net-line" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"></line>`;
+    const query = new URLSearchParams(location.hash.split('?')[1] || '');
+    let selected = query.get('band') && bandById.has(query.get('band')) ? query.get('band') : (bands.find(b=>bandPerson.get(String(b.id)).length>1)?.id || bands[0]?.id);
+    selected = String(selected || '');
+    let mode = 'explore', depth = 1, showLabels = true;
+    let transform={x:0,y:0,k:1}, drag=null;
+    app.innerHTML = `${pageHeader('VEM LEDER VIDARE TILL VEM?','Nätverket','Utforska banden, musikerna och deras dokumenterade kopplingar. Välj ett band eller sök efter en person för att börja.')}
+      <section class="section page-section first-section network-page">
+        <div class="network-toolbar">
+          <label class="network-search-label" for="network-search">SÖK BAND ELLER PERSON</label>
+          <input id="network-search" type="search" list="network-options" placeholder="Sök bland alla dokumenterade band och personer…" autocomplete="off">
+          <datalist id="network-options">${[...bands.map(b=>b.canonical_name),...people.map(p=>p.canonical_name)].map(n=>`<option value="${escapeHtml(n)}">`).join('')}</datalist>
+          <div class="network-toolbar-row"><div class="network-tabs"><button class="active" data-mode="explore">Utforska</button><button data-mode="all">Hela nätverket</button></div><label class="network-depth-label">Kopplingar <select id="network-depth"><option value="1">1 nivå</option><option value="2">2 nivåer</option></select></label><label class="network-label-toggle"><input id="network-labels" type="checkbox" checked> Visa namn</label></div>
+        </div>
+        <div class="network-layout"><div class="network-shell"><svg id="network" viewBox="0 0 1200 720" aria-label="Interaktiv karta över band och personer" role="img"><g id="network-scene"></g></svg>
+          <div class="network-map-controls"><button id="net-plus" aria-label="Zooma in">+</button><button id="net-minus" aria-label="Zooma ut">−</button><button id="net-reset" aria-label="Återställ vy">↺</button></div>
+          <div class="network-legend"><span><i class="legend-band"></i> Band</span><span><i class="legend-person"></i> Person</span><span><i class="legend-line"></i> Koppling</span></div>
+          </div><aside class="network-details" id="network-details"></aside></div>
+        <p class="network-note" id="network-note"></p>
+      </section>`;
+    const svg = $('#network'), scene = $('#network-scene'), details = $('#network-details');
+    const search=$('#network-search');
+    function focusedGraph() {
+      const bandIds = new Set([selected]), peopleIds = new Set(), edges=[];
+      let frontier=new Set([selected]);
+      for(let level=0;level<depth;level++){
+        const next=new Set();
+        frontier.forEach(bid=>{
+          (bandPerson.get(bid)||[]).forEach(pid=>{
+            peopleIds.add(pid);
+            (personBands.get(pid)||[]).forEach(other=>{if(!bandIds.has(other)){bandIds.add(other);next.add(other);}});
+          });
+          relationEdges.forEach(r=>{
+            const from=String(r.from_band_id),to=String(r.to_band_id);
+            if(from===bid&&!bandIds.has(to)){bandIds.add(to);next.add(to);}
+            if(to===bid&&!bandIds.has(from)){bandIds.add(from);next.add(from);}
+          });
+        });
+        frontier=next;
+      }
+      bandIds.forEach(bid=>(bandPerson.get(bid)||[]).forEach(pid=>peopleIds.add(pid)));
+      const nodes=[...bandIds].map(id=>({id:'b'+id,type:'band',ref:bandById.get(id),focus:id===selected})).concat([...peopleIds].map(id=>({id:'p'+id,type:'person',ref:personById.get(id)})));
+      const ids=new Set(nodes.map(n=>n.id));
+      bandIds.forEach(bid=>(bandPerson.get(bid)||[]).forEach(pid=>{if(ids.has('p'+pid))edges.push({a:'b'+bid,b:'p'+pid});}));
+      relationEdges.forEach(r=>{const a='b'+r.from_band_id,b='b'+r.to_band_id;if(ids.has(a)&&ids.has(b))edges.push({a,b,relation:true});});
+      return {nodes,edges};
+    }
+    function entireGraph() {
+      const nodes=bands.map(b=>({id:'b'+b.id,type:'band',ref:b,focus:String(b.id)===selected}));
+      const edges=relationEdges.map(r=>({a:'b'+r.from_band_id,b:'b'+r.to_band_id,relation:true}));
+      const joined = new Map();
+      personBands.forEach(bs=>{
+        for(let i=0;i<bs.length;i++)for(let j=i+1;j<bs.length;j++){
+          const a='b'+bs[i],b='b'+bs[j];if(a===b)continue;
+          const key=[a,b].sort().join('|');if(!joined.has(key)){joined.set(key,true);edges.push({a,b,shared:true});}
+        }
+      });
+      return {nodes,edges};
+    }
+    function layout(graph) {
+      const {nodes,edges}=graph, W=1200,H=720,N=nodes.length;
+      const positions=new Map();
+      nodes.forEach((n,i)=>{
+        const angle=i*2.399963229728653, r=Math.sqrt((i+.5)/Math.max(N,1))*285;
+        positions.set(n.id,{x:600+Math.cos(angle)*r*1.6,y:360+Math.sin(angle)*r});
+      });
+      const focus=positions.get('b'+selected);
+      if(mode==='explore' && focus){focus.x=600;focus.y=360;}
+      const iterations=mode==='all'?110:140, repulsion=mode==='all'?3400:6700;
+      for(let step=0;step<iterations;step++){
+        const move=new Map(nodes.map(n=>[n.id,{x:0,y:0}]));
+        for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+          const a=positions.get(nodes[i].id),b=positions.get(nodes[j].id);
+          let dx=a.x-b.x,dy=a.y-b.y,d2=Math.max(150,dx*dx+dy*dy),d=Math.sqrt(d2);
+          const f=Math.min(9,repulsion/d2),fx=dx/d*f,fy=dy/d*f;
+          move.get(nodes[i].id).x+=fx;move.get(nodes[i].id).y+=fy;
+          move.get(nodes[j].id).x-=fx;move.get(nodes[j].id).y-=fy;
+        }
+        edges.forEach(e=>{
+          const a=positions.get(e.a),b=positions.get(e.b);if(!a||!b)return;
+          const dx=b.x-a.x,dy=b.y-a.y,d=Math.max(1,Math.hypot(dx,dy));
+          const ideal=mode==='all'?105:(e.relation?155:115);
+          const f=(d-ideal)*.018,fx=dx/d*f,fy=dy/d*f;
+          move.get(e.a).x+=fx;move.get(e.a).y+=fy;move.get(e.b).x-=fx;move.get(e.b).y-=fy;
+        });
+        nodes.forEach(n=>{
+          const p=positions.get(n.id),v=move.get(n.id);
+          const tether=mode==='all'?.012:.018;
+          p.x+=Math.max(-11,Math.min(11,v.x+(600-p.x)*tether));
+          p.y+=Math.max(-11,Math.min(11,v.y+(360-p.y)*tether));
+          if(mode==='explore'&&n.id==='b'+selected){p.x+=(600-p.x)*.28;p.y+=(360-p.y)*.28;}
+        });
+      }
+      return positions;
+    }
+    function draw() {
+      const graph=mode==='all'?entireGraph():focusedGraph(), pos=layout(graph);
+      const radius = mode==='all'?13:24;
+      let html='<g class="network-edges">';
+      graph.edges.forEach(e=>{const a=pos.get(e.a),b=pos.get(e.b);if(a&&b)html+=`<line class="net-line ${e.relation?'relation':''}" x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}"></line>`;});
+      html+='</g>';
+      graph.nodes.forEach(n=>{
+        const p=pos.get(n.id),isBand=n.type==='band',r=isBand?radius*(n.focus?1.45:1):(mode==='all'?0:6);
+        if(!r)return;
+        const name=escapeHtml(n.ref.canonical_name);
+        html+=`<g class="${isBand?'net-band':'net-person'} ${n.focus?'network-focus':''}" data-node="${n.id}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})" tabindex="0" role="button" aria-label="${name}"><title>${name}</title><circle r="${r}"></circle>${showLabels&&(mode==='explore'||n.focus)?`<text class="network-node-name" y="${r+15}">${name}</text>`:''}</g>`;
+      });
+      scene.innerHTML=html;
+      applyTransform();
+      $('#network-note').textContent=mode==='all'?`Visar alla ${bands.length} dokumenterade Uppsalaband och deras kända bandkopplingar. Klicka på ett band för att utforska dess medlemmar.`:`Visar ${graph.nodes.filter(n=>n.type==='band').length} band och ${graph.nodes.filter(n=>n.type==='person').length} personer. Kopplingarna bygger på arkivets dokumenterade uppgifter.`;
+      scene.querySelectorAll('[data-node]').forEach(el=>{
+        const activate=()=>{const id=el.dataset.node;if(id[0]==='b'){selected=id.slice(1);mode='explore';$('#network-depth').disabled=false;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));resetView();draw();}else{const p=personById.get(id.slice(1));if(p)showPerson(p);}};
+        el.addEventListener('click',activate);
+        el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}});
+      });
+      showBand(bandById.get(selected));
+    }
+    function showBand(b){
+      if(!b)return;
+      const members=(bandPerson.get(String(b.id))||[]).map(id=>personById.get(id)).filter(Boolean);
+      details.innerHTML=`<div class="section-kicker">VALT BAND</div><h2>${escapeHtml(b.canonical_name)}</h2><p>${members.length} dokumenterade personer</p><a class="network-profile-link" href="${bandHref(b)}">Öppna bandsidan ↗</a><div class="network-detail-heading">MEDLEMMAR & KOPPLINGAR</div>${members.length?members.map(p=>`<button class="network-person-link" data-person="${p.id}">${escapeHtml(p.canonical_name)} <span>↗</span></button>`).join(''):'<p>Inga dokumenterade medlemmar ännu.</p>'}`;
+      details.querySelectorAll('[data-person]').forEach(btn=>btn.addEventListener('click',()=>showPerson(personById.get(String(btn.dataset.person)))));
+    }
+    function showPerson(p){
+      if(!p)return;
+      const related=(personBands.get(String(p.id))||[]).map(id=>bandById.get(id)).filter(Boolean);
+      details.innerHTML=`<div class="section-kicker">PERSON</div><h2>${escapeHtml(p.canonical_name)}</h2><a class="network-profile-link" href="${personHref(p)}">Öppna personsidan ↗</a><div class="network-detail-heading">BANDKOPPLINGAR</div>${related.map(b=>`<button class="network-person-link" data-band="${b.id}">${escapeHtml(b.canonical_name)} <span>→</span></button>`).join('') || '<p>Ingen dokumenterad bandkoppling.</p>'}`;
+      details.querySelectorAll('[data-band]').forEach(btn=>btn.addEventListener('click',()=>{selected=String(btn.dataset.band);mode='explore';resetView();draw();}));
+    }
+    function applyTransform(){scene.setAttribute('transform',`translate(${transform.x} ${transform.y}) scale(${transform.k})`);}
+    function resetView(){transform={x:0,y:0,k:1};applyTransform();}
+    function zoom(factor){const k=Math.max(.4,Math.min(4,transform.k*factor));transform.x=600-(600-transform.x)*k/transform.k;transform.y=360-(360-transform.y)*k/transform.k;transform.k=k;applyTransform();}
+    $('#net-plus').addEventListener('click',()=>zoom(1.25));
+    $('#net-minus').addEventListener('click',()=>zoom(.8));
+    $('#net-reset').addEventListener('click',resetView);
+    svg.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY<0?1.12:.89);},{passive:false});
+    svg.addEventListener('pointerdown',e=>{if(e.target.closest('[data-node]'))return;drag={x:e.clientX,y:e.clientY};svg.setPointerCapture(e.pointerId);});
+    svg.addEventListener('pointermove',e=>{if(!drag)return;const rect=svg.getBoundingClientRect();transform.x+=(e.clientX-drag.x)*1200/rect.width;transform.y+=(e.clientY-drag.y)*720/rect.height;drag={x:e.clientX,y:e.clientY};applyTransform();});
+    svg.addEventListener('pointerup',()=>drag=null);
+    svg.addEventListener('pointercancel',()=>drag=null);
+    document.querySelectorAll('[data-mode]').forEach(btn=>btn.addEventListener('click',()=>{
+      mode=btn.dataset.mode;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b===btn));
+      $('#network-depth').disabled=mode==='all';resetView();draw();
     }));
-    state.relations.filter(r=>selectedBandIds.has(r.from_band_id)&&selectedBandIds.has(r.to_band_id)).forEach(r=>{ const [x1,y1]=bPos.get(r.from_band_id),[x2,y2]=bPos.get(r.to_band_id); html+=`<line class="net-line relation" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"></line>`; });
-    selectedBands.forEach(b=>{ const [x,y]=bPos.get(b.id); html+=`<a href="${bandHref(b)}"><g class="net-band" transform="translate(${x} ${y})"><circle r="52"></circle><text y="5">${escapeHtml(b.canonical_name)}</text></g></a>`; });
-    selectedPeople.forEach(p=>{ if(!pPos.has(p.id))return; const [x,y]=pPos.get(p.id); html+=`<a href="${personHref(p)}"><g class="net-person" transform="translate(${x} ${y})"><circle r="7"></circle><text y="23">${escapeHtml(p.canonical_name)}</text></g></a>`; });
-    svg.innerHTML=html;
+    $('#network-depth').addEventListener('change',e=>{depth=Number(e.target.value);resetView();draw();});
+    $('#network-labels').addEventListener('change',e=>{showLabels=e.target.checked;draw();});
+    search.addEventListener('change',()=>{
+      const term=search.value.trim().toLocaleLowerCase('sv');
+      const b=bands.find(x=>x.canonical_name.toLocaleLowerCase('sv')===term);
+      const p=people.find(x=>x.canonical_name.toLocaleLowerCase('sv')===term);
+      if(b){selected=String(b.id);mode='explore';document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));resetView();draw();}
+      else if(p){const linked=personBands.get(String(p.id))||[];if(linked.length){selected=linked[0];mode='explore';resetView();draw();}showPerson(p);}
+    });
+    draw();
   }
 
   function renderContact() {
