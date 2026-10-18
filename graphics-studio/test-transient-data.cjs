@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const source=fs.readFileSync(__dirname+'/transient-data.js','utf8');
 const scope={league:532,start:'2026-10-11',end:'2026-10-15'};
-const payload=()=>({schema_version:1,league_id:532,expires_at:new Date(Date.now()+3600000).toISOString(),teams:[],players:[],weekly:{start:scope.start,end:scope.end}});
+const payload=()=>({schema_version:1,league_id:532,fetched_at:new Date().toISOString(),expires_at:new Date(Date.now()+3600000).toISOString(),teams:[],players:[],matches:[],weekly:{start:scope.start,end:scope.end}});
 function setup(responses){
  const calls=[],window={EHOCKEY_CONFIG:{supabaseUrl:'https://example.test',supabasePublishableKey:'public'},SWNStudioAccess:{session:async()=>({access_token:'session-token'})}};
  const ctx={window,Date,Map,Promise,Number,Array,String,Error,AbortSignal,setTimeout:fn=>fn(),fetch:async(url,options)=>{calls.push({url,body:JSON.parse(options.body)});return {ok:true,json:async()=>responses.shift()};}};
@@ -13,6 +13,9 @@ function setup(responses){
  assert.equal(a,data);assert.equal(b,data);assert.equal(t.calls.length,2);
  assert.deepEqual(t.calls[0].body,{action:'start',league:532,start:scope.start,end:scope.end});
  assert.equal(await t.api.request(scope),data);assert.equal(t.calls.length,2);
+ const fresh=setup([{request_id:'a'},{state:'completed',data},{request_id:'b'},{state:'completed',data:payload()},{request_id:'c'},{state:'completed',data:payload()}]);
+ await fresh.api.request(scope);await fresh.api.request({...scope,fresh:true});assert.equal(fresh.calls.length,4,'Explicit fetch must not reuse a cached snapshot');
+ fresh.api.clear();await fresh.api.request(scope);assert.equal(fresh.calls.length,6,'Session reset clears cached snapshots');
  assert(!t.api.valid({...data,league_id:527},scope));
  assert(!t.api.valid({...data,expires_at:'2000-01-01'},scope));
  assert(!t.api.valid({...data,weekly:{start:scope.start,end:'2026-10-16'}},scope));

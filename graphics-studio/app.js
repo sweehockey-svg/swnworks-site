@@ -25,61 +25,56 @@ const n=v=>v!==null&&v!==undefined&&v!==""&&Number.isFinite(Number(v))?Number(v)
 const clip=(v,l)=>{v=String(v||"");return v.length>l?v.slice(0,l-1)+"…":v};
 const comp=()=>C[S.league]||{label:"TURNERING",code:"",logo:""}, format=()=>F[S.format]||F.portrait;
 const headers=()=>{const h={apikey:KEY,Accept:"application/json"};if(/^eyJ[^.]+\.[^.]+\.[^.]+$/.test(KEY))h.Authorization="Bearer "+KEY;return h};
-let transientData=null;
-async function useTransientData(data){
-  if(Number(data.league_id)!==S.league||Date.parse(data.expires_at)<=Date.now())return;
-  data=await window.GraphicsTransientData.withPortraits(data);
-  if(Number(data.league_id)!==S.league||Date.parse(data.expires_at)<=Date.now())return;
-  transientData=data;
-  await load();
+let transientData=null,dataEpoch=0,expiryTimer=null,emptyMessage='Ingen data hämtad. Klicka Hämta från SportsGamer.';
+function dataReady(){return !dataLoading&&!!transientData&&Number(transientData.league_id)===S.league&&Date.parse(transientData.expires_at)>Date.now();}
+function resetData(message='Ingen data hämtad. Klicka Hämta från SportsGamer.'){
+  dataEpoch++;dataRequest++;scheduleRequest++;clearTimeout(expiryTimer);expiryTimer=null;
+  transientData=null;S.teams=[];S.players=[];S.group=null;S.filterGroup=null;
+  dataLoading=false;playerDataError=false;schedule=[];scheduleLoading=false;scheduleError='';emptyMessage=message;
+  manualMatches=[];matchDateOverrides={};matchSideOverrides={};singlePlayerId='';rosterTeamId='';rosterPickerSignature='';rosterExcluded.clear();playerOverrides.clear();
+  window.GraphicsTransientData?.clear?.();extraTemplates.reset();
+  for(const id of ['rosterTeam','singlePlayer','rosterPlayers','manualMatchList','matchEditSelect','manualHome','manualAway'])$('#'+id).innerHTML='';
+  $('#filterGroup').value='all';$('#matchPage').value='0';$('#refresh').disabled=false;$('#refresh').textContent=L.t('Hämta från SportsGamer');
+  $('#transientFetchStatus').textContent=L.t(message);groups();setStatus('INGEN DATA','empty');render();
 }
-async function rows(view){
-  if(transientData&&Number(transientData.league_id)===S.league&&Date.parse(transientData.expires_at)>Date.now()){
-    if(view==='v_broadcast_teams_public')return transientData.teams;
-    if(view==='v_broadcast_players_public')return transientData.players;
-  }
-  if(!SUPA||!KEY)throw new Error("Supabase-konfiguration saknas");
-  const u=SUPA+"/rest/v1/"+view+"?sports_gamer_league_id=eq."+S.league+"&select=*";
-  for(let attempt=0;attempt<2;attempt++){
-    try{
-      const r=await fetch(u,{headers:headers(),cache:"no-store",signal:AbortSignal.timeout(20000)});
-      if(!r.ok){const error=new Error(view+" HTTP "+r.status);error.status=r.status;throw error;}
-      return await r.json();
-    }catch(error){
-      if(attempt||!(error.status>=500||error.status===429||error instanceof TypeError||error.name==='TimeoutError'))throw error;
-      await new Promise(resolve=>setTimeout(resolve,500));
-    }
-  }
+async function useTransientData(data,epoch=dataEpoch){
+  if(epoch!==dataEpoch||Number(data.league_id)!==S.league||Date.parse(data.expires_at)<=Date.now())return false;
+  if(!Array.isArray(data.matches)||!Array.isArray(data.teams)||!Array.isArray(data.players)||!Number.isFinite(Date.parse(data.fetched_at)))throw new Error('Hämtningen saknar aktuellt underlag. Hämta igen.');
+  data=await window.GraphicsTransientData.withPortraits(data);
+  if(epoch!==dataEpoch||Number(data.league_id)!==S.league||Date.parse(data.expires_at)<=Date.now())return false;
+  transientData=data;
+  await load();if(epoch!==dataEpoch||!dataReady())return false;clearTimeout(expiryTimer);
+  expiryTimer=setTimeout(()=>{if(epoch===dataEpoch)resetData('Hämtningen har gått ut. Hämta från SportsGamer igen.');},Math.max(1,Date.parse(data.expires_at)-Date.now()+1));
+  return true;
 }
 let manualMatches=[];
-try{const saved=JSON.parse(localStorage.getItem('swn-graphics-manual-results')||'[]');if(Array.isArray(saved))manualMatches=saved.filter(g=>g&&Array.isArray(g.knownIds)&&Number.isInteger(g.homeScore)&&Number.isInteger(g.awayScore));}catch{}
-function storeManualMatches(next){try{localStorage.setItem('swn-graphics-manual-results',JSON.stringify(next));manualMatches=next;return true;}catch{return false;}}
+function storeManualMatches(next){manualMatches=next;return true;}
 let dataRequest=0,dataLoading=false,playerDataError=false;
 const needsPlayers=()=>!['table','groups','matches','game_night','final_score','playoff_series'].includes(S.kind);
 async function load(){
-  const request=++dataRequest, league=S.league;dataLoading=true;
-  setStatus("HÄMTAR…","load");
+  const request=++dataRequest, league=S.league;dataLoading=false;
+  if(!dataReady()){resetData();return;}
   try{
-    const [teamsResult,playersResult]=await Promise.allSettled([rows("v_broadcast_teams_public"),rows("v_broadcast_players_public"),loadSchedule(false)]);
+    const teams=transientData.teams,players=transientData.players;
     if(request!==dataRequest||league!==S.league)return;
-    if(teamsResult.status!=='fulfilled')throw teamsResult.reason;
-    S.teams=teamsResult.value.map(team=>{
+    S.teams=teams.map(team=>{
       // SportsGamer requires a country for these regional teams. That country
       // is not their identity: always use their actual EU/NA crest.
       const regional=league===532?{7093:'logo-assets/wv-na-20261010.png',7094:'logo-assets/wv-eu-20261010.png'}[Number(team.sports_gamer_team_id)]:null;
       return regional?{...team,team_logo_in_league:new URL(regional,location.href).href}:team;
     });
-    playerDataError=playersResult.status!=='fulfilled';S.players=playerDataError?[]:playersResult.value;dataLoading=false;
+    playerDataError=false;S.players=players;schedule=transientData.matches;
     const reconciliation=ManualResults.reconcile(manualMatches,schedule,league);
     if(reconciliation.removed.length&&storeManualMatches(reconciliation.remaining))$("#manualMatchStatus").textContent=reconciliation.removed.length+' manuell match ersatt av rapporterat resultat.';
-    groups(); setStatus(playerDataError?'Lagdata klar · Spelardata kunde inte hämtas. Försök uppdatera.':S.teams.length+" LAG · "+S.players.length+" SPELARE",playerDataError?'partial':'ok'); render();
-  }catch(e){if(request!==dataRequest)return;dataLoading=false;console.error(e);setStatus("DATAFEL","error");$("#preview").innerHTML='<div style="color:white;padding:30px">Datafel: '+esc(e.message)+'</div>'}
+    groups();setStatus(S.teams.length+" LAG · "+S.players.length+" SPELARE",'ok');showFetchTime();render();
+  }catch(e){if(request!==dataRequest)return;console.error(e);resetData(e.message);setStatus('DATAFEL','error');}
 }
-function setStatus(t,m){$("#dataStatus").textContent=L.t(t);$("#topStatus").textContent=L.t(m==="error"?"DATAFEL":m==="load"?"UPPDATERAR":m==='partial'?'SPELARDATA SAKNAS':"LIVE DATA")}
+function showFetchTime(){if(dataReady())$('#transientFetchStatus').textContent=L.t('Hämtat från SportsGamer:')+' '+new Date(transientData.fetched_at).toLocaleString(L.locale,{timeZone:'Europe/Stockholm',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'. '+L.t('Endast i denna öppna session.');}
+function setStatus(t,m){$("#dataStatus").textContent=L.t(t);$("#topStatus").textContent=L.t(m==="error"?"DATAFEL":m==="load"?"UPPDATERAR":m==='empty'?'INGEN DATA':'NYHÄMTAT');$('#topStatus').dataset.state=m;}
 function groupIds(){return [...new Set(S.teams.filter(x=>x.statistics_stage==="regular").map(x=>Number(x.effective_group_id)).filter(Number.isFinite))].sort((a,b)=>a-b)}
 function groupName(id){const ids=groupIds(),i=ids.indexOf(Number(id));return L.t("GRUPP")+" "+(i<0?Number(id):i+1)}
 function groups(){
-  const ids=groupIds();filterGroups();if(!ids.length){S.group=null;$("#group").innerHTML='<option>Ingen gruppdata</option>';return}
+  const ids=groupIds();filterGroups();if(!ids.length){S.group=null;$("#group").innerHTML='<option value="">Ingen gruppdata</option>';return}
   if(!ids.includes(Number(S.group)))S.group=ids[0];
   $("#group").innerHTML=ids.map(id=>'<option value="'+id+'"'+(id===S.group?' selected':'')+'>'+groupName(id)+'</option>').join("");
 }
@@ -151,18 +146,14 @@ function goalies(){
 function stageName(){return S.stage==="regular"?"GRUPPSPEL":S.stage==="playoffs"?"SLUTSPEL":"TOTALT"}
 function sync(){S.filterGroup=$('#filterGroup').value==='all'||!$('#filterGroup').value?null:Number($('#filterGroup').value);S.league=Number($("#league").value||527);S.stage=$("#stage").value;S.group=$("#group").value?Number($("#group").value):S.group;S.count=Number($("#count").value||8);S.format=$("#format").value;S.minGamesPercent=$("#minGamesPercent").value===""?50:Number($("#minGamesPercent").value);S.bg=$("#bg").value;S.logos=$("#logos").checked}
 let schedule=[],scheduleLoading=false,scheduleError="",scheduleRequest=0;
-const scheduleToken="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91anFudnJjemRhdnFicWFhdnVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3Mzg3NDEsImV4cCI6MjEwMDMxNDc0MX0.-yVDYCXkdslmUiXToldsCcWqPIv6tkPSCsIab_PAeBQ";
 const swedishDay=date=>new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Stockholm",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(date));
 let matchDateOverrides={};
-try{const saved=JSON.parse(localStorage.getItem('swn-graphics-match-dates')||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))matchDateOverrides=saved;}catch{}
 const matchOverrideKey=g=>S.league+":"+g.id;
 let matchSideOverrides={};
-try{const saved=JSON.parse(localStorage.getItem('swn-graphics-match-sides')||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))matchSideOverrides=saved;}catch{}
 function displayedMatch(g){return matchSideOverrides[matchOverrideKey(g)]===true?{...g,home:g.away,away:g.home,homeScore:g.awayScore,awayScore:g.homeScore}:g;}
 function toggleMatchSides(){
  const g=schedule.find(g=>String(g.id)===$("#matchEditSelect").value);if(!g)return;
  const next={...matchSideOverrides},key=matchOverrideKey(g);if(next[key]===true)delete next[key];else next[key]=true;
- try{localStorage.setItem('swn-graphics-match-sides',JSON.stringify(next));}catch{$("#matchEditStatus").textContent='Ändringen kunde inte sparas i webbläsaren.';return;}
  matchSideOverrides=next;render();$("#matchEditStatus").textContent=next[key]?'Hemma och borta är bytta i grafiken. Lag och mål följer med.':'Originalets hemma- och bortalag är återställda.';
 }
 function effectiveMatchDay(g){const day=matchDateOverrides[matchOverrideKey(g)];return typeof day==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(day)?day:swedishDay(g.date)}
@@ -178,9 +169,8 @@ function syncMatchEditor(){
 function saveMatchDate(reset=false){
  const g=schedule.find(g=>String(g.id)===$("#matchEditSelect").value),day=$("#matchEditDate").value;if(!g||(!reset&&!day))return;
  const next={...matchDateOverrides};if(reset)delete next[matchOverrideKey(g)];else next[matchOverrideKey(g)]=day;
- try{localStorage.setItem('swn-graphics-match-dates',JSON.stringify(next));}catch{$("#matchEditStatus").textContent='Datumet kunde inte sparas i webbläsaren.';return;}
  matchDateOverrides=next;$("#matchDate").value=effectiveMatchDay(g);$("#matchPage").value="0";render();
- $("#matchEditStatus").textContent=reset?'Matchens rapporteringsdatum är återställt.':'Matchdatum sparat i den här webbläsaren.';
+ $("#matchEditStatus").textContent=reset?'Matchens rapporteringsdatum är återställt.':'Matchdatum gäller i denna öppna session.';
 }
 function syncManualEditor(){
  const teams=S.teams.filter(t=>t.statistics_stage==='regular');
@@ -198,16 +188,6 @@ function saveManualMatch(){
  if(manualMatches.some(g=>Number(g.league)===S.league&&g.day===day&&ManualResults.signature(g)===ManualResults.signature(match))||schedule.some(g=>effectiveMatchDay(g)===day&&ManualResults.signature(g)===ManualResults.signature(match))){status.textContent='Samma resultat finns redan på detta datum. Lägg inte till det igen.';return;}
  if(!storeManualMatches([...manualMatches,match])){status.textContent='Resultatet kunde inte sparas i webbläsaren.';return;}
  $("#matchDate").value=day;$("#matchPage").value='0';render();status.textContent='Tillfälligt resultat sparat. Räknas med i tabellen: 3 poäng för seger, eller 2–1 efter OT/straffar.';
-}
-async function loadSchedule(redraw=true){
- const request=++scheduleRequest,league=S.league;schedule=[];scheduleError="";scheduleLoading=true;if(redraw||S.kind==="matches")render();
- try{
-  const r=await fetch(SUPA+"/functions/v1/graphics-schedule?league="+league,{headers:{apikey:KEY,Authorization:"Bearer "+scheduleToken},cache:"no-store",signal:AbortSignal.timeout(25000)});
-  const data=await r.json();if(!r.ok)throw Error(data.error||"HTTP "+r.status);
-  if(request!==scheduleRequest)return;schedule=data.matches;
-
- }catch(e){if(request!==scheduleRequest)return;scheduleError="Rapporterade matcher kunde inte hämtas. Försök uppdatera.";}
- finally{if(request===scheduleRequest){scheduleLoading=false;if(redraw)render();}}
 }
 function matchDayLabel(){return new Date(($("#matchDate").value||swedishDay(new Date()))+"T12:00:00").toLocaleDateString(L.locale,{day:"numeric",month:"long",year:"numeric"})}
 function matchPages(games){
@@ -1062,7 +1042,7 @@ function rosterSvg(){
 }
 
 function build(){
-  let graphic=extraTemplates.has(S.kind)?extraTemplates.graphic():playerDataError&&needsPlayers()?base(svgText(format().w/2,format().h/2,'Spelardata kunde inte hämtas. Försök uppdatera.',24,'#ffcf4a',700,'text-anchor="middle"')):S.kind==="player"?playerPresentationSvg():S.kind==="roster"?rosterSvg():S.kind==="matches"?matchesSvg():S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind);
+  let graphic=!dataReady()?base(svgText(format().w/2,format().h*.5,L.t(dataLoading?'Hämtar från SportsGamer…':'Ingen data hämtad'),32,'#ffcf4a',800,'text-anchor="middle"')+svgText(format().w/2,format().h*.5+48,L.t(dataLoading?'Vänta tills hämtningen är klar.':'Klicka Hämta från SportsGamer för att börja.'),20,'#a2b6c9',600,'text-anchor="middle"')):extraTemplates.has(S.kind)?extraTemplates.graphic():playerDataError&&needsPlayers()?base(svgText(format().w/2,format().h/2,'Spelardata kunde inte hämtas. Försök uppdatera.',24,'#ffcf4a',700,'text-anchor="middle"')):S.kind==="player"?playerPresentationSvg():S.kind==="roster"?rosterSvg():S.kind==="matches"?matchesSvg():S.kind==="table"?tableSvg():S.kind==="groups"?groupsSvg():S.kind==="goalies"?goalieSvg():S.kind==="leaders"?leadersSvg():board(S.kind);
   const sports=$("#sender").value==="sportsgamer",name=sports?"SportsGamer":"SVENSK eHOCKEY",logo=sports?"../assets/sportsgamer-logo.png":"../assets/svensk-ehockey-logo.png";
   const {w,h}=format();
   graphic=graphic.replaceAll('SVENSK eHOCKEY',name);
@@ -1085,7 +1065,7 @@ function render(){
   S.rosterStats=$("#rosterDisplay").value==="stats";$("#rosterDisplayField").hidden=S.kind!=="roster";if(["roster","player"].includes(S.kind))syncRosterPicker();if(S.kind==="player")syncSinglePlayer();$("#singlePlayerField").hidden=$("#playerNoteField").hidden=S.kind!=="player";$("#rosterTeamField").hidden=!["roster","player"].includes(S.kind);$("#rosterPlayersField").hidden=S.kind!=="roster";$("#preview").innerHTML=build();$("#sizeLabel").textContent=format().label;$("#kindLabel").textContent=L.t(TIT[S.kind]);
   const missingTieBreaks=S.league===527&&['table','groups'].includes(S.kind)&&(scheduleLoading||!!scheduleError);
   if(missingTieBreaks)$("#preview").innerHTML='<div style="color:white;padding:30px">'+esc(scheduleError||L.t('HÄMTAR…'))+'</div>';
-  $("#png").disabled=$("#svg").disabled=dataLoading||playerDataError&&needsPlayers()||missingTieBreaks||S.kind==="player"&&!singlePlayer();
+  $("#png").disabled=$("#svg").disabled=!dataReady()||playerDataError&&needsPlayers()||missingTieBreaks||S.kind==="player"&&!singlePlayer();
   $("#matchEditField").hidden=S.kind!=="matches";if(S.kind==="matches"){syncMatchEditor();syncManualEditor();}$("#matchPageField").hidden=S.kind!=="matches";$("#matchDateField").hidden=S.kind!=="matches";$("#matchListField").hidden=S.kind!=="matches";$("#stageField").hidden=(S.kind==="roster"&&!S.rosterStats)||S.kind==="matches"||S.kind==="table"||S.kind==="groups";$("#groupField").hidden=S.kind!=="table"||groupIds().length<=1;$("#filterGroupField").hidden=["table","groups","roster","player"].includes(S.kind)||groupIds().length<=1;$("#countField").hidden=true;
   if(extraTemplates.has(S.kind)){$("#filterGroupField").hidden=groupIds().length<=1;$("#stageField").hidden=S.kind!=="player_duel";}
 }
@@ -1120,11 +1100,12 @@ async function inline(svg){
   }));
   return new XMLSerializer().serializeToString(d.documentElement);
 }
-async function expSvg(){await readyPortraits();const s=await inline(build());dl(new Blob([s],{type:"image/svg+xml;charset=utf-8"}),safe()+".svg")}
-async function expPng(){await readyPortraits();const s=await inline(build()),{w,h}=format(),u=URL.createObjectURL(new Blob([s],{type:"image/svg+xml;charset=utf-8"})),im=new Image();try{await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=u});const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(im,0,0,w,h);const b=await new Promise(ok=>c.toBlob(ok,"image/png",1));if(!b)throw new Error("PNG-export misslyckades");dl(b,safe()+".png")}finally{URL.revokeObjectURL(u)}}
+function checkExportEpoch(epoch){if(epoch!==dataEpoch||!dataReady())throw new Error('Underlaget har ändrats eller gått ut. Hämta igen före export.');}
+async function expSvg(){const epoch=dataEpoch;await readyPortraits();checkExportEpoch(epoch);const s=await inline(build());checkExportEpoch(epoch);dl(new Blob([s],{type:"image/svg+xml;charset=utf-8"}),safe()+".svg")}
+async function expPng(){const epoch=dataEpoch;await readyPortraits();checkExportEpoch(epoch);const s=await inline(build()),{w,h}=format(),u=URL.createObjectURL(new Blob([s],{type:"image/svg+xml;charset=utf-8"})),im=new Image();try{await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=u});const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(im,0,0,w,h);const b=await new Promise(ok=>c.toBlob(ok,"image/png",1));if(!b)throw new Error("PNG-export misslyckades");checkExportEpoch(epoch);dl(b,safe()+".png")}finally{URL.revokeObjectURL(u)}}
 
-const extraTemplates=window.createExtraGraphicsTemplates({S,TIT,format,base,logos,img,svgText,esc,portraitUrl,normalizedPortrait,rosterStatsValues,nationFlag,render,useTransientData});
-$$("[data-kind]").forEach(b=>b.onclick=()=>{$$("[data-kind]").forEach(x=>x.classList.toggle("active",x===b));S.kind=b.dataset.kind;if(S.kind==="matches")load();else render()});
+const extraTemplates=window.createExtraGraphicsTemplates({S,TIT,format,base,logos,img,svgText,esc,portraitUrl,normalizedPortrait,rosterStatsValues,nationFlag,render,useTransientData,getTransientData:()=>dataReady()?transientData:null});
+$$("[data-kind]").forEach(b=>b.onclick=()=>{$$("[data-kind]").forEach(x=>x.classList.toggle("active",x===b));S.kind=b.dataset.kind;render()});
 $("#filterGroup").addEventListener("change",()=>{$("#matchPage").value="0";render()});
 $("#singlePlayer").onchange=()=>{singlePlayerId=$("#singlePlayer").value;render()};
 $("#rosterTeam").onchange=()=>{rosterTeamId=$("#rosterTeam").value;render()};
@@ -1156,28 +1137,31 @@ $('#playerNumber').addEventListener('input',updatePlayerOverride);
 $('#playerOverrideReset').addEventListener('click',()=>{
  const p=singlePlayer();if(p)playerOverrides.delete(playerOverrideKey(p));render();
 });
-$("#league").onchange=()=>{S.league=Number($("#league").value||527);S.group=null;S.filterGroup=null;$("#filterGroup").value="all";if(S.league===532)$("#bg").value="wv";else if($("#bg").value==="wv")$("#bg").value="gamenight";load()};
+$("#league").onchange=()=>{S.league=Number($("#league").value||527);if(S.league===532)$("#bg").value="wv";else if($("#bg").value==="wv")$("#bg").value="gamenight";resetData()};
 async function exportGraphic(type){
-  if(dataLoading||playerDataError&&needsPlayers())return;
+  if(!dataReady()||playerDataError&&needsPlayers())return;
   if(S.kind==="matches"&&(scheduleLoading||scheduleError))return;
   if(S.league===527&&['table','groups'].includes(S.kind)&&(scheduleLoading||scheduleError))return;
   const button=$("#"+type),label=button.textContent;
   $("#png").disabled=$("#svg").disabled=true;button.textContent=L.t("Exporterar…");
   try{await (type==="png"?expPng():expSvg())}catch(e){console.error("Graphics export:",e);$("#dataStatus").textContent=e.message;alert(e.message)}
-  finally{$("#png").disabled=$("#svg").disabled=false;button.textContent=label}
+  finally{$("#png").disabled=$("#svg").disabled=!dataReady();button.textContent=label}
 }
 $("#refresh").textContent='Hämta från SportsGamer';
 $("#refresh").onclick=async()=>{
- const button=$("#refresh"),status=$("#transientFetchStatus"),league=S.league;
+ resetData();const epoch=dataEpoch,button=$("#refresh"),status=$("#transientFetchStatus"),league=S.league;
  const start=$("#extraWeek")?.value,end=$("#extraWeekEnd")?.value;
- button.disabled=true;button.title='';button.textContent='Hämtar…';
+ dataLoading=true;setStatus('HÄMTAR…','load');render();button.disabled=true;button.title='';button.textContent=L.t('Hämtar…');
  try{
-  const data=await window.GraphicsTransientData.request({league,start,end,onProgress:message=>{status.textContent=message;}});
-  if(league===S.league){await useTransientData(data);status.textContent='Hämtat från SportsGamer. Används tillfälligt på denna sida, utan registerimport.';}
-  else status.textContent='Hämtningen är klar för tidigare vald liga. Den nya ligans grafik har inte ändrats.';
- }catch(error){status.textContent=error.message;}
- finally{button.disabled=false;button.textContent='Hämta från SportsGamer';}
+  const data=await window.GraphicsTransientData.request({league,start,end,fresh:true,onProgress:message=>{if(epoch===dataEpoch)status.textContent=message;}});
+  if(epoch===dataEpoch&&league===S.league&&!await useTransientData(data,epoch))throw new Error('Hämtningen har gått ut. Hämta från SportsGamer igen.');
+ }catch(error){if(epoch===dataEpoch){resetData(error.message);setStatus('DATAFEL','error');}}
+ finally{if(epoch===dataEpoch){button.disabled=false;button.textContent=L.t('Hämta från SportsGamer');}}
 };$("#svg").onclick=()=>exportGraphic("svg");$("#png").onclick=()=>exportGraphic("png");
-$("#language").onchange=()=>{L.set($("#language").value);groups();render()};
-L.applyUi();render();load();
+$("#language").onchange=()=>{L.set($("#language").value);groups();showFetchTime();render()};
+window.addEventListener('pageshow',event=>{if(event.persisted)resetData()});
+window.addEventListener('pagehide',()=>resetData());
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&transientData&&!dataReady())resetData('Hämtningen har gått ut. Hämta från SportsGamer igen.');});
+L.applyUi();sync();resetData();
 })();
+

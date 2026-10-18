@@ -1,15 +1,44 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const source=fs.readFileSync(__dirname+'/app.js','utf8');
-(async()=>{
- const elements={},ctx={SUPA:'https://example.test',KEY:'public',S:{league:527,kind:'table',teams:[],players:[]},headers:()=>({}),AbortSignal,setTimeout:fn=>fn(),localStorage:{getItem:()=>null,setItem:()=>{}},ManualResults:{reconcile:()=>({removed:[]})},schedule:[],groups:()=>{},render:()=>ctx.rendered=true,L:{t:x=>x},console:{error:()=>{}},esc:String,$:id=>elements[id]||=( {} )};
+function setup(){
+ const elements={},timers=new Map();let serial=0,fetches=0;
+ const element=id=>elements[id]||=( {value:'',innerHTML:'',textContent:'',disabled:false,dataset:{}} );
+ const ctx={S:{league:527,kind:'table',teams:[],players:[]},setTimeout:fn=>{timers.set(++serial,fn);return serial;},clearTimeout:id=>timers.delete(id),ManualResults:{reconcile:()=>({removed:[]})},schedule:[],scheduleRequest:0,scheduleError:'',scheduleLoading:false,matchDateOverrides:{},matchSideOverrides:{},singlePlayerId:'',rosterTeamId:'',rosterPickerSignature:'',rosterExcluded:new Map(),playerOverrides:new Map(),extraTemplates:{reset(){}},groups(){},render(){ctx.rendered=true;},L:{t:x=>x,locale:'sv-SE'},console:{error(){}},esc:String,$:element,URL,location:{href:'https://example.test/graphics-studio/'},window:{GraphicsTransientData:{withPortraits:async d=>d,clear(){}}},fetch:async()=>{fetches++;throw Error('Unexpected statistics/database fetch');},localStorage:{getItem:()=>JSON.stringify([{homeScore:99}]),setItem:()=>{throw Error('No persistent statistics');}}};
  vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('let transientData='),source.indexOf('function groupIds(')),ctx);
- let calls=0;ctx.fetch=async()=>({ok:++calls>1,status:500,json:async()=>['ready']});
- assert.deepEqual(await ctx.rows('players'),['ready']);assert.equal(calls,2);
- calls=0;ctx.fetch=async()=>{calls++;return {ok:false,status:401};};await assert.rejects(ctx.rows('players'),/401/);assert.equal(calls,1);
- ctx.loadSchedule=async()=>{};
- ctx.rows=async view=>{if(view.includes('players'))throw Error('HTTP 500');return [{sports_gamer_team_id:1}];};
- await ctx.load();assert.equal(ctx.S.teams.length,1);assert.equal(ctx.S.players.length,0);assert(ctx.rendered);assert.equal(vm.runInContext('playerDataError',ctx),true);assert.equal(vm.runInContext('needsPlayers()',ctx),false);
- ctx.S.kind='points';assert.equal(vm.runInContext('needsPlayers()',ctx),true);
- ctx.rows=async view=>view.includes('players')?[{display_gamertag:'Recovered'}]:[{sports_gamer_team_id:1}];await ctx.load();assert.equal(vm.runInContext('playerDataError',ctx),false);assert.equal(ctx.S.players[0].display_gamertag,'Recovered');
- console.log('Data recovery passed: retry 500, no retry 401, independent standings, missing-player guard and subsequent recovery');
-})().catch(error=>{console.error(error);process.exitCode=1;});
+ vm.runInContext(source.slice(source.indexOf('$("#refresh").textContent='),source.indexOf('$("#language").onchange=')),ctx);
+ const payload=()=>({league_id:ctx.S.league,fetched_at:new Date().toISOString(),expires_at:new Date(Date.now()+3600000).toISOString(),teams:[{sports_gamer_team_id:1,team_name_in_league:'Fresh Team'}],players:[{sports_gamer_player_id:7,display_gamertag:'Fresh Player'}],matches:[{id:4,home:'Fresh Team',away:'Other',homeScore:3,awayScore:2}]});
+ return {ctx,payload,e:element,timers,fetches:()=>fetches,eval:s=>vm.runInContext(s,ctx)};
+}
+(async()=>{
+ const t=setup();await t.ctx.load();
+ assert.equal(t.fetches(),0);assert.equal(t.eval('dataReady()'),false);assert.equal(t.ctx.S.teams.length,0);
+ assert.equal(t.eval('manualMatches.length'),0,'Old manual scores must not be restored');
+ assert.equal(t.e('#topStatus').textContent,'INGEN DATA');
+ let options;
+ t.ctx.window.GraphicsTransientData.request=async o=>{options=o;return t.payload();};
+ await t.e('#refresh').onclick();
+ assert.equal(options.fresh,true);assert.equal(t.eval('dataReady()'),true);assert.equal(t.ctx.S.players[0].display_gamertag,'Fresh Player');
+ assert.equal(t.ctx.schedule[0].homeScore,3);assert(t.e('#transientFetchStatus').textContent.includes('Hämtat från SportsGamer:'));
+ t.eval('storeManualMatches([{id:1}]);matchDateOverrides={old:"2020-01-01"};');
+ t.ctx.resetData();assert.equal(t.eval('dataReady()'),false);assert.equal(t.eval('manualMatches.length'),0);assert.equal(t.ctx.schedule.length,0);
+ assert.equal(t.ctx.S.players.length,0);assert.equal(t.fetches(),0);
+ t.ctx.window.GraphicsTransientData.request=async()=>{throw Error('Source unavailable');};
+ await t.e('#refresh').onclick();assert.equal(t.eval('dataReady()'),false);assert.equal(t.ctx.S.teams.length,0);
+ assert.equal(t.e('#transientFetchStatus').textContent,'Source unavailable');assert.equal(t.e('#refresh').disabled,false);
+ let finish;t.ctx.window.GraphicsTransientData.request=()=>new Promise(r=>finish=r);
+ const pending=t.e('#refresh').onclick(),old=t.payload();
+ t.ctx.S.league=532;t.ctx.resetData();t.ctx.S.league=527;t.ctx.resetData();finish(old);await pending;
+ assert.equal(t.eval('dataReady()'),false);assert.equal(t.ctx.S.players.length,0);
+ let portraitDone;t.ctx.window.GraphicsTransientData.withPortraits=()=>new Promise(r=>portraitDone=r);
+ const installing=t.ctx.useTransientData(t.payload());t.ctx.resetData();portraitDone(t.payload());await installing;
+ assert.equal(t.eval('dataReady()'),false);
+ t.ctx.window.GraphicsTransientData.withPortraits=async d=>d;
+ await t.ctx.useTransientData(t.payload());assert.equal(t.eval('dataReady()'),true);
+ [...t.timers.values()].at(-1)();assert.equal(t.eval('dataReady()'),false);assert.equal(t.ctx.schedule.length,0);
+ assert.equal(t.fetches(),0);
+ assert(!source.includes('/rest/v1/v_broadcast_'));assert(!source.includes('/functions/v1/graphics-schedule'));
+ assert(!source.includes("localStorage.getItem('swn-graphics-manual-results')"));
+ assert(source.includes('disabled=!dataReady()'));assert(source.includes("event.persisted)resetData()"));
+ assert(source.includes("L.applyUi();sync();resetData();"));
+ console.log('Fresh-only session: blank open, no DB fallback, manual fetch, fresh timestamp, error clearing, A-B-A races, portrait race, expiry and no restored manual scores passed.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

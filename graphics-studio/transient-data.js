@@ -1,29 +1,29 @@
 /* Session-only graphics data. Never persists player or statistics records. */
 (() => {
  'use strict';
- const cache=new Map(),pending=new Map();
+ const cache=new Map(),pending=new Map();let generation=0;
  const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
  function valid(data,{league,start,end}){
-  return data?.schema_version===1&&Number(data.league_id)===Number(league)&&data.weekly?.start===start&&data.weekly?.end===end&&Date.parse(data.expires_at)>Date.now()&&Array.isArray(data.players)&&Array.isArray(data.teams);
+  return data?.schema_version===1&&Number(data.league_id)===Number(league)&&data.weekly?.start===start&&data.weekly?.end===end&&Date.parse(data.expires_at)>Date.now()&&Number.isFinite(Date.parse(data.fetched_at))&&Array.isArray(data.matches)&&Array.isArray(data.players)&&Array.isArray(data.teams);
  }
  async function call(body){
   const cfg=window.EHOCKEY_CONFIG||{},session=await window.SWNStudioAccess.session();
   if(!session?.access_token)throw new Error('Logga in igen för att hämta från SportsGamer.');
   const response=await fetch(String(cfg.supabaseUrl).replace(/\/+$/,'')+'/functions/v1/graphics-fetch',{method:'POST',headers:{apikey:cfg.supabasePublishableKey||cfg.supabaseAnonKey,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(45000)});
   const result=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(result.error||result.message||'Hämtningen misslyckades. Dina tidigare val har behållits.');
+  if(!response.ok)throw new Error(result.error||result.message||'Hämtningen misslyckades. Ingen statistik visas. Försök igen.');
   return result;
  }
  async function request(options){
-  const {league,start,end,onProgress=()=>{}}=options,key=[league,start,end].join(':');
+  const {league,start,end,onProgress=()=>{},fresh=false}=options,key=[league,start,end].join(':'),epoch=generation;
   const saved=cache.get(key);
-  if(saved&&saved.until>Date.now()&&valid(saved.data,options))return saved.data;
-  if(pending.has(key))return pending.get(key);
+  if(!fresh&&saved&&saved.until>Date.now()&&valid(saved.data,options))return saved.data;
+  if(!fresh&&pending.has(key))return pending.get(key);
   const task=(async()=>{
    onProgress('Startar hämtning från SportsGamer… Det kan ta någon minut.');
    let result=await call({action:'start',league:Number(league),start,end});
    const id=result.request_id,deadline=Date.now()+12*60*1000;
-   if(!id)throw new Error('Hämtningen kunde inte startas. Dina val har behållits.');
+   if(!id)throw new Error('Hämtningen kunde inte startas. Ingen statistik visas.');
    while(Date.now()<deadline){
     onProgress(result.state==='queued'?'Hämtningen köar… behåll sidan öppen.':'Hämtar statistik från SportsGamer…');
     await pause(5000);
@@ -31,15 +31,15 @@
     if(result.state==='completed'){
      if(!valid(result.data,options))throw new Error('Resultatet har fel period eller har gått ut. Försök igen.');
      const data=result.broadcast_ticket?{...result.data,broadcast_ticket:result.broadcast_ticket}:result.data;
-     cache.set(key,{data,until:Date.now()+15*60*1000});
+     if(epoch===generation)cache.set(key,{data,until:Date.now()+15*60*1000});
      while(cache.size>4)cache.delete(cache.keys().next().value);
      return data;
     }
    }
-   throw new Error('Hämtningen tar för lång tid. Försök igen senare. Dina val har behållits.');
+   throw new Error('Hämtningen tar för lång tid. Ingen statistik visas. Försök igen senare.');
   })();
   pending.set(key,task);
-  try{return await task;}finally{pending.delete(key);}
+  try{return await task;}finally{if(pending.get(key)===task)pending.delete(key);}
  }
  async function withPortraits(data){
   const cfg=window.EHOCKEY_CONFIG||{},ids=[...new Set(data.players.map(p=>Number(p.sports_gamer_player_id)).filter(id=>Number.isSafeInteger(id)&&id>0))],images=new Map();
@@ -58,5 +58,6 @@
   }));
   return {...data,players:data.players.map(p=>({...p,player_image:images.get(Number(p.sports_gamer_player_id))||p.player_image||''}))};
  }
- window.GraphicsTransientData={request,valid,withPortraits};
+ window.GraphicsTransientData={request,valid,withPortraits,clear(){generation++;cache.clear();pending.clear();}};
 })();
+

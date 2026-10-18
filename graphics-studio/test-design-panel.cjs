@@ -2,6 +2,7 @@ const vm=require('node:vm'),fs=require('node:fs'),assert=require('node:assert/st
 class Element{
   constructor(){this.children=[];this.events={};this.attrs={};this.open=false;this.classList={add(){},remove(){}}}
   append(...nodes){this.children.push(...nodes)}
+  insertBefore(node){this.children.push(node)}
   setAttribute(k,v){this.attrs[k]=v}
   addEventListener(k,fn){this.events[k]=fn}
   querySelector(){return close}

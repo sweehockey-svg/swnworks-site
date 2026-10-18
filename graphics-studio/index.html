@@ -13,6 +13,7 @@
 .top{height:66px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #20313f;background:#081119;position:sticky;top:0;z-index:10}
 .brand{display:flex;align-items:center;gap:11px;color:#fff;text-decoration:none}.brand img{width:42px;height:42px}.brand span{display:flex;flex-direction:column;line-height:1}.brand strong{font-size:16px;letter-spacing:.08em}.brand small{margin-top:5px;color:#7b96ad;font-size:9px;font-weight:900;letter-spacing:.13em}
 .live{font-size:10px;font-weight:900;letter-spacing:.13em;color:#b0c2cf}.live:before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:#55d58e;box-shadow:0 0 12px #55d58e88}
+.live[data-state="empty"]:before{background:#7790a3;box-shadow:none}.live[data-state="load"]:before{background:#ffcf4a;box-shadow:none}.live[data-state="error"]:before{background:#f07777;box-shadow:none}
 .layout{display:grid;grid-template-columns:minmax(340px,430px) minmax(0,1fr);min-height:calc(100vh - 66px)}
 .controls{padding:22px;border-right:1px solid #213440;background:linear-gradient(180deg,#09131c,#071019);overflow:auto}.hero{padding-bottom:19px;border-bottom:1px solid #233642}.eyebrow{color:var(--gold);font-size:10px;font-weight:950;letter-spacing:.18em}.hero h1{margin:5px 0 4px;font-size:28px;letter-spacing:-.035em}.hero p{margin:0;color:#8199aa;font-size:12px}
 .block{padding:19px 0;border-bottom:1px solid #233642}.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.head b{font-size:10px;letter-spacing:.15em}.head span{color:#688398;font-size:9px;font-weight:800}
@@ -35,14 +36,14 @@
 <body>
 <header class="top">
   <a class="brand" href="../"><img src="../assets/swnworks-logo.svg" alt=""><span><strong>SWNWORKS</strong><small>GRAPHICS STUDIO · ADMIN</small></span></a>
-  <div class="live" id="topStatus">LIVE DATA</div>
+  <div class="live" id="topStatus" data-state="empty">INGEN DATA</div>
 </header>
 <main class="layout">
   <aside class="controls">
     <section class="block" style="padding-top:0" aria-label="Turnering och uppdatering">
       <label><span>TURNERING</span><select id="league"><option value="527" selected>SCL 27</option><option value="529">FCL 27</option><option value="532">WV 4 Nations 2026</option><option value="523">WECL</option><option value="524">GCL 13 · Div I</option><option value="525">GCL 13 · Div II</option><option value="526">GCL 13 · Pokal</option><option value="520">SEC 21</option></select></label>
       <button class="refresh" id="refresh">Hämta från SportsGamer</button>
-      <p class="note" id="transientFetchStatus" role="status">Tillfällig hämtning, utan import till spelarregistret. Kan ta någon minut.</p>
+      <p class="note" id="transientFetchStatus" role="status">Ingen data hämtad. Klicka Hämta från SportsGamer.</p>
     </section>
 
     <section class="block">
@@ -89,7 +90,7 @@
           <label><span>AVGJORD</span><select id="manualOvertime"><option value="regular">Ordinarie tid · 3–0 poäng</option><option value="ot">OT / straffar · 2–1 poäng</option></select></label>
           <button class="refresh" id="manualSave" type="button">Lägg till resultat</button>
           <small id="manualMatchStatus" role="status"></small><div id="manualMatchList"></div></details>
-          <small id="matchEditStatus" role="status">Ändringar sparas i den här webbläsaren och används i grafiken. Vid byte av hemma / borta följer lag, loggor och mål med.</small>
+          <small id="matchEditStatus" role="status">Ändringar gäller endast i denna öppna session. Vid byte av hemma / borta följer lag, loggor och mål med.</small>
         </div>
         <label id="matchPageField" hidden><span>SIDA · HÖGST 8 MATCHER PER BILD</span><select id="matchPage"><option value="0">Sida 1</option></select></label>
         <p id="matchListField" class="full" hidden>Rapporteringsdatum används automatiskt. Du kan välja ett annat datum för en enskild match nedan.</p>
@@ -126,7 +127,7 @@
     </section>
 
     <div class="actions"><button id="png">Ladda ner PNG</button><button id="svg" class="secondary">SVG · Redigerbar</button></div>
-    <p class="note">PNG för publicering. SVG för vidare redigering. Statistiken hämtas från Broadcast Studio.</p>
+    <p class="note">Statistik hämtas först när du klickar Hämta från SportsGamer. Underlaget och manuella resultat gäller bara i denna öppna session.</p>
   </aside>
 
   <section class="preview">
@@ -138,13 +139,13 @@
 <script src="design-panel.js?v=20261017-groups"></script>
 <script  type="text/plain" data-studio-src="https://www.svenskehockey.se/playerimages-manifest.js?v=20261006"></script>
 <script src="../broadcast-studio/broadcast-config.js?v=2"></script>
-<script  type="text/plain" data-studio-src="language.js?v=20261017-daily"></script>
+<script  type="text/plain" data-studio-src="language.js?v=20261018-fresh-session"></script>
 <script  type="text/plain" data-studio-src="manual-results.js?v=20261011-overtime"></script>
 <script type="text/plain" data-studio-src="standings-order.js?v=20261011-scl-tiebreak"></script>
 <script type="text/plain" data-studio-src="weekly-team.js?v=20261017-editorial"></script>
-<script type="text/plain" data-studio-src="transient-data.js?v=20261017-portraits"></script>
-<script type="text/plain" data-studio-src="extra-templates.js?v=20261017-ribbon-padding-v12"></script>
-<script type="text/plain" data-studio-src="app.js?v=20261017-portraits"></script>
+<script type="text/plain" data-studio-src="transient-data.js?v=20261018-fresh-session"></script>
+<script type="text/plain" data-studio-src="extra-templates.js?v=20261018-fresh-session"></script>
+<script type="text/plain" data-studio-src="app.js?v=20261018-fresh-session"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script src="/studio-access.js?v=20261010-admin1"></script>
 </body>
 </html>
