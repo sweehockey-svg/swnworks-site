@@ -151,6 +151,17 @@
 .spotlight-stats b{font-size:27px;line-height:1.05}
 .spotlight-stats span{display:block;margin-top:3px}
 
+/* Spotlight is one bounded broadcast panel, not an intrinsically sized flex item. */
+.screen>.scene.spotlight.active{display:block!important;overflow:hidden}
+.spotlight-wrap{width:100%;height:100%;min-width:0;min-height:0;overflow:hidden}
+.spotlight-player{width:100%;height:100%;min-width:0;min-height:0;grid-template-columns:minmax(0,48fr) minmax(0,52fr);grid-template-rows:minmax(0,1fr);align-items:stretch;overflow:hidden}
+.spotlight-player>img{display:block;width:100%;height:100%;max-width:100%;max-height:100%;min-width:0;min-height:0;object-fit:contain;object-position:center bottom}
+.spotlight-copy{min-width:0;min-height:0;align-self:center;padding:clamp(16px,2vw,32px);transform:none}
+.spotlight-copy h2{overflow-wrap:anywhere}
+.spotlight-stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.spotlight-stats>div{min-width:0}
+.spotlight-stats span{overflow-wrap:anywhere}
+
 
 /* Broadcast context scenes v46 */
 .table,.teamcompare,.scorers{padding-top:118px!important}
