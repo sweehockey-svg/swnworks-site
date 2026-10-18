@@ -495,6 +495,7 @@
     tournamentDataRequest++;currentSourceReference=null;sourcePayload=null;
     data.teams=[];data.players=[];data.playoffs=[];lineups.clear();
     ['hs','as','seriesHome','seriesAway'].forEach(id=>{if($('#'+id))$('#'+id).value='0';});
+    ['subline',...Array.from({length:7},(_,i)=>'seriesR'+(i+1))].forEach(id=>{if($('#'+id))$('#'+id).value='';});
     status.teams="empty";status.players="empty";status.playoffs="empty";
     document.documentElement.dataset.broadcastDataSource='empty';
     renderStatus();renderAllCompetitionData();
@@ -1021,3 +1022,4 @@
  screen?.querySelectorAll(".scene").forEach(s=>new MutationObserver(syncLiveMode).observe(s,{attributes:true,attributeFilter:["class"]}));
  syncLiveMode();
 })();
+
