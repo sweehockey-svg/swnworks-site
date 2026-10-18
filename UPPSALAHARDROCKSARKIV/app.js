@@ -1082,28 +1082,24 @@
     const svg = $('#network'), scene = $('#network-scene'), details = $('#network-details');
     const search=$('#network-search');
     function focusedGraph() {
-      const bandIds = new Set([selected]), peopleIds = new Set(), edges=[];
-      let frontier=new Set([selected]);
-      for(let level=0;level<depth;level++){
-        const next=new Set();
-        frontier.forEach(bid=>{
-          (bandPerson.get(bid)||[]).forEach(pid=>{
-            peopleIds.add(pid);
-            (personBands.get(pid)||[]).forEach(other=>{if(!bandIds.has(other)){bandIds.add(other);next.add(other);}});
-          });
-          relationEdges.forEach(r=>{
-            const from=String(r.from_band_id),to=String(r.to_band_id);
-            if(from===bid&&!bandIds.has(to)){bandIds.add(to);next.add(to);}
-            if(to===bid&&!bandIds.has(from)){bandIds.add(from);next.add(from);}
-          });
+      const bandIds=new Set([selected]),peopleIds=new Set(bandPerson.get(selected)||[]),edges=[];
+      if(depth===2){
+        peopleIds.forEach(pid=>(personBands.get(pid)||[]).forEach(bid=>bandIds.add(bid)));
+        relationEdges.forEach(r=>{
+          if(String(r.from_band_id)===selected)bandIds.add(String(r.to_band_id));
+          if(String(r.to_band_id)===selected)bandIds.add(String(r.from_band_id));
         });
-        frontier=next;
       }
-      if(depth>1) bandIds.forEach(bid=>(bandPerson.get(bid)||[]).forEach(pid=>peopleIds.add(pid)));
-      const nodes=[...bandIds].map(id=>({id:'b'+id,type:'band',ref:bandById.get(id),focus:id===selected})).concat([...peopleIds].map(id=>({id:'p'+id,type:'person',ref:personById.get(id)})));
+      const nodes=[...bandIds].map(id=>({id:'b'+id,type:'band',ref:bandById.get(id),focus:id===selected}))
+        .concat([...peopleIds].map(id=>({id:'p'+id,type:'person',ref:personById.get(id)})));
       const ids=new Set(nodes.map(n=>n.id));
-      bandIds.forEach(bid=>(bandPerson.get(bid)||[]).forEach(pid=>{if(ids.has('p'+pid))edges.push({a:'b'+bid,b:'p'+pid});}));
-      relationEdges.forEach(r=>{const a='b'+r.from_band_id,b='b'+r.to_band_id;if(ids.has(a)&&ids.has(b))edges.push({a,b,relation:true});});
+      bandIds.forEach(bid=>(bandPerson.get(bid)||[]).forEach(pid=>{
+        if(ids.has('p'+pid))edges.push({a:'b'+bid,b:'p'+pid});
+      }));
+      relationEdges.forEach(r=>{
+        const a='b'+r.from_band_id,b='b'+r.to_band_id;
+        if(ids.has(a)&&ids.has(b))edges.push({a,b,relation:true});
+      });
       return {nodes,edges};
     }
     function entireGraph() {
@@ -1119,44 +1115,54 @@
       return {nodes,edges};
     }
     function layout(graph) {
-      const {nodes,edges}=graph, W=1200,H=720,N=nodes.length;
       const positions=new Map();
+      if(mode==='explore'){
+        const otherBands=graph.nodes.filter(n=>n.type==='band'&&!n.focus);
+        const members=graph.nodes.filter(n=>n.type==='person');
+        positions.set('b'+selected,{x:600,y:360});
+        members.forEach((n,i)=>{
+          const angle=-Math.PI/2+i*Math.PI*2/Math.max(1,members.length);
+          const radius=members.length>16?205:170;
+          positions.set(n.id,{x:600+Math.cos(angle)*radius,y:360+Math.sin(angle)*radius*.9});
+        });
+        otherBands.forEach((n,i)=>{
+          const angle=-Math.PI/2+i*Math.PI*2/Math.max(1,otherBands.length);
+          positions.set(n.id,{x:600+Math.cos(angle)*440,y:360+Math.sin(angle)*290});
+        });
+        return positions;
+      }
+      const {nodes,edges}=graph, N=nodes.length;
       nodes.forEach((n,i)=>{
-        const angle=i*2.399963229728653, r=Math.sqrt((i+.5)/Math.max(N,1))*285;
+        const angle=i*2.399963229728653,r=Math.sqrt((i+.5)/Math.max(N,1))*285;
         positions.set(n.id,{x:600+Math.cos(angle)*r*1.6,y:360+Math.sin(angle)*r});
       });
-      const focus=positions.get('b'+selected);
-      if(mode==='explore' && focus){focus.x=600;focus.y=360;}
-      const iterations=mode==='all'?160:220, repulsion=mode==='all'?9500:29000;
-      for(let step=0;step<iterations;step++){
+      for(let step=0;step<150;step++){
         const move=new Map(nodes.map(n=>[n.id,{x:0,y:0}]));
         for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
           const a=positions.get(nodes[i].id),b=positions.get(nodes[j].id);
           let dx=a.x-b.x,dy=a.y-b.y,d2=Math.max(150,dx*dx+dy*dy),d=Math.sqrt(d2);
-          const f=Math.min(9,repulsion/d2),fx=dx/d*f,fy=dy/d*f;
-          move.get(nodes[i].id).x+=fx;move.get(nodes[i].id).y+=fy;
-          move.get(nodes[j].id).x-=fx;move.get(nodes[j].id).y-=fy;
+          const f=Math.min(9,9000/d2);
+          move.get(nodes[i].id).x+=dx/d*f;move.get(nodes[i].id).y+=dy/d*f;
+          move.get(nodes[j].id).x-=dx/d*f;move.get(nodes[j].id).y-=dy/d*f;
         }
         edges.forEach(e=>{
           const a=positions.get(e.a),b=positions.get(e.b);if(!a||!b)return;
           const dx=b.x-a.x,dy=b.y-a.y,d=Math.max(1,Math.hypot(dx,dy));
-          const ideal=mode==='all'?140:(e.relation?205:175);
-          const f=(d-ideal)*.018,fx=dx/d*f,fy=dy/d*f;
-          move.get(e.a).x+=fx;move.get(e.a).y+=fy;move.get(e.b).x-=fx;move.get(e.b).y-=fy;
+          const force=(d-140)*.018;
+          move.get(e.a).x+=dx/d*force;move.get(e.a).y+=dy/d*force;
+          move.get(e.b).x-=dx/d*force;move.get(e.b).y-=dy/d*force;
         });
         nodes.forEach(n=>{
           const p=positions.get(n.id),v=move.get(n.id);
-          const tether=mode==='all'?.006:.003;
-          p.x+=Math.max(-11,Math.min(11,v.x+(600-p.x)*tether));
-          p.y+=Math.max(-11,Math.min(11,v.y+(360-p.y)*tether));
-          if(mode==='explore'&&n.id==='b'+selected){p.x+=(600-p.x)*.28;p.y+=(360-p.y)*.28;}
+          p.x+=Math.max(-11,Math.min(11,v.x+(600-p.x)*.006));
+          p.y+=Math.max(-11,Math.min(11,v.y+(360-p.y)*.006));
         });
       }
       return positions;
     }
     function draw() {
       const graph=mode==='all'?entireGraph():focusedGraph(), pos=layout(graph);
-      const radius = mode==='all'?11:17;
+      const radius = mode==='all'?11:19;
       let html='<g class="network-edges">';
       graph.edges.forEach(e=>{const a=pos.get(e.a),b=pos.get(e.b);if(a&&b)html+=`<line class="net-line ${e.relation?'relation':''}" x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}"></line>`;});
       html+='</g>';
@@ -1164,7 +1170,7 @@
         const p=pos.get(n.id),isBand=n.type==='band',r=isBand?radius*(n.focus?1.45:1):(mode==='all'?0:6);
         if(!r)return;
         const name=escapeHtml(n.ref.canonical_name);
-        html+=`<g class="${isBand?'net-band':'net-person'} ${n.focus?'network-focus':''}" data-node="${n.id}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})" tabindex="0" role="button" aria-label="${name}"><title>${name}</title><circle r="${r}"></circle>${showLabels&&(n.focus || (mode==='explore' && (graph.nodes.length<32 || (isBand && graph.nodes.length<55))))?`<text class="network-node-name" y="${r+15}">${name}</text>`:''}</g>`;
+        html+=`<g class="${isBand?'net-band':'net-person'} ${n.focus?'network-focus':''}" data-node="${n.id}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})" tabindex="0" role="button" aria-label="${name}"><title>${name}</title><circle r="${r}"></circle>${showLabels&&(n.focus || (mode==='explore' && (isBand || graph.nodes.length<=20)))?`<text class="network-node-name" y="${r+15}">${name}</text>`:''}</g>`;
       });
       scene.innerHTML=html;
       resetView();
