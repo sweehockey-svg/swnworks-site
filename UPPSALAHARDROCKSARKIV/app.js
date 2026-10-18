@@ -1099,7 +1099,7 @@
         });
         frontier=next;
       }
-      bandIds.forEach(bid=>(bandPerson.get(bid)||[]).forEach(pid=>peopleIds.add(pid)));
+      if(depth>1) bandIds.forEach(bid=>(bandPerson.get(bid)||[]).forEach(pid=>peopleIds.add(pid)));
       const nodes=[...bandIds].map(id=>({id:'b'+id,type:'band',ref:bandById.get(id),focus:id===selected})).concat([...peopleIds].map(id=>({id:'p'+id,type:'person',ref:personById.get(id)})));
       const ids=new Set(nodes.map(n=>n.id));
       bandIds.forEach(bid=>(bandPerson.get(bid)||[]).forEach(pid=>{if(ids.has('p'+pid))edges.push({a:'b'+bid,b:'p'+pid});}));
@@ -1127,7 +1127,7 @@
       });
       const focus=positions.get('b'+selected);
       if(mode==='explore' && focus){focus.x=600;focus.y=360;}
-      const iterations=mode==='all'?110:140, repulsion=mode==='all'?3400:6700;
+      const iterations=mode==='all'?160:220, repulsion=mode==='all'?9500:29000;
       for(let step=0;step<iterations;step++){
         const move=new Map(nodes.map(n=>[n.id,{x:0,y:0}]));
         for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
@@ -1140,13 +1140,13 @@
         edges.forEach(e=>{
           const a=positions.get(e.a),b=positions.get(e.b);if(!a||!b)return;
           const dx=b.x-a.x,dy=b.y-a.y,d=Math.max(1,Math.hypot(dx,dy));
-          const ideal=mode==='all'?105:(e.relation?155:115);
+          const ideal=mode==='all'?140:(e.relation?205:175);
           const f=(d-ideal)*.018,fx=dx/d*f,fy=dy/d*f;
           move.get(e.a).x+=fx;move.get(e.a).y+=fy;move.get(e.b).x-=fx;move.get(e.b).y-=fy;
         });
         nodes.forEach(n=>{
           const p=positions.get(n.id),v=move.get(n.id);
-          const tether=mode==='all'?.012:.018;
+          const tether=mode==='all'?.006:.003;
           p.x+=Math.max(-11,Math.min(11,v.x+(600-p.x)*tether));
           p.y+=Math.max(-11,Math.min(11,v.y+(360-p.y)*tether));
           if(mode==='explore'&&n.id==='b'+selected){p.x+=(600-p.x)*.28;p.y+=(360-p.y)*.28;}
@@ -1156,7 +1156,7 @@
     }
     function draw() {
       const graph=mode==='all'?entireGraph():focusedGraph(), pos=layout(graph);
-      const radius = mode==='all'?13:24;
+      const radius = mode==='all'?11:17;
       let html='<g class="network-edges">';
       graph.edges.forEach(e=>{const a=pos.get(e.a),b=pos.get(e.b);if(a&&b)html+=`<line class="net-line ${e.relation?'relation':''}" x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}"></line>`;});
       html+='</g>';
@@ -1164,7 +1164,7 @@
         const p=pos.get(n.id),isBand=n.type==='band',r=isBand?radius*(n.focus?1.45:1):(mode==='all'?0:6);
         if(!r)return;
         const name=escapeHtml(n.ref.canonical_name);
-        html+=`<g class="${isBand?'net-band':'net-person'} ${n.focus?'network-focus':''}" data-node="${n.id}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})" tabindex="0" role="button" aria-label="${name}"><title>${name}</title><circle r="${r}"></circle>${showLabels&&(mode==='explore'||n.focus)?`<text class="network-node-name" y="${r+15}">${name}</text>`:''}</g>`;
+        html+=`<g class="${isBand?'net-band':'net-person'} ${n.focus?'network-focus':''}" data-node="${n.id}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})" tabindex="0" role="button" aria-label="${name}"><title>${name}</title><circle r="${r}"></circle>${showLabels&&(n.focus || (mode==='explore' && (graph.nodes.length<32 || (isBand && graph.nodes.length<55))))?`<text class="network-node-name" y="${r+15}">${name}</text>`:''}</g>`;
       });
       scene.innerHTML=html;
       applyTransform();
