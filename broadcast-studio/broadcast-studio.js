@@ -1,3 +1,15 @@
+// Match-TV embeds this canonical viewer from the Svensk eHockey origin.
+// Only that known parent window may control local viewer audio.
+window.SWNViewerBridge=(()=>{
+  const allowed=new Set([location.origin,'https://www.svenskehockey.se','https://svenskehockey.se','https://swnworks.se','https://www.swnworks.se']);
+  let origin=location.origin;
+  try{const candidate=new URL(document.referrer).origin;if(allowed.has(candidate))origin=candidate;}catch{}
+  return Object.freeze({
+    origin,
+    acceptsAudio:event=>event.origin===origin&&event.source===parent&&event.data?.type==='seh-tv-audio'&&typeof event.data.muted==='boolean',
+    postStatus:message=>{if(parent!==window)parent.postMessage(message,origin);}
+  });
+})();
 (() => {
   "use strict";
   const $ = selector => document.querySelector(selector);
@@ -638,7 +650,7 @@
       }
     }).catch(console.error);
   }
-  async function pullState(){if(stateRequestPending)return;stateRequestPending=true;try{const rows=await remoteRequest("GET");if(rows&&rows[0]&&rows[0].state&&Object.keys(rows[0].state).length){const signature=JSON.stringify(rows[0].state);if(signature!==lastRemoteState){lastRemoteState=signature;applyRemoteState(viewerState(rows[0].state));}}}catch(e){console.error("Broadcast remote:",e);if(VIEWER_MODE)parent.postMessage({type:'seh-tv-status',text:'Kontakten med studion är tillfälligt bruten. Försöker igen.'},location.origin);}finally{stateRequestPending=false;}}
+  async function pullState(){if(stateRequestPending)return;stateRequestPending=true;try{const rows=await remoteRequest("GET");if(rows&&rows[0]&&rows[0].state&&Object.keys(rows[0].state).length){const signature=JSON.stringify(rows[0].state);if(signature!==lastRemoteState){lastRemoteState=signature;applyRemoteState(viewerState(rows[0].state));}}}catch(e){console.error("Broadcast remote:",e);if(VIEWER_MODE)window.SWNViewerBridge.postStatus({type:'seh-tv-status',text:'Kontakten med studion är tillfälligt bruten. Försöker igen.'});}finally{stateRequestPending=false;}}
   if(previewChannel){previewChannel.onmessage=event=>{if(OBS_MODE&&event.data?.type==="state")applyRemoteState(viewerState(event.data.state));else if(!OBS_MODE&&event.data?.type==="request")publishState();};}
   if(OBS_MODE&&PREVIEW_MODE){previewChannel?.postMessage({type:"request"});}
   else if(OBS_MODE){
@@ -826,7 +838,7 @@
 
  const parseTwitch=raw=>{let v=String(raw||"").trim();if(!v)return "";try{if(/^https?:\/\//i.test(v)){const u=new URL(v);return u.pathname.split("/").filter(Boolean)[0]||""}}catch(e){}return v.replace(/^@/,"").replace(/^www\.twitch\.tv\//i,"").replace(/^twitch\.tv\//i,"").split(/[/?#]/)[0].trim()};
  let statusMatchName='',lastStatusText='',lastStatusOk=false;
- const setStatus=(t,ok=false)=>{lastStatusText=t;lastStatusOk=ok;const label=statusMatchName&&playbackActive()?statusMatchName+' · '+t:t;if(monitorStatus)monitorStatus.textContent=label;if(VIEWER_MODE_LOCAL)parent.postMessage({type:'seh-tv-status',text:label,playing:ok},location.origin);if(OBS_MODE_LOCAL){document.documentElement.dataset.playback=label;console.info("[SEH Video]",label)}if(status){status.classList.toggle("ready",ok);const x=status.querySelector("span");if(x)x.textContent=label}};
+ const setStatus=(t,ok=false)=>{lastStatusText=t;lastStatusOk=ok;const label=statusMatchName&&playbackActive()?statusMatchName+' · '+t:t;if(monitorStatus)monitorStatus.textContent=label;if(VIEWER_MODE_LOCAL)window.SWNViewerBridge.postStatus({type:'seh-tv-status',text:label,playing:ok});if(OBS_MODE_LOCAL){document.documentElement.dataset.playback=label;console.info("[SEH Video]",label)}if(status){status.classList.toggle("ready",ok);const x=status.querySelector("span");if(x)x.textContent=label}};
  const obsBoot=()=>{};
  const obsPlaying=()=>{};
 
@@ -1017,12 +1029,12 @@
  window.addEventListener("seh:twitch-state",e=>apply(e.detail));
  if(VIEWER_MODE_LOCAL){
    window.addEventListener('message',e=>{
-     if(e.origin!==location.origin||e.source!==parent||e.data?.type!=='seh-tv-audio')return;
+     if(!window.SWNViewerBridge.acceptsAudio(e))return;
      viewerMuted=!!e.data.muted;
      if(video){syncMatchAudio();if(video.currentSrc&&screen?.classList.contains('live-mode'))void video.play().catch(()=>setStatus('Tryck på videon för att starta uppspelningen'));}
    });
    if(video)video.controls=true;
-   parent.postMessage({type:'seh-tv-status',text:'Ansluter till studion…'},location.origin);
+   window.SWNViewerBridge.postStatus({type:'seh-tv-status',text:'Ansluter till studion…'});
  }
  if(window.__sehTwitchState)apply(window.__sehTwitchState);
  syncSourceUi();
