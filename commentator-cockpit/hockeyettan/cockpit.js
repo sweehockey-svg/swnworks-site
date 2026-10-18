@@ -1528,7 +1528,7 @@
       '<span>SWNWORKS</span>' +
       '<strong>Koncept & utveckling</strong>' +
       '<p>Sports technology & broadcast tools · Commentator Cockpit är utvecklad av SWNWORKS.</p>' +
-      '<a href="mailto:swnworks@gmail.com">swnworks@gmail.com</a>' +
+      '<a href="mailto:info@swnworks.se">info@swnworks.se</a>' +
     '</article>';
   }
 
@@ -3298,6 +3298,7 @@
     };
   }
   function openPlayerCard(row,tab='overview'){
+    window.CockpitUsage?.track('player_open',tab,{player_id:row.player_id||null});
     if(!row.player_id){
       const candidates=[...(state.searchRoster||[]),...state.seasonPlayerStats,...state.seasonGoalieStats].filter(item=>item.team_id===row.team_id&&sourceNameKey(humanSourceName(cleanLineupSourceName(item.source_name)))===sourceNameKey(humanSourceName(cleanLineupSourceName(row.source_name))));
       const ids=[...new Set(candidates.map(item=>item.player_id).filter(Boolean))];
@@ -4094,6 +4095,7 @@
   }
 
   function renderDrawer(key) {
+    if(drawer.dataset.panel!==key||!drawer.classList.contains('open')) window.CockpitUsage?.track('view_open',key);
     const searchFocus=key==='players'&&document.activeElement?.id==='playerSearchInput'
       ? {start:document.activeElement.selectionStart,end:document.activeElement.selectionEnd}:null;
     const changedPanel=drawer.dataset.panel!==key;
@@ -5062,4 +5064,5 @@
     theme: () => currentTheme(),
     setTheme
   };
+  window.CockpitUsage?.attach(client,()=>({user:state.authUser,approved:state.accessRows.some(a=>a.active),admin:state.accessRows.some(a=>a.active&&a.role==='admin'&&!a.team_id&&!a.league_key),league:league.accessKey,team_id:state.selectedTeam&&canAccessTeam(state.selectedTeam.id)?state.selectedTeam.id:null}));
 })();

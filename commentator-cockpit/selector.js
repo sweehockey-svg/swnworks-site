@@ -203,4 +203,5 @@
   });
 
   client.auth.getSession().then(({data})=>applySession(data.session)).catch(console.error);
+  window.CockpitUsage?.attach(client,()=>({user:state.user,approved:activeRows().length>0,admin:Boolean(globalAdmin()),league:'selector',team_id:null}));
 })();

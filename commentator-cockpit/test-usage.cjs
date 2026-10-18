@@ -1,0 +1,22 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+let now=1000000,c=null,calls=[],handlers={},timers=[],nodes={};
+const document={hidden:false,addEventListener:(t,f)=>handlers[t]=f,getElementById:id=>nodes[id],createTextNode:s=>({textContent:s}),createElement:()=>({style:{},append(){},replaceChildren(){},remove(){delete nodes.cockpitUsageNotice;}}),body:{prepend:n=>nodes[n.id]=n}};
+class Clock extends Date{static now(){return now;}}
+const window={};vm.runInNewContext(fs.readFileSync(__dirname+'/usage.js','utf8'),{window,document,crypto:require('node:crypto').webcrypto,Date:Clock,setInterval:(f,ms)=>timers.push({f,ms})});
+window.CockpitUsage.attach({functions:{invoke:async(name,{body})=>{calls.push(body);}}},()=>c);
+const check=timers.find(x=>x.ms===2000).f,heartbeat=timers.find(x=>x.ms===60000).f;
+check();assert.equal(calls.length,0,'anonymous not measured');
+c={user:{id:'user-1'},approved:false,league:'hockeyettan'};check();assert.equal(calls.length,0,'unapproved not measured');
+c.approved=true;check();assert.equal(calls.length,1);check();assert.equal(calls.length,1,'page deduplicated');
+window.CockpitUsage.track('view_open','notes',{body:'PRIVATE',title:'PRIVATE',query:'PRIVATE'});
+assert(!JSON.stringify(calls).includes('PRIVATE'),'free text never transmitted');
+window.CockpitUsage.track('view_open','notes');assert.equal(calls.length,2);
+now+=60000;heartbeat();assert.equal(calls.at(-1).event,'active_minute');
+document.hidden=true;handlers.visibilitychange();now+=60000;const before=calls.length;heartbeat();assert.equal(calls.length,before,'hidden page not active');
+document.hidden=false;handlers.visibilitychange();now+=180000;heartbeat();assert.equal(calls.length,before,'idle page not active');
+c=null;check();window.CockpitUsage.track('view_open','notes');assert.equal(calls.length,before,'signed out not measured');
+const edge=fs.readFileSync(__dirname+'/../supabase/functions/commentator-usage/index.ts','utf8');
+assert(edge.includes('admin_required'));assert(edge.includes('db.auth.getUser(token)'));assert(edge.includes('p_owner:user.id'));assert(!edge.includes('p_owner:body.'));
+const sql=fs.readFileSync(__dirname+'/../supabase/commentator_usage.sql','utf8');
+assert(sql.includes('enable row level security'));assert(sql.includes('from public,anon,authenticated'));assert(sql.includes('90 days'));assert(!sql.includes('n.body'));assert(!sql.includes('n.title'));
+console.log('PASS: anonymous/approval gates, page dedupe, free-text exclusion, visible/recent activity, logout, server owner/admin boundaries');
