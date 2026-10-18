@@ -25,9 +25,10 @@
   const request=++generation;busy=true;$('refresh').disabled=true;
   const {data:{session}}=await db.auth.getSession();
   if(!session){locked('Logga in för att se användningen',true);busy=false;$('refresh').disabled=false;return;}
-  try{const {data,error}=await db.functions.invoke('commentator-usage',{body:{action:'report',days:Number($('days').value),user_id:$('person').value||null}});if(request!==generation)return;if(error||!data?.ok){locked('Kunde inte öppna adminvyn. Kontrollera att kontot har adminbehörighet.');return;}render(data);}catch{if(request===generation)locked('Kunde inte hämta användningen. Försök igen.');}finally{if(request===generation){busy=false;$('refresh').disabled=false;}}
+  try{const {data,error}=await db.functions.invoke('commentator-usage',{body:{action:'report',days:Number($('days').value),user_id:$('person').value||null,hide_admins:$('hideAdmins').checked}});if(request!==generation)return;if(error||!data?.ok){locked('Kunde inte öppna adminvyn. Kontrollera att kontot har adminbehörighet.');return;}render(data);}catch{if(request===generation)locked('Kunde inte hämta användningen. Försök igen.');}finally{if(request===generation){busy=false;$('refresh').disabled=false;}}
  }
  $('refresh').addEventListener('click',load);$('days').addEventListener('change',load);$('person').addEventListener('change',load);
+ $('hideAdmins').addEventListener('change',()=>{$('person').value='';void load();});
  db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){++generation;locked('Logga in för att se användningen',true);}else if(event==='SIGNED_IN'&&!busy)setTimeout(load,0);});
  void load();
 })();

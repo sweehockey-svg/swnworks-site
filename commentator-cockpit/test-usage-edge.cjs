@@ -17,6 +17,9 @@ async function call(body,token='valid',origin='https://swnworks.se'){return hand
  assert.equal((await call(event,'valid','https://evil.invalid')).status,403);
  access=[{role:'admin',team_id:null,league_key:null}];
  assert.equal((await call({action:'report',days:90})).status,200);assert.equal(rpcArgs.name,'commentator_usage_report');
+ assert.equal(rpcArgs.args.p_hide_admins,true,'admins hidden by default');
+ assert.equal((await call({action:'report',hide_admins:false})).status,200);assert.equal(rpcArgs.args.p_hide_admins,false);
+ assert.equal((await call({action:'report',hide_admins:'false'})).status,400);
  assert.equal((await call({action:'report',days:9999})).status,400);
  console.log('PASS edge auth, active approval, admin-only report, server-owned identity, scoped writes, input bounds, origin checks');
 })().catch(e=>{console.error(e);process.exit(1);});

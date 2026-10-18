@@ -39,15 +39,18 @@ end $$;
 revoke all on function public.commentator_record_usage(uuid,text,text,text,uuid,uuid,uuid) from public,anon,authenticated;
 grant execute on function public.commentator_record_usage(uuid,text,text,text,uuid,uuid,uuid) to service_role;
 
-create or replace function public.commentator_usage_report(p_days integer default 30,p_user uuid default null)
+drop function if exists public.commentator_usage_report(integer,uuid);
+create or replace function public.commentator_usage_report(p_days integer default 30,p_user uuid default null,p_hide_admins boolean default true)
 returns jsonb language sql stable security invoker set search_path='' as $$
 with people as (
   select u.id as user_id,a.email,max(a.display_name) as display_name,bool_or(a.active) as active,bool_or(a.role='admin') as is_admin,u.last_sign_in_at,
     jsonb_agg(jsonb_build_object('league',a.league_key,'team',t.canonical_name,'active',a.active)) as access
   from public.commentator_access a left join auth.users u on lower(u.email)=lower(a.email)
   left join public.teams t on t.id=a.team_id group by u.id,a.email,u.last_sign_in_at
+  having not coalesce(p_hide_admins,true) or not bool_or(a.role='admin')
 ), events as (
  select e.* from public.commentator_usage_events e where e.created_at>=now()-make_interval(days=>greatest(1,least(p_days,90)))
+ and exists(select 1 from people p where p.user_id=e.owner_id)
 ), usage as (
  select owner_id,max(created_at) as last_seen,count(*) filter(where event='page_open') as page_opens,
  count(*) filter(where event='view_open') as view_opens,count(*) filter(where event='player_open') as player_opens,
@@ -75,8 +78,8 @@ select jsonb_build_object(
  'timeline_total',(select count(*) from events where p_user is null or owner_id=p_user)
 );
 $$;
-revoke all on function public.commentator_usage_report(integer,uuid) from public,anon,authenticated;
-grant execute on function public.commentator_usage_report(integer,uuid) to service_role;
+revoke all on function public.commentator_usage_report(integer,uuid,boolean) from public,anon,authenticated;
+grant execute on function public.commentator_usage_report(integer,uuid,boolean) to service_role;
 comment on table public.commentator_usage_events is 'Authenticated cockpit feature usage; no private content. Retention 90 days. Admin via commentator-usage only.';
 select cron.schedule('commentator-usage-retention','25 3 * * *',$job$delete from public.commentator_usage_events where created_at < now()-interval '90 days'$job$);
 commit;

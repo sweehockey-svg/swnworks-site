@@ -28,7 +28,8 @@ Deno.serve(async(req)=>{
    if(!isAdmin)return json({error:'admin_required'},403);
    const days=Number(body.days??30),selected=body.user_id||null;
    if(!Number.isInteger(days)||days<1||days>90||(selected&&!uuid.test(selected)))return json({error:'invalid_filter'},400);
-   const {data,error}=await db.rpc('commentator_usage_report',{p_days:days,p_user:selected});
+   if(body.hide_admins!==undefined&&typeof body.hide_admins!=='boolean')return json({error:'invalid_filter'},400);
+   const {data,error}=await db.rpc('commentator_usage_report',{p_days:days,p_user:selected,p_hide_admins:body.hide_admins!==false});
    return error?json({error:'report_failed'},500):json({ok:true,...data});
   }
   if(body.action!=='record')return json({error:'unknown_action'},400);
