@@ -295,7 +295,7 @@
     "Mörrums GoIS IK":"https://files.livearenasports.com/files/892be289-ec35-4ee0-8eb7-461a94c44e0a",
     "Nyköpings SK":"https://vectorportal.com/storage/nykopingshockey_3948.jpg",
     "Tingsryds AIF":"https://pbs.twimg.com/profile_images/1856462130343444481/fN5SpDhr_400x400.jpg",
-    "Tranås AIF":"https://www.hockeyettan.se/wp-content/uploads/2016/09/taif-logotype.png",
+    "Tranås AIF":"https://www.hockeyettan.se/wp-content/uploads/2016/07/Logo-Tranas-2026.png",
     "Tyringe SoSS":"https://www.tsos.com/wp-content/uploads/2024/12/tsos400.png",
     "Västerviks IK":"https://edg01-prd-se-ixn.solidtango.com/cache/media_file/resize1280x720/3ad3d7f7-ddc2-47c9-9fee-b76529ed8c4f.png?cb=f75ebc0da6d7e4ca8c064823e7f93f6e"
   });
