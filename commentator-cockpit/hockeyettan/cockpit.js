@@ -3298,12 +3298,12 @@
     };
   }
   function openPlayerCard(row,tab='overview'){
-    window.CockpitUsage?.track('player_open',tab,{player_id:row.player_id||null});
     if(!row.player_id){
       const candidates=[...(state.searchRoster||[]),...state.seasonPlayerStats,...state.seasonGoalieStats].filter(item=>item.team_id===row.team_id&&sourceNameKey(humanSourceName(cleanLineupSourceName(item.source_name)))===sourceNameKey(humanSourceName(cleanLineupSourceName(row.source_name))));
       const ids=[...new Set(candidates.map(item=>item.player_id).filter(Boolean))];
       if(ids.length===1)row={...row,player_id:ids[0]};
     }
+    window.CockpitUsage?.track('player_open',tab,{player_id:row.player_id||null});
     const season=state.seasonPlayerStats.find(item=>item.team_id===row.team_id&&sameStatPlayer(item,row));
     const goalie=state.seasonGoalieStats.find(item=>item.team_id===row.team_id&&sameStatPlayer(item,row));
     const profile=state.playerProfiles.get(row.player_id)||{};

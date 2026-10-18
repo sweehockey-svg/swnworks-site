@@ -6,7 +6,7 @@
  function current(){const c=context?.();return c?.user&&c.approved?c:null;}
  function notice(c){
   let node=document.getElementById('cockpitUsageNotice');
-  if(!node){node=document.createElement('aside');node.id='cockpitUsageNotice';node.style.cssText='padding:9px 20px;background:#10242f;color:#bacdd7;font:12px/1.5 system-ui;border-bottom:1px solid #294654';document.body.prepend(node);}
+  if(!node){node=document.createElement('aside');node.id='cockpitUsageNotice';node.style.cssText='flex:0 0 auto;padding:9px 20px;background:#10242f;color:#bacdd7;font:12px/1.5 system-ui;border-bottom:1px solid #294654';(document.querySelector('.app-shell')||document.body).prepend(node);}
   node.replaceChildren(document.createTextNode('Användningsmätning: öppnade vyer, lag, spelarkort och ungefärlig aktiv tid sparas i 90 dagar för utveckling och support. Bara administratörer kan se uppgifterna. Inga anteckningstexter eller sökningar registreras. Kontakt: '));
   const contact=document.createElement('a');contact.href='mailto:info@swnworks.se';contact.textContent='info@swnworks.se';contact.style.color='#ffd24d';node.append(contact);
   if(c.admin){const a=document.createElement('a');a.href='/commentator-cockpit/admin/';a.textContent=' · Öppna användningsadmin ↗';a.style.color='#ffd24d';node.append(a);}

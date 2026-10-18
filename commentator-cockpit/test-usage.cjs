@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 let now=1000000,c=null,calls=[],handlers={},timers=[],nodes={};
-const document={hidden:false,addEventListener:(t,f)=>handlers[t]=f,getElementById:id=>nodes[id],createTextNode:s=>({textContent:s}),createElement:()=>({style:{},append(){},replaceChildren(){},remove(){delete nodes.cockpitUsageNotice;}}),body:{prepend:n=>nodes[n.id]=n}};
+const document={hidden:false,querySelector:()=>null,addEventListener:(t,f)=>handlers[t]=f,getElementById:id=>nodes[id],createTextNode:s=>({textContent:s}),createElement:()=>({style:{},append(){},replaceChildren(){},remove(){delete nodes.cockpitUsageNotice;}}),body:{prepend:n=>nodes[n.id]=n}};
 class Clock extends Date{static now(){return now;}}
 const window={};vm.runInNewContext(fs.readFileSync(__dirname+'/usage.js','utf8'),{window,document,crypto:require('node:crypto').webcrypto,Date:Clock,setInterval:(f,ms)=>timers.push({f,ms})});
 window.CockpitUsage.attach({functions:{invoke:async(name,{body})=>{calls.push(body);}}},()=>c);
