@@ -677,3 +677,11 @@ button, input { font: inherit; }
  .network-tabs { width:100%; }
  .network-tabs button { flex:1; }
 }
+
+/* Zoom controls and extra spacing */
+.network-hint { position:absolute; top:17px; left:20px; color:#a8aba9; background:rgba(9,10,12,.85); padding:8px 12px; font:500 12px var(--sans); pointer-events:none; }
+.network-map-controls { background:rgba(9,11,13,.93); padding:6px; border:1px solid #414847; border-radius:5px; box-shadow:0 6px 25px rgba(0,0,0,.4); }
+.network-map-controls button { display:block; margin:3px 0; background:#252b2c; border:1px solid #535d5b; color:#f2f2ed; font-size:21px; font-weight:700; border-radius:3px; }
+.network-map-controls button:hover { background:var(--acid); color:#0a0c0d; }
+#net-zoom-level { display:block; color:#ccd0cb; text-align:center; font:600 11px var(--sans); padding:8px 0 3px; }
+@media(max-width:850px) { .network-hint { font-size:10px; top:10px; left:10px; } }
