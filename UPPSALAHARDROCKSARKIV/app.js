@@ -1133,14 +1133,39 @@
         const otherBands=graph.nodes.filter(n=>n.type==='band'&&!n.focus);
         const members=graph.nodes.filter(n=>n.type==='person');
         positions.set('b'+selected,{x:600,y:360});
-        members.forEach((n,i)=>{
-          const angle=-Math.PI/2+i*Math.PI*2/Math.max(1,members.length);
-          const radius=members.length>16?205:170;
-          positions.set(n.id,{x:600+Math.cos(angle)*radius,y:360+Math.sin(angle)*radius*.9});
-        });
+        // Put the outer bands on a stable ring, then position musicians
+        // towards the bands they connect, rather than by their list order.
         otherBands.forEach((n,i)=>{
           const angle=-Math.PI/2+i*Math.PI*2/Math.max(1,otherBands.length);
           positions.set(n.id,{x:600+Math.cos(angle)*440,y:360+Math.sin(angle)*290});
+        });
+        const buckets=new Map();
+        members.forEach((n,i)=>{
+          const linked=(personBands.get(String(n.ref.id))||[])
+            .filter(id=>id!==selected&&positions.has('b'+id))
+            .map(id=>positions.get('b'+id));
+          let x,y;
+          if(linked.length){
+            const bx=linked.reduce((sum,p)=>sum+p.x,0)/linked.length;
+            const by=linked.reduce((sum,p)=>sum+p.y,0)/linked.length;
+            // Balance towards the selected band without losing the direction
+            // of the person's other documented band connections.
+            x=600+(bx-600)*.58;
+            y=360+(by-360)*.58;
+          }else{
+            const angle=-Math.PI/2+i*Math.PI*2/Math.max(1,members.length);
+            x=600+Math.cos(angle)*165;
+            y=360+Math.sin(angle)*140;
+          }
+          const key=Math.round(x/65)+','+Math.round(y/65);
+          const count=buckets.get(key)||0;
+          buckets.set(key,count+1);
+          if(count){
+            const angle=count*2.399963229728653;
+            x+=Math.cos(angle)*Math.sqrt(count)*48;
+            y+=Math.sin(angle)*Math.sqrt(count)*43;
+          }
+          positions.set(n.id,{x,y});
         });
         return positions;
       }
