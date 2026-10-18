@@ -1074,7 +1074,7 @@
           <div class="network-toolbar-row"><div class="network-tabs"><button class="active" data-mode="explore">Utforska</button><button data-mode="all">Hela nätverket</button></div><label class="network-depth-label">Kopplingar <select id="network-depth"><option value="1">1 nivå</option><option value="2">2 nivåer</option></select></label><label class="network-label-toggle"><input id="network-labels" type="checkbox" checked> Visa namn</label></div>
         </div>
         <div class="network-layout"><div class="network-shell"><svg id="network" viewBox="0 0 1200 720" aria-label="Interaktiv karta över band och personer" role="img"><g id="network-scene"></g></svg>
-          <div class="network-map-controls"><button id="net-plus" aria-label="Zooma in">+</button><button id="net-minus" aria-label="Zooma ut">−</button><button id="net-reset" aria-label="Återställ vy">↺</button></div>
+          <div class="network-map-controls"><button id="net-plus" title="Zooma in" aria-label="Zooma in">+</button><button id="net-minus" title="Zooma ut" aria-label="Zooma ut">−</button><button id="net-reset" title="Anpassa nätverket till vyn" aria-label="Visa hela nätverket">⤢</button><span id="net-zoom-level">100%</span></div><div class="network-hint">Scrolla för att zooma · Dra för att flytta</div>
           <div class="network-legend"><span><i class="legend-band"></i> Band</span><span><i class="legend-person"></i> Person</span><span><i class="legend-line"></i> Koppling</span></div>
           </div><aside class="network-details" id="network-details"></aside></div>
         <p class="network-note" id="network-note"></p>
@@ -1167,7 +1167,7 @@
         html+=`<g class="${isBand?'net-band':'net-person'} ${n.focus?'network-focus':''}" data-node="${n.id}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})" tabindex="0" role="button" aria-label="${name}"><title>${name}</title><circle r="${r}"></circle>${showLabels&&(n.focus || (mode==='explore' && (graph.nodes.length<32 || (isBand && graph.nodes.length<55))))?`<text class="network-node-name" y="${r+15}">${name}</text>`:''}</g>`;
       });
       scene.innerHTML=html;
-      applyTransform();
+      resetView();
       $('#network-note').textContent=mode==='all'?`Visar alla ${bands.length} dokumenterade Uppsalaband och deras kända bandkopplingar. Klicka på ett band för att utforska dess medlemmar.`:`Visar ${graph.nodes.filter(n=>n.type==='band').length} band och ${graph.nodes.filter(n=>n.type==='person').length} personer. Kopplingarna bygger på arkivets dokumenterade uppgifter.`;
       scene.querySelectorAll('[data-node]').forEach(el=>{
         const activate=()=>{const id=el.dataset.node;if(id[0]==='b'){selected=id.slice(1);mode='explore';$('#network-depth').disabled=false;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));resetView();draw();}else{const p=personById.get(id.slice(1));if(p)showPerson(p);}};
@@ -1188,13 +1188,13 @@
       details.innerHTML=`<div class="section-kicker">PERSON</div><h2>${escapeHtml(p.canonical_name)}</h2><a class="network-profile-link" href="${personHref(p)}">Öppna personsidan ↗</a><div class="network-detail-heading">BANDKOPPLINGAR</div>${related.map(b=>`<button class="network-person-link" data-band="${b.id}">${escapeHtml(b.canonical_name)} <span>→</span></button>`).join('') || '<p>Ingen dokumenterad bandkoppling.</p>'}`;
       details.querySelectorAll('[data-band]').forEach(btn=>btn.addEventListener('click',()=>{selected=String(btn.dataset.band);mode='explore';resetView();draw();}));
     }
-    function applyTransform(){scene.setAttribute('transform',`translate(${transform.x} ${transform.y}) scale(${transform.k})`);}
-    function resetView(){transform={x:0,y:0,k:1};applyTransform();}
-    function zoom(factor){const k=Math.max(.4,Math.min(4,transform.k*factor));transform.x=600-(600-transform.x)*k/transform.k;transform.y=360-(360-transform.y)*k/transform.k;transform.k=k;applyTransform();}
+    function applyTransform(){scene.setAttribute('transform',`translate(${transform.x} ${transform.y}) scale(${transform.k})`);const label=$('#net-zoom-level');if(label)label.textContent=Math.round(transform.k*100)+'%';}
+    function resetView(){const box=scene.getBBox();if(!box.width||!box.height){transform={x:0,y:0,k:1};applyTransform();return;}const k=Math.max(.25,Math.min(2.2,Math.min(1100/(box.width+75),625/(box.height+75))));transform={k,x:600-(box.x+box.width/2)*k,y:360-(box.y+box.height/2)*k};applyTransform();}
+    function zoom(factor,center={x:600,y:360}){const k=Math.max(.2,Math.min(8,transform.k*factor));const ratio=k/transform.k;transform.x=center.x-(center.x-transform.x)*ratio;transform.y=center.y-(center.y-transform.y)*ratio;transform.k=k;applyTransform();}
     $('#net-plus').addEventListener('click',()=>zoom(1.25));
     $('#net-minus').addEventListener('click',()=>zoom(.8));
     $('#net-reset').addEventListener('click',resetView);
-    svg.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY<0?1.12:.89);},{passive:false});
+    svg.addEventListener('wheel',e=>{e.preventDefault();const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse());zoom(e.deltaY<0?1.13:.885,{x:p.x,y:p.y});},{passive:false});
     svg.addEventListener('pointerdown',e=>{if(e.target.closest('[data-node]'))return;drag={x:e.clientX,y:e.clientY};svg.setPointerCapture(e.pointerId);});
     svg.addEventListener('pointermove',e=>{if(!drag)return;const rect=svg.getBoundingClientRect();transform.x+=(e.clientX-drag.x)*1200/rect.width;transform.y+=(e.clientY-drag.y)*720/rect.height;drag={x:e.clientX,y:e.clientY};applyTransform();});
     svg.addEventListener('pointerup',()=>drag=null);
