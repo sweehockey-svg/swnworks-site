@@ -19,6 +19,29 @@
   --sans: "Inter", Arial, sans-serif;
 }
 
+.contact-section { display:grid; grid-template-columns:minmax(220px,.7fr) minmax(0,1.5fr); gap:clamp(36px,6vw,90px); align-items:start; }
+.contact-intro h2 { font-family:var(--condensed); font-size:36px; line-height:1.15; text-transform:uppercase; margin:18px 0; }
+.contact-intro p { color:var(--muted); font-size:14px; line-height:1.85; }
+.archive-contact-form { min-width:0; display:grid; gap:22px; }
+.archive-contact-form label { display:grid; gap:10px; color:var(--muted); font-family:var(--condensed); font-size:12px; text-transform:uppercase; letter-spacing:.12em; }
+.contact-fields { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.archive-contact-form input, .archive-contact-form textarea { width:100%; min-width:0; border:1px solid var(--line-strong); border-radius:0; background:var(--bg-soft); color:var(--ink); padding:15px 16px; font:14px/1.6 var(--sans); letter-spacing:normal; }
+.archive-contact-form textarea { resize:vertical; min-height:170px; }
+.archive-contact-form input::placeholder, .archive-contact-form textarea::placeholder { color:var(--muted-2); opacity:1; }
+.archive-contact-form input:focus-visible, .archive-contact-form textarea:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
+.contact-actions { display:flex; align-items:center; flex-wrap:wrap; gap:22px; }
+.contact-actions > span { color:var(--muted); font-size:12px; line-height:1.7; }
+.contact-actions a { color:var(--ink); text-underline-offset:4px; overflow-wrap:anywhere; }
+.contact-actions button { cursor:pointer; border:0; }
+.contact-actions button:disabled { opacity:.6; cursor:wait; }
+.contact-privacy { margin:0; color:var(--muted); font-size:11px; line-height:1.7; }
+.contact-status { margin:0; min-height:1.6em; font-size:14px; line-height:1.7; }
+.contact-status.success { color:var(--acid); }
+.contact-status.error { color:#ffad92; }
+.contact-honey { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+@media (max-width:900px) { .contact-section { grid-template-columns:1fr; } .contact-intro { max-width:640px; } }
+@media (max-width:560px) { .contact-fields { grid-template-columns:1fr; } .contact-actions { align-items:flex-start; flex-direction:column; } }
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {

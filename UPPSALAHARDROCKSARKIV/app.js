@@ -610,10 +610,14 @@
       const snapshot = await loadArchiveSnapshot();
       Object.keys(state).forEach(key => state[key] = Array.isArray(snapshot?.[key]) ? snapshot[key] : []);
       syncLabel.textContent = `Live från arkivet · ${new Date().toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}`;
-      renderRoute();
+      if (routePath() !== '/kontakt' || !$('.archive-contact-form')) renderRoute();
     } catch (err) {
       console.error(err);
       syncLabel.textContent = 'Kunde inte nå arkivet';
+      if (routePath() === '/kontakt') {
+        if (!$('.archive-contact-form')) renderRoute();
+        return;
+      }
       app.innerHTML = `<section class="page page-narrow"><div class="error-box"><strong>Kunde inte hämta arkivet.</strong><br>Kontrollera internetanslutningen och ladda om sidan.<span class="error-detail"> ${escapeHtml(err.message || '')}</span></div></section>`;
     }
   }
@@ -1077,6 +1081,63 @@
     svg.innerHTML=html;
   }
 
+  function renderContact() {
+    const email = cfg.contactEmail || 'info@swnworks.se';
+    app.innerHTML = `${pageHeader('HJÄLP OSS ATT FYLLA LUCKORNA','Kontakt','Har du ett tips, en rättelse eller material från Uppsalas hårdrockshistoria? Hör av dig och hjälp arkivet att växa.')}
+      <section class="section first-section contact-section">
+        <div class="contact-intro"><div class="section-kicker">DIN HISTORIA HÖR HIT</div><h2>Vad saknas i arkivet?</h2>
+          <p>Berätta om ett band, en spelning eller en person. Vi tar gärna emot tips om skivor, fotografier, affischer och andra källor.</p>
+          <p>Har du bilder eller inskannat material? Beskriv vad du har, så tar vi det vidare via e-post.</p>
+        </div>
+        <form class="archive-contact-form" action="https://formsubmit.co/ajax/${escapeHtml(email)}" method="post">
+          <div class="contact-fields">
+            <label for="contact-name">Namn<input id="contact-name" name="name" autocomplete="name" placeholder="Ditt namn" maxlength="150" required></label>
+            <label for="contact-email">E-post<input id="contact-email" type="email" name="email" autocomplete="email" placeholder="din@epost.se" maxlength="254" required></label>
+          </div>
+          <label for="contact-subject">Ämne<input id="contact-subject" name="subject" placeholder="Ett band, en rättelse eller något annat?" maxlength="200" required></label>
+          <label for="contact-message">Meddelande<textarea id="contact-message" name="message" rows="7" placeholder="Berätta vad du vet. Lägg gärna med en källhänvisning eller länk." maxlength="12000" required></textarea></label>
+          <input type="hidden" name="_subject" value="Uppsala Hårdrocksarkiv – nytt meddelande">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_captcha" value="false">
+          <div class="contact-honey" aria-hidden="true"><label>Webbplats<input name="_honey" tabindex="-1" autocomplete="off"></label></div>
+          <div class="contact-actions"><button class="button button-primary" type="submit">Skicka meddelande <span aria-hidden="true">→</span></button><span>Eller mejla direkt: <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></span></div>
+          <p class="contact-privacy">Ditt meddelande skickas till arkivet via FormSubmit. Namn och e-postadress publiceras inte i arkivet.</p>
+          <p class="contact-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>`;
+    const form = $('.archive-contact-form');
+    const status = $('.contact-status', form);
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (form.dataset.sending === 'true') return;
+      if (form.elements._honey.value) return;
+      const button = $('button[type="submit"]', form);
+      form.dataset.sending = 'true';
+      button.disabled = true;
+      button.textContent = 'Skickar…';
+      status.textContent = '';
+      status.className = 'contact-status';
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST', body: new FormData(form), headers: {Accept: 'application/json'},
+          signal: AbortSignal.timeout(20000)
+        });
+        const result = await response.json();
+        if (!response.ok || (result.success !== true && result.success !== 'true')) throw new Error('send failed');
+        form.reset();
+        status.textContent = 'Tack! Ditt meddelande har skickats till arkivet.';
+        status.classList.add('success');
+      } catch (error) {
+        status.textContent = `Vi kunde inte bekräfta att meddelandet skickades. Texten finns kvar – försök igen eller mejla ${email}.`;
+        status.classList.add('error');
+      } finally {
+        form.dataset.sending = 'false';
+        button.disabled = false;
+        button.innerHTML = 'Skicka meddelande <span aria-hidden="true">→</span>';
+      }
+    });
+  }
+
   function renderNotFound() {
     app.innerHTML = `${pageHeader('404','Sidan hittades inte','Länken pekar inte på någon registrerad sida i arkivet.')}<section class="section first-section"><a class="button button-primary" href="#/">Till startsidan</a></section>`;
   }
@@ -1105,6 +1166,7 @@
     else if (path === '/tidslinje') renderTimeline();
     else if (path === '/natverket') renderNetwork();
     else if (path === '/kallor') renderSources();
+    else if (path === '/kontakt') renderContact();
     else renderNotFound();
     window.scrollTo({top:0, behavior:'instant'});
     document.title = `${document.querySelector('.page-hero h1, .hero h1')?.textContent.trim().replace(/\s+/g,' ') || 'Uppsala Hårdrocksarkiv'} – Uppsala Hårdrocksarkiv`;
@@ -1124,5 +1186,6 @@
     const nav=$('#site-nav'); nav.classList.toggle('open'); e.currentTarget.setAttribute('aria-expanded',nav.classList.contains('open'));
   });
   if (!location.hash) history.replaceState(null,'','#/');
+  if (routePath() === '/kontakt') renderRoute();
   load();
 })();
