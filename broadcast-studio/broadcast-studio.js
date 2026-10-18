@@ -406,7 +406,16 @@
   }
   function goaliePct(v) {
     const n = number(v); if (n === null) return "–";
-    return (n * (n <= 1 ? 100 : 1)).toFixed(1).replace(".", ",");
+    const percentage=n*(n<=1?100:1);
+    return percentage<0||percentage>100?"–":goalieDecimal(percentage);
+  }
+  function goalieDecimal(v) {
+    const n=number(v);
+    return n===null||n<0?"–":new Intl.NumberFormat(LOCALE,{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+  }
+  function goalieStageValue(p,stageName,key) {
+    if(!p||!(number(p[stageName+'_goalie_games'])>0))return "–";
+    return key==='sv'?goaliePct(p[stageName+'_goalie_save_percentage']):goalieDecimal(p[stageName+'_goalie_goals_against_average']);
   }
   function matchupCard(side, slot, kind) {
     const t = selectedTeam(side), p = lineupPlayer(side, slot);
@@ -414,8 +423,8 @@
     let rows;
     if (kind === "goalie") rows = [
       ["GP", stat(p.regular_goalie_games), stat(p.playoff_goalie_games)],
-      ["SV%", goaliePct(p.regular_goalie_save_percentage), goaliePct(p.playoff_goalie_save_percentage)],
-      ["GAA", stat(p.regular_goalie_goals_against_average), stat(p.playoff_goalie_goals_against_average)],
+      ["SV%", goalieStageValue(p,"regular","sv"), goalieStageValue(p,"playoff","sv")],
+      ["GAA", goalieStageValue(p,"regular","gaa"), goalieStageValue(p,"playoff","gaa")],
       ["SO", stat(p.regular_goalie_shutouts), stat(p.playoff_goalie_shutouts)]
     ];
     else {
@@ -450,8 +459,8 @@
       return { side, t, p };
     };
     const gh = goalieSide("home"), ga = goalieSide("away");
-    const goalieVal = (x, key) => x.p ? (key === "sv" ? goaliePct(x.p.regular_goalie_save_percentage) : key === "psv" ? goaliePct(x.p.playoff_goalie_save_percentage) : stat(x.p[key])) : "–";
-    const goaliePortrait = x => x.p ? '<div class="goalie-person goalie-'+x.side+'">'+image(playerImage(x.p))+'<div class="goalie-name">'+(logo(x.t)?'<img src="'+esc(logo(x.t))+'" alt="">':"")+'<span><b>G #'+esc(x.p.player_number ?? "")+' · '+playerFlag(x.p)+esc(x.p.display_gamertag)+'</b><small>'+esc(x.t.team_name_in_league)+'</small></span></div></div>' : '<div class="goalie-person empty"><span>'+esc(tx("noGoalie"))+'</span></div>';
+    const goalieVal = (x, key) => !x.p?"–":key==="sv"||key==="psv"?goalieStageValue(x.p,key==="sv"?"regular":"playoff","sv"):key.endsWith("goals_against_average")?goalieStageValue(x.p,key.startsWith("regular_")?"regular":"playoff","gaa"):stat(x.p[key]);
+    const goaliePortrait = x => x.p ? '<div class="goalie-person goalie-'+x.side+'">'+image(playerImage(x.p))+'<div class="goalie-name">'+(logo(x.t)?'<img src="'+esc(logo(x.t))+'" alt="">':"")+'<span><b>'+playerFlag(x.p)+esc(x.p.display_gamertag)+'</b><small>G'+(x.p.player_number!=null&&String(x.p.player_number)!==''?' #'+esc(x.p.player_number):'')+' · '+esc(x.t.team_name_in_league)+'</small></span></div></div>' : '<div class="goalie-person empty"><span>'+esc(tx("noGoalie"))+'</span></div>';
     const goalieRows = [
       ["GP","regular_goalie_games","playoff_goalie_games"],
       ["SV%","sv","psv"],
@@ -1022,4 +1031,3 @@
  screen?.querySelectorAll(".scene").forEach(s=>new MutationObserver(syncLiveMode).observe(s,{attributes:true,attributeFilter:["class"]}));
  syncLiveMode();
 })();
-
