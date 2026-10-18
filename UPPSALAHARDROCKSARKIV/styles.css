@@ -631,3 +631,49 @@ button, input { font: inherit; }
 .credit-release strong { display:block; }
 .credit-band { display:block; margin-top:5px; color:var(--muted); font-size:12px; line-height:1.5; }
 .credit-band:empty { display:none; }
+
+
+/* Network explorer v2.14 */
+.network-page { padding-bottom:90px; }
+.network-toolbar { background:#121519; border:1px solid var(--line-strong); border-bottom:0; padding:22px 25px; }
+.network-search-label,.network-detail-heading { font:700 12px var(--condensed); letter-spacing:.1em; color:var(--acid); }
+#network-search { display:block; box-sizing:border-box; width:100%; max-width:720px; margin:9px 0 18px; padding:13px 16px; background:#080a0c; color:#fff; border:1px solid #3a4246; font:500 15px var(--sans); }
+#network-search:focus { outline:1px solid var(--acid); border-color:var(--acid); }
+.network-toolbar-row { display:flex; align-items:center; flex-wrap:wrap; gap:18px; }
+.network-tabs { display:flex; gap:4px; }
+.network-tabs button, .network-map-controls button { background:#202429; color:#e4e5e3; border:1px solid #393e40; cursor:pointer; padding:10px 16px; font:600 12px var(--sans); }
+.network-tabs button.active { background:var(--acid); border-color:var(--acid); color:#0b0d10; }
+.network-depth-label,.network-label-toggle { color:#b5b7b3; font:500 12px var(--sans); display:flex; align-items:center; gap:10px; }
+.network-depth-label select { background:#1b2022; color:#fff; border:1px solid #414746; padding:8px; }
+.network-label-toggle input { accent-color:var(--acid); }
+.network-layout { display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:0; }
+.network-layout .network-shell { min-width:0; min-height:650px; }
+.network-layout #network { height:650px; min-height:650px; touch-action:none; user-select:none; cursor:grab; }
+.network-layout #network:active { cursor:grabbing; }
+.network-layout .network-details { border:1px solid var(--line-strong); border-left:0; background:#121519; padding:25px 20px; overflow-wrap:anywhere; max-height:650px; overflow-y:auto; }
+.network-details h2 { color:#f0f0ee; font:700 27px var(--condensed); text-transform:uppercase; line-height:1.1; margin:12px 0 10px; }
+.network-details p { color:#a6aaac; font-size:12px; line-height:1.6; }
+.network-profile-link { display:block; padding:11px 10px; color:var(--acid); border:1px solid rgba(213,255,63,.35); text-decoration:none; font-size:12px; margin:20px 0 28px; }
+.network-detail-heading { margin:20px 0 12px; }
+.network-person-link { display:flex; justify-content:space-between; width:100%; border:0; border-bottom:1px solid #30353a; background:transparent; color:#e4e4e2; cursor:pointer; font:500 12px var(--sans); text-align:left; padding:12px 0; }
+.network-person-link:hover { color:var(--acid); }
+.network-map-controls { position:absolute; top:15px; right:15px; display:flex; flex-direction:column; z-index:2; }
+.network-map-controls button { padding:10px; font-size:18px; width:39px; }
+.network-layout .network-legend { left:15px; bottom:14px; }
+.network-layout .net-band circle { fill:#15191a; stroke:var(--acid); stroke-width:1.8; }
+.network-layout .net-person circle { fill:#d5d6d3; stroke:#101214; stroke-width:2; }
+.network-layout .network-focus circle { fill:#2b3418; stroke-width:3; }
+.network-layout .network-node-name { fill:#e4e4df; paint-order:stroke; stroke:#0a0c0e; stroke-width:3px; font:600 13px var(--condensed); text-anchor:middle; text-transform:uppercase; pointer-events:none; }
+.network-layout .net-person .network-node-name { font:500 11px var(--sans); text-transform:none; }
+.network-layout .net-band:hover circle,.network-layout .net-person:hover circle,.network-layout g:focus circle { stroke:#fff; stroke-width:3; }
+.network-layout .net-line { stroke:rgba(245,245,245,.17); stroke-width:1.4; }
+.network-layout .net-line.relation { stroke:rgba(213,255,63,.35); }
+@media(max-width:850px) {
+ .network-layout { grid-template-columns:1fr; }
+ .network-layout .network-details { border-left:1px solid var(--line-strong); border-top:0; max-height:none; }
+ .network-layout #network { height:480px; min-height:480px; }
+ .network-layout .network-shell { min-height:480px; margin:0; border:1px solid var(--line-strong); }
+ .network-toolbar { padding:16px; }
+ .network-tabs { width:100%; }
+ .network-tabs button { flex:1; }
+}
