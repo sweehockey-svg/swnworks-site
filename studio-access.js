@@ -51,7 +51,7 @@
       event.preventDefault();if(!client)return;
       const button=emailForm.querySelector('button');button.disabled=true;message('Skickar inloggningslänk…');
       try{
-        const result=await client.auth.signInWithOtp({email:emailForm.querySelector('[name="email"]').value.trim().toLowerCase(),options:{shouldCreateUser:false,emailRedirectTo:location.origin+location.pathname+location.search}});
+        const result=await client.auth.signInWithOtp({email:emailForm.querySelector('[name="email"]').value.trim().toLowerCase(),options:{shouldCreateUser:false,emailRedirectTo:location.origin+location.pathname+(sceneChannel==='sec21-bronze-test'?'':location.search)}});
         if(result.error)throw result.error;
         message('Inloggningslänk skickad. Öppna mejlet på samma mobil eller dator. Kontrollera även skräpposten.');
       }catch{message('Kunde inte skicka länken. Kontrollera adressen och att ditt konto är tillagt. Försök igen om en stund.');}
