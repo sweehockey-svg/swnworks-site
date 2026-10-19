@@ -1147,6 +1147,71 @@
     });
   }
 
+
+  // Public, read-only track metadata. Fetch only the release being viewed to
+  // avoid downloading thousands of tracks in the archive snapshot.
+  async function renderReleaseTracklist(releaseId) {
+    const holder = $('#release-tracklist');
+    if (!holder || holder.dataset.releaseId !== String(releaseId)) return;
+    const activeHolder = () => {
+      const current = $('#release-tracklist');
+      return current?.dataset.releaseId === String(releaseId) ? current : null;
+    };
+    try {
+      const query = `${cfg.supabaseUrl}/rest/v1/release_tracks?select=id,disc_number,track_number,title,duration_seconds,notes&release_id=eq.${encodeURIComponent(releaseId)}&order=disc_number.asc,track_number.asc`;
+      const headers = {apikey: cfg.publishableKey, Accept: 'application/json'};
+      const res = await fetch(query, {headers});
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const tracks = await res.json();
+      if (!Array.isArray(tracks)) throw new Error('Ogiltigt svar');
+      if (!activeHolder()) return;
+      if (!tracks.length) {
+        activeHolder().innerHTML = '<div class="empty-state">Låtlistan kartläggs.</div>';
+        return;
+      }
+
+      let credits = [];
+      try {
+        const ids = tracks.map(track => track.id).join(',');
+        const creditsUrl = `${cfg.supabaseUrl}/rest/v1/release_track_credits?select=track_id,person_id,role,credited_as,notes&track_id=in.(${ids})`;
+        const creditRes = await fetch(creditsUrl, {headers});
+        if (creditRes.ok) credits = await creditRes.json();
+      } catch (error) {
+        console.warn('Spårcredits kunde inte hämtas', error);
+      }
+      if (!activeHolder()) return;
+      const byTrack = new Map();
+      (Array.isArray(credits) ? credits : []).forEach(credit => {
+        if (!byTrack.has(credit.track_id)) byTrack.set(credit.track_id, []);
+        byTrack.get(credit.track_id).push(credit);
+      });
+      const formatDuration = seconds => {
+        if (seconds === null || seconds === undefined || !Number.isFinite(Number(seconds))) return '';
+        const total = Number(seconds);
+        return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+      };
+      activeHolder().innerHTML = `<ol class="release-tracks">${tracks.map(track => {
+        const displayCredits = (byTrack.get(track.id) || []).map(credit => {
+          const person = peopleById().get(credit.person_id);
+          const name = credit.credited_as || person?.canonical_name || 'Okänd';
+          return `${escapeHtml(name)} · ${escapeHtml(roleSv(credit.role || ''))}`;
+        }).join(' · ');
+        const notes = track.notes ? `<span class="release-track-note">${escapeHtml(track.notes)}</span>` : '';
+        return `<li class="release-track">
+          <span class="release-track-number">${String(track.track_number).padStart(2,'0')}</span>
+          <span class="release-track-main"><strong>${escapeHtml(track.title)}</strong>
+            ${displayCredits ? `<span class="release-track-credit">${displayCredits}</span>` : ''}
+            ${notes}
+          </span>
+          <span class="release-track-duration">${formatDuration(track.duration_seconds)}</span>
+        </li>`;
+      }).join('')}</ol>`;
+    } catch (error) {
+      console.warn('Låtlistan kunde inte hämtas', error);
+      if (activeHolder()) activeHolder().innerHTML = '<div class="empty-state">Låtlistan kunde inte hämtas just nu.</div>';
+    }
+  }
+
   function renderReleaseDetail(r) {
     const band = releaseBand(r.id);
     const credits = creditsForRelease(r.id);
@@ -1158,12 +1223,15 @@
       <section class="section detail-layout first-section">
         <aside class="detail-aside">${releaseMedia(r) ? `<figure class="detail-media release-artwork"><img src="${releaseMedia(r)}" alt="${escapeHtml(r.title)}"></figure>${externalMediaCredit(releaseMedia(r))}` : ''}<div class="aside-label">Utgåva</div><p>${escapeHtml(r.description || `En ${r.release_type || 'utgåva'} från ${r.release_year || 'okänt år'} i arkivet.`)}</p>${band ? `<a class="button button-ghost aside-button" href="${bandHref(band)}">Öppna ${escapeHtml(band.canonical_name)}</a>` : ''}</aside>
         <div class="detail-main">
-          <section class="content-section"><div class="content-head"><span>01</span><h2>Krediter</h2></div><div class="credit-list">${credits.length ? credits.map(c => { const p=peopleById().get(c.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(c.credited_as || p.canonical_name)}</strong><span>${escapeHtml(roleSv(c.role || ''))}</span><em>${escapeHtml(p.canonical_name)}</em></a>`; }).join('') : '<div class="empty-state">Krediter kartläggs.</div>'}</div></section>
-          ${gallery.length ? `<section class="content-section"><div class="content-head"><span>02</span><h2>Omslag & originalmaterial</h2></div>${archiveGallery(gallery)}</section>` : ''}
-          <section class="content-section"><div class="content-head"><span>${gallery.length ? '03':'02'}</span><h2>Källäge</h2></div>${claimList(claims)}</section>
+
+          <section class="content-section"><div class="content-head"><span>01</span><h2>Låtlista</h2></div><div id="release-tracklist" class="release-tracklist" data-release-id="${escapeHtml(r.id)}"><div class="empty-state">Hämtar låtlistan…</div></div></section>
+          <section class="content-section"><div class="content-head"><span>02</span><h2>Krediter</h2></div><div class="credit-list">${credits.length ? credits.map(c => { const p=peopleById().get(c.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(c.credited_as || p.canonical_name)}</strong><span>${escapeHtml(roleSv(c.role || ''))}</span><em>${escapeHtml(p.canonical_name)}</em></a>`; }).join('') : '<div class="empty-state">Krediter kartläggs.</div>'}</div></section>
+          ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Omslag & originalmaterial</h2></div>${archiveGallery(gallery)}</section>` : ''}
+          <section class="content-section"><div class="content-head"><span>${gallery.length ? '05':'04'}</span><h2>Källäge</h2></div>${claimList(claims)}</section>
           ${sources.length ? `<section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Källor</h2></div>${sourceList(sources)}</section>` : ''}
         </div>
       </section>`;
+    renderReleaseTracklist(r.id);
   }
 
   function timelineRows() {
