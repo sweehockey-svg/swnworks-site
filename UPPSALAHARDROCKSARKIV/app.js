@@ -769,7 +769,7 @@
   function releaseHref(r) { return `#/utgava/${slugify(`${r.title}-${r.release_year || ''}`)}`; }
 
   function findBand(slug) { return allBandRows().find(x => slugify(x.canonical_name) === slug); }
-  function findPerson(slug) { return state.people.find(x => slugify(x.canonical_name) === slug); }
+  function findPerson(slug) { return state.people.find(x => slugify(x.canonical_name) === (slug === 'john-s-swahn' ? 'john-swahn' : slug)); }
   function findRelease(slug) { return state.releases.find(x => slugify(`${x.title}-${x.release_year || ''}`) === slug); }
 
   function pageHeader(kicker, title, lead = '', meta = '') {
@@ -788,7 +788,7 @@
   }
 
   function renderHome() {
-    const john = state.people.find(p => p.canonical_name === 'John S. Swahn');
+    const john = state.people.find(p => p.canonical_name === 'John Swahn');
     const johnBands = john ? membershipsForPerson(john.id).map(m => bandsById().get(m.band_id)).filter(Boolean) : [];
     const archiveBands = uppsalaBands();
     const earlyBands = [...archiveBands].sort((a,b) => (a.formed_year || 9999) - (b.formed_year || 9999)).slice(0, 6);
@@ -831,10 +831,10 @@
       <section class="feature-story section home-feature">
         <div class="feature-side"><span class="feature-index">01</span><span class="feature-label">FÖRSTA INGÅNGEN</span></div>
         <div class="feature-main">
-          <p class="eyebrow">PERSON / JOHN S. SWAHN</p>
+          <p class="eyebrow">PERSON / JOHN SWAHN</p>
           <h2>En tråd genom flera band.</h2>
           <div class="feature-grid">
-            <div><p class="feature-lead">John S. Swahn är den första ingången till kartläggningen. Hans bandsida och personprofil blir en knutpunkt där äldre och senare grenar kan byggas ut.</p><a class="button button-dark" href="${john ? personHref(john) : '#/personer'}">Öppna John S. Swahns sida</a></div>
+            <div><p class="feature-lead">John Swahn är den första ingången till kartläggningen. Hans bandsida och personprofil blir en knutpunkt där äldre och senare grenar kan byggas ut.</p><a class="button button-dark" href="${john ? personHref(john) : '#/personer'}">Öppna John Swahns sida</a></div>
             <div class="john-path">${johnBands.map(b => `<a class="john-path-item" href="${bandHref(b)}"><div class="john-path-year">${b.formed_year || '—'}</div><div><div class="john-path-band">${escapeHtml(b.canonical_name)}</div><div class="john-path-role">${escapeHtml((b.genres || []).join(' / '))}</div></div><div class="john-path-role">Öppna →</div></a>`).join('')}</div>
           </div>
         </div>
