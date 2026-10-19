@@ -917,20 +917,103 @@
   }
 
 
+
   function renderBandIndex() {
-    const ordered = [...uppsalaBands()].sort((a,b) => (a.formed_year || 9999) - (b.formed_year || 9999) || a.canonical_name.localeCompare(b.canonical_name,'sv'));
+    const bands = uppsalaBands();
+    const byName = (a, b) => a.canonical_name.localeCompare(b.canonical_name, 'sv', { sensitivity: 'base' });
+    const selectOptions = values => values.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('');
+    const genres = [...new Set(bands.flatMap(b => Array.isArray(b.genres) ? b.genres : []).filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b, 'sv'));
+    const cities = [...new Set(bands.map(b => b.city).filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b, 'sv'));
+    const decades = [...new Set(bands.map(b => Number(b.formed_year))
+      .filter(year => Number.isInteger(year) && year >= 1900)
+      .map(year => Math.floor(year / 10) * 10))].sort((a, b) => a - b);
+    const releaseIds = new Map();
+    state.releaseBands.forEach(link => {
+      if (!releaseIds.has(link.band_id)) releaseIds.set(link.band_id, new Set());
+      releaseIds.get(link.band_id).add(link.release_id);
+    });
+    const releaseCount = band => releaseIds.get(band.id)?.size || 0;
+    const hasPhoto = band => Boolean(bandPhoto(b) ||
+      /\.(?:jpe?g|png|webp)(?:\?|$)/i.test(BAND_MEDIA[slugify(band.canonical_name)] || ''));
+
     app.innerHTML = `${pageHeader('BAND I ARKIVET','Band','Från tidig hårdrock och thrash till death, black och senare grenar av Uppsalas metalscen.')}
       <section class="section page-section first-section">
-        <div class="index-toolbar"><label class="search-box"><span>Sök band</span><input id="band-search" type="search" placeholder="Namn, genre eller år…"></label><div class="index-count"><strong id="band-count">${ordered.length}</strong> band</div></div>
-        <div class="band-grid" id="band-grid">${ordered.map(bandCard).join('')}</div>
+        <div class="index-toolbar">
+          <label class="search-box"><span>Sök band</span><input id="band-search" type="search" placeholder="Namn, genre, ort eller år…" autocomplete="off"></label>
+          <div class="index-count"><strong id="band-count" aria-live="polite">${bands.length}</strong> band</div>
+        </div>
+        <div class="band-filter-bar" aria-label="Filtrera och sortera band">
+          <label class="band-filter-field"><span>Sortera</span><select id="band-sort">
+            <option value="oldest">Äldsta först</option>
+            <option value="newest">Nyaste först</option>
+            <option value="name-asc">Namn A–Ö</option>
+            <option value="name-desc">Namn Ö–A</option>
+            <option value="releases">Flest utgåvor</option>
+          </select></label>
+          <label class="band-filter-field"><span>Genre</span><select id="band-genre"><option value="">Alla genrer</option>${selectOptions(genres)}</select></label>
+          <label class="band-filter-field"><span>Årtionde</span><select id="band-decade"><option value="">Alla årtionden</option>${decades.map(year => `<option value="${year}">${year}-talet</option>`).join('')}</select></label>
+          <label class="band-filter-field"><span>Ort</span><select id="band-city"><option value="">Alla orter</option>${selectOptions(cities)}</select></label>
+        </div>
+        <div class="band-filter-actions">
+          <label class="band-photo-toggle"><input id="band-photo-only" type="checkbox"><span>Endast band med foto</span></label>
+          <button class="band-filter-reset" id="band-filter-reset" type="button" hidden>Rensa filter <span aria-hidden="true">×</span></button>
+        </div>
+        <div class="band-grid" id="band-grid"></div>
       </section>`;
+
     const input = $('#band-search');
-    input.addEventListener('input', () => {
+    const sort = $('#band-sort');
+    const genre = $('#band-genre');
+    const decade = $('#band-decade');
+    const city = $('#band-city');
+    const photoOnly = $('#band-photo-only');
+    const reset = $('#band-filter-reset');
+    const grid = $('#band-grid');
+    const count = $('#band-count');
+
+    const update = () => {
       const term = input.value.trim().toLocaleLowerCase('sv');
-      const filtered = ordered.filter(b => `${b.canonical_name} ${(b.genres||[]).join(' ')} ${b.formed_year || ''}`.toLocaleLowerCase('sv').includes(term));
-      $('#band-grid').innerHTML = filtered.map(bandCard).join('');
-      $('#band-count').textContent = filtered.length;
+      const selectedGenre = genre.value;
+      const selectedDecade = decade.value;
+      const selectedCity = city.value;
+      const filtered = bands.filter(b => {
+        if (term && !`${b.canonical_name} ${(b.genres || []).join(' ')} ${b.city || ''} ${b.formed_year || ''}`.toLocaleLowerCase('sv').includes(term)) return false;
+        if (selectedGenre && !(b.genres || []).includes(selectedGenre)) return false;
+        if (selectedDecade && Math.floor(Number(b.formed_year) / 10) * 10 !== Number(selectedDecade)) return false;
+        if (selectedCity && b.city !== selectedCity) return false;
+        if (photoOnly.checked && !hasPhoto(b)) return false;
+        return true;
+      });
+      const year = b => Number(b.formed_year) >= 1900 ? Number(b.formed_year) : null;
+      filtered.sort((a, b) => {
+        if (sort.value === 'name-asc') return byName(a, b);
+        if (sort.value === 'name-desc') return byName(b, a);
+        if (sort.value === 'releases') return releaseCount(b) - releaseCount(a) || byName(a, b);
+        if (sort.value === 'newest') return (year(b) ?? -Infinity) - (year(a) ?? -Infinity) || byName(a, b);
+        return (year(a) ?? Infinity) - (year(b) ?? Infinity) || byName(a, b);
+      });
+      grid.innerHTML = filtered.length
+        ? filtered.map((band, index) => bandCard(band, index)).join('')
+        : '<div class="band-filter-empty"><strong>Inga band hittades.</strong><span>Prova en annan sökning eller rensa filtren.</span></div>';
+      count.textContent = filtered.length;
+      reset.hidden = !(term || sort.value !== 'oldest' || selectedGenre || selectedDecade || selectedCity || photoOnly.checked);
+    };
+
+    input.addEventListener('input', update);
+    [sort, genre, decade, city, photoOnly].forEach(control => control.addEventListener('change', update));
+    reset.addEventListener('click', () => {
+      input.value = '';
+      sort.value = 'oldest';
+      genre.value = '';
+      decade.value = '';
+      city.value = '';
+      photoOnly.checked = false;
+      update();
+      input.focus();
     });
+    update();
   }
 
   function renderBandDetail(b) {
