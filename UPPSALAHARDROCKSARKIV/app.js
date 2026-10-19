@@ -1064,6 +1064,7 @@
     let selected = query.get('band') && bandById.has(query.get('band')) ? query.get('band') : (bands.find(b=>bandPerson.get(String(b.id)).length>1)?.id || bands[0]?.id);
     selected = String(selected || '');
     let mode = 'explore', depth = 1, showLabels = true;
+    let expandedPerson = null;
     let transform={x:0,y:0,k:1}, drag=null;
     app.innerHTML = `${pageHeader('VEM LEDER VIDARE TILL VEM?','Nätverket','Utforska banden, musikerna och deras dokumenterade kopplingar. Välj ett band eller sök efter en person för att börja.')}
       <section class="section page-section first-section network-page">
@@ -1096,6 +1097,10 @@
 
     function focusedGraph() {
       const bandIds=new Set([selected]),peopleIds=new Set(bandPerson.get(selected)||[]),edges=[];
+      if(expandedPerson && personById.has(expandedPerson)){
+        peopleIds.add(expandedPerson);
+        (personBands.get(expandedPerson)||[]).forEach(bid=>bandIds.add(bid));
+      }
       if(depth===2){
         peopleIds.forEach(pid=>(personBands.get(pid)||[]).forEach(bid=>bandIds.add(bid)));
         relationEdges.forEach(r=>{
@@ -1167,6 +1172,15 @@
           }
           positions.set(n.id,{x,y});
         });
+        if(expandedPerson && positions.has('p'+expandedPerson)){
+          const anchor=positions.get('p'+expandedPerson);
+          const expandedBands=otherBands.filter(n=>(personBands.get(expandedPerson)||[]).includes(String(n.ref.id)));
+          expandedBands.forEach((n,i)=>{
+            const a=-Math.PI/2+(i-(expandedBands.length-1)/2)*Math.min(.58,2.7/Math.max(1,expandedBands.length));
+            const distance=190+Math.min(i%3,2)*20;
+            positions.set(n.id,{x:anchor.x+Math.cos(a)*distance,y:anchor.y+Math.sin(a)*distance});
+          });
+        }
         return positions;
       }
       const {nodes,edges}=graph, N=nodes.length;
@@ -1214,7 +1228,7 @@
       resetView();
       $('#network-note').textContent=mode==='all'?`Visar alla ${bands.length} dokumenterade Uppsalaband och deras kända bandkopplingar. Klicka på ett band för att utforska dess medlemmar.`:`Visar ${graph.nodes.filter(n=>n.type==='band').length} band och ${graph.nodes.filter(n=>n.type==='person').length} personer. Kopplingarna bygger på arkivets dokumenterade uppgifter.`;
       scene.querySelectorAll('[data-node]').forEach(el=>{
-        const activate=()=>{const id=el.dataset.node;if(id[0]==='b'){selected=id.slice(1);mode='explore';$('#network-depth').disabled=false;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));resetView();draw();}else{const p=personById.get(id.slice(1));if(p)showPerson(p);}};
+        const activate=()=>{const id=el.dataset.node;if(id[0]==='b'){selected=id.slice(1);expandedPerson=null;mode='explore';$('#network-depth').disabled=false;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));resetView();draw();}else{const p=personById.get(id.slice(1));if(p){expandedPerson=String(p.id);mode='explore';document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));draw();showPerson(p);}}};
         el.addEventListener('click',activate);
         el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}});
       });
@@ -1230,7 +1244,7 @@
       if(!p)return;
       const related=(personBands.get(String(p.id))||[]).map(id=>bandById.get(id)).filter(Boolean);
       details.innerHTML=`<div class="section-kicker">PERSON</div><h2>${escapeHtml(p.canonical_name)}</h2><a class="network-profile-link" href="${personHref(p)}">Öppna personsidan ↗</a><div class="network-detail-heading">BANDKOPPLINGAR</div>${related.map(b=>`<button class="network-person-link" data-band="${b.id}">${escapeHtml(b.canonical_name)} <span>→</span></button>`).join('') || '<p>Ingen dokumenterad bandkoppling.</p>'}`;
-      details.querySelectorAll('[data-band]').forEach(btn=>btn.addEventListener('click',()=>{selected=String(btn.dataset.band);mode='explore';resetView();draw();}));
+      details.querySelectorAll('[data-band]').forEach(btn=>btn.addEventListener('click',()=>{selected=String(btn.dataset.band);expandedPerson=null;mode='explore';resetView();draw();}));
     }
     function applyTransform(){scene.setAttribute('transform',`translate(${transform.x} ${transform.y}) scale(${transform.k})`);const label=$('#net-zoom-level');if(label)label.textContent=Math.round(transform.k*100)+'%';}
     function resetView(){const box=scene.getBBox();if(!box.width||!box.height){transform={x:0,y:0,k:1};applyTransform();return;}const k=Math.max(.25,Math.min(2.2,Math.min(1100/(box.width+75),625/(box.height+75))));transform={k,x:600-(box.x+box.width/2)*k,y:360-(box.y+box.height/2)*k};applyTransform();}
@@ -1253,7 +1267,7 @@
       const term=search.value.trim().toLocaleLowerCase('sv');
       const b=bands.find(x=>x.canonical_name.toLocaleLowerCase('sv')===term);
       const p=people.find(x=>x.canonical_name.toLocaleLowerCase('sv')===term);
-      if(b){selected=String(b.id);mode='explore';document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));resetView();draw();}
+      if(b){selected=String(b.id);expandedPerson=null;mode='explore';document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));resetView();draw();}
       else if(p){const linked=personBands.get(String(p.id))||[];if(linked.length){selected=linked[0];mode='explore';resetView();draw();}showPerson(p);}
     });
     draw();
