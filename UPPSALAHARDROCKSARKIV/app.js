@@ -878,7 +878,7 @@
   function personLifeLabel(p) {
     const year = deathYear(p);
     if (!year) return '';
-    return p.birth_year ? `${p.birth_year}–${year}` : `Avliden ${year}`;
+    return p.birth_year ? `${p.birth_year}–${year}` : String(year);
   }
 
   function personCard(p, i = 0) {
