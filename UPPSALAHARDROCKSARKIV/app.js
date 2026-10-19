@@ -7,7 +7,7 @@
   const syncLabel = document.getElementById('sync-label');
   const state = {
     people: [], bands: [], relatedBands: [], allBands: [], memberships: [], releases: [], releaseBands: [], releaseMembers: [],
-    relations: [], sources: [], claims: [], claimSources: [], claimEntities: [], uppsalaBandIds: [], mediaItems: [], mediaLinks: []
+    relations: [], familyRelations: [], sources: [], claims: [], claimSources: [], claimEntities: [], uppsalaBandIds: [], mediaItems: [], mediaLinks: []
   };
 
   const $ = (sel, root = document) => root.querySelector(sel);
@@ -609,6 +609,7 @@
     try {
       const snapshot = await loadArchiveSnapshot();
       Object.keys(state).forEach(key => state[key] = Array.isArray(snapshot?.[key]) ? snapshot[key] : []);
+      try { const response=await fetch(`${cfg.supabaseUrl}/rest/v1/person_family_relations?select=person_a_id,person_b_id,relation_type,source_id,note`,{headers:{apikey:cfg.publishableKey,Accept:'application/json'}}); if(response.ok)state.familyRelations=await response.json(); } catch(error) { console.warn('Familjekopplingar kunde inte hämtas',error); }
       syncLabel.textContent = `Live från arkivet · ${new Date().toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}`;
       if (routePath() !== '/kontakt' || !$('.archive-contact-form')) renderRoute();
     } catch (err) {
@@ -1010,12 +1011,17 @@
     const meta = uniqueBands.slice(0,5).map(b => `<a href="${bandHref(b)}">${escapeHtml(b.canonical_name)}</a>`).join('');
     const colleagueGraph=colleagueIndex();
     const colleagues=[...(colleagueGraph.neighbors.get(String(p.id))||new Map())].map(([id,bands])=>({person:colleagueGraph.people.get(id),bands})).filter(x=>x.person).sort((a,b)=>a.person.canonical_name.localeCompare(b.person.canonical_name,'sv'));
+    const family=state.familyRelations.filter(link=>String(link.person_a_id)===String(p.id)||String(link.person_b_id)===String(p.id)).map(link=>{
+      const otherId=String(link.person_a_id)===String(p.id)?link.person_b_id:link.person_a_id;
+      return {...link,relative:state.people.find(x=>String(x.id)===String(otherId)),source:state.sources.find(x=>String(x.id)===String(link.source_id))};
+    }).filter(x=>x.relative);
     const sourceNo = gallery.length ? '05' : '04';
     app.innerHTML = `${breadcrumbs([{label:'Personer',href:'#/personer'},{label:p.canonical_name}])}${pageHeader('PERSON / UPPSALA-SCENEN',escapeHtml(p.canonical_name),'',meta)}
       <section class="section detail-layout first-section">
         <aside class="detail-aside">${personMedia(p) ? `<figure class="detail-media detail-portrait"><img src="${personMedia(p)}" alt="${escapeHtml(p.canonical_name)}"></figure>${externalMediaCredit(personMedia(p))}` : ''}<div class="aside-label">Profil</div><p>${escapeHtml(p.biography || p.uppsala_connection || 'Dokumenterad i Uppsala-scenen.')}</p><div class="aside-facts"><div><span>Bandkopplingar</span><strong>${uniqueBands.length}</strong></div><div><span>Utgåvekrediter</span><strong>${credits.length}</strong></div><div><span>Källkopplade uppgifter</span><strong>${claims.length}</strong></div></div></aside>
         <div class="detail-main">
           <section class="content-section"><div class="content-head"><span>01</span><h2>Band</h2></div><div class="credit-list">${bandGroups.length ? bandGroups.map(group => `<a href="${bandHref(group.band)}"><strong>${escapeHtml(group.band.canonical_name)}</strong><span>${escapeHtml(group.roles)}</span><em>${escapeHtml(group.periods)}</em></a>`).join('') : '<div class="empty-state">Bandkopplingar kartläggs.</div>'}</div></section>
+          ${family.length?`<section class="content-section family-section"><div class="content-head"><span>♥</span><h2>Dokumenterade släktkopplingar</h2></div><p class="section-intro">Bara offentligt godkända och källbelagda familjerelationer. De påverkar inte beräkningen av musikaliska steg.</p><div class="colleague-grid">${family.map(x=>`<div class="colleague-item"><a href="${personHref(x.relative)}"><strong>${escapeHtml(x.relative.canonical_name)}</strong></a><span>${x.relation_type==='sibling'?'Syskon':x.relation_type==='parent_child'?'Förälder / barn':x.relation_type==='spouse_partner'?'Partner':'Familjerelation'}</span>${x.source?`<span>Källa: ${escapeHtml(x.source.title)}</span>`:''}</div>`).join('')}</div></section>`:''}
           <section class="content-section colleague-section"><div class="content-head"><span>↔</span><h2>Har varit med i samma band som</h2></div><p class="section-intro">Dokumenterat medlemskap i samma band. Det innebär inte nödvändigtvis att de spelade samtidigt.</p><div class="colleague-grid">${colleagues.length?colleagues.map(x=>`<div class="colleague-item"><a href="${personHref(x.person)}"><strong>${escapeHtml(x.person.canonical_name)}</strong></a><span>${x.bands.map(b=>`<a href="${bandHref(b)}">${escapeHtml(b.canonical_name)}</a>`).join(', ')}</span></div>`).join(''):'<div class="empty-state">Inga gemensamma bandmedlemskap dokumenterade ännu.</div>'}</div><a class="network-profile-link" href="#/natverket">Utforska kopplingar i Nätverket ↗</a></section>
           <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvekrediter</h2></div><div class="credit-list">${credits.length ? credits.map(x => `<a href="${releaseHref(x.release)}"><div class="credit-release"><strong>${escapeHtml(x.release.title)}</strong><small class="credit-band">${escapeHtml([...new Set(state.releaseBands.filter(rb => rb.release_id === x.release.id).map(rb => rb.credited_as || bandName(rb.band_id)).filter(Boolean))].join(' / '))}</small></div><span>${escapeHtml(roleSv(x.role || ''))}</span><em>${x.release.release_year || '—'}</em></a>`).join('') : '<div class="empty-state">Inga releasecredits registrerade ännu.</div>'}</div></section>
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Relaterade bilder</h2></div><p class="section-intro">Gruppbilder och pressmaterial där personen är säkert knuten till sammanhanget. De används inte som individuella porträtt om bildidentifieringen inte är entydig.</p>${archiveGallery(gallery)}</section>` : ''}
