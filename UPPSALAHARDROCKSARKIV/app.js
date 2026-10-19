@@ -1403,13 +1403,16 @@
     }));
     $('#network-depth').addEventListener('change',e=>{depth=Number(e.target.value);resetView();draw();});
     $('#network-labels').addEventListener('change',e=>{showLabels=e.target.checked;draw();});
-    search.addEventListener('change',()=>{
+    function exploreSearch(){
       const term=search.value.trim().toLocaleLowerCase('sv');
       const b=bands.find(x=>x.canonical_name.toLocaleLowerCase('sv')===term);
       const p=people.find(x=>x.canonical_name.toLocaleLowerCase('sv')===term);
       if(b)focusNetwork(b);
       else if(p){const linked=personBands.get(String(p.id))||[];if(linked.length)focusNetwork(bandById.get(linked[0]),p);else showPerson(p);}
-    });
+    }
+    search.addEventListener('change',exploreSearch);
+    search.addEventListener('input',exploreSearch);
+    search.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();exploreSearch();}});
     draw();
   }
 
