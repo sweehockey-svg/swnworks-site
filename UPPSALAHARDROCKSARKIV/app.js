@@ -528,8 +528,19 @@
       .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   }
 
+  function bandPhoto(b) {
+    if (!b) return null;
+    const linkedPhotos = state.mediaLinks
+      .filter(link => link.entity_type === 'band' && link.entity_id === b.id && link.relation === 'band_photo')
+      .map(link => state.mediaItems.find(item => item.id === link.media_id))
+      .filter(item => item?.media_type === 'photo' && typeof item.original_url === 'string' && /^https:\/\//i.test(item.original_url));
+    return linkedPhotos[0] || null;
+  }
+
   function bandMedia(b) {
-    return b ? (BAND_MEDIA[slugify(b.canonical_name)] || '') : '';
+    if (!b) return '';
+    // Först arkivets källkopplade gruppfoto, därefter lokalt arkivfoto.
+    return bandPhoto(b)?.original_url || BAND_MEDIA[slugify(b.canonical_name)] || '';
   }
   function personMedia(p) {
     return p ? (PERSON_MEDIA[slugify(p.canonical_name)] || '') : '';
