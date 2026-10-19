@@ -744,7 +744,8 @@
   function yearSpan(m) {
     if (!m.joined_year && !m.left_year) return 'Årtal söks';
     if (m.joined_year && m.left_year) return `${m.joined_year}${m.left_year !== m.joined_year ? `–${m.left_year}` : ''}`;
-    return String(m.joined_year || m.left_year);
+    if (m.joined_year) return `Från ${m.joined_year} (slutår okänt)`;
+    return `Till ${m.left_year} (startår okänt)`;
   }
   function translateClaim(s='') {
     const map = [
