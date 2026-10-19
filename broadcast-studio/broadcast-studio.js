@@ -250,7 +250,7 @@ window.SWNViewerBridge=(()=>{
     return ['regular','playoff'].filter(stage=>stage==='regular'||number(p[stage+(goalie?'_goalie_games':'_skater_games')])>0||(!goalie&&['goals','assists','points'].some(key=>number(p[stage+'_'+key])>0))).map(stage=>{
       const label=stage==='regular'?(LOCALE==='sv'?'GRUPPSPEL':tx('group')):tx('playoffs');
       const values=goalie?'SV% '+goalieStageValue(p,stage,'sv')+' · GAA '+goalieStageValue(p,stage,'gaa'):stat(p[stage+'_goals'])+' G · '+stat(p[stage+'_assists'])+' A · '+stat(p[stage+'_points'])+' P';
-      return esc(label)+' · '+values;
+      return esc(label)+' · '+stat(p[stage+(goalie?'_goalie_games':'_skater_games')])+' GP · '+values;
     }).join('<br>');
   }
 
