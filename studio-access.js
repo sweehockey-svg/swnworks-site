@@ -32,15 +32,34 @@
   panel.id = 'studio-login';
   panel.innerHTML = '<div class="studio-login-card"><div class="studio-login-brand">SWNWORKS · ADMIN</div><h1>Logga in i SWNWORKS</h1><p>Endast ditt admin-konto har tillgång till SWNWORKS adminverktyg.</p><form><label>Inloggningsnamn<input name="username" value="eSwahn" autocomplete="username" required spellcheck="false"></label><label>Lösenord<input name="password" type="password" autocomplete="current-password" required></label><button type="submit">Logga in</button></form><p id="studio-login-status" role="status" aria-live="polite">Kontrollerar inloggningen…</p><a href="/">Till SWNWORKS</a></div>';
   document.body.appendChild(panel);
+  const passwordForm = panel.querySelector('form');
   if(sceneController){
     panel.querySelector('.studio-login-brand').textContent='SWNWORKS · SCENSTYRNING';
     panel.querySelector('h1').textContent='Logga in i scenväljaren';
     panel.querySelector('p').textContent='Använd ditt eget konto med godkänd scenbehörighet. Du får inte tillgång till övriga adminverktyg.';
     panel.querySelector('[name="username"]').value='';
     panel.querySelector('[name="username"]').placeholder='Ditt användarnamn';
+    const emailForm=document.createElement('form');
+    emailForm.id='scene-email-login';
+    emailForm.innerHTML='<label>E-post<input name="email" type="email" autocomplete="email" required placeholder="Din godkända mejladress"></label><button type="submit">Skicka inloggningslänk</button>';
+    passwordForm.before(emailForm);
+    const adminLogin=document.createElement('details');
+    adminLogin.style.marginTop='20px';
+    adminLogin.innerHTML='<summary style="cursor:pointer;color:#99adbc;font-size:12px">Admin: användarnamn och lösenord</summary>';
+    passwordForm.before(adminLogin);adminLogin.appendChild(passwordForm);
+    emailForm.onsubmit=async event=>{
+      event.preventDefault();if(!client)return;
+      const button=emailForm.querySelector('button');button.disabled=true;message('Skickar inloggningslänk…');
+      try{
+        const result=await client.auth.signInWithOtp({email:emailForm.querySelector('[name="email"]').value.trim().toLowerCase(),options:{shouldCreateUser:false,emailRedirectTo:location.origin+location.pathname+location.search}});
+        if(result.error)throw result.error;
+        message('Inloggningslänk skickad. Öppna mejlet på samma mobil eller dator. Kontrollera även skräpposten.');
+      }catch{message('Kunde inte skicka länken. Kontrollera adressen och att ditt konto är tillagt. Försök igen om en stund.');}
+      finally{button.disabled=false;}
+    };
   }
   const status = panel.querySelector('#studio-login-status');
-  const submit = panel.querySelector('button');
+  const submit = passwordForm.querySelector('button');
   function message(text) { status.textContent = text; }
   async function check() {
     if (checking) return false;
@@ -70,7 +89,7 @@
       return false;
     } finally { checking = false; }
   }
-  panel.querySelector('form').onsubmit = async event => {
+  passwordForm.onsubmit = async event => {
     event.preventDefault();
     if (!client) return;
     const username = panel.querySelector('[name="username"]').value.trim().toLowerCase();
@@ -104,6 +123,7 @@
     });
     client.auth.onAuthStateChange((event, session) => {
       if (started && (!session || event === 'USER_UPDATED')) window.setTimeout(() => location.reload(), 0);
+      else if(!started&&session&&event==='SIGNED_IN')window.setTimeout(()=>void check(),0);
     });
     await check();
   }
