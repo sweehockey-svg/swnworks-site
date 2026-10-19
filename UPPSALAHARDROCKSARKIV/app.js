@@ -873,13 +873,21 @@
   }
 
 
+  function isDeceased(p) { return Boolean(p && (p.death_year || p.death_date)); }
+  function deathYear(p) { return p.death_year || (p.death_date ? Number(String(p.death_date).slice(0,4)) : null); }
+  function personLifeLabel(p) {
+    const year = deathYear(p);
+    if (!year) return '';
+    return p.birth_year ? `${p.birth_year}–${year}` : `Avliden ${year}`;
+  }
+
   function personCard(p, i = 0) {
     const mems = membershipsForPerson(p.id);
     const names = [...new Set(mems.map(m => bandName(m.band_id)))];
     const media = personMedia(p);
     return `<a class="person-card${media ? ' has-portrait' : ''}" href="${personHref(p)}">
       ${media ? `<div class="person-card-portrait"><img src="${media}" alt="${escapeHtml(p.canonical_name)}" loading="lazy"></div>` : ''}
-      <div class="person-card-copy"><div class="person-number">${String(i+1).padStart(2,'0')}</div><h3>${escapeHtml(p.canonical_name)}</h3><div class="person-bands">${escapeHtml(names.join(' · ') || 'Koppling kartläggs')}</div></div>
+      <div class="person-card-copy"><div class="person-number">${String(i+1).padStart(2,'0')}</div><h3>${escapeHtml(p.canonical_name)}${isDeceased(p) ? '<span class="person-deceased-mark" aria-label="Avliden" title="Avliden">†</span>' : ''}</h3><div class="person-bands">${escapeHtml(names.join(' · ') || 'Koppling kartläggs')}</div></div>
     </a>`;
   }
 
@@ -1009,7 +1017,7 @@
     const sources = sourcesForClaims(claims);
     const gallery = personGallery(p);
     const uniqueBands = bandGroups.map(group => group.band);
-    const meta = uniqueBands.slice(0,5).map(b => `<a href="${bandHref(b)}">${escapeHtml(b.canonical_name)}</a>`).join('');
+    const meta = [isDeceased(p) ? `<span class="profile-deceased-meta">† Avliden · ${escapeHtml(personLifeLabel(p))}</span>` : '', ...uniqueBands.slice(0,5).map(b => `<a href="${bandHref(b)}">${escapeHtml(b.canonical_name)}</a>`)].filter(Boolean).join('');
     const colleagueGraph=colleagueIndex();
     const colleagues=[...(colleagueGraph.neighbors.get(String(p.id))||new Map())].map(([id,bands])=>({person:colleagueGraph.people.get(id),bands})).filter(x=>x.person).sort((a,b)=>a.person.canonical_name.localeCompare(b.person.canonical_name,'sv'));
     const family=state.familyRelations.filter(link=>String(link.person_a_id)===String(p.id)||String(link.person_b_id)===String(p.id)).map(link=>{
@@ -1019,7 +1027,7 @@
     const sourceNo = gallery.length ? '05' : '04';
     app.innerHTML = `${breadcrumbs([{label:'Personer',href:'#/personer'},{label:p.canonical_name}])}${pageHeader('PERSON / UPPSALA-SCENEN',escapeHtml(p.canonical_name),'',meta)}
       <section class="section detail-layout first-section">
-        <aside class="detail-aside">${personMedia(p) ? `<figure class="detail-media detail-portrait"><img src="${personMedia(p)}" alt="${escapeHtml(p.canonical_name)}"></figure>${externalMediaCredit(personMedia(p))}` : ''}<div class="aside-label">Profil</div><p>${escapeHtml(p.biography || p.uppsala_connection || 'Dokumenterad i Uppsala-scenen.')}</p><div class="aside-facts"><div><span>Bandkopplingar</span><strong>${uniqueBands.length}</strong></div><div><span>Utgåvekrediter</span><strong>${credits.length}</strong></div><div><span>Källkopplade uppgifter</span><strong>${claims.length}</strong></div></div></aside>
+        <aside class="detail-aside">${personMedia(p) ? `<figure class="detail-media detail-portrait"><img src="${personMedia(p)}" alt="${escapeHtml(p.canonical_name)}"></figure>${externalMediaCredit(personMedia(p))}` : ''}<div class="aside-label">Profil</div><p>${escapeHtml(p.biography || p.uppsala_connection || 'Dokumenterad i Uppsala-scenen.')}</p><div class="aside-facts">${isDeceased(p) ? `<div><span>Avliden</span><strong>${escapeHtml(String(deathYear(p)))}</strong></div>${p.birth_year ? `<div><span>Född</span><strong>${escapeHtml(String(p.birth_year))}</strong></div>` : ''}` : ''}<div><span>Bandkopplingar</span><strong>${uniqueBands.length}</strong></div><div><span>Utgåvekrediter</span><strong>${credits.length}</strong></div><div><span>Källkopplade uppgifter</span><strong>${claims.length}</strong></div></div></aside>
         <div class="detail-main">
           <section class="content-section"><div class="content-head"><span>01</span><h2>Band</h2></div><div class="credit-list">${bandGroups.length ? bandGroups.map(group => `<a href="${bandHref(group.band)}"><strong>${escapeHtml(group.band.canonical_name)}</strong><span>${escapeHtml(group.roles)}</span><em>${escapeHtml(group.periods)}</em></a>`).join('') : '<div class="empty-state">Bandkopplingar kartläggs.</div>'}</div></section>
           ${family.length?`<section class="content-section family-section"><div class="content-head"><span>♥</span><h2>Dokumenterade släktkopplingar</h2></div><p class="section-intro">Bara offentligt godkända och källbelagda familjerelationer. De påverkar inte beräkningen av musikaliska steg.</p><div class="colleague-grid">${family.map(x=>`<div class="colleague-item"><a href="${personHref(x.relative)}"><strong>${escapeHtml(x.relative.canonical_name)}</strong></a><span>${x.relation_type==='sibling' ? (/tvilling/i.test(x.note||'')?'Tvillingbror':'Syskon') :x.relation_type==='parent_child'?'Förälder / barn':x.relation_type==='spouse_partner'?'Gift / partner':x.relation_type==='sibling_in_law'?'Svåger / svägerska':'Familjerelation'}</span>${x.source?`<span>Källa: ${escapeHtml(x.source.title)}</span>`:''}</div>`).join('')}</div></section>`:''}
