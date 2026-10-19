@@ -1227,8 +1227,8 @@
           <section class="content-section"><div class="content-head"><span>01</span><h2>Låtlista</h2></div><div id="release-tracklist" class="release-tracklist" data-release-id="${escapeHtml(r.id)}"><div class="empty-state">Hämtar låtlistan…</div></div></section>
           <section class="content-section"><div class="content-head"><span>02</span><h2>Krediter</h2></div><div class="credit-list">${credits.length ? credits.map(c => { const p=peopleById().get(c.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(c.credited_as || p.canonical_name)}</strong><span>${escapeHtml(roleSv(c.role || ''))}</span><em>${escapeHtml(p.canonical_name)}</em></a>`; }).join('') : '<div class="empty-state">Krediter kartläggs.</div>'}</div></section>
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Omslag & originalmaterial</h2></div>${archiveGallery(gallery)}</section>` : ''}
-          <section class="content-section"><div class="content-head"><span>${gallery.length ? '05':'04'}</span><h2>Källäge</h2></div>${claimList(claims)}</section>
-          ${sources.length ? `<section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Källor</h2></div>${sourceList(sources)}</section>` : ''}
+          <section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Källäge</h2></div>${claimList(claims)}</section>
+          ${sources.length ? `<section class="content-section"><div class="content-head"><span>${gallery.length ? '05':'04'}</span><h2>Källor</h2></div>${sourceList(sources)}</section>` : ''}
         </div>
       </section>`;
     renderReleaseTracklist(r.id);
