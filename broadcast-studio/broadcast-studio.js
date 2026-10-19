@@ -240,7 +240,9 @@ window.SWNViewerBridge=(()=>{
     $(".players").innerHTML = SLOTS.map(slot => {
       const p = ps.find(p => same(p.sports_gamer_player_id, lineup[slot]));
       if (!p) return '<div class="player empty"><span>' + slot + '</span><div class="sil">?</div><b>'+esc(tx("notSelected"))+'</b></div>';
-      return '<div class="player"><span>' + slot + '</span>' + image(playerImage(p)) + '<div class="player-info"><strong>#' + esc(p.player_number ?? "") + ' ' + playerFlag(p) + esc(p.display_gamertag) + '</strong><small>'+esc(tx("group"))+' ' + stat(p.regular_points) + ' P · '+esc(tx("playoffs"))+' ' + stat(p.playoff_points) + ' P</small></div></div>';
+      const goalie=slot==='G';
+      const summary=goalie?['regular','playoff'].map(stage=>esc(tx(stage==='regular'?'group':'playoffs'))+' · SV% '+goalieStageValue(p,stage,'sv')+' · GAA '+goalieStageValue(p,stage,'gaa')).join('<br>'):esc(tx("group"))+' '+stat(p.regular_points)+' P · '+esc(tx("playoffs"))+' '+stat(p.playoff_points)+' P';
+      return '<div class="player"><span>' + slot + '</span>' + image(playerImage(p)) + '<div class="player-info'+(goalie?' goalie-lineup-info':'')+'"><strong>#' + esc(p.player_number ?? "") + ' ' + playerFlag(p) + esc(p.display_gamertag) + '</strong><small>'+summary+'</small></div></div>';
     }).join("");
   }
 

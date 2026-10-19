@@ -2728,3 +2728,6 @@ body[data-background="gamenight"] .background-package-layer{
   background-size:cover!important;
   background-repeat:no-repeat!important;
 }
+
+.lineup .player-info.goalie-lineup-info{grid-template-rows:minmax(0,2.35em) 2.7em;row-gap:3px}
+.lineup .goalie-lineup-info small{height:2.7em}
