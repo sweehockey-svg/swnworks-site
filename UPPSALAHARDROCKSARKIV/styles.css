@@ -706,3 +706,30 @@ body.network-body-fullscreen { overflow:hidden; }
  .network-is-fullscreen .network-toolbar-row { gap:8px; }
  .network-fullscreen-btn { margin-left:0; }
 }
+
+
+/* Shared-band colleagues and Six Degrees */
+.colleague-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; }
+.colleague-item { background:#15191b; border:1px solid #313638; padding:13px 15px; display:grid; gap:9px; }
+.colleague-item strong { color:#f4f4f0; font-size:14px; }
+.colleague-item span { color:#b2b6b7; font-size:12px; line-height:1.65; }
+.colleague-item a { color:inherit; text-decoration:none; }
+.colleague-item a:hover { color:var(--acid); }
+.degrees-panel { border:1px solid var(--line-strong); background:#111518; padding:22px 24px; margin-bottom:22px; }
+.degrees-header h2 { font:700 25px var(--condensed); color:#f1f1ec; text-transform:uppercase; margin:7px 0; }
+.degrees-header p { color:#aeb2b3; font:400 13px var(--sans); margin:0 0 17px; }
+.degrees-form { display:grid; grid-template-columns:1fr 1fr auto; gap:12px; align-items:end; }
+.degrees-form label { display:grid; gap:7px; color:#d7dbd6; font:600 11px var(--sans); }
+.degrees-form input { box-sizing:border-box; width:100%; background:#090b0c; color:#f4f4f0; border:1px solid #475052; padding:12px; font:500 13px var(--sans); }
+.degrees-form button { border:0; padding:13px 20px; background:var(--acid); color:#101310; font:700 12px var(--sans); cursor:pointer; }
+.degrees-result { color:#e0e3e0; font:400 13px var(--sans); }
+.degrees-result:not(:empty) { border-top:1px solid #333c3e; margin-top:20px; padding-top:18px; }
+.degrees-result>strong { color:var(--acid); font-size:17px; }
+.degrees-result p { color:#aeb4b2; }
+.degrees-chain { display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin-top:16px; }
+.degrees-chain-node { padding:12px; background:#242b1c; border:1px solid #a3bd31; }
+.degrees-chain-node a { font-weight:700; color:#fff; text-decoration:none; }
+.degrees-chain-link { color:#aeb5ad; padding:6px; font-size:12px; }
+.degrees-chain-link a { color:var(--acid); }
+.network-is-fullscreen .degrees-panel { display:none; }
+@media(max-width:720px) { .degrees-form { grid-template-columns:1fr; } .degrees-chain { flex-direction:column; align-items:flex-start; } }
