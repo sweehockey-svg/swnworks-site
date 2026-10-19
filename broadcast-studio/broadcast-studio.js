@@ -617,6 +617,7 @@ window.SWNViewerBridge=(()=>{
   window.__sehStudioSnapshot=studioState;
   window.__sehStudioHasProgram=()=>!!programState||!programHeld;
   window.__sehStudioHoldOutput=holdProgram;
+  window.__sehStudioNewBroadcast=()=>{holdProgram();loadTournamentData();};
   window.__sehStudioRestore=s=>{holdProgram();applyRemoteState(s);};
   window.__sehStudioTake=async s=>{
     holdProgram();const seq=++takeSequence;clearTimeout(remoteTimer);applyRemoteState(s);
@@ -641,11 +642,19 @@ window.SWNViewerBridge=(()=>{
     publicNextMatch=next;publicNoMatch=true;publishState();
   };
   if(!OBS_MODE&&!PREVIEW_MODE){
-    void remoteRequest("GET").then(rows=>{
+    void remoteRequest("GET").then(async rows=>{
       if(programHeld&&!programState&&rows?.[0]?.state){
         programState=structuredClone(rows[0].state);
         if(window.__sehCommentarySession===undefined)window.__sehCommentarySession=programState.commentary||null;canResumeProgram=true;
         publicNoMatch=!!programState.publicNoMatch;publicNextMatch=programState.publicNextMatch||null;
+        const restored=structuredClone(programState),seq=takeSequence;
+        applyRemoteState(restored);
+        const loaded=restored.transientSource&&await sourceProvider?.receive(restored.transientSource);
+        if(seq===takeSequence){
+          const {transientSource,...controls}=restored;applyRemoteState(controls);
+          programHeld=!loaded;
+          window.dispatchEvent(new CustomEvent("seh:studio-resumed",{detail:restored}));
+        }
         window.dispatchEvent(new CustomEvent("seh:program-status",{detail:programState}));
       }
     }).catch(console.error);
@@ -758,7 +767,7 @@ window.SWNViewerBridge=(()=>{
   }
   sourceProvider=window.BroadcastTransientSource?.create({
     getLeague:()=>activeLeagueId,
-    allowRemote:OBS_MODE||VIEWER_MODE,
+    allowRemote:true,
     onStatus:message=>{temporaryStatus.textContent=message;},
     onLegacy:clearTournamentData,
     onData:(payload,reference)=>{
@@ -770,8 +779,6 @@ window.SWNViewerBridge=(()=>{
     }
   });
   loadTournamentData();
-  window.addEventListener('pagehide',()=>loadTournamentData());
-  window.addEventListener('pageshow',event=>{if(event.persisted)loadTournamentData();});
 })();
 
 

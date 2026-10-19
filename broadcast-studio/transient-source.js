@@ -33,7 +33,7 @@
   function install(data,ref,seq){
    if(seq!==generation||Number(getLeague())!==ref.league_id||Date.parse(ref.expires_at)<=Date.now())return false;
    onData(data,ref);lastTicket=ref.ticket;lastLeague=ref.league_id;clearTimeout(expiryTimer);
-   expiryTimer=setTimeout(()=>{if(seq===generation){reset();onLegacy();onStatus('Underlaget har gått ut. Hämta från SportsGamer igen.');}},Math.max(1,Date.parse(ref.expires_at)-Date.now()+1));
+   expiryTimer=setTimeout(()=>{if(seq===generation){onStatus('Varning: underlaget har gått ut. Visningen ligger kvar. Hämta från SportsGamer innan nästa sändning.');}},Math.max(1,Date.parse(ref.expires_at)-Date.now()+1));
    onStatus('Hämtat från SportsGamer: '+new Date(data.fetched_at).toLocaleString('sv-SE',{timeZone:'Europe/Stockholm',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'. Giltigt till '+new Date(ref.expires_at).toLocaleTimeString('sv-SE',{timeZone:'Europe/Stockholm',hour:'2-digit',minute:'2-digit'})+' (upp till 8 timmar).');
    return true;
   }

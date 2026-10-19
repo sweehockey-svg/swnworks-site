@@ -33,12 +33,13 @@
     m.state={...m.state,matchName:m.name};window.__sehStudioRestore(m.state);persist();render();get('deskMessage').textContent='Redigerar '+m.name+'. Sändningen påverkas inte.';
   };
   const newMatch=()=>{
-    window.__sehStudioHoldOutput();remember();persist();active='';get('deskName').value='';get('deskStreams').value='';
+    window.__sehStudioHoldOutput();remember();persist();window.__sehStudioNewBroadcast();active='';get('deskName').value='';get('deskStreams').value='';
     render();get('deskMessage').textContent='Ny match: ställ in lag, namn och stream. Klicka sedan Spara som ny match.';
     get('deskName').focus();
   };
   get('deskMatchSelect').onchange=()=>{const m=matches.find(m=>m.id===get('deskMatchSelect').value);if(m)selectMatch(m);else newMatch();};
   get('deskNewMatch').onclick=newMatch;
+  window.addEventListener('seh:studio-resumed',event=>{get('deskName').value=event.detail.matchName||'';get('deskMessage').textContent='Pågående sändning återställd. Kontrollera när statistiken hämtades eller hämta på nytt.';});
 
   const fillTeams=()=>['Home','Away'].forEach(side=>{const select=get('next'+side),value=select.value||get(side.toLowerCase()).value;select.replaceChildren(...[...get(side.toLowerCase()).options].map(o=>new Option(o.text,o.value)));select.value=value;});
   nextControls.addEventListener('focusin',e=>{if(e.target.tagName==='SELECT')fillTeams();});
