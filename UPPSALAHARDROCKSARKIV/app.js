@@ -955,6 +955,50 @@
     });
   }
 
+  // Graph edges represent documented membership in the same band, not
+  // proof that two musicians played in that band at the same time.
+  function colleagueIndex() {
+    const people=new Map(state.people.map(p=>[String(p.id),p]));
+    const bands=new Map(allBandRows().map(b=>[String(b.id),b]));
+    const membershipsByBand=new Map();
+    state.memberships.forEach(m=>{
+      const bid=String(m.band_id),pid=String(m.person_id);
+      if(!people.has(pid)||!bands.has(bid))return;
+      if(!membershipsByBand.has(bid))membershipsByBand.set(bid,new Set());
+      membershipsByBand.get(bid).add(pid);
+    });
+    const neighbors=new Map([...people.keys()].map(id=>[id,new Map()]));
+    membershipsByBand.forEach((ids,bid)=>{
+      const arr=[...ids];
+      for(let i=0;i<arr.length;i++)for(let j=i+1;j<arr.length;j++){
+        if(!neighbors.get(arr[i]).has(arr[j]))neighbors.get(arr[i]).set(arr[j],[]);
+        if(!neighbors.get(arr[j]).has(arr[i]))neighbors.get(arr[j]).set(arr[i],[]);
+        neighbors.get(arr[i]).get(arr[j]).push(bands.get(bid));
+        neighbors.get(arr[j]).get(arr[i]).push(bands.get(bid));
+      }
+    });
+    return {people,neighbors};
+  }
+
+  function shortestColleaguePath(graph,start,end) {
+    if(start===end)return [start];
+    const queue=[start],from=new Map([[start,null]]);
+    for(let i=0;i<queue.length;i++){
+      const id=queue[i];
+      for(const next of graph.neighbors.get(id)?.keys()||[]){
+        if(from.has(next))continue;
+        from.set(next,id);
+        if(next===end){
+          const path=[end];let current=end;
+          while(from.get(current)!==null){current=from.get(current);path.unshift(current);}
+          return path;
+        }
+        queue.push(next);
+      }
+    }
+    return null;
+  }
+
   function renderPersonDetail(p) {
     const mems = membershipsForPerson(p.id).sort((a,b) => (a.joined_year || 9999) - (b.joined_year || 9999));
     const bandGroups = groupedMembershipsForPerson(p.id);
@@ -964,12 +1008,15 @@
     const gallery = personGallery(p);
     const uniqueBands = bandGroups.map(group => group.band);
     const meta = uniqueBands.slice(0,5).map(b => `<a href="${bandHref(b)}">${escapeHtml(b.canonical_name)}</a>`).join('');
+    const colleagueGraph=colleagueIndex();
+    const colleagues=[...(colleagueGraph.neighbors.get(String(p.id))||new Map())].map(([id,bands])=>({person:colleagueGraph.people.get(id),bands})).filter(x=>x.person).sort((a,b)=>a.person.canonical_name.localeCompare(b.person.canonical_name,'sv'));
     const sourceNo = gallery.length ? '05' : '04';
     app.innerHTML = `${breadcrumbs([{label:'Personer',href:'#/personer'},{label:p.canonical_name}])}${pageHeader('PERSON / UPPSALA-SCENEN',escapeHtml(p.canonical_name),'',meta)}
       <section class="section detail-layout first-section">
         <aside class="detail-aside">${personMedia(p) ? `<figure class="detail-media detail-portrait"><img src="${personMedia(p)}" alt="${escapeHtml(p.canonical_name)}"></figure>${externalMediaCredit(personMedia(p))}` : ''}<div class="aside-label">Profil</div><p>${escapeHtml(p.biography || p.uppsala_connection || 'Dokumenterad i Uppsala-scenen.')}</p><div class="aside-facts"><div><span>Bandkopplingar</span><strong>${uniqueBands.length}</strong></div><div><span>Utgåvekrediter</span><strong>${credits.length}</strong></div><div><span>Källkopplade uppgifter</span><strong>${claims.length}</strong></div></div></aside>
         <div class="detail-main">
           <section class="content-section"><div class="content-head"><span>01</span><h2>Band</h2></div><div class="credit-list">${bandGroups.length ? bandGroups.map(group => `<a href="${bandHref(group.band)}"><strong>${escapeHtml(group.band.canonical_name)}</strong><span>${escapeHtml(group.roles)}</span><em>${escapeHtml(group.periods)}</em></a>`).join('') : '<div class="empty-state">Bandkopplingar kartläggs.</div>'}</div></section>
+          <section class="content-section colleague-section"><div class="content-head"><span>↔</span><h2>Har varit med i samma band som</h2></div><p class="section-intro">Dokumenterat medlemskap i samma band. Det innebär inte nödvändigtvis att de spelade samtidigt.</p><div class="colleague-grid">${colleagues.length?colleagues.map(x=>`<div class="colleague-item"><a href="${personHref(x.person)}"><strong>${escapeHtml(x.person.canonical_name)}</strong></a><span>${x.bands.map(b=>`<a href="${bandHref(b)}">${escapeHtml(b.canonical_name)}</a>`).join(', ')}</span></div>`).join(''):'<div class="empty-state">Inga gemensamma bandmedlemskap dokumenterade ännu.</div>'}</div><a class="network-profile-link" href="#/natverket">Utforska kopplingar i Nätverket ↗</a></section>
           <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvekrediter</h2></div><div class="credit-list">${credits.length ? credits.map(x => `<a href="${releaseHref(x.release)}"><div class="credit-release"><strong>${escapeHtml(x.release.title)}</strong><small class="credit-band">${escapeHtml([...new Set(state.releaseBands.filter(rb => rb.release_id === x.release.id).map(rb => rb.credited_as || bandName(rb.band_id)).filter(Boolean))].join(' / '))}</small></div><span>${escapeHtml(roleSv(x.role || ''))}</span><em>${x.release.release_year || '—'}</em></a>`).join('') : '<div class="empty-state">Inga releasecredits registrerade ännu.</div>'}</div></section>
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Relaterade bilder</h2></div><p class="section-intro">Gruppbilder och pressmaterial där personen är säkert knuten till sammanhanget. De används inte som individuella porträtt om bildidentifieringen inte är entydig.</p>${archiveGallery(gallery)}</section>` : ''}
           <section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Källäge</h2></div>${claimList(claims)}</section>
