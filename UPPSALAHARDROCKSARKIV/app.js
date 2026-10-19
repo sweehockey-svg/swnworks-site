@@ -1137,6 +1137,28 @@
       if(mode==='explore'){
         const otherBands=graph.nodes.filter(n=>n.type==='band'&&!n.focus);
         const members=graph.nodes.filter(n=>n.type==='person');
+        if(expandedPerson && members.some(n=>String(n.ref.id)===expandedPerson)){
+          // Keep the selected band, the expanded musician and their other bands
+          // in distinct columns to avoid placing a person on top of a band.
+          positions.set('b'+selected,{x:235,y:360});
+          positions.set('p'+expandedPerson,{x:575,y:360});
+          const connected=otherBands.filter(n=>(personBands.get(expandedPerson)||[]).includes(String(n.ref.id)));
+          const remaining=otherBands.filter(n=>!connected.includes(n));
+          connected.forEach((n,i)=>{
+            const offset=i-(connected.length-1)/2;
+            positions.set(n.id,{x:920+(i%2)*32,y:360+offset*Math.min(138,580/Math.max(1,connected.length))});
+          });
+          remaining.forEach((n,i)=>{
+            const angle=-Math.PI/2+i*2*Math.PI/Math.max(1,remaining.length);
+            positions.set(n.id,{x:810+Math.cos(angle)*95,y:360+Math.sin(angle)*270});
+          });
+          const others=members.filter(n=>String(n.ref.id)!==expandedPerson);
+          others.forEach((n,i)=>{
+            const y=360+(i-(others.length-1)/2)*Math.min(145,540/Math.max(1,others.length));
+            positions.set(n.id,{x:380,y});
+          });
+          return positions;
+        }
         positions.set('b'+selected,{x:600,y:360});
         // Put the outer bands on a stable ring, then position musicians
         // towards the bands they connect, rather than by their list order.
