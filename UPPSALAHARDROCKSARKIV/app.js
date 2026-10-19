@@ -1119,8 +1119,8 @@
     memberships.forEach(m => {
       const bid=String(m.band_id), pid=String(m.person_id);
       if (!bandById.has(bid) || !personById.has(pid)) return;
-      bandPerson.get(bid).push(pid);
-      personBands.get(pid).push(bid);
+      if (!bandPerson.get(bid).includes(pid)) bandPerson.get(bid).push(pid);
+      if (!personBands.get(pid).includes(bid)) personBands.get(pid).push(bid);
     });
     const query = new URLSearchParams(location.hash.split('?')[1] || '');
     let selected = query.get('band') && bandById.has(query.get('band')) ? query.get('band') : (bands.find(b=>bandPerson.get(String(b.id)).length>1)?.id || bands[0]?.id);
@@ -1134,6 +1134,7 @@
           <label class="network-search-label" for="network-search">SÖK BAND ELLER PERSON</label>
           <input id="network-search" type="search" list="network-options" placeholder="Sök bland alla dokumenterade band och personer…" autocomplete="off">
           <datalist id="network-options">${[...bands.map(b=>b.canonical_name),...people.map(p=>p.canonical_name)].map(n=>`<option value="${escapeHtml(n)}">`).join('')}</datalist>
+          <div class="network-random-actions"><span>Upptäck något nytt</span><button id="network-random-band" type="button">⚄ Slumpa band</button><button id="network-random-person" type="button">⚄ Slumpa person</button><span id="network-random-status" class="network-random-status" role="status" aria-live="polite"></span></div>
           <div class="network-toolbar-row"><div class="network-tabs"><button class="active" data-mode="explore">Utforska</button><button data-mode="all">Hela nätverket</button></div><label class="network-depth-label">Kopplingar <select id="network-depth"><option value="1">1 nivå</option><option value="2">2 nivåer</option></select></label><label class="network-label-toggle"><input id="network-labels" type="checkbox" checked> Visa namn</label><button id="network-fullscreen" class="network-fullscreen-btn" type="button" aria-pressed="false">⛶ Visa helskärm</button></div>
         </div>
         <div class="degrees-panel">
@@ -1149,6 +1150,37 @@
       </section>`;
     const svg = $('#network'), scene = $('#network-scene'), details = $('#network-details');
     const search=$('#network-search');
+    const randomPeople=people.filter(p=>(personBands.get(String(p.id))||[]).length);
+    $('#network-random-band').disabled=!bands.length;
+    $('#network-random-person').disabled=!randomPeople.length;
+    function focusNetwork(band,person=null){
+      selected=String(band.id);
+      expandedPerson=person?String(person.id):null;
+      mode='explore';
+      $('#network-depth').disabled=false;
+      document.querySelectorAll('[data-mode]').forEach(btn=>btn.classList.toggle('active',btn.dataset.mode===mode));
+      search.value=(person||band).canonical_name;
+      draw();
+      if(person)showPerson(person);
+    }
+    function randomItem(items,currentId){
+      const alternatives=items.filter(item=>String(item.id)!==String(currentId));
+      const pool=alternatives.length?alternatives:items;
+      return pool.length?pool[Math.floor(Math.random()*pool.length)]:null;
+    }
+    $('#network-random-band').addEventListener('click',()=>{
+      const band=randomItem(bands,selected);
+      if(!band)return;
+      focusNetwork(band);
+      $('#network-random-status').textContent=`Valt band: ${band.canonical_name}`;
+    });
+    $('#network-random-person').addEventListener('click',()=>{
+      const person=randomItem(randomPeople,expandedPerson);
+      if(!person)return;
+      const linked=personBands.get(String(person.id));
+      focusNetwork(bandById.get(linked[0]),person);
+      $('#network-random-status').textContent=`Vald person: ${person.canonical_name}`;
+    });
     const colleagueGraph=colleagueIndex();
     const fromInput=$('#degrees-from'),toInput=$('#degrees-to'),degreesResult=$('#degrees-result');
     function findDegrees(){
@@ -1346,7 +1378,7 @@
       if(!b)return;
       const members=(bandPerson.get(String(b.id))||[]).map(id=>personById.get(id)).filter(Boolean);
       details.innerHTML=`<div class="section-kicker">VALT BAND</div><h2>${escapeHtml(b.canonical_name)}</h2><p>${members.length} dokumenterade personer</p><a class="network-profile-link" href="${bandHref(b)}">Öppna bandsidan ↗</a><div class="network-detail-heading">MEDLEMMAR & KOPPLINGAR</div>${members.length?members.map(p=>`<button class="network-person-link" data-person="${p.id}">${escapeHtml(p.canonical_name)} <span>↗</span></button>`).join(''):'<p>Inga dokumenterade medlemmar ännu.</p>'}`;
-      details.querySelectorAll('[data-person]').forEach(btn=>btn.addEventListener('click',()=>showPerson(personById.get(String(btn.dataset.person)))));
+      details.querySelectorAll('[data-person]').forEach(btn=>btn.addEventListener('click',()=>focusNetwork(b,personById.get(String(btn.dataset.person)))));
     }
     function showPerson(p){
       if(!p)return;
@@ -1375,8 +1407,8 @@
       const term=search.value.trim().toLocaleLowerCase('sv');
       const b=bands.find(x=>x.canonical_name.toLocaleLowerCase('sv')===term);
       const p=people.find(x=>x.canonical_name.toLocaleLowerCase('sv')===term);
-      if(b){selected=String(b.id);expandedPerson=null;mode='explore';document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));resetView();draw();}
-      else if(p){const linked=personBands.get(String(p.id))||[];if(linked.length){selected=linked[0];mode='explore';resetView();draw();}showPerson(p);}
+      if(b)focusNetwork(b);
+      else if(p){const linked=personBands.get(String(p.id))||[];if(linked.length)focusNetwork(bandById.get(linked[0]),p);else showPerson(p);}
     });
     draw();
   }
