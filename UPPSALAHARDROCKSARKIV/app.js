@@ -1121,6 +1121,11 @@
           <datalist id="network-options">${[...bands.map(b=>b.canonical_name),...people.map(p=>p.canonical_name)].map(n=>`<option value="${escapeHtml(n)}">`).join('')}</datalist>
           <div class="network-toolbar-row"><div class="network-tabs"><button class="active" data-mode="explore">Utforska</button><button data-mode="all">Hela nätverket</button></div><label class="network-depth-label">Kopplingar <select id="network-depth"><option value="1">1 nivå</option><option value="2">2 nivåer</option></select></label><label class="network-label-toggle"><input id="network-labels" type="checkbox" checked> Visa namn</label><button id="network-fullscreen" class="network-fullscreen-btn" type="button" aria-pressed="false">⛶ Visa helskärm</button></div>
         </div>
+        <div class="degrees-panel">
+          <div class="degrees-header"><span class="section-kicker">UPPSALA DEGREES OF METAL</span><h2>Hur många steg skiljer er åt?</h2><p>Sök den kortaste dokumenterade kedjan via gemensamma bandmedlemskap.</p></div>
+          <div class="degrees-form"><label>Från musiker<input id="degrees-from" list="degrees-people" placeholder="Välj person" autocomplete="off"></label><label>Till musiker<input id="degrees-to" list="degrees-people" placeholder="Välj person" autocomplete="off"></label><datalist id="degrees-people">${people.map(p=>`<option value="${escapeHtml(p.canonical_name)}"></option>`).join('')}</datalist><button id="degrees-find" type="button">Hitta kopplingen →</button></div>
+          <div id="degrees-result" class="degrees-result" role="status" aria-live="polite"></div>
+        </div>
         <div class="network-layout"><div class="network-shell"><svg id="network" viewBox="0 0 1200 720" aria-label="Interaktiv karta över band och personer" role="img"><g id="network-scene"></g></svg>
           <div class="network-map-controls"><button id="net-plus" title="Zooma in" aria-label="Zooma in">+</button><button id="net-minus" title="Zooma ut" aria-label="Zooma ut">−</button><button id="net-reset" title="Anpassa nätverket till vyn" aria-label="Visa hela nätverket">⤢</button><span id="net-zoom-level">100%</span></div><div class="network-hint">Scrolla för att zooma · Dra för att flytta</div>
           <div class="network-legend"><span><i class="legend-band"></i> Band</span><span><i class="legend-person"></i> Person</span><span><i class="legend-line"></i> Koppling</span></div>
@@ -1129,6 +1134,25 @@
       </section>`;
     const svg = $('#network'), scene = $('#network-scene'), details = $('#network-details');
     const search=$('#network-search');
+    const colleagueGraph=colleagueIndex();
+    const fromInput=$('#degrees-from'),toInput=$('#degrees-to'),degreesResult=$('#degrees-result');
+    function findDegrees(){
+      const resolve=value=>people.find(p=>p.canonical_name.toLocaleLowerCase('sv')===value.trim().toLocaleLowerCase('sv'));
+      const from=resolve(fromInput.value),to=resolve(toInput.value);
+      if(!from||!to){degreesResult.textContent='Välj två personer från arkivets lista.';return;}
+      const path=shortestColleaguePath(colleagueGraph,String(from.id),String(to.id));
+      if(!path){degreesResult.textContent='Ingen dokumenterad koppling hittades mellan dessa personer.';return;}
+      const steps=path.length-1;
+      const chain=path.map((id,i)=>{
+        const person=colleagueGraph.people.get(id);
+        const bands=i<path.length-1?(colleagueGraph.neighbors.get(id)?.get(path[i+1])||[]):[];
+        return `<div class="degrees-chain-node"><a href="${personHref(person)}">${escapeHtml(person.canonical_name)}</a></div>${bands.length?`<div class="degrees-chain-link">↓ Gemensamt band: ${bands.map(b=>`<a href="${bandHref(b)}">${escapeHtml(b.canonical_name)}</a>`).join(' / ')}</div>`:''}`;
+      }).join('');
+      degreesResult.innerHTML=`<strong>${steps} ${steps===1?'steg':'steg'} mellan ${escapeHtml(from.canonical_name)} och ${escapeHtml(to.canonical_name)}</strong><p>Kortaste kedjan utifrån registrerade medlemskap. Samtidig aktivitet är inte verifierad.</p><div class="degrees-chain">${chain}</div>`;
+    }
+    $('#degrees-find').addEventListener('click',findDegrees);
+    [fromInput,toInput].forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();findDegrees();}}));
+
     const networkPage=$('.network-page');
     const fullscreenBtn=$('#network-fullscreen');
     function setFullscreen(enabled){
