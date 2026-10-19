@@ -562,7 +562,23 @@
   }
 
   function bandGallery(b) {
-    return b ? (BAND_GALLERY[slugify(b.canonical_name)] || []) : [];
+    if (!b) return [];
+    const curated = BAND_GALLERY[slugify(b.canonical_name)] || [];
+    const linked = state.mediaLinks
+      .filter(link => link.entity_type === 'band' && link.entity_id === b.id && link.relation === 'band_photo')
+      .map(link => state.mediaItems.find(item => item.id === link.media_id))
+      .filter(item => item?.media_type === 'photo' && typeof item.original_url === 'string' && /^https?:\/\//i.test(item.original_url))
+      .map(item => {
+        const source = state.sources.find(source => source.id === item.source_id);
+        return [item.original_url, item.title || ('Bandfoto: ' + b.canonical_name), source?.url || '', source?.title || ''];
+      });
+    // Bevara den gamla samlingen och komplettera med alla källkopplade foton.
+    const seen = new Set();
+    return [...curated, ...linked].filter(item => {
+      if (!item?.[0] || seen.has(item[0])) return false;
+      seen.add(item[0]);
+      return true;
+    });
   }
 
   function releaseGallery(r) {
