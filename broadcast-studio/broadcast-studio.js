@@ -241,9 +241,17 @@ window.SWNViewerBridge=(()=>{
       const p = ps.find(p => same(p.sports_gamer_player_id, lineup[slot]));
       if (!p) return '<div class="player empty"><span>' + slot + '</span><div class="sil">?</div><b>'+esc(tx("notSelected"))+'</b></div>';
       const goalie=slot==='G';
-      const summary=goalie?['regular','playoff'].map(stage=>esc(tx(stage==='regular'?'group':'playoffs'))+' · SV% '+goalieStageValue(p,stage,'sv')+' · GAA '+goalieStageValue(p,stage,'gaa')).join('<br>'):esc(tx("group"))+' '+stat(p.regular_points)+' P · '+esc(tx("playoffs"))+' '+stat(p.playoff_points)+' P';
-      return '<div class="player"><span>' + slot + '</span>' + image(playerImage(p)) + '<div class="player-info'+(goalie?' goalie-lineup-info':'')+'"><strong>#' + esc(p.player_number ?? "") + ' ' + playerFlag(p) + esc(p.display_gamertag) + '</strong><small>'+summary+'</small></div></div>';
+      const summary=lineupStageSummary(p,goalie);
+      return '<div class="player"><span>' + slot + '</span>' + image(playerImage(p)) + '<div class="player-info lineup-stage-info"><strong>#' + esc(p.player_number ?? "") + ' ' + playerFlag(p) + esc(p.display_gamertag) + '</strong><small>'+summary+'</small></div></div>';
     }).join("");
+  }
+
+  function lineupStageSummary(p,goalie){
+    return ['regular','playoff'].filter(stage=>stage==='regular'||number(p[stage+(goalie?'_goalie_games':'_skater_games')])>0||(!goalie&&['goals','assists','points'].some(key=>number(p[stage+'_'+key])>0))).map(stage=>{
+      const label=stage==='regular'?(LOCALE==='sv'?'GRUPPSPEL':tx('group')):tx('playoffs');
+      const values=goalie?'SV% '+goalieStageValue(p,stage,'sv')+' · GAA '+goalieStageValue(p,stage,'gaa'):stat(p[stage+'_goals'])+' G · '+stat(p[stage+'_assists'])+' A · '+stat(p[stage+'_points'])+' P';
+      return esc(label)+' · '+values;
+    }).join('<br>');
   }
 
   function renderStats() {

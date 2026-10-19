@@ -2729,5 +2729,5 @@ body[data-background="gamenight"] .background-package-layer{
   background-repeat:no-repeat!important;
 }
 
-.lineup .player-info.goalie-lineup-info{grid-template-rows:minmax(0,2.35em) 2.7em;row-gap:3px}
-.lineup .goalie-lineup-info small{height:2.7em}
+.lineup .player-info.lineup-stage-info{grid-template-rows:minmax(0,2.35em) 2.7em;row-gap:3px}
+.lineup .lineup-stage-info small{height:2.7em}
