@@ -234,6 +234,8 @@ window.SWNViewerBridge=(()=>{
     $("#lineupTeam").textContent = t.team_name_in_league;
     const lineupLogo = $("#lineupTeamLogo");
     const lineupLogoUrl = logo(t);
+    lineupLogo.onload = () => { lineupLogo.hidden = false; };
+    lineupLogo.hidden = !lineupLogoUrl;
     lineupLogo.src = lineupLogoUrl;
     lineupLogo.alt = t.team_name_in_league || "";
     lineupLogo.style.display = lineupLogoUrl ? "" : "none";
