@@ -4,6 +4,8 @@
   const cfg = window.EHOCKEY_CONFIG || {};
   const languageStudio = /^\/broadcast-studio\/(SV|en|fi|de)\/$/i.test(location.pathname);
   const params = new URLSearchParams(location.search);
+  const sceneController = location.pathname === '/broadcast-studio/mobile.html';
+  const sceneChannel = ({sv:'sec21-bronze-test',en:'broadcast-en',fi:'broadcast-fi',de:'broadcast-de'}[(params.get('lang')||'sv').toLowerCase()]||'sec21-bronze-test');
   const output = languageStudio && params.get('obs') === '1';
   let client, started = false, checking = false;
   function unlock() {
@@ -30,6 +32,13 @@
   panel.id = 'studio-login';
   panel.innerHTML = '<div class="studio-login-card"><div class="studio-login-brand">SWNWORKS · ADMIN</div><h1>Logga in i SWNWORKS</h1><p>Endast ditt admin-konto har tillgång till SWNWORKS adminverktyg.</p><form><label>Inloggningsnamn<input name="username" value="eSwahn" autocomplete="username" required spellcheck="false"></label><label>Lösenord<input name="password" type="password" autocomplete="current-password" required></label><button type="submit">Logga in</button></form><p id="studio-login-status" role="status" aria-live="polite">Kontrollerar inloggningen…</p><a href="/">Till SWNWORKS</a></div>';
   document.body.appendChild(panel);
+  if(sceneController){
+    panel.querySelector('.studio-login-brand').textContent='SWNWORKS · SCENSTYRNING';
+    panel.querySelector('h1').textContent='Logga in i scenväljaren';
+    panel.querySelector('p').textContent='Använd ditt eget konto med godkänd scenbehörighet. Du får inte tillgång till övriga adminverktyg.';
+    panel.querySelector('[name="username"]').value='';
+    panel.querySelector('[name="username"]').placeholder='Ditt användarnamn';
+  }
   const status = panel.querySelector('#studio-login-status');
   const submit = panel.querySelector('button');
   function message(text) { status.textContent = text; }
@@ -39,16 +48,17 @@
     try {
       const { data, error } = await client.auth.getSession();
       if (error) throw error;
-      if (!data.session) { message('Använd samma admininloggning som på Svensk eHockey.'); return false; }
+      if (!data.session) { message(sceneController?'Logga in med ditt konto med godkänd scenbehörighet.':'Använd samma admininloggning som på Svensk eHockey.'); return false; }
       const verified = await client.auth.getUser();
       if (verified.error || !verified.data.user) throw new Error('Inloggningen kunde inte verifieras. Logga in igen.');
-      const access = await client.rpc('swn_studio_admin_access');
+      const access = sceneController ? await client.rpc('swn_studio_scene_access',{p_channel:sceneChannel}) : await client.rpc('swn_studio_admin_access');
       if (access.error) throw new Error('Kunde inte kontrollera adminbehörigheten. Försök igen.');
-      if (access.data !== true) { message('Det här kontot har inte tillgång till studiorna. Logga in med ditt admin-konto.'); return false; }
+      if (access.data !== true) { message(sceneController?'Det här kontot saknar scenbehörighet för vald sändning. Kontakta SWNWORKS.':'Det här kontot har inte tillgång till studiorna. Logga in med ditt admin-konto.'); return false; }
       await startScripts();
       const bar = document.createElement('div');
       bar.id = 'studio-session';
       bar.innerHTML = '<span>ADMIN · eSwahn</span><button type="button">Logga ut</button>';
+      if(sceneController)bar.querySelector('span').textContent='SCENSTYRNING · '+(verified.data.user.email||'Inloggad').split('@')[0];
       bar.querySelector('button').onclick = async () => {
         const result = await client.auth.signOut({ scope: 'local' });
         if (!result.error) location.reload();
