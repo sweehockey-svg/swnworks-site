@@ -1950,6 +1950,37 @@
     ).join("");
   }
 
+  let leagueBoard={competitionId:null,games:[],checkedAt:null,fetchedAt:null,error:'',busy:false,requestedAt:0};
+  function leagueMatchesHtml(){
+    const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Stockholm'}).format(new Date(state.nextGame?.scheduled_start||Date.now()));
+    if(leagueBoard.competitionId!==(state.selectedCompetition?.id||state.competition?.id)||leagueBoard.date!==date)return '<p>'+esc(leagueBoard.error||'Hämtar matcher för vald serie och matchdag…')+'</p>';
+    const stamp=leagueBoard.checkedAt?new Date(leagueBoard.checkedAt).toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Stockholm'}):'–';
+    return '<p class="league-board-status" role="status">'+esc(leagueBoard.error||'Kontrollerad '+stamp+' · läser importerade resultat var 15:e sekund. Fördröjning från källan kan förekomma.')+'</p>'+ (leagueBoard.games.length?'<div class="league-match-list">'+leagueBoard.games.map(game=>'<article class="league-match '+(game.status==='live'?'is-live':'')+'"><span>'+esc(getTeamName(game.home_team_id))+'</span><strong>'+esc(game.home_score??'–')+'–'+esc(game.away_score??'–')+'</strong><span>'+esc(getTeamName(game.away_team_id))+'</span><small>'+esc(game.status==='live'?'LIVE · P'+(game.period||'–')+' · '+(game.clock_display||'tid saknas'):game.status==='final'?'SLUT':swedishDate(game.scheduled_start))+'</small></article>').join('')+'</div>':'<p>Inga publicerade matcher för den valda matchdagen.</p>');
+  }
+  async function refreshLeagueBoard(){
+    const competitionId=state.selectedCompetition?.id||state.competition?.id,teamId=state.selectedTeam?.id;
+    if(!client||!competitionId||!teamId||!canAccessTeam(teamId)||document.hidden||leagueBoard.busy)return;
+    if(leagueBoard.competitionId===competitionId&&Date.now()-leagueBoard.requestedAt<12000)return;
+    leagueBoard={...leagueBoard,competitionId,requestedAt:Date.now(),busy:true};
+    const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Stockholm'}).format(new Date(state.nextGame?.scheduled_start||Date.now()));
+    const midnight=Date.parse(date+'T00:00:00Z');
+    try{
+      const [games,snapshot]=await Promise.all([
+        client.from('games').select('id,scheduled_start,home_team_id,away_team_id,home_score,away_score,status,period,clock_display,updated_at').eq('competition_id',competitionId).gte('scheduled_start',new Date(midnight-3*3600000).toISOString()).lt('scheduled_start',new Date(midnight+27*3600000).toISOString()).order('scheduled_start',{ascending:true}).limit(100),
+        client.from('standings_snapshots').select('id,fetched_at').eq('competition_id',competitionId).order('fetched_at',{ascending:false}).limit(1).maybeSingle()
+      ]);
+      if(games.error||snapshot.error)throw games.error||snapshot.error;
+      let rows=null;
+      if(snapshot.data){const result=await client.from('standings_snapshot_rows').select('team_id,rank,games_played,wins,ties,losses,goals_for,goals_against,goal_diff,points').eq('snapshot_id',snapshot.data.id).order('rank',{ascending:true});if(result.error)throw result.error;rows=result.data;}
+      if((state.selectedCompetition?.id||state.competition?.id)!==competitionId||state.selectedTeam?.id!==teamId)return;
+      if(new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Stockholm'}).format(new Date(state.nextGame?.scheduled_start||Date.now()))!==date)return;
+      leagueBoard={...leagueBoard,date,games:(games.data||[]).filter(game=>new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Stockholm'}).format(new Date(game.scheduled_start))===date&&game.id!==state.nextGame?.id),checkedAt:new Date().toISOString(),fetchedAt:snapshot.data?.fetched_at||null,error:''};
+      if(rows){state.standings=rows;state.standingsByTeam=new Map(rows.map(row=>[row.team_id,row]));}
+      renderStandingsQuick();window.dispatchEvent(new Event('cockpit:render'));
+    }catch(error){leagueBoard.error='Kunde inte uppdatera. Senast hämtade underlag visas.';window.dispatchEvent(new Event('cockpit:render'));}
+    finally{leagueBoard.busy=false;}
+  }
+
   function renderStandingsQuick() {
     const el = document.getElementById("standingsQuick");
     if (!el || !state.focusTeam || !state.opponent) return;
@@ -1963,7 +1994,7 @@
       const team=state.teamById.get(row.team_id);
       const difference=row.goal_diff;
       return '<tr class="'+(focus?'standings-focus':opponent?'standings-opponent':'')+'"><td>'+esc(row.rank??'–')+'</td><th scope="row">'+esc(team?.canonical_name||'Okänt lag')+(focus?'<small>Valt lag</small>':opponent?'<small>Motståndare</small>':'')+'</th><td>'+esc(row.games_played??'–')+'</td><td>'+esc(difference==null?'–':Number(difference)>0?'+'+difference:difference)+'</td><td><strong>'+esc(row.points??'–')+'</strong></td></tr>';
-    }).join('')+'</tbody></table>';
+    }).join('')+'</tbody></table><p class="standings-freshness">Officiell tabell'+(leagueBoard.fetchedAt?' · importerad '+esc(new Date(leagueBoard.fetchedAt).toLocaleString('sv-SE',{timeZone:'Europe/Stockholm'})):'')+'. Inte en prognos för pågående matcher.</p>';
   }
 
   function renderLatestGame() {
@@ -2370,6 +2401,19 @@
     });
   }
 
+  function factBodyHtml(fact){
+    const teams=[state.focusTeam,state.opponent];
+    let values=null;
+    if(teams.every(Boolean)){
+      if(fact.id==='form')values=[state.focusForm,state.opponentForm].map((games,i)=>formText(formSummary(games,teams[i].id)));
+      if(fact.id==='standings')values=teams.map(team=>{const row=state.standingsByTeam.get(team.id);return row?'#'+row.rank+' · '+row.points+' P · '+row.games_played+' matcher':'Underlag saknas';});
+      if(fact.id==='special-teams')values=teams.map(team=>{const s=seasonSpecialForTeam(team.id);return s?'PP '+specialRecord(s.pp_goals,s.pp_opportunities)+' · BP '+specialRecord(s.pk_opportunities==null||s.pk_goals_against==null?null:Number(s.pk_opportunities)-Number(s.pk_goals_against),s.pk_opportunities):'Underlag saknas';});
+      if(fact.id==='points-leaders')values=teams.map(team=>{const p=topSkater(team.id);return p?'#'+p.jersey_number+' '+humanSourceName(p.source_name)+' · '+p.goals+' G · '+p.assists+' A · '+p.points+' P':'Underlag saknas';});
+      if(fact.id==='latest-results')values=[state.focusForm,state.opponentForm].map((games,i)=>{const r=latestResultText(games,teams[i].id);return r?r.result+' '+r.gf+'–'+r.ga+' mot '+r.opponent:'Underlag saknas';});
+    }
+    return values?'<div class="fact-comparison">'+teams.map((team,i)=>'<div><strong>'+esc(team.canonical_name)+'</strong><span>'+playerTextMarkup(values[i])+'</span></div>').join('')+'</div>':'<strong>'+playerTextMarkup(fact.title)+'</strong><p>'+playerTextMarkup(fact.text)+'</p>';
+  }
+
   function renderFacts() {
     const box=document.getElementById("factStack");
     if(!box) return;
@@ -2380,8 +2424,7 @@
     box.innerHTML=pinnedFactsHtml()+shown.map((fact,index)=>
       '<article class="fact-card '+(index===0?"primary ":"")+(fact.editorial?"editorial ":"")+'insight-card">' +
         '<span>'+esc(fact.tag)+'</span>' +
-        '<strong>'+playerTextMarkup(fact.title)+'</strong>' +
-        '<p>'+playerTextMarkup(fact.text)+'</p>' +
+        factBodyHtml(fact) +
         '<button type="button" class="fact-pin" data-pin-quick="'+index+'" aria-pressed="'+aiWorkflowState().entries.some((entry)=>entry.pinned&&entry.key===aiPointKey(quickFactPoint(fact)))+'">'+(aiWorkflowState().entries.some((entry)=>entry.pinned&&entry.key===aiPointKey(quickFactPoint(fact)))?'LÖSGÖR FAKTA':'FÄST FAKTA')+'</button>' +
       '</article>'
     ).join("") + (!facts.length?'<article class="fact-card"><span>SNABBFAKTA</span><strong>Ingen verifierad fakta ännu.</strong><p>Väntar på mer matchdata.</p></article>':'') +
@@ -4063,9 +4106,8 @@
       '<div class="pregame-head"><span>SÄNDNINGSKORT</span><strong>'+esc(state.focusTeam.canonical_name)+' – '+esc(state.opponent.canonical_name)+'</strong><small>'+
         esc(swedishDate(game.scheduled_start))+' · '+esc(game.venue_name||"Arena ej angiven")+'</small></div>'+
       '<div class="pregame-grid">'+
-        '<article><span>TABELL</span><strong>#'+esc(focusStanding?.rank??"–")+' '+esc(state.focusTeam.canonical_name)+'</strong><small>'+
-          esc(focusStanding?.points??"–")+' p · #'+esc(oppStanding?.rank??"–")+' '+esc(state.opponent.canonical_name)+' · '+esc(oppStanding?.points??"–")+' p</small></article>'+
-        '<article><span>FORM · S5</span><strong>'+esc(formText(focusForm))+'</strong><small>'+esc(state.opponent.canonical_name)+' · '+esc(formText(oppForm))+'</small></article>'+
+        '<article class="fact-card"><span>TABELL</span>'+factBodyHtml({id:'standings'})+'</article>'+
+        '<article class="fact-card"><span>FORM · S5</span>'+factBodyHtml({id:'form'})+'</article>'+
         '<article><span>H2H</span><strong>'+(h?esc(h.focusWins)+'–'+esc(h.opponentWins)+' i vinster':'Ingen importerad historik')+'</strong><small>'+
           (latestH2h?'Senast '+esc(latestH2hScore.gf)+'–'+esc(latestH2hScore.ga)+' · '+esc(shortDateOnly(latestH2h.scheduled_start)):'Väntar på historik')+'</small></article>'+
         '<article><span>DATA INFÖR MATCH</span><strong>'+(state.nextLineup?'Officiell lineup klar':'Senaste kända kedjor')+'</strong><small>'+
@@ -4091,7 +4133,7 @@
     const rest = cards.slice(1).map(([title, text]) =>
       '<article class="drawer-card"><strong>' + esc(title) + '</strong><span>' + esc(text) + '</span></article>'
     ).join("");
-    return renderMatchCheck() + renderPregameCockpit() + renderDataHealth() + renderUpcomingGames() + rest;
+    return renderMatchCheck() + renderPregameCockpit() + renderDataHealth() + renderUpcomingGames() + '<section><h3>ÖVRIGA MATCHER · SAMMA SERIE OCH MATCHDAG</h3><div data-league-board>'+leagueMatchesHtml()+'</div></section>' + rest;
   }
 
   function renderDrawer(key) {
@@ -4731,6 +4773,8 @@
     renderMatchStats();
     renderLatestGame();
     renderFacts();
+    void refreshLeagueBoard();
+    window.dispatchEvent(new Event('cockpit:render'));
 
     const focusStanding = state.standingsByTeam.get(state.focusTeam.id);
     const oppStanding = state.standingsByTeam.get(state.opponent.id);
@@ -5034,6 +5078,7 @@
   updateAuthButton();
   window.setInterval(updateClock, 1000);
   window.setInterval(refreshActiveMatch, 15000);
+  window.setInterval(refreshLeagueBoard,15000);
   window.setInterval(renderSyncFreshness, 60000);
   document.addEventListener("visibilitychange",()=>{if(!document.hidden){lastCompetitionCheckAt=0;void refreshActiveMatch();}});
   window.addEventListener("online",()=>{lastCompetitionCheckAt=0;void refreshActiveMatch();});
@@ -5058,6 +5103,7 @@
     state,
     reload: () => routeApp().catch(showLoadError),
     openPanel: renderDrawer,
+    widgets:{specialHtml:()=>state.focusTeam&&state.opponent?renderSpecialTeams():'<p>Välj en match först.</p>',leagueHtml:leagueMatchesHtml,standingsHtml:()=>document.getElementById('standingsQuick')?.innerHTML||'<p>Tabell saknas.</p>'},
     editorialNotes: () => currentEditorialNotes(),
     aiFallback: (question="") => localAiBrief(question),
     syncNotes: () => syncNotesWithCloud(),

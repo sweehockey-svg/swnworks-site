@@ -5076,3 +5076,47 @@ html[data-theme="light"] #playerCardDialog :is(input,textarea,select){background
 html[data-theme="light"] #playerCardDialog a{color:#075c93}
 html[data-theme="light"] #playerCardDialog button:focus-visible,
 html[data-theme="light"] #playerCardDialog a:focus-visible{outline:2px solid #075c93;outline-offset:3px}
+
+/* Matchfeed: never truncate scorer/assist text on narrow or short displays. */
+.event-panel,.event-copy{min-width:0}
+.event-feed-live,.event-list{align-content:start;grid-auto-rows:max-content}
+.event-row{align-items:start;grid-template-columns:52px minmax(0,1fr) max-content}
+.event-copy>div{flex-wrap:wrap;row-gap:3px}
+.event-copy p{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;word-break:normal;line-height:1.5}
+.event-score{align-self:start;white-space:nowrap}
+
+
+/* Break on available panel width, not the overall desktop viewport. */
+.event-panel{container-type:inline-size}
+.event-copy{display:block!important;min-width:0}
+.event-copy span{white-space:normal!important;overflow-wrap:anywhere}
+.event-copy p{margin-top:4px!important}
+@container (min-width:720px){.event-copy{display:grid!important;grid-template-columns:minmax(150px,.7fr) minmax(0,1.7fr);gap:14px}.event-copy p{margin-top:0!important}}
+@media(min-width:1101px){.cockpit:not(.hidden) .workspace{grid-template-columns:minmax(230px,.9fr) minmax(0,1.9fr) minmax(250px,1fr)}}
+@media(min-width:761px) and (max-width:1100px){.cockpit:not(.hidden) .workspace{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr)}.cockpit:not(.hidden) .assistant-panel{grid-column:1/-1}}
+@media(max-width:760px){.cockpit:not(.hidden) .workspace{grid-template-columns:minmax(0,1fr)}}
+.stat{min-width:0}.stat strong{white-space:nowrap}
+
+
+.fact-comparison{display:grid;gap:0;margin:8px 0}
+.fact-comparison>div{display:grid;gap:4px;padding:9px 0;border-bottom:1px solid var(--border,#294251)}
+.fact-comparison>div:last-child{border-bottom:0}
+.fact-card .fact-comparison strong,.fact-card .fact-comparison span{font-size:13px!important;line-height:1.45!important;white-space:normal;overflow-wrap:anywhere}
+.fact-card .fact-comparison strong{font-weight:800;color:var(--text,#eaf2f8)}
+.fact-card .fact-comparison span{font-weight:500;color:var(--muted,#a8bdca)}
+html[data-theme="light"] .fact-card .fact-comparison strong{color:#132d3e}
+html[data-theme="light"] .fact-card .fact-comparison span{color:#38576c}
+
+
+.standings-freshness,.league-board-status{font-size:11px;line-height:1.5;color:var(--muted,#9db3c2);white-space:normal}
+.league-match-list{display:grid;gap:7px}.league-match{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:7px;padding:10px;border:1px solid var(--border,#294251);border-radius:8px;background:var(--panel,#0a1d2a)}
+.league-match>span{min-width:0;font-size:12px;overflow-wrap:anywhere}.league-match>span:nth-of-type(2){text-align:right}.league-match>strong{font-size:17px;white-space:nowrap}.league-match>small{grid-column:1/-1;color:var(--muted,#9db3c2)}.league-match.is-live{border-color:#32966a}
+html[data-theme="light"] :is(.standings-freshness,.league-board-status,.league-match>small){color:#496578}html[data-theme="light"] .league-match{background:#fff;border-color:#c8d6df;color:#132d3e}
+
+
+.dashboard-parking{display:none!important}.dashboard-toolbar{margin:6px 0;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel);font-size:12px}.dashboard-toolbar summary{cursor:pointer;font-weight:800}.dashboard-settings{display:flex;align-items:end;flex-wrap:wrap;gap:9px;padding-top:8px}.dashboard-settings label{display:grid;gap:4px;margin:0;min-width:140px}.dashboard-settings :is(select,button){padding:7px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}.dashboard-settings small{width:100%;color:var(--muted)}
+.dashboard-slot{min-width:0;min-height:0;display:flex}.dashboard-slot>.panel{width:100%;min-width:0;height:100%;min-height:0;overflow-y:auto;overflow-x:hidden}.dashboard-widget-body{min-width:0}.dashboard-widget .special-team-grid{grid-template-columns:minmax(0,1fr)}.dashboard-widget .special-team-head h3{white-space:normal;overflow-wrap:anywhere}
+@media(min-width:1101px) and (min-height:700px){.cockpit:not(.hidden):has(.dashboard-toolbar){grid-template-rows:auto auto minmax(0,1fr)}}
+@media(max-width:1100px){.dashboard-workspace .dashboard-slot{min-height:320px}.dashboard-workspace .dashboard-slot:last-child{grid-column:1/-1}}
+@media(max-width:760px){.dashboard-workspace .dashboard-slot{grid-column:1/-1;max-height:65dvh;min-height:280px}}
+html[data-theme="light"] .dashboard-toolbar{background:#f8fafc;border-color:#c8d6df;color:#132d3e}html[data-theme="light"] .dashboard-settings :is(select,button){background:#fff;border-color:#a8bfce;color:#132d3e}html[data-theme="light"] .dashboard-settings small{color:#496578}
