@@ -5053,3 +5053,26 @@ html[data-theme="light"] .standings-full thead th,html[data-theme="light"] .stan
 
 .drawer .lineup-slot .player-card-link{display:block;white-space:normal;overflow-wrap:normal;word-break:normal}
 .drawer .lineup-slot .player-card-link .player-flag{vertical-align:middle;margin-right:4px}
+
+/* Light theme: schedule rows and every player-card tab use the selected theme. */
+html[data-theme="light"] .upcoming-game{background:#fff;border-color:#c8d6df;color:#132d3e}
+html[data-theme="light"] .upcoming-game.active{background:#fff5d8;border-color:#bd8a13}
+html[data-theme="light"] .upcoming-game.live{background:#e8f6ed;border-color:#2e8057}
+html[data-theme="light"] .upcoming-game-time strong,
+html[data-theme="light"] .upcoming-game-teams span{color:#132d3e}
+html[data-theme="light"] .upcoming-game-time span,
+html[data-theme="light"] .upcoming-game-teams b,
+html[data-theme="light"] .upcoming-schedule-head small{color:#496578}
+html[data-theme="light"] .upcoming-game>em{color:#805800}
+html[data-theme="light"] .upcoming-game.live>em{color:#17603d}
+html[data-theme="light"] #playerCardDialog{background:#f8fafc;border-color:#bfced9;color:#132d3e;color-scheme:light}
+html[data-theme="light"] #playerCardDialog::backdrop{background:rgba(18,37,51,.38)}
+html[data-theme="light"] #playerCardDialog header{background:#f8fafc;border-color:#c8d6df}
+html[data-theme="light"] #playerCardDialog button:not(.player-card-link){background:#e9f0f5;border-color:#b5c8d6;color:#183d55}
+html[data-theme="light"] #playerCardDialog button[aria-pressed="true"]{background:#fff0be;border-color:#ad7a00;color:#624600}
+html[data-theme="light"] #playerCardDialog :is(.player-card-metrics>div,.player-card-game){background:#fff;border-color:#c8d6df;color:#132d3e}
+html[data-theme="light"] #playerCardDialog :is(.player-card-metrics span,.player-card-game span,small,label){color:#496578}
+html[data-theme="light"] #playerCardDialog :is(input,textarea,select){background:#fff;color:#132d3e;border-color:#a8bfce}
+html[data-theme="light"] #playerCardDialog a{color:#075c93}
+html[data-theme="light"] #playerCardDialog button:focus-visible,
+html[data-theme="light"] #playerCardDialog a:focus-visible{outline:2px solid #075c93;outline-offset:3px}
