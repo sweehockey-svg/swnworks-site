@@ -16,7 +16,7 @@
   };
   for(let attempt=0;attempt<3;attempt++){
    const row=(await request('&select=state,updated_at'))?.[0];
-   if(!isCurrent()||!row?.updated_at||row.state?.publicNoMatch||identity(row.state)!==identity(expected))throw Error('Matchen eller underlaget i sändning har ändrats. Hämta och granska på nytt.');
+   if(!isCurrent()||!row?.updated_at||identity(row.state)!==identity(expected))throw Error('Matchen eller underlaget i sändning har ändrats. Hämta och granska på nytt.');
    if(!window.BroadcastTransientSource.reference(reference,expected.leagueId)||Date.parse(reference.expires_at)<=Date.now())throw Error('Det nya underlaget har gått ut. Hämta igen.');
    if(data)for(const side of ['home','away'])for(const id of Object.values(row.state.lineups?.[side]||{})){
     if(id&&!data.players.some(p=>String(p.sports_gamer_team_id)===String(row.state[side])&&String(p.sports_gamer_player_id)===String(id)))throw Error('En spelare i sändningens lineup saknas i det nya underlaget. Tidigare data behålls.');
@@ -86,7 +86,7 @@
    try{
     const state=await publish({channel,expected:candidate.context.state,reference:candidate.prepared.reference,data:candidate.prepared.data,isCurrent:()=>matches()});
     if(matches())onPublished(candidate.prepared,state);
-    clear();message.textContent='Statistik & tabell skickade till sändning. Hämtat '+time(candidate.prepared.data.fetched_at)+'. Scen, resultat, bild och ljud har inte ändrats av uppdateringen.';
+    clear();message.textContent='Statistik & tabell skickade till sändning. Hämtat '+time(candidate.prepared.data.fetched_at)+'. '+(state.publicNoMatch?'Vänteskärmen ligger kvar. ':'')+'Scen, resultat, bild och ljud har inte ändrats av uppdateringen.';
    }catch(error){message.textContent=error.message+' Kontrollera sändningsvyn innan du försöker igen.';apply.disabled=!matches();}
    finally{busy=false;fetchButton.disabled=false;discard.disabled=false;}
   });
