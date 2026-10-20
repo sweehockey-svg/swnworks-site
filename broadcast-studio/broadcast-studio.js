@@ -817,6 +817,16 @@ window.SWNViewerBridge=(()=>{
       renderAllCompetitionData();renderStatus();
     }
   });
+  if(!OBS_MODE&&!VIEWER_MODE&&!PREVIEW_MODE)window.BroadcastStatsUpdate?.mount({
+    anchor:temporaryStatus,provider:sourceProvider,channel:REMOTE_CHANNEL,
+    getContext:()=>({state:structuredClone(studioState()),payload:sourcePayload}),
+    onPublished:(prepared,state)=>{
+      // Install data only; never apply the returned scene/media controls here.
+      sourceProvider.commit(prepared);
+      if(programState)programState={...programState,transientSource:prepared.reference};
+      window.dispatchEvent(new CustomEvent('seh:program-status',{detail:state}));
+    }
+  });
   loadTournamentData();
   window.addEventListener('resize',scheduleLineupFit);
   if(window.ResizeObserver&&$('.players'))new ResizeObserver(scheduleLineupFit).observe($('.players'));
