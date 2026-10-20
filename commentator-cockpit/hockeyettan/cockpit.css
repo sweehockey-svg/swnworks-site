@@ -5036,17 +5036,17 @@ html[data-theme="light"] .standings-full thead th,html[data-theme="light"] .stan
 /* 20261020: readable jersey badges for match commentary. */
 .drawer :is(.lineup-slot,.roster-player,.player-stat-name,.goalie-card-head)>b{
   display:inline-flex;align-items:center;justify-content:center;
-  min-width:44px;min-height:36px;padding:4px 6px;margin:0;
+  min-width:56px;min-height:36px;padding:4px 6px;margin:0;
   border:1px solid #ffe38a;border-radius:7px;background:#ffd34a;
   color:#071923!important;font:900 20px/1.1 Arial,sans-serif!important;
   font-variant-numeric:tabular-nums;letter-spacing:-.04em;white-space:nowrap;
 }
-.drawer .lineup-slot{display:grid;grid-template-columns:44px minmax(0,1fr);gap:6px 9px;align-items:center;text-align:left;padding:20px 9px 9px}
+.drawer .lineup-slot{display:grid;grid-template-columns:56px minmax(0,1fr);gap:6px 9px;align-items:center;text-align:left;padding:20px 9px 9px}
 .drawer .lineup-slot>span{left:auto;right:7px;top:4px;font-size:10px}
 .drawer .lineup-slot>strong{min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.3;font-size:12px}
 .drawer .lineup-individual-stats{grid-column:1 / -1}
 .drawer .lineup-slot.empty{display:grid;grid-template-columns:1fr;place-items:center}
-.drawer .lineup-goalies>div{grid-template-columns:44px minmax(0,1fr);gap:7px 9px}
-.drawer .lineup-goalies>div>b{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:36px;padding:4px 6px;border:1px solid #ffe38a;border-radius:7px;background:#ffd34a;color:#071923!important;font:900 20px/1.1 Arial,sans-serif!important;font-variant-numeric:tabular-nums}
-.drawer .roster-player{grid-template-columns:48px minmax(0,1fr) auto}
-.drawer .player-stat-name{grid-template-columns:48px minmax(0,1fr)}
+.drawer .lineup-goalies>div{grid-template-columns:56px minmax(0,1fr);gap:7px 9px}
+.drawer .lineup-goalies>div>b{display:inline-flex;align-items:center;justify-content:center;min-width:56px;min-height:36px;padding:4px 6px;border:1px solid #ffe38a;border-radius:7px;background:#ffd34a;color:#071923!important;font:900 20px/1.1 Arial,sans-serif!important;font-variant-numeric:tabular-nums}
+.drawer .roster-player{grid-template-columns:56px minmax(0,1fr) auto}
+.drawer .player-stat-name{grid-template-columns:56px minmax(0,1fr)}
