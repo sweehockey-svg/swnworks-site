@@ -542,12 +542,32 @@
     // Först arkivets källkopplade gruppfoto, därefter lokalt arkivfoto.
     return bandPhoto(b)?.original_url || BAND_MEDIA[slugify(b.canonical_name)] || '';
   }
+  function personPhotos(p) {
+    if (!p) return [];
+    return state.mediaLinks
+      .filter(link => link.entity_type === 'person' && link.entity_id === p.id && ['person_photo', 'portrait'].includes(link.relation))
+      .map(link => state.mediaItems.find(item => item.id === link.media_id))
+      .filter(item => item?.media_type === 'photo' && typeof item.original_url === 'string' && /^https:\/\//i.test(item.original_url));
+  }
+
   function personMedia(p) {
-    return p ? (PERSON_MEDIA[slugify(p.canonical_name)] || '') : '';
+    if (!p) return '';
+    return personPhotos(p)[0]?.original_url || PERSON_MEDIA[slugify(p.canonical_name)] || '';
   }
 
   function personGallery(p) {
-    return p ? (PERSON_GALLERY[slugify(p.canonical_name)] || []) : [];
+    if (!p) return [];
+    const curated = PERSON_GALLERY[slugify(p.canonical_name)] || [];
+    const photos = personPhotos(p).map(item => {
+      const source = state.sources.find(source => source.id === item.source_id);
+      return [item.original_url, item.title || p.canonical_name, source?.url || '', source?.title || ''];
+    });
+    const seen = new Set();
+    return [...curated, ...photos].filter(item => {
+      if (!item?.[0] || seen.has(item[0])) return false;
+      seen.add(item[0]);
+      return true;
+    });
   }
 
   function releaseMedia(r) {
