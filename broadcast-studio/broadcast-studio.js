@@ -856,7 +856,7 @@ window.SWNViewerBridge=(()=>{
  let matchAudioVisible=!!screen?.querySelector('.scene.live.active')&&show?.checked!==false;
  function syncMatchAudio(){
    if(!video)return;
-   const requestedMuted=RECORDING_OUTPUT?false:VIEWER_MODE_LOCAL?viewerMuted:mute?.checked!==false;
+   const requestedMuted=RECORDING_OUTPUT?false:VIEWER_MODE_LOCAL?viewerMuted:OBS_MODE_LOCAL?false:mute?.checked!==false;
    video.muted=!matchAudioVisible||requestedMuted;
  }
  window.__sehSyncMatchAudio=syncMatchAudio;
