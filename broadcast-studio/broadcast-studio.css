@@ -2731,3 +2731,10 @@ body[data-background="gamenight"] .background-package-layer{
 
 .lineup .player-info.lineup-stage-info{grid-template-rows:minmax(0,2.35em) 2.7em;row-gap:3px}
 .lineup .lineup-stage-info small{height:2.7em}
+
+/* Stable identity rows: jersey/flag above one full, auto-fitted gamertag line. */
+.lineup .player-info.lineup-stage-info{grid-template-columns:minmax(0,1fr);grid-template-rows:44px 2.7em;row-gap:4px}
+.lineup .player-info strong{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:18px 26px;min-width:0;min-height:44px;max-height:44px;height:44px;-webkit-line-clamp:unset;white-space:nowrap;overflow:visible;line-height:1}
+.lineup-meta{display:flex;align-items:center;gap:5px;height:18px;font-size:14px;white-space:nowrap}
+.lineup-meta .player-flag{position:static!important;width:24px!important;height:18px!important;transform:none!important;object-fit:contain!important;flex:0 0 auto}
+.lineup-gt{display:block;width:100%;min-width:0;height:26px;line-height:26px;font-size:18px;white-space:nowrap;transform-origin:left center}

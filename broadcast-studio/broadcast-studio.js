@@ -227,6 +227,16 @@ window.SWNViewerBridge=(()=>{
     $("#lineupEditors").innerHTML = panel("home") + panel("away");
   }
 
+  let lineupFitFrame=0;
+  function fitLineupGamertags(){
+    document.querySelectorAll('.lineup-gt').forEach(name=>{
+      name.style.fontSize='18px';name.style.transform='none';
+      const width=name.clientWidth;if(!width)return;
+      if(name.scrollWidth>width)name.style.fontSize=Math.max(8,Math.floor(180*width/name.scrollWidth)/10)+'px';
+      if(name.scrollWidth>width)name.style.transform='scaleX('+width/name.scrollWidth+')';
+    });
+  }
+  function scheduleLineupFit(){cancelAnimationFrame(lineupFitFrame);lineupFitFrame=requestAnimationFrame(fitLineupGamertags);}
   function renderLineup() {
     renderLineupEditors();
     const side = $("#lineupSide").value;
@@ -244,8 +254,9 @@ window.SWNViewerBridge=(()=>{
       if (!p) return '<div class="player empty"><span>' + slot + '</span><div class="sil">?</div><b>'+esc(tx("notSelected"))+'</b></div>';
       const goalie=slot==='G';
       const summary=lineupStageSummary(p,goalie);
-      return '<div class="player"><span>' + slot + '</span>' + image(playerImage(p)) + '<div class="player-info lineup-stage-info"><strong>#' + esc(p.player_number ?? "") + ' ' + playerFlag(p) + esc(p.display_gamertag) + '</strong><small>'+summary+'</small></div></div>';
+      return '<div class="player"><span>' + slot + '</span>' + image(playerImage(p)) + '<div class="player-info lineup-stage-info"><strong><span class="lineup-meta">#' + esc(p.player_number ?? "") + ' ' + playerFlag(p) + '</span><span class="lineup-gt">'+esc(p.display_gamertag)+'</span></strong><small>'+summary+'</small></div></div>';
     }).join("");
+    scheduleLineupFit();
   }
 
   function lineupStageSummary(p,goalie){
@@ -806,6 +817,9 @@ window.SWNViewerBridge=(()=>{
     }
   });
   loadTournamentData();
+  window.addEventListener('resize',scheduleLineupFit);
+  if(window.ResizeObserver&&$('.players'))new ResizeObserver(scheduleLineupFit).observe($('.players'));
+  document.fonts?.ready.then(scheduleLineupFit);
 })();
 
 
