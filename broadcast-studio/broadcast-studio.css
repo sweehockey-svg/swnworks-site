@@ -2740,3 +2740,7 @@ body[data-background="gamenight"] .background-package-layer{
 .lineup-gt{display:block;width:100%;min-width:0;height:26px;line-height:26px;font-size:18px;white-space:nowrap;transform-origin:left center}
 
 .lineup .player-info :is(.lineup-meta,.lineup-gt){position:static!important;inset:auto!important;color:#f6f8fb!important;letter-spacing:normal}
+
+/* Keep standard standings clear of the lower-right sender bug. */
+.table .broadcast-table:not(.bt-dense):not(.bt-xdense):not(.bt-dual) .bt-row{min-height:46px}
+.table:not(.table-dense-mode) .scene-title{margin-bottom:12px!important}
