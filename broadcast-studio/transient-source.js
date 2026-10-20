@@ -43,11 +43,12 @@
    if(!ref||Date.parse(ref.expires_at)<=Date.now()||(!allowRemote&&!sessionTickets.has(ref.ticket))){generation++;clear();onStatus('Ingen aktuell statistik i denna session. Hämta från SportsGamer.');return false;}
    if(lastTicket===ref.ticket&&lastLeague===league)return true;
    if(waiting?.ticket===ref.ticket)return waiting.promise;
-   const seq=++generation;clear();
+   // Keep the installed source until its replacement is validated.
+   const seq=++generation;
    const task=(async()=>{try{
     onStatus('Läser tillfälligt sändningsunderlag…');const data=await read(ref);
     return install(data,ref,seq);
-   }catch(error){if(seq===generation){clear();onStatus(error.message+' Ingen statistik visas.');}return false;}})();
+   }catch(error){if(seq===generation)onStatus(error.message+' Tidigare underlag ligger kvar.');return false;}})();
    waiting={ticket:ref.ticket,promise:task};try{return await task;}finally{if(waiting?.promise===task)waiting=null;}
   }
   async function refresh(){
@@ -63,7 +64,23 @@
     sessionTickets.add(ref.ticket);return true;
    }catch(error){if(seq===generation){clear();onStatus(error.message+' Ingen statistik visas.');}return false;}
   }
-  return {receive,refresh,reset};
+  async function prepare(onProgress=()=>{}){
+   const league=Number(getLeague()),seq=generation;
+   const end=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Stockholm',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()),startDate=new Date(end+'T12:00:00Z');startDate.setUTCDate(startDate.getUTCDate()-6);
+   const payload=await window.GraphicsTransientData.request({league,start:startDate.toISOString().slice(0,10),end,fresh:true,onProgress});
+   const ref=reference({league_id:league,ticket:payload.broadcast_ticket,expires_at:payload.broadcast_expires_at||payload.expires_at},league);
+   if(!ref||!validData({...payload,expires_at:ref.expires_at},league))throw Error('Det nya underlaget är ogiltigt. Tidigare statistik ligger kvar.');
+   const data=await window.GraphicsTransientData.withPortraits({...payload,expires_at:ref.expires_at});
+   if(seq!==generation||Number(getLeague())!==league)throw Error('Matchunderlaget ändrades under hämtningen. Hämta igen.');
+   return {data,reference:ref,generation:seq};
+  }
+  function commit(prepared){
+   if(!prepared||prepared.generation!==generation||!validData(prepared.data,Number(getLeague())))return false;
+   const ok=install(prepared.data,prepared.reference,generation);
+   if(ok){sessionTickets.add(prepared.reference.ticket);cache.set(prepared.reference.ticket,{data:prepared.data,until:Date.now()+15*60*1000});}
+   return ok;
+  }
+  return {receive,refresh,reset,prepare,commit};
  }
  window.BroadcastTransientSource={create,reference,validData,read};
 })();

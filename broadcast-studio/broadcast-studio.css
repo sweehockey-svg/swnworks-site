@@ -2744,3 +2744,12 @@ body[data-background="gamenight"] .background-package-layer{
 /* Keep standard standings clear of the lower-right sender bug. */
 .table .broadcast-table:not(.bt-dense):not(.bt-xdense):not(.bt-dual) .bt-row{min-height:46px}
 .table:not(.table-dense-mode) .scene-title{margin-bottom:12px!important}
+
+.stats-refresh{margin:16px 0;padding:14px;border:1px solid #435e68;border-radius:10px;background:#0b2029;color:#e7f0f4;grid-column:1/-1}
+.stats-refresh h3{font-size:11px;color:#ffcf43;letter-spacing:.08em}
+.stats-refresh p{font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.stats-refresh button{display:block;width:100%;margin:8px 0;padding:10px;border:1px solid #b89937;border-radius:6px;background:#162e36;color:#ffe180;font-weight:700;cursor:pointer}
+.stats-refresh button:disabled{opacity:.45;cursor:not-allowed}
+.stats-refresh details{font-size:12px;margin:10px 0}
+.stats-refresh [data-content]{max-height:320px;overflow:auto;padding:8px;background:#07131d}
+.stats-refresh [hidden]{display:none!important}
