@@ -2802,7 +2802,7 @@
             p?.weight_kg ? p.weight_kg + " kg" : null
           ].filter(Boolean).join(" · ");
           return '<div class="roster-player">' +
-            '<b>#' + esc(item.jersey_number ?? "–") + '</b>' +
+            '<b>' + esc(item.jersey_number ?? "–") + '</b>' +
             '<div><strong>' + esc(p?.display_name || item.source_name || "Okänd spelare") + '</strong>' +
             '<small>' + esc(meta) + (p?.youth_club ? ' · ' + esc(p.youth_club) : '') + '</small></div>' +
             '<em>' + esc(item.position || "") + '</em>' +
@@ -2971,7 +2971,7 @@
     const changed=lineupChanges.some(change=>change.kind==='after'&&window.CockpitLineupChanges.key(change.row)===window.CockpitLineupChanges.key(row));
     return '<div class="lineup-slot'+(changed?' lineup-slot-changed':'')+'">' +
       '<span>' + esc(position) + '</span>' +
-      '<b>#' + esc(row.jersey_number ?? "–") + '</b>' +
+      '<b>' + esc(row.jersey_number ?? "–") + '</b>' +
       '<strong>' + playerCardLink(row) + '</strong>' +lineupIndividualStats(row)+
     '</div>';
   }
@@ -3037,7 +3037,7 @@
 
     const goaliesHtml = '<div class="lineup-goalies">' +
       goalies.map((row, i) =>
-        '<div class="'+(ctx.mode !== "previous" && row.goalie_role === "starter" ? 'lineup-starter' : '')+'"><span>' + (ctx.mode !== "previous" && row.goalie_role === "starter" ? "STARTMÅLVAKT" : ctx.mode !== "previous" && goalies.some(goalie=>goalie.goalie_role === "starter") ? "RESERV" : ctx.mode !== "previous" ? "MÅLVAKT" : i === 0 ? "G1 · SENASTE" : "G2 · SENASTE") + '</span><b>#' + esc(row.jersey_number ?? "–") + '</b><strong>' +
+        '<div class="'+(ctx.mode !== "previous" && row.goalie_role === "starter" ? 'lineup-starter' : '')+'"><span>' + (ctx.mode !== "previous" && row.goalie_role === "starter" ? "STARTMÅLVAKT" : ctx.mode !== "previous" && goalies.some(goalie=>goalie.goalie_role === "starter") ? "RESERV" : ctx.mode !== "previous" ? "MÅLVAKT" : i === 0 ? "G1 · SENASTE" : "G2 · SENASTE") + '</span><b>' + esc(row.jersey_number ?? "–") + '</b><strong>' +
         playerCardLink(row) + '</strong></div>'
       ).join("") +
     '</div>';
@@ -3436,7 +3436,7 @@
               : 'S5 · matchdata ej publicerad';
             const liveRow=currentPlayerGameRow(row);
             return '<div class="player-stat-row' + (liveRow ? ' is-live' : '') + '">' +
-              '<div class="player-stat-name"><b>#' + esc(row.jersey_number ?? "–") + '</b><span>' +
+              '<div class="player-stat-name"><b>' + esc(row.jersey_number ?? "–") + '</b><span>' +
                 '<strong>' + playerCardLink(row) + '</strong>' +
                 livePlayerDetail(liveRow) +
                 '<small>' + esc((row.position || "") + ' · ' + recentText) + '</small>' +
@@ -3503,7 +3503,7 @@
             recent.gaa.toLocaleString("sv-SE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
           return '<article class="goalie-card">' +
-            '<div class="goalie-card-head"><span>SÄSONG</span><b>#' + esc(row.jersey_number ?? "–") + '</b></div>' +
+            '<div class="goalie-card-head"><span>SÄSONG</span><b>' + esc(row.jersey_number ?? "–") + '</b></div>' +
             '<h3>' + playerCardLink(row) + '</h3>' +
             '<div class="goalie-metrics goalie-season-metrics">' +
               '<div><span>GP</span><strong>' + esc(row.games_played ?? 0) + '</strong></div>' +
