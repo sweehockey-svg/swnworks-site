@@ -96,6 +96,36 @@ async function setScene(button){
  finally{busy=false;buttons.forEach(b=>b.classList.remove("pending"));controls();}
 }
 buttons.forEach(b=>{b.disabled=true;b.addEventListener("click",()=>void setScene(b));});
+// Stream Deck System > Hotkey sends these to the focused controller page.
+// No URL-triggered commands or credentials in Stream Deck are needed.
+const deckShortcuts=[
+ ["Digit1","opening"],["Digit2","live"],["Digit3","lineup","home"],
+ ["Digit4","lineup","away"],["Digit5","table"],["Digit6","stats"],
+ ["Digit7","teamcompare"],["Digit8","intermission"],["Digit9","matchup"]
+];
+deckShortcuts.forEach(([code,scene,side],index)=>{
+ const button=buttons.find(b=>b.dataset.scene===scene&&(!side||b.dataset.lineupSide===side));
+ if(button)button.title="Stream Deck: Ctrl + Alt + Shift + "+(index+1);
+});
+if(LANG==="sv"){
+ const guide=document.createElement("details");guide.className="foot";
+ const summary=document.createElement("summary");summary.textContent="Stream Deck · snabbknappar och guide";
+ const text=document.createElement("p");text.textContent="Använd System → Hotkey i Stream Deck: Ctrl + Alt + Shift + 1–9. Scenväljaren måste vara aktiv flik och ha fokus (klicka i sidan, inte adressfältet). Ingen bakgrundsstyrning eller automatisk scenmarkering på Stream Deck-knapparna.";
+ const list=document.createElement("ol");
+ deckShortcuts.forEach(([,scene,side])=>{const li=document.createElement("li");li.textContent=(labels[scene]||scene)+(side?(side==="home"?" hemma":" borta"):"");list.appendChild(li);});
+ const link=document.createElement("a");link.href="STREAM-DECK-FLACKEN.md";link.textContent="Öppna hela guiden till Flacken";
+ guide.append(summary,text,list,link);document.getElementById("footText").after(guide);
+}
+document.addEventListener("keydown",event=>{
+ if(!event.ctrlKey||!event.altKey||!event.shiftKey||event.metaKey||event.repeat||event.isComposing)return;
+ const target=event.target;
+ if(target?.closest?.("input,textarea,select,[contenteditable]:not([contenteditable='false'])"))return;
+ const shortcut=deckShortcuts.find(([code])=>code===event.code);if(!shortcut)return;
+ event.preventDefault();
+ const [,scene,side]=shortcut;
+ const button=buttons.find(b=>b.dataset.scene===scene&&(!side||b.dataset.lineupSide===side));
+ if(button&&!button.disabled)void setScene(button);
+});
 void pull();
 setInterval(()=>{if(!busy&&!document.hidden)void pull();controls();},1000);
 document.addEventListener("visibilitychange",()=>{controls();if(!document.hidden)void pull();});
