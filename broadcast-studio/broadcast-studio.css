@@ -2738,3 +2738,5 @@ body[data-background="gamenight"] .background-package-layer{
 .lineup-meta{display:flex;align-items:center;gap:5px;height:18px;font-size:14px;white-space:nowrap}
 .lineup-meta .player-flag{position:static!important;width:24px!important;height:18px!important;transform:none!important;object-fit:contain!important;flex:0 0 auto}
 .lineup-gt{display:block;width:100%;min-width:0;height:26px;line-height:26px;font-size:18px;white-space:nowrap;transform-origin:left center}
+
+.lineup .player-info :is(.lineup-meta,.lineup-gt){position:static!important;inset:auto!important;color:#f6f8fb!important;letter-spacing:normal}
