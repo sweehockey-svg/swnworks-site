@@ -663,6 +663,19 @@ window.SWNViewerBridge=(()=>{
     publicNoMatch=false;publicNextMatch=null;publishState();
     return true;
   };
+  window.__sehStudioEnd=async()=>{
+    holdProgram();
+    const ended={...structuredClone(programState||studioState()),scene:'idle',twitchChannel:'',hlsUrl:'',twitchShow:false,matchName:'',commentary:null,publicNoMatch:true,publicNextMatch:null};
+    if(PREVIEW_MODE)previewChannel?.postMessage({type:'state',state:ended});
+    else await remoteRequest('PATCH',{state:ended,updated_at:new Date().toISOString()});
+    await window.__sehStopCommentary?.();
+    window.__sehCommentarySession=null;
+    programState=structuredClone(ended);programHeld=true;canResumeProgram=false;
+    publicNoMatch=true;publicNextMatch=null;
+    applyRemoteState(ended);
+    window.dispatchEvent(new CustomEvent('seh:program-status',{detail:ended}));
+    return true;
+  };
   window.__sehStudioIdle=enabled=>{
     if(!enabled&&!canResumeProgram)return publicNoMatch;
     if(!programState)programState=structuredClone(studioState());

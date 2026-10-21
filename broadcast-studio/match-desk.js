@@ -21,6 +21,15 @@
   quick.innerHTML='<h3>SÄNDNING · MATCHVAL</h3><p id="deskOnAir" role="status">Förbered en match och klicka Visa i sändning när den ska visas.</p><button id="deskTake" type="button">Visa förberedd match i sändning</button>';
   document.querySelector('.director-monitors')?.before(quick);
   quick.append(document.getElementById('deskMatches'),document.getElementById('deskIdle'),document.getElementById('deskMessage'));
+  const endButton=document.createElement('button');endButton.type='button';endButton.id='deskEnd';endButton.textContent='Avsluta sändning';
+  quick.append(endButton);
+  endButton.onclick=async()=>{
+    if(!window.confirm('Avsluta sändningen? Video och kommentering stoppas i studion, OBS och Match-TV. Twitch-originalet och sparade matcher påverkas inte.'))return;
+    endButton.disabled=true;
+    try{await window.__sehStudioEnd();onAir='';noMatch=true;updateIdle();render();get('deskMessage').textContent='Sändningen är avslutad. Video och kommentering är stoppade. Sparade matcher finns kvar.';}
+    catch(error){get('deskMessage').textContent='Kunde inte avsluta sändningen. Kontrollera anslutningen och försök igen.';}
+    finally{endButton.disabled=false;}
+  };
   const nextControls=document.createElement('div');nextControls.className='next-controls match-desk';
   nextControls.innerHTML='<h3>NÄSTA MATCH · ENDAST MATCH-TV</h3><label>HEMMALAG<select id="nextHome"></select></label><label>BORTALAG<select id="nextAway"></select></label><label>DATUM<input id="nextDate" type="date" required></label><label>STARTTID · SVENSK TID<input id="nextTime" type="time" required></label><button id="deskNext">Visa Nästa match på Match-TV</button><p>Preview fortsätter vara fritt att ändra. Detta startar inte sändningen automatiskt.</p>';
   document.querySelector('.stream-dock')?.append(nextControls);

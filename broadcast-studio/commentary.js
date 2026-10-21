@@ -302,6 +302,7 @@
         finally{inviteButton.disabled=false;}
       };
     }
+    if(!presenter)window.__sehStopCommentary=()=>stopHost(false);
     $('.commentary-start').onclick=startHost;$('.commentary-stop').onclick=()=>void stopHost();
     $('.commentary-mute').onclick=()=>{
       const track=stream?.getAudioTracks()[0];if(!track)return;track.enabled=!track.enabled;
