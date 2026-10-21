@@ -2,7 +2,8 @@
   'use strict';
   if(new URLSearchParams(location.search).get('obs')==='1')return;
   const preview=new URLSearchParams(location.search).get('preview')==='1';
-  const key='seh-match-desk-sv-v1'+(preview?'-preview':'');
+  const deskLocale=(document.documentElement.lang||'sv').slice(0,2).toLowerCase();
+  const key='seh-match-desk-'+deskLocale+'-v1'+(preview?'-preview':'');
   let matches=[],active='',onAir='',noMatch=true;
   try{const saved=JSON.parse(localStorage.getItem(key)||'{}');matches=Array.isArray(saved.matches)?saved.matches:[];}catch{}
   const desk=document.createElement('div');desk.className='match-desk block';
@@ -24,7 +25,7 @@
   const endButton=document.createElement('button');endButton.type='button';endButton.id='deskEnd';endButton.textContent='Avsluta sändning';
   quick.append(endButton);
   endButton.onclick=async()=>{
-    if(!window.confirm('Avsluta sändningen? Video och kommentering stoppas i studion, OBS och Match-TV. Twitch-originalet och sparade matcher påverkas inte.'))return;
+    if(!window.confirm(window.BroadcastStudioLanguage?.text('Avsluta sändningen? Video och kommentering stoppas i studion, OBS och Match-TV. Twitch-originalet och sparade matcher påverkas inte.')||'Avsluta sändningen?'))return;
     endButton.disabled=true;
     try{await window.__sehStudioEnd();onAir='';noMatch=true;updateIdle();render();get('deskMessage').textContent='Sändningen är avslutad. Video och kommentering är stoppade. Sparade matcher finns kvar.';}
     catch(error){get('deskMessage').textContent='Kunde inte avsluta sändningen. Kontrollera anslutningen och försök igen.';}

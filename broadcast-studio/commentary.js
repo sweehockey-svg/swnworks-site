@@ -5,6 +5,8 @@
   const viewer=!presenter&&!!document.getElementById('broadcast');
   const params=new URLSearchParams(location.search);
   if(!viewer&&(params.get('obs')==='1'||params.get('viewer')==='1'))return;
+  const commentaryLocale=({sv:'sv',en:'en',fi:'fi',de:'de'}[params.get('lang')||document.documentElement.lang]||'sv');
+  const commentaryChannel=({sv:'sec21-bronze-test',en:'broadcast-en',fi:'broadcast-fi',de:'broadcast-de'}[commentaryLocale]);
   const MAX_PEERS=50, RATE=24000;
   const ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'}]};
   let turnRequest=null,turnRoom='';
@@ -229,7 +231,7 @@
   async function poll(){
     if(disposed)return;
     try{
-      const res=await fetch(cfg.supabaseUrl+'/rest/v1/broadcast_studio_state?channel=eq.sec21-bronze-test&select=state',{headers:{apikey:cfg.supabasePublishableKey},cache:'no-store',signal:AbortSignal.timeout(8000)});
+      const res=await fetch(cfg.supabaseUrl+'/rest/v1/broadcast_studio_state?channel=eq.'+encodeURIComponent(commentaryChannel)+'&select=state',{headers:{apikey:cfg.supabasePublishableKey},cache:'no-store',signal:AbortSignal.timeout(8000)});
       if(!res.ok)throw new Error('HTTP '+res.status);
       const rows=await res.json(),next=rows?.[0]?.state?.commentary;
       const valid=next&&/^[a-f0-9-]{36}$/.test(next.room)&&next.publicKey?.kty==='EC'&&next.publicKey?.crv==='P-256'&&Number.isFinite(next.startedAt)&&Date.now()-next.startedAt<21600000;
@@ -295,7 +297,7 @@
           channel=await connect(nextSession.room,hostSignal);session=nextSession;
           expiryTimer=setTimeout(()=>void stopHost(),21600000);
           window.__sehCommentarySession=nextSession;window.__sehPublishBroadcastState();
-          const url=new URL('commentator.html',document.baseURI);url.hash=base64(encode(secret));
+          const url=new URL('commentator.html',document.baseURI);url.searchParams.set('lang',commentaryLocale);url.hash=base64(encode(secret));
           linkBox.querySelector('input').value=url.href;linkBox.hidden=false;
           $('.commentary-stop').disabled=false;status('Kommentatorslänk klar · väntar på kommentatorn');
         }catch(error){await stopHost();status('Kunde inte skapa kommentatorslänken: '+String(error.message).slice(0,100));}

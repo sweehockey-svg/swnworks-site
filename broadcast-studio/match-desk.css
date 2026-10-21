@@ -69,3 +69,5 @@ body:not(.obs-preview) aside .saved-match-picker>h3,body:not(.obs-preview) aside
 body:not(.obs-preview) aside .saved-match-picker{padding-bottom:12px;margin-bottom:12px}
 body:not(.obs-preview) .workspace{padding:18px 24px}
 body:not(.obs-preview) .commentary-panel .commentary-note{font-size:11px}
+
+.director-monitors .preview-shell:before{content:var(--prepared-preview-label,'FÖRHANDSVISNING · FÖRBEREDD MATCH')}
