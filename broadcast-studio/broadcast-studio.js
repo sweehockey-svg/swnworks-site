@@ -696,14 +696,21 @@ window.SWNViewerBridge=(()=>{
   else if(OBS_MODE){
     const obsPoll=()=>{if(!VIEWER_MODE||!document.hidden)void pullState();};
     obsPoll();
-    setInterval(obsPoll,VIEWER_MODE?10000:1000);
+    setInterval(obsPoll,1000);
     document.addEventListener("visibilitychange",obsPoll);
     window.addEventListener("focus",obsPoll);
     window.addEventListener("pageshow",obsPoll);
   }else setTimeout(publishState,800);
 
   // Controls are installed synchronously, before any data request starts.
-  document.querySelectorAll("[data-scene]").forEach(button => button.addEventListener("click", () => { applyScene(button.dataset.scene,button.dataset.lineupSide); publishState(); }));
+  function selectProgramScene(name,side){
+    applyScene(name,side);
+    // Live scene selection must not take any prepared match fields.
+    if(programHeld&&programState)programState={...programState,scene:activeScene,lineupSide:$("#lineupSide").value};
+    if(programState||!programHeld){publicNoMatch=false;publicNextMatch=null;}
+    publishState();
+  }
+  document.querySelectorAll("[data-scene]").forEach(button => button.addEventListener("click", () => selectProgramScene(button.dataset.scene,button.dataset.lineupSide)));
   $("#tournament")?.addEventListener("change",async()=>{
     const next=Number($("#tournament").value);
     if(!COMPETITIONS[next]||next===activeLeagueId)return;
