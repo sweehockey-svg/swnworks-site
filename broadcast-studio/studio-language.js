@@ -89,8 +89,11 @@
  }
  const start=()=>{
   translate(document.body);
+  const toolbar=document.querySelector('.preview-toolbar');
+  if(toolbar){const label=toolbar.querySelector('span'),title=toolbar.querySelector('strong');if(label)label.textContent=['PREVIEW','ESIKATSELU','VORSCHAU'][index];if(title)title.textContent='16:9 · '+rows['FÖRHANDSVISNING · FÖRBEREDD MATCH'][index].split(' · ')[1];}
   document.documentElement.style.setProperty('--prepared-preview-label',JSON.stringify(rows['FÖRHANDSVISNING · FÖRBEREDD MATCH'][index]));
   new MutationObserver(records=>{for(const record of records){if(record.type==='characterData')translate(record.target);else for(const node of record.addedNodes)translate(node);}}).observe(document.body,{subtree:true,childList:true,characterData:true});
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
+
