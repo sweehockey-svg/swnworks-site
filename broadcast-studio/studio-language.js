@@ -69,6 +69,13 @@
  'Kommentera i Match-TV':['Commentate on Match-TV','Selosta Match-TV:ssä','Auf Match-TV kommentieren'],
  'Slå på matchljud':['Enable match audio','Ota ottelun ääni käyttöön','Spielton einschalten'],
  'Stäng av matchljud':['Mute match audio','Mykistä ottelun ääni','Spielton ausschalten'],
+ 'Lyssna på båda kommentatorerna':['Listen to both commentators','Kuuntele molempia selostajia','Beiden Kommentatoren zuhören'],
+ 'Stäng av båda rösterna':['Mute both voices','Mykistä molemmat äänet','Beide Stimmen ausschalten'],
+ 'MEDHÖRNING · KOLLEGAN':['MONITOR · CO-COMMENTATOR','KUUNTELU · SELOSTAJAPARI','MITHÖREN · KOMMENTATORPARTNER'],
+ 'Mikrofonnivå till tittarna':['Microphone level to viewers','Mikrofonitaso katsojille','Mikrofonpegel für Zuschauer'],
+ 'Starta mikrofon här':['Start microphone here','Käynnistä mikrofoni tässä','Mikrofon hier starten'],
+ 'KOMMENTATOR ':['COMMENTATOR ','SELOSTAJA ','KOMMENTATOR '],
+ 'DIN MIKROFON · KOMMENTATOR ':['YOUR MICROPHONE · COMMENTATOR ','MIKROFONISI · SELOSTAJA ','DEIN MIKROFON · KOMMENTATOR '],
  'Förbereder: ':['Preparing: ','Valmistellaan: ','In Vorbereitung: '],
  'I sändning: ':['On air: ','Lähetyksessä: ','Auf Sendung: '],
  'Avsluta sändningen? Video och kommentering stoppas i studion, OBS och Match-TV. Twitch-originalet och sparade matcher påverkas inte.':['End the broadcast? Video and commentary will stop in the studio, OBS and Match-TV. The original Twitch stream and saved matches are unaffected.','Lopetetaanko lähetys? Video ja selostus pysähtyvät studiossa, OBS:ssä ja Match-TV:ssä. Alkuperäinen Twitch-striimi ja tallennetut ottelut säilyvät.','Sendung beenden? Video und Kommentar werden im Studio, OBS und Match-TV gestoppt. Der Originalstream auf Twitch und gespeicherte Spiele bleiben unverändert.']
@@ -77,7 +84,7 @@
   if(index===undefined)return value;
   const trimmed=value.trim(),row=rows[trimmed];
   if(row)return value.replace(trimmed,row[index]);
-  for(const prefix of ['Förbereder: ','I sändning: '])if(value.startsWith(prefix))return rows[prefix][index]+text(value.slice(prefix.length));
+  for(const prefix of ['Förbereder: ','I sändning: ','KOMMENTATOR ','DIN MIKROFON · KOMMENTATOR '])if(value.startsWith(prefix))return rows[prefix][index]+text(value.slice(prefix.length));
   return value;
  };
  window.BroadcastStudioLanguage={text};
