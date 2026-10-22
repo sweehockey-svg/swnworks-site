@@ -59,9 +59,9 @@
    if(new Set(entries.flatMap(p=>[p.home,p.away])).size!==entries.length*2)return missing('Ett lag finns i flera serier. Kontrollera omgången.');
    const page=Number(value('prPage')),shown=entries.slice(page*8,page*8+8);
    if(!shown.length)return missing(page?'Inga serier på sida 2':'Välj slutspelsmöten i panelen till höger');
-   const columns=W>H?(shown.length>4?4:2):2,rows=Math.ceil(shown.length/columns),top=Math.max(365,H*.19+120),bottom=H-100,gap=W>H?20:16,cw=(W-2*m-gap*(columns-1))/columns,ch=(bottom-top-gap*(rows-1))/rows;
+   const columns=shown.length<=2?1:W>H?(shown.length>4?4:2):2,rows=Math.ceil(shown.length/columns),top=Math.max(365,H*.19+120),bottom=H-100,gap=W>H?20:16,cw=(W-2*m-gap*(columns-1))/columns,ch=Math.min((bottom-top-gap*(rows-1))/rows,columns===1?340:Infinity);
    let out=text(m,top-55,value('prRound').toUpperCase(),Math.min(32,(W-2*m)/Math.max(1,value('prRound').length)/.65),'#ffcf4a')+text(m,top-20,'BÄST AV '+value('prBest')+' · MATCHVINSTER'+(entries.length>8?' · SIDA '+(page+1)+'/2':''),18,'#aac1d0');
-   shown.forEach((p,i)=>{const x=m+i%columns*(cw+gap),y=top+Math.floor(i/columns)*(ch+gap),logoSize=Math.min(76,ch*.31,cw*.17),font=Math.min(26,ch*.115,cw*.047),nameW=cw-logoSize-85,rowH=(ch-28)/2;
+   shown.forEach((p,i)=>{const x=m+i%columns*(cw+gap),y=top+Math.floor(i/columns)*(ch+gap),logoSize=Math.min(columns===1?100:76,ch*.31,cw*.17),font=Math.min(columns===1?36:26,ch*.14,cw*.047),nameW=cw-logoSize-85,rowH=(ch-28)/2;
     out+='<g data-playoff-series="'+i+'"><rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+ch+'" rx="14" fill="#071a28" fill-opacity=".9" stroke="#9d8745"/>';
     for(const [side,wins,j]of [[p.home,p.hw,0],[p.away,p.aw,1]]){const cy=y+14+j*rowH,rowY=cy+rowH*.5,name=teams.get(side).team_name_in_league||'',url=lm.get(side),won=wins===p.needed;
      if(url&&S.logos)out+=img(url,x+14,rowY-logoSize/2,logoSize);
