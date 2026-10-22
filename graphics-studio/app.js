@@ -745,7 +745,7 @@ function portraitCrop(b,w,h){
 }
 function weeklyPortraitCrop(b,w,h){
  // Use the body silhouette, not hair/head width, to keep the same photo scale.
- const cropW=Math.min(b.width*.62,b.height*w/h);
+ const cropW=Math.min(b.width*.80,b.height*w/h);
  return {left:b.left+(b.width-cropW)/2,top:b.top,width:cropW,height:cropW*h/w};
 }
 function normalizedPortrait(url,x,y,w,h,id,framed=false,zoom=1){
