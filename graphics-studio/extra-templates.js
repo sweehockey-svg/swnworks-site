@@ -1,5 +1,6 @@
 /* Manual editorial selections. Never writes match, roster or player records. */
 window.createExtraGraphicsTemplates=function(api){
+ const playoffRound=window.GraphicsPlayoffs?.create(api);
  const {S,TIT,format,base,logos,img,svgText,esc,portraitUrl,normalizedPortrait,rosterStatsValues,nationFlag}=api;
  const definitions=[
   ['game_night','MATCHDAG','Matchdag / Game Night','Lag, datum, tid och sändning'],
@@ -8,7 +9,8 @@ window.createExtraGraphicsTemplates=function(api){
   ['player_duel','SPELARDUELLEN','Spelarduellen','Jämför två spelare'],
   ['weekly_six','VECKANS LAG','Veckans lag','Sex utvalda spelare på rink'],
   ['playoff_series','SLUTSPELSSERIE','Slutspelsserie','Serieställning och matchresultat'],
-  ['welcome_player','VÄLKOMMEN','Nyförvärv / Välkommen','Spelare och nytt lag']
+  ['welcome_player','VÄLKOMMEN','Nyförvärv / Välkommen','Spelare och nytt lag'],
+  ['playoff_round','SLUTSPELET','Aktuell slutspelsomgång','Möten, lagloggor och serieställningar']
  ];
  const kinds=new Set(definitions.map(d=>d[0])),list=document.querySelector('.kinds');
  for(const [kind,title,label,note] of definitions){
@@ -111,9 +113,10 @@ window.createExtraGraphicsTemplates=function(api){
  }
  const playerKey=p=>String(p.sports_gamer_team_id)+':'+String(p.sports_gamer_player_id);
  function sync(){
+  playoffRound?.sync();
   TIT.weekly_six=value('extraWeek')&&value('extraWeek')===value('extraWeekEnd')?'DAGENS LAG':'VECKANS LAG';
   if(weeklyLeague!==S.league||weeklyGroup!==S.filterGroup){weeklyLeague=S.league;weeklyGroup=S.filterGroup;weeklyPeriod='';weeklyDates=null;weeklyCandidates=[];weeklySelections={};for(const slot of ['LW','C','RW','LD','RD','G'])get('extraSix'+slot).value='';}
-  section.hidden=!kinds.has(S.kind);if(section.hidden)return;
+  section.hidden=!kinds.has(S.kind)||S.kind==='playoff_round';if(section.hidden)return;
   section.querySelectorAll('[data-extra-kinds]').forEach(el=>el.hidden=!el.dataset.extraKinds.split(' ').includes(S.kind));
   scheduleFields();
   const teams=[...new Map(groupTeams().map(t=>[String(t.sports_gamer_team_id),{...t,id:String(t.sports_gamer_team_id)}])).values()];
@@ -127,6 +130,7 @@ window.createExtraGraphicsTemplates=function(api){
   for(let i=0;i<3&&rest;i++){let cut=rest.length<=limit?rest.length:rest.lastIndexOf(' ',limit);if(cut<limit*.4)cut=Math.min(limit,rest.length);let line=rest.slice(0,cut);rest=rest.slice(cut).trim();if(i===2&&rest)line=line.slice(0,-1)+'…';out+=text(x,y+i*size*1.35,line,size,'#bdd4e5');}return out;
  }
  function graphic(){
+  if(S.kind==='playoff_round')return playoffRound?.graphic()||base('');
   const {w:W,h:H}=format(),m=W*.052,top=320,bottom=H-100,height=bottom-top,wide=W>H;
   const panel=(x,y,w,h)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="18" fill="#071a28" fill-opacity=".86" stroke="#355369"/>';
   const teams=new Map(S.teams.map(t=>[String(t.sports_gamer_team_id),t])),lm=logos();
@@ -291,6 +295,7 @@ window.createExtraGraphicsTemplates=function(api){
   return base(out);
  }
  function reset(){
+  playoffRound?.reset();
   weeklyPeriod='';weeklyDates=null;weeklyCandidates=[];weeklySelections={};weekLoading=false;weeklyLeague=S.league;weeklyGroup=S.filterGroup;
   for(const id of ['extraTeamA','extraTeamB','extraSecondTeamA','extraSecondTeamB','extraPlayerA','extraPlayerB',...['LW','C','RW','LD','RD','G'].map(s=>'extraSix'+s)]){get(id).innerHTML='';get(id).value='';}
   for(const id of ['extraHomeScore','extraAwayScore','extraMvpGoals','extraMvpAssists','extraSeriesHome','extraSeriesAway'])get(id).value='0';

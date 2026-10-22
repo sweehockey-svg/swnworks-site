@@ -50,7 +50,7 @@ async function useTransientData(data,epoch=dataEpoch){
 let manualMatches=[];
 function storeManualMatches(next){manualMatches=next;return true;}
 let dataRequest=0,dataLoading=false,playerDataError=false;
-const needsPlayers=()=>!['table','groups','matches','game_night','final_score','playoff_series'].includes(S.kind);
+const needsPlayers=()=>!['table','groups','matches','game_night','final_score','playoff_series','playoff_round'].includes(S.kind);
 async function load(){
   const request=++dataRequest, league=S.league;dataLoading=false;
   if(!dataReady()){resetData();return;}
@@ -235,7 +235,7 @@ function matchesSvg(){
   }).join(''));
 }
 function title(){return ($("#title").value||(S.kind==="player"?singlePlayer()?.display_gamertag||TIT.player:S.kind==="roster"?rosterTeamName():TIT[S.kind])).trim().toUpperCase()}
-function subtitle(){if(S.kind==="player")return ($("#subtitle").value||L.t(TIT.player)+" � "+comp().label).toUpperCase();if(S.kind==="roster")return ($("#subtitle").value||L.t("LAGPRESENTATION")+" · "+comp().label).toUpperCase();if(S.kind==="matches")return ($("#subtitle").value||matchDayLabel()+(S.filterGroup!=null?" / "+groupName(S.filterGroup):"")+" · "+comp().label).toUpperCase();return ($("#subtitle").value||(S.kind==="table"?stageName()+(groupIds().length>1?" · "+groupName(S.group):""):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label+(S.filterGroup!=null?" / "+groupName(S.filterGroup):""))).trim().toUpperCase()}
+function subtitle(){if(S.kind==="playoff_round")return ($("#subtitle").value||"SLUTSPEL · "+comp().label).toUpperCase();if(S.kind==="player")return ($("#subtitle").value||L.t(TIT.player)+" � "+comp().label).toUpperCase();if(S.kind==="roster")return ($("#subtitle").value||L.t("LAGPRESENTATION")+" · "+comp().label).toUpperCase();if(S.kind==="matches")return ($("#subtitle").value||matchDayLabel()+(S.filterGroup!=null?" / "+groupName(S.filterGroup):"")+" · "+comp().label).toUpperCase();return ($("#subtitle").value||(S.kind==="table"?stageName()+(groupIds().length>1?" · "+groupName(S.group):""):S.kind==="groups"?"GRUPPSPEL · GRUPPSTABELLER":stageName()+" · "+comp().label+(S.filterGroup!=null?" / "+groupName(S.filterGroup):""))).trim().toUpperCase()}
 function defs(){return '<defs><linearGradient id="silver" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#edf1f4"/><stop offset=".8" stop-color="#a2adb6"/><stop offset="1" stop-color="#fff"/></linearGradient><linearGradient id="gold"><stop stop-color="#ffd95f"/><stop offset=".5" stop-color="#ffbd00"/><stop offset="1" stop-color="#d88700"/></linearGradient><linearGradient id="panel" x2="1" y2="1"><stop stop-color="#071d2c" stop-opacity=".97"/><stop offset="1" stop-color="#020b12" stop-opacity=".98"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#000" flood-opacity=".58"/></filter></defs>'}
 function background(W,H){
   const glow=(id,color,x,y)=>'<radialGradient id="'+id+'"><stop stop-color="'+color+'" stop-opacity=".48"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient>';
