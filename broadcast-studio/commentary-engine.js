@@ -2,6 +2,33 @@
 window.createCommentaryEngine=function(options){
   'use strict';
   const {slot,manager,listenOnly=false,monitor=false}=options;
+  const interview=slot===2;
+  let manifest=null,guestOnAir=false,lastAdmission=0;
+  async function readManifest(){
+    const response=await fetch(cfg.supabaseUrl+'/rest/v1/broadcast_studio_state?channel=eq.'+encodeURIComponent(commentaryChannel)+'&select=state',{headers:{apikey:cfg.supabasePublishableKey},cache:'no-store',signal:AbortSignal.timeout(8000)});
+    if(!response.ok)throw Error('Ljudstatus kunde inte hämtas');
+    manifest=(await response.json())?.[0]?.state?.commentary;
+    return manifest;
+  }
+  function gateGuest(onAir){
+    guestOnAir=onAir===true;
+    for(const [peerId,p]of peers)if(!p.backstage){const track=p.pc.getSenders()[0]?.track;if(track)track.enabled=guestOnAir;}
+    const button=panel.querySelector('.commentary-admit');
+    if(button){button.textContent=guestOnAir?'Ta ur sändning':'Ta in i sändning';button.setAttribute('aria-pressed',String(guestOnAir));}
+    panel.dataset.onAir=String(guestOnAir);
+  }
+  function manifestGate(root){
+    const entry=root?.slots?.[2],stamp=Number(entry?.admissionAt||0);
+    // A delayed database read must never undo a newer signed take-out command.
+    if(stamp>=lastAdmission){lastAdmission=stamp;gateGuest(entry?.onAir===true);}
+  }
+  async function monitorAllowed(message){
+    const p=message?.payload,root=await readManifest();
+    if(!p||!['monitor-join','monitor-answer'].includes(p.type)||p.room!==session?.room||root?.room!==session?.room||p.slot!==slot||![0,1,2].includes(p.credentialSlot)||p.credentialSlot===slot||!Number.isFinite(p.timestamp)||Math.abs(Date.now()-p.timestamp)>15000)return false;
+    const source=window.CommentaryDuo.select(root,p.credentialSlot);
+    if(!source)return false;
+    try{const key=await crypto.subtle.importKey('jwk',source.publicKey,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);return await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},key,bytes(message.signature),encode(p));}catch{return false;}
+  }
   const presenter=!listenOnly&&document.body.dataset.commentaryRole==='presenter';
   const viewer=listenOnly;
   const params=new URLSearchParams(location.search);
@@ -53,8 +80,8 @@ window.createCommentaryEngine=function(options){
   const anchor=options.anchor;
   if(!anchor)return;
   anchor.append(panel);
-  panel.querySelector('h3').textContent=monitor?'MEDHÖRNING · KOLLEGAN':'KOMMENTATOR '+(slot+1);
-  if(monitor){panel.querySelector('small').textContent='Bara kollegans röst. Använd hörlurar. Egen mikrofon går aldrig till denna medhörning.';panel.querySelector('.commentary-delay')?.closest('label')?.remove();}
+  panel.querySelector('h3').textContent=(monitor?'MEDHÖRNING · ':'')+(interview?'INTERVJUGÄST':monitor?'KOMMENTATOR '+(slot+1):'KOMMENTATOR '+(slot+1));
+  if(monitor){panel.querySelector('small').textContent=interview?'Privat medhörning av intervjugästen, även i väntrummet. Använd hörlurar.':'Bara denna kommentators röst. Använd hörlurar. Egen mikrofon går aldrig till medhörningen.';panel.querySelector('.commentary-delay')?.closest('label')?.remove();}
   if(!viewer){const label=document.createElement('label');label.textContent='Mikrofonnivå till tittarna';const slider=document.createElement('input');slider.className='commentary-send-volume';slider.type='range';slider.min='0';slider.max='100';slider.value='100';label.append(slider);panel.querySelector('.commentary-actions').append(label);}
 
   const $=s=>panel.querySelector(s), status=t=>$('.commentary-status').textContent=t;
@@ -90,13 +117,13 @@ window.createCommentaryEngine=function(options){
   const send=(payload,ch=channel)=>ch?.send({type:'broadcast',event:'signal',payload:payload?.payload?payload:{...payload,slot}});
   function closePeer(peerId){
     const p=peers.get(peerId);if(!p)return;
-    clearTimeout(p.timer);peers.delete(peerId);p.pc.close();
+    clearTimeout(p.timer);peers.delete(peerId);if(interview&&!viewer)p.pc.getSenders().forEach(sender=>sender.track?.stop());p.pc.close();
     if(!viewer&&session)hostStatus();
     if(viewer&&!disposed){detachAudio();status('Kommentatorn är frånkopplad. Försöker igen.');}
   }
   function hostStatus(){
     const count=[...peers.values()].filter(p=>p.pc.connectionState==='connected').length;
-    status((stream?.getAudioTracks()[0]?.enabled?'Mikrofon på':'Mikrofon tyst')+' · '+count+' lyssnare anslutna');
+    status((interview?(guestOnAir?'I sändning · ':'Väntrum · '):'')+(stream?.getAudioTracks()[0]?.enabled?'Mikrofon på':'Mikrofon tyst')+' · '+count+' lyssnare anslutna');
     if(presenter&&session&&keys)void signed({type:'host-status',room:session.room,live:true,muted:hostMuted,volume:hostVolume,from:id,count}).then(message=>send(message));
   }
   function watch(pc,peerId){
@@ -122,6 +149,24 @@ window.createCommentaryEngine=function(options){
     });
   }
   async function hostSignal(message){
+    let authenticatedBackstage=false,credentialSlot=null;
+    if(interview&&message?.payload?.type==='admission'){
+      const p=message.payload;
+      if(p.room!==session?.room||p.key!==session?.publicKey?.x||!Number.isFinite(p.timestamp)||Math.abs(Date.now()-p.timestamp)>60000||p.timestamp<=lastAdmission)return;
+      const root=await readManifest();if(root?.room!==session.room||!root.admissionKey)return;
+      try{const key=await crypto.subtle.importKey('jwk',root.admissionKey,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);if(await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},key,bytes(message.signature),encode(p))&&p.timestamp>=lastAdmission){lastAdmission=p.timestamp;gateGuest(p.onAir);hostStatus();}}catch{}
+      return;
+    }
+    if(interview&&message?.payload?.type==='monitor-join'){
+      if(!await monitorAllowed(message))return;
+      authenticatedBackstage=true;credentialSlot=message.payload.credentialSlot;
+      message={...message.payload,type:'join'};
+    }
+    if(interview&&message?.payload?.type==='monitor-answer'){
+      const p=peers.get(message.payload.from);
+      if(!p?.backstage||p.credentialSlot!==message.payload.credentialSlot||!await monitorAllowed(message))return;
+      authenticatedBackstage=true;message={...message.payload,type:'answer'};
+    }
     if(message?.payload&&Number(message.payload.slot??0)!==slot)return;
     if(message&&!message.payload&&Number(message.slot??0)!==slot)return;
     if(message?.payload?.type==='control'&&message.payload.room===session?.room&&await verified(message)){
@@ -142,19 +187,27 @@ window.createCommentaryEngine=function(options){
     if(!session||!stream||!message||message.room!==session.room)return;
     if(message.type==='answer'){
       const p=peers.get(message.from);
+      if(p?.backstage&&!authenticatedBackstage)return;
       if(p&&p.pc.signalingState==='have-local-offer'&&typeof message.sdp==='string'&&message.sdp.length<30000)
         await p.pc.setRemoteDescription({type:'answer',sdp:message.sdp});
       return;
     }
     if(message.type!=='join'||typeof message.from!=='string'||!/^[a-f0-9-]{36}$/.test(message.from)||peers.has(message.from)||peers.size>=MAX_PEERS)return;
     const activeSession=session;
+    if(interview){
+      try{const root=await readManifest();if(root?.room!==session.room)return;manifestGate(root);}catch{return;}
+      if(!guestOnAir&&!authenticatedBackstage)return;
+    }
     let relay;
     try{relay=await relayConfig();}catch(error){status(String(error.message||'Ljudrelä kunde inte anslutas'));return;}
     if(session!==activeSession||!stream||peers.has(message.from)||peers.size>=MAX_PEERS)return;
-    const pc=new RTCPeerConnection(relay);watch(pc,message.from);
+    const pc=new RTCPeerConnection(relay);watch(pc,message.from);Object.assign(peers.get(message.from),{backstage:authenticatedBackstage,credentialSlot,credentialKey:authenticatedBackstage?manifest?.slots?.[credentialSlot]?.publicKey?.x:null});
     try{
       const sentStream=outgoingStream||stream;
-      const sender=pc.addTrack(sentStream.getAudioTracks()[0],sentStream);
+      // A separate cloned track per guest peer makes admission enforceable at the sender.
+      const audioTrack=interview?sentStream.getAudioTracks()[0].clone():sentStream.getAudioTracks()[0];
+      if(interview)audioTrack.enabled=authenticatedBackstage||guestOnAir;
+      const sender=pc.addTrack(audioTrack,sentStream);
       const settings=sender.getParameters();settings.encodings=[{maxBitrate:RATE}];
       await sender.setParameters(settings).catch(()=>{});
       const offer=await pc.createOffer();
@@ -182,6 +235,7 @@ window.createCommentaryEngine=function(options){
     if(oldLink){oldLink.hidden=true;oldLink.querySelector('input').value='';}
     $('.commentary-start').disabled=false;$('.commentary-stop').disabled=true;
     $('.commentary-mute').disabled=true;$('.commentary-mute').textContent='Tysta mikrofon';
+    if(interview){gateGuest(false);lastAdmission=0;const admit=$('.commentary-admit');if(admit)admit.disabled=true;}
     $('.commentary-mute').setAttribute('aria-pressed','false');status('Mikrofon av');
   }
   function applyMicSettings(){
@@ -210,6 +264,7 @@ window.createCommentaryEngine=function(options){
       const secret=presenter?invite:await manager.createSlot(slot);
       const nextSession=await importInvitation(secret);
       session=nextSession;
+      if(interview){const root=await readManifest();if(root?.room!==session.room||window.CommentaryDuo.select(root,slot)?.publicKey?.x!==session.publicKey.x)throw Error('Intervjulänken har avslutats.');if(root.slots?.[2]?.onAir===true)throw Error('Be studion ta ur gästen ur sändning innan mikrofonen startas igen.');gateGuest(false);}
       const next=await connect(session.room,hostSignal);
       if(token!==startingToken||disposed){void client.removeChannel(next);return;}
       channel=next;lastHostSeen=0;claims=new Set([id]);
@@ -263,7 +318,8 @@ window.createCommentaryEngine=function(options){
       await pc.setRemoteDescription({type:'offer',sdp:message.payload.sdp});
       await pc.setLocalDescription(await pc.createAnswer());await iceComplete(pc);
       if(token!==generation)return;
-      await send({type:'answer',room:activeSession.room,from:id,sdp:pc.localDescription.sdp});
+      const answer={type:'answer',room:activeSession.room,from:id,sdp:pc.localDescription.sdp};
+      await send(interview&&monitor?await signedMonitor({...answer,type:'monitor-answer'}):answer);
     }catch{closePeer('host');status('Kommenteringen kunde inte anslutas. Försöker igen.');}
   }
   async function joinViewer(){
@@ -274,16 +330,29 @@ window.createCommentaryEngine=function(options){
     try{
       const next=await connect(activeSession.room,viewerSignal);
       if(token!==generation||disposed){void client.removeChannel(next);return;}
-      channel=next;lastRequest=Date.now();await send({type:'join',room:session.room,from:id});
+      channel=next;lastRequest=Date.now();await requestJoin();
     }catch{status('Kunde inte nå kommenteringen. Försöker igen.');}
     finally{if(token===generation)joining=false;}
+  }
+  async function requestJoin(){
+    if(interview&&monitor){
+      if(!options.monitorInvite)return;
+      await send(await signedMonitor({type:'monitor-join',room:session.room,from:id}));
+    }else await send({type:'join',room:session.room,from:id});
+  }
+  async function signedMonitor(input){
+    const secret=options.monitorInvite;
+    const payload={...input,slot,credentialSlot:Number(secret.slot??0),timestamp:Date.now()};
+    const key=await crypto.subtle.importKey('jwk',secret.privateKey,{name:'ECDSA',namedCurve:'P-256'},false,['sign']);
+    return {payload,signature:base64(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,encode(payload)))};
   }
   async function poll(){
     if(disposed)return;
     try{
       const res=await fetch(cfg.supabaseUrl+'/rest/v1/broadcast_studio_state?channel=eq.'+encodeURIComponent(commentaryChannel)+'&select=state',{headers:{apikey:cfg.supabasePublishableKey},cache:'no-store',signal:AbortSignal.timeout(8000)});
       if(!res.ok)throw new Error('HTTP '+res.status);
-      const rows=await res.json(),next=window.CommentaryDuo.select(rows?.[0]?.state?.commentary,slot);
+      const rows=await res.json();manifest=rows?.[0]?.state?.commentary;
+      const next=interview&&!monitor&&manifest?.slots?.[2]?.onAir!==true?null:window.CommentaryDuo.select(manifest,slot);
       const valid=next&&/^[a-f0-9-]{36}$/.test(next.room)&&next.publicKey?.kty==='EC'&&next.publicKey?.crv==='P-256'&&Number.isFinite(next.startedAt)&&Date.now()-next.startedAt<21600000;
       if((valid?next.room+':'+next.publicKey.x:null)!==(session?session.room+':'+session.publicKey.x:null)){
         await stopViewer();session=valid?next:null;
@@ -291,7 +360,8 @@ window.createCommentaryEngine=function(options){
         else if(!viewerEnabled)status('Kommentering finns · tryck för att lyssna');
       }
       if(!valid&&!session)status('Ingen kommentering pågår');
-      $('.commentary-listen').disabled=!session&&!viewerEnabled;
+      $('.commentary-listen').disabled=!interview&&!session&&!viewerEnabled;
+      if(interview&&!monitor&&!session)status('Intervjugästen är inte i sändning');
       if(session&&viewerEnabled)void joinViewer();
     }catch{status('Kontakten med kommenteringen är bruten. Matchbilden påverkas inte.');}
     finally{if(!disposed)pollTimer=setTimeout(poll,3000);}
@@ -315,13 +385,14 @@ window.createCommentaryEngine=function(options){
     };
     retryTimer=setInterval(()=>{
       if(!session||!viewerEnabled||disposed)return;
-      if(channel&&!peers.size&&Date.now()-lastRequest>12000){lastRequest=Date.now();void send({type:'join',room:session.room,from:id});}
+      if(channel&&!peers.size&&Date.now()-lastRequest>12000){lastRequest=Date.now();void requestJoin();}
       else if(!channel)void joinViewer();
     },5000);
     void poll();
   }else{
     if(presenter){
-      panel.querySelector('h3').textContent='DIN MIKROFON · KOMMENTATOR '+(slot+1);
+      panel.querySelector('h3').textContent=interview?'DIN MIKROFON · INTERVJUGÄST':'DIN MIKROFON · KOMMENTATOR '+(slot+1);
+      if(interview)panel.querySelector('small').textContent='Använd hörlurar. Din mikrofon startar i väntrummet. Kommentatorerna kan lyssna på dig där, men tittarna hör dig först när studion tar in dig i sändning. Ingen kamera används.';
       panel.querySelector('small').textContent='Använd hörlurar. Starta kommenteringen när studion är redo. Endast mikrofonljudet skickas till tittarna; ingen video laddas upp från din dator. Låt sidan vara öppen. Tittarna justerar eventuell ljudfördröjning i Match-TV.';
       try{
         invite=options.invite||JSON.parse(new TextDecoder().decode(bytes(location.hash.slice(1))));
@@ -332,10 +403,18 @@ window.createCommentaryEngine=function(options){
     }else{
       $('.commentary-start').textContent='Starta mikrofon här';
       const inviteButton=document.createElement('button');inviteButton.type='button';inviteButton.textContent='Skapa länk till kommentator';
+      if(interview){
+        inviteButton.textContent='Skapa intervjulänk';$('.commentary-start').hidden=true;
+        const admit=document.createElement('button');admit.type='button';admit.className='commentary-admit';admit.textContent='Ta in i sändning';admit.disabled=true;admit.setAttribute('aria-pressed','false');
+        admit.onclick=async()=>{admit.disabled=true;try{const message=await manager.admission(!guestOnAir);gateGuest(message.payload.onAir);await send(message);status(guestOnAir?'Intervjugästen är i sändning':'Intervjugästen är i väntrummet');}catch(error){status(String(error.message));}finally{admit.disabled=!session;}};
+        $('.commentary-actions').append(admit);
+        panel.querySelector('small').textContent='Gästen börjar i väntrummet och kan prata med kommentatorerna via medhörningen. Ta in/ur sändning styr bara gästen. Hörlurar krävs. Stoppa avslutar intervjulänken.';
+      }
       $('.commentary-actions').prepend(inviteButton);
       const linkBox=document.createElement('div');linkBox.hidden=true;linkBox.className='commentary-invite';
       linkBox.innerHTML='<label>Privat kommentatorslänk<input type="text" readonly aria-label="Kommentatorslänk"></label><button type="button">Kopiera länk</button><small>Skicka länken privat till kommentatorn. Den ger mikrofonåtkomst till den här ljudsessionen, gäller i sex timmar och avslutas med Stoppa. Personen kan vara på en annan ort.</small>';
       panel.append(linkBox);
+      if(interview){linkBox.querySelector('label').firstChild.textContent='Privat intervjulänk';linkBox.querySelector('input').setAttribute('aria-label','Intervjulänk');linkBox.querySelector('small').textContent='Skicka länken privat till gästen. Bara ljud, ingen kamera. Gästen börjar i väntrummet. Länken gäller i sex timmar och avslutas med Stoppa.';}
       linkBox.querySelector('button').onclick=async()=>{try{await navigator.clipboard.writeText(linkBox.querySelector('input').value);status('Länken kopierad. Skicka den privat till kommentatorn.');}catch{linkBox.querySelector('input').select();status('Markera och kopiera länken med Ctrl+C.');}};
       inviteButton.onclick=async()=>{
         if(starting)return;
@@ -347,6 +426,7 @@ window.createCommentaryEngine=function(options){
           channel=await connect(nextSession.room,hostSignal);session=nextSession;
           expiryTimer=setTimeout(()=>void stopHost(),21600000);
           manager.publish();
+          if(interview){gateGuest(false);$('.commentary-admit').disabled=false;}
           const url=new URL('commentator.html',document.baseURI);url.searchParams.set('lang',commentaryLocale);url.hash=base64(encode(secret));
           linkBox.querySelector('input').value=url.href;linkBox.hidden=false;
           $('.commentary-stop').disabled=false;status('Kommentatorslänk klar · väntar på kommentatorn');
@@ -372,6 +452,7 @@ window.createCommentaryEngine=function(options){
       if(!response.ok)return;
       const root=(await response.json())?.[0]?.state?.commentary,next=window.CommentaryDuo.select(root,slot);
       if(!next||next.room!==session.room||next.publicKey?.x!==session.publicKey?.x){await stopHost(false);invite=null;$('.commentary-start').disabled=true;status('Platsen har avslutats av studion. Be om en ny länk.');}
+      else if(interview){manifestGate(root);for(const [peerId,p]of peers)if(p.backstage&&window.CommentaryDuo.select(root,p.credentialSlot)?.publicKey?.x!==p.credentialKey)closePeer(peerId);}
     }catch{}
   },3000);
   window.addEventListener('pagehide',()=>{
@@ -380,4 +461,3 @@ window.createCommentaryEngine=function(options){
   },{once:true});
   return {panel,stop:()=>viewer?stopViewer():stopHost(false),listen:()=>{if(viewer&&!viewerEnabled&&!$('.commentary-listen').disabled)$('.commentary-listen').click();},stopListening:()=>{if(viewer&&viewerEnabled)$('.commentary-listen').click();},setDelay:value=>{const input=$('.commentary-delay');if(input){input.value=value;input.oninput?.();}}};
 };
-

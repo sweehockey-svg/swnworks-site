@@ -46,10 +46,10 @@ try{
  }
  const director=await page('director');director.on('dialog',d=>d.accept());
  assert.equal(await director.evaluate(()=>fakeMicCount),0,'No microphone requested on load');
- assert.equal(await director.locator('[data-commentary-mode="host"]').count(),2);
+ assert.equal(await director.locator('[data-commentary-mode="host"]').count(),3);
  for(const slot of [0,1]){await director.locator('[data-commentary-slot="'+slot+'"] .commentary-actions button').first().click();await director.locator('[data-commentary-slot="'+slot+'"] .commentary-invite:not([hidden])').waitFor();}
  assert.equal(published.version,2);assert.equal(published.slots.filter(Boolean).length,2);assert(!JSON.stringify(published).includes('privateKey'));
- const invites=await director.locator('.commentary-invite input').evaluateAll(es=>es.map(e=>new URL(e.value).hash));
+ const invites=await director.locator('.commentary-invite input').evaluateAll(es=>es.filter(e=>e.value).map(e=>new URL(e.value).hash));
  const secrets=invites.map(h=>JSON.parse(Buffer.from(h.slice(1),'base64').toString('utf8')));
  const forgedKey=await webcrypto.subtle.importKey('jwk',secrets[1].privateKey,{name:'ECDSA',namedCurve:'P-256'},false,['sign']);
  const victimKey=await webcrypto.subtle.importKey('jwk',secrets[0].publicKey,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
@@ -61,11 +61,9 @@ try{
  await p2.locator('[data-commentary-mode="host"] .commentary-start').click();
  await p1.waitForFunction(()=>fakeMicCount===1);await p2.waitForFunction(()=>fakeMicCount===1);
  const duplicate=await page('presenter',invites[0],660);await duplicate.locator('[data-commentary-mode="host"] .commentary-start').click();await duplicate.waitForFunction(()=>[...document.querySelectorAll('.commentary-status')].some(x=>x.textContent.includes('används redan')),{},{timeout:15000});assert.equal(await duplicate.evaluate(()=>fakeMicCount),0);await duplicate.close();
- const viewer=await page('viewer');await viewer.getByText('Lyssna på båda kommentatorerna',{exact:true}).click();
+ const viewer=await page('viewer');await viewer.getByText('Lyssna på kommentering och intervju',{exact:true}).click();
  await viewer.waitForFunction(()=>document.querySelectorAll('audio').length===2,{},{timeout:45000});
- for(const p of [p1,p2]){await p.locator('[data-commentary-mode="listener"] .commentary-listen').click();await p.waitForFunction(()=>document.querySelectorAll('audio').length===1,{},{timeout:45000});}
- assert.equal(await p1.locator('[data-commentary-mode="listener"]').getAttribute('data-commentary-slot'),'1');
- assert.equal(await p2.locator('[data-commentary-mode="listener"]').getAttribute('data-commentary-slot'),'0');
+ for(const [p,slot]of [[p1,1],[p2,0]]){await p.locator('[data-commentary-mode="listener"][data-commentary-slot="'+slot+'"] .commentary-listen').click();await p.waitForFunction(()=>document.querySelectorAll('audio').length===1,{},{timeout:45000});}
  async function peak(p,slot){return p.evaluate(async slot=>{const audio=document.querySelector('[data-commentary-mode="listener"][data-commentary-slot="'+slot+'"] audio'),c=new AudioContext(),s=c.createMediaStreamSource(audio.srcObject),n=c.createAnalyser();n.fftSize=4096;s.connect(n);await c.resume();await new Promise(r=>setTimeout(r,350));const v=new Float32Array(n.frequencyBinCount);n.getFloatFrequencyData(v);let max=0;for(let i=1;i<v.length;i++)if(v[i]>v[max])max=i;const frequency=max*c.sampleRate/n.fftSize;s.disconnect();await c.close();return frequency;},slot);}
  async function level(p,slot){return p.evaluate(async slot=>{const a=document.querySelector('[data-commentary-slot="'+slot+'"][data-commentary-mode="listener"] audio');if(!a?.srcObject)return 0;const c=new AudioContext(),s=c.createMediaStreamSource(a.srcObject),n=c.createAnalyser();n.fftSize=2048;s.connect(n);await c.resume();await new Promise(r=>setTimeout(r,250));const v=new Float32Array(n.fftSize);n.getFloatTimeDomainData(v);const rms=Math.sqrt(v.reduce((a,b)=>a+b*b,0)/v.length);s.disconnect();await c.close();return rms;},slot);}
  await wait(4000);const before=[await level(viewer,0),await level(viewer,1)];
@@ -78,6 +76,33 @@ try{
  await mute.click();await wait(1200);assert(await level(viewer,0)>.01,'Voice resumes');
  await director.locator('[data-commentary-slot="1"] .commentary-send-volume').fill('20');await director.locator('[data-commentary-slot="1"] .commentary-send-volume').dispatchEvent('input');await wait(1200);
  const reduced=await level(viewer,1);assert(reduced<before[1]*.5&&reduced>.001,'Independent send volume applies');
+ // A third voice starts privately; two existing commentators remain connected.
+ const guestPanel=director.locator('[data-commentary-mode="host"][data-commentary-slot="2"]');
+ await guestPanel.getByText('Skapa intervjulänk',{exact:true}).click();await guestPanel.locator('.commentary-invite:not([hidden])').waitFor();
+ assert.equal(published.slots[2].onAir,false);assert(published.admissionKey&&!published.admissionKey.d);
+ const guestHash=await guestPanel.locator('.commentary-invite input').inputValue();
+ const guest=await page('presenter',new URL(guestHash).hash,1320);
+ await guest.locator('[data-commentary-mode="host"] .commentary-start').click();await guest.waitForFunction(()=>fakeMicCount===1);
+ for(const p of [p1,p2]){await p.locator('[data-commentary-mode="listener"][data-commentary-slot="2"] .commentary-listen').click();await p.waitForFunction(()=>document.querySelectorAll('audio').length===2,{},{timeout:45000});}
+ for(const slot of [0,1])await guest.locator('[data-commentary-mode="listener"][data-commentary-slot="'+slot+'"] .commentary-listen').click();
+ await guest.waitForFunction(()=>document.querySelectorAll('audio').length===2,{},{timeout:45000});
+ await wait(2500);assert(Math.abs(await peak(p1,2)-1320)<30);assert(Math.abs(await peak(p2,2)-1320)<30);
+ assert(Math.abs(await peak(guest,0)-440)<30);assert(Math.abs(await peak(guest,1)-880)<30);
+ assert.equal(await level(viewer,2),0,'Waiting guest is not sent to audience');
+ const guestConnections=await guest.evaluate(()=>testPCs.length);
+ // Public clients cannot impersonate a backstage monitor by adding a boolean.
+ await viewer.evaluate(async room=>{const from=crypto.randomUUID();for(const fn of Object.values(testListeners))await fn({payload:{type:'join',slot:2,room,from,backstage:true}});await testBusSend('seh-commentary:'+room,'attacker',{type:'join',slot:2,room,from,backstage:true});},published.room);
+ await wait(1500);assert.equal(await guest.evaluate(()=>testPCs.length),guestConnections,'Unsigned backstage flag must be rejected');
+ const guestSecret=JSON.parse(Buffer.from(new URL(guestHash).hash.slice(1),'base64').toString('utf8'));
+ await viewer.evaluate(async secret=>{const payload={type:'admission',room:secret.room,slot:2,onAir:true,timestamp:Date.now(),key:secret.publicKey.x},key=await crypto.subtle.importKey('jwk',secret.relayPrivateKey,{name:'ECDSA',namedCurve:'P-256'},false,['sign']);const signature=btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,new TextEncoder().encode(JSON.stringify(payload))))));await testBusSend('seh-commentary:'+secret.room,'attacker',{payload,signature});},guestSecret);
+ await wait(500);assert.equal(await guest.locator('[data-commentary-mode="host"]').getAttribute('data-on-air'),'false','Guest relay key must not authorize admission');
+ await guestPanel.locator('.commentary-admit').click();assert.equal(published.slots[2].onAir,true);
+ await viewer.waitForFunction(()=>document.querySelectorAll('audio').length===3,{},{timeout:45000});await wait(1800);assert(await level(viewer,2)>.01,'Admitted guest reaches audience');
+ const staleManifest=JSON.parse(JSON.stringify(published));
+ await guestPanel.locator('.commentary-admit').click();assert.equal(published.slots[2].onAir,false);const offManifest=published;published=staleManifest;await wait(4000);assert(await level(viewer,2)<.005,'A stale database response cannot undo signed take-out');assert(await level(p1,2)>.01,'Backstage remains audible to commentator');published=offManifest;
+ await guestPanel.locator('.commentary-admit').click();await viewer.waitForFunction(()=>document.querySelectorAll('audio').length===3,{},{timeout:45000});
+ await guestPanel.locator('.commentary-stop').click();await guest.waitForFunction(()=>fakeMicCount===0,{},{timeout:15000});
+ assert.equal(await p1.evaluate(()=>fakeMicCount),1);assert.equal(await p2.evaluate(()=>fakeMicCount),1);assert.equal(published.slots[2],null);
  await director.locator('[data-commentary-slot="0"] .commentary-stop').click();
  await p1.waitForFunction(()=>fakeMicCount===0,{},{timeout:15000});assert.equal(await p2.evaluate(()=>fakeMicCount),1,'Stopping slot 1 must not stop slot 2');
  assert.equal(published.slots[0],null);assert(published.slots[1]);
@@ -89,6 +114,5 @@ try{
  assert(turnChecks>=2,'TURN requests remain signed by the existing room authority');
  await director.setViewportSize({width:390,height:900});assert(await director.evaluate(()=>document.documentElement.scrollWidth<=390),'Mobile controls must fit');
  await director.screenshot({path:__dirname+'/commentary-duo-test.png',fullPage:true});
- console.log('PASS: two signed private links, real two-track WebRTC, both listener voices, mix-minus monitoring, independent mute/volume, slot-only stop, end-all revocation, no microphone on load; synthetic tones only, no production writes.');
+ console.log('PASS: two commentators plus interview guest; real three-voice WebRTC; private authenticated waiting room, unsigned backstage rejected, admission/removal, full mix-minus monitoring, independent mute/volume, isolated stop/end-all; synthetic tones only, no production writes.');
 }finally{await browser.close();}})().catch(e=>{console.error(e.message);process.exitCode=1;});
-

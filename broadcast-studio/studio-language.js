@@ -3,6 +3,16 @@
  'use strict';
  const lang=(document.documentElement.lang||'sv').slice(0,2).toLowerCase(),index={en:0,fi:1,de:2}[lang];
  const rows={
+ 'INTERVJUGÄST':['INTERVIEW GUEST','HAASTATTELUVIERAS','INTERVIEWGAST'],
+ 'DIN MIKROFON · INTERVJUGÄST':['YOUR MICROPHONE · INTERVIEW GUEST','MIKROFONISI · HAASTATTELUVIERAS','DEIN MIKROFON · INTERVIEWGAST'],
+ 'MEDHÖRNING · INTERVJUGÄST':['MONITOR · INTERVIEW GUEST','KUUNTELU · HAASTATTELUVIERAS','MITHÖREN · INTERVIEWGAST'],
+ 'Skapa intervjulänk':['Create interview link','Luo haastattelulinkki','Interviewlink erstellen'],
+ 'Ta in i sändning':['Take guest on air','Ota vieras lähetykseen','Gast live schalten'],
+ 'Ta ur sändning':['Take guest off air','Poista vieras lähetyksestä','Gast aus Sendung nehmen'],
+ 'Privat intervjulänk':['Private interview link','Yksityinen haastattelulinkki','Privater Interviewlink'],
+ 'Lyssna på kommentering och intervju':['Listen to commentary and interview','Kuuntele selostusta ja haastattelua','Kommentar und Interview anhören'],
+ 'Stäng av rösterna':['Turn off voices','Mykistä puhe','Stimmen ausschalten'],
+ 'Intervjugästen är inte i sändning':['Interview guest is off air','Haastatteluvieras ei ole lähetyksessä','Interviewgast ist nicht auf Sendung'],
  'FÖRHANDSVISNING · FÖRBEREDD MATCH':['PREVIEW · PREPARED MATCH','ESIKATSELU · VALMISTELTU OTTELU','VORSCHAU · VORBEREITETES SPIEL'],
  'SÄNDNING · MATCHVAL':['BROADCAST · MATCH SELECTION','LÄHETYS · OTTELUVALINTA','SENDUNG · SPIELAUSWAHL'],
  'Visa förberedd match i sändning':['Take prepared match live','Näytä valmisteltu ottelu lähetyksessä','Vorbereitetes Spiel senden'],
@@ -103,4 +113,3 @@
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
-
