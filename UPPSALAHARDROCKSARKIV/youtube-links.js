@@ -481,7 +481,8 @@ window.ARCHIVE_YOUTUBE = [
     "views": 294,
     "channel": "Sun & Moon Records",
     "kind": "album",
-    "checked": "2026-10-23"
+    "checked": "2026-10-23",
+    "multipleArtists": true
   },
   {
     "band": "aparat",
@@ -511,7 +512,8 @@ window.ARCHIVE_YOUTUBE = [
     "views": 2300,
     "channel": "Narcoleptic Fox",
     "kind": "album",
-    "checked": "2026-10-23"
+    "checked": "2026-10-23",
+    "multipleArtists": true
   },
   {
     "band": "abuse",
@@ -541,7 +543,8 @@ window.ARCHIVE_YOUTUBE = [
     "views": 1700,
     "channel": "Narcoleptic Fox",
     "kind": "album",
-    "checked": "2026-10-23"
+    "checked": "2026-10-23",
+    "multipleArtists": true
   },
   {
     "band": "azotic-reign",
@@ -619,7 +622,8 @@ window.ARCHIVE_YOUTUBE = [
     "views": 4400,
     "channel": "RICKVARUKERSPUNX",
     "kind": "album",
-    "checked": "2026-10-23"
+    "checked": "2026-10-23",
+    "multipleArtists": true
   },
   {
     "band": "aparat",
@@ -629,7 +633,8 @@ window.ARCHIVE_YOUTUBE = [
     "views": 4400,
     "channel": "RICKVARUKERSPUNX",
     "kind": "album",
-    "checked": "2026-10-23"
+    "checked": "2026-10-23",
+    "multipleArtists": true
   },
   {
     "band": "always-war",
