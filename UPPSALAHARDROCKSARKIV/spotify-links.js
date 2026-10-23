@@ -58,6 +58,7 @@
 // 2026-10-23 T: original The 21st Impact Second to None 10-track exactly matches Spotify 2004 (3 physical archive records), By All Means Necessary 13-track core is first 13 of Spotify 2005 expanded 23-track release (two archive records), bonus tracks are 2004 LP. Full archive tracklists checked in Supabase.
 // 2026-10-23 U album audit: four verified Uppsala artists (Unangel, Undergång, Unpure, Usurpress). Distinguish eight/four/six/song count, original EP/vinyl and later Spotify catalog dates. Undergång Mother of Armageddon 23-separate-track Spotify program matches original LP, despite 2011 archived 17 combined segments and alternate 2012 21-track Spotify grouping. Usurpress 2016 Ordained 13-track special archive format has a bonus absent from 12-track Spotify album. No unverified same-name band/compilation IDs.
 // V 2026-10-23: Seven verified archive-release to Spotify-album mappings for Vargavinter (1996 Uppsala), Violent Silence (three Uppsala progressive albums 2005-2020) and Vorum (2009-15 related Åland band). Spotify artist IDs verified. 2003 Violent Silence self-titled album absent from band's Spotify album catalog, preserved as documented research gap. Vargavinter original 'Frostfödd' is misspelled as 'Fröstfodd' on Spotify; same original 8 tracks verified. Old 2010 Vorum Profane Limbs of Ruinous Death has no identical independently verified digital issue; do not substitute 2009 Grim Death Awaits without evidence.
+// 2026-10-23 W audit: 7 W-bands, 37 archive releases. 2 genuine Uppsala Spotify artists Watain and Wheel In The Sky; 18 verified release-to-Spotify matches. Original/demo/comps/Whimzy/Warp​ath lack independently verified original Spotify album IDs and are NOT guess-linked. Some Watain vinyl B-sides differ from digital issue: explicit notes preserve partial recording vs complete unique pressing. Never substitute an unrelated band named Warpath or Wuthering Heights for Uppsala original.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -123,7 +124,9 @@ window.ARCHIVE_SPOTIFY = {
     "usurpress": "5yko5EHt0FxUSLyg7uU8VZ",
     "vargavinter": "7uM7rpv5QGt89KOFFy3ZwV",
     "violent-silence": "0AliN4fCq3GpTyrFaRBmHV",
-    "vorum": "026jwQJuyj7n3il1xDYF42"
+    "vorum": "026jwQJuyj7n3il1xDYF42",
+    "watain": "4OpHsZuhfJMU9PZ3zkyUQX",
+    "wheel-in-the-sky": "1z42l7pbAEJ5SstTg4JRyg"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -1205,6 +1208,78 @@ window.ARCHIVE_SPOTIFY = {
     "31e123a5-969c-435d-80f5-3d854115772a": {
       "id": "6EtqPXcEUVGYP1rQ7x3Mlf",
       "note": "Åland/Mariehamn related band Vorum 2015 Current Mouth five-track EP, exact first Angel's Death, last Hungry Wounds from original Bandcamp and Spotify."
+    },
+    "28639908-36c7-46bb-9c3f-76312d8b7bbf": {
+      "id": "5HudrMtSJIO1gQdYJvazac",
+      "note": "Watain 2000 original Rabid Death's Curse studio album eight main original tracks plus track 9 bonus The Essence of Black Purity on Spotify; catalog labels 2000, bonus does NOT imply original CD had it."
+    },
+    "f6ef52c8-26b7-4a92-8bbe-05a08dd6be70": {
+      "id": "7mwSPxDaWlbP5lXTHcsIQB",
+      "note": "Watain 2003 original Casus Luciferi 8-song album studio sequence; Spotify catalog displays 2008 distribution, avoid 2008 nine-track remastered bonus variant."
+    },
+    "ac87c59b-f5a1-4731-943e-e1535befa63f": {
+      "id": "2z6f3UO5OVgP99A4DWByO3",
+      "note": "Watain 2007 original 11-track Sworn to the Dark studio album; exact Spotify song order confirmed."
+    },
+    "f63a496b-4d3d-493d-bec3-ea81258308bf": {
+      "id": "2pQr4wN4SN9Ax3gdXDhrRz",
+      "note": "Watain 2010 original Lawless Darkness 10-song studio track program, confirmed against Spotify. Distinguish other 11-track bonus edition 6aHWSWDHC3QrG3H6O7VGNt."
+    },
+    "afac031f-bfe8-4689-bd08-748d76acdbdf": {
+      "id": "6cDZWsEU4KhNI9ZYZKg0eZ",
+      "note": "Watain 2010 Reaping Death digital three-song EP contains title track, Chains of Death and The Return of Darkness & Evil; archived picture-disc and CD 2-track pressings DIFFER in their respective B-sides. Spotify EP shares original recordings but is NOT claimed to be identical original two-track physical issue."
+    },
+    "4d67f21c-eef4-44bc-83f0-e09867fd805d": {
+      "id": "6cDZWsEU4KhNI9ZYZKg0eZ",
+      "note": "Watain 2010 Reaping Death digital three-song EP contains title track, Chains of Death and The Return of Darkness & Evil; archived picture-disc and CD 2-track pressings DIFFER in their respective B-sides. Spotify EP shares original recordings but is NOT claimed to be identical original two-track physical issue."
+    },
+    "31a7aeda-db60-4df7-8a0d-355e28845226": {
+      "id": "42RN14SVoQJ06GM1YmOJZ2",
+      "note": "Watain All That May Bleed 2013 two-song single matches original 7-inch (title song / Play with the Devil [Taiwaz cover]); title + B-side Spotify embed verified."
+    },
+    "f3be6e53-31db-4119-8d49-8d05bf95efb4": {
+      "id": "1FCdcUH6lumfoNYHTX5nz1",
+      "note": "Watain 2013 original The Wild Hunt 11-song album matched to Spotify original studio tracklist, including They Rode On track six."
+    },
+    "f464063f-d360-45eb-a9f4-c4f28d46646e": {
+      "id": "3gViwEIoVGN8WWmKxvxhI7",
+      "note": "Watain original 2017 Nuclear Alchemy 2-track vinyl single, matches title track plus Beyond [Tormentor cover] in same Spotify 2017 digital issue."
+    },
+    "aefe231f-ec7e-43e3-98d7-3a8ac83647a8": {
+      "id": "5zIMy5QyI1PbvQWBEmdUuV",
+      "note": "Watain 2018 original TRIDENT WOLF ECLIPSE full studio nine-track album, confirmed exact Spotify listing."
+    },
+    "0ec1a636-8681-4179-9e13-586e986d94dc": {
+      "id": "7qmZz6yfRiXAoW4lgOPi4W",
+      "note": "Watain 2022 The Agony & Ecstasy of Watain original 10-song album; original studio mix Spotify and label Nuclear Blast."
+    },
+    "14f60f22-c20b-4732-905f-cab104054228": {
+      "id": "7iPrKhg1qGiwyAl47UfGfi",
+      "note": "Watain The Howling 2022 single: Spotify single only title track (one song); digital archive single exact, original 7-inch vinyl includes second song I Arose [Profanatica cover] absent on Spotify one-song issue. Linked as SONG / PARTIAL recording, NOT claimed full vinyl master."
+    },
+    "b62125ef-b48f-4cf6-80e4-d02ea1d07c28": {
+      "id": "7iPrKhg1qGiwyAl47UfGfi",
+      "note": "Watain The Howling 2022 single: Spotify single only title track (one song); digital archive single exact, original 7-inch vinyl includes second song I Arose [Profanatica cover] absent on Spotify one-song issue. Linked as SONG / PARTIAL recording, NOT claimed full vinyl master."
+    },
+    "a9276a14-9bb4-466f-92fb-8e31e24dcbd4": {
+      "id": "2WGwuYrFNiQD17C1wkCsXX",
+      "note": "Watain We Remain 2022 one-track original digital single exactly matched Spotify one-song digital issue, distinguish 2022 three-song promotional playlist EP."
+    },
+    "be9f6619-db25-430d-b713-eb97c72a32cc": {
+      "id": "5IC1bAU58XZrx4G1Pi7vKR",
+      "note": "Watain 2023 original live release Die in Fire, Live in Hell, live Stockholm 2022 12 tracks (album released 2023); original live show not 2022 studio album."
+    },
+    "c1778289-b2f8-4bef-a9b4-97ab45f1b6b5": {
+      "id": "1BqvyStEp4TOwnXKKof9nA",
+      "note": "Uppsala rock Wheel In The Sky original 2015 Heading for the Night 8-song album. Exact original label Bandcamp / Spotify tracklist and publication year."
+    },
+    "dda85348-b748-433c-be82-be60ddb70bfc": {
+      "id": "3vI0cNRQag9Fsbr7wYyG7x",
+      "note": "Uppsala Wheel In The Sky 2018 Beyond the Pale studio full nine-song album, matching band Bandcamp and Spotify 2018 original."
+    },
+    "b6f7dda3-8f51-4404-8170-4337e22cb4c6": {
+      "id": "1a83Vb3jL2P2TnVdEGwpEy",
+      "note": "Uppsala Wheel In The Sky original 2020 one-song Chariot Of Fire! Spotify single exact 2:40 minutes; confirmed original band Bandcamp released Dec 18 2020."
     }
   },
   "releaseTitles": {
