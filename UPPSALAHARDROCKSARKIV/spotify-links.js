@@ -33,7 +33,8 @@
 // No Future and NojsBojs Uppsala named entities do not have securely identified Spotify identities in searched results. No guessed matches.
 // Noctum Final Sacrifice, The Fiddler and Nazghor 2025 duplicate Esoteric Bloodline await independently confirmed exact editions.
 // O checked 2026-10-23: Obnoxious Youth, Offerblod and Ordos release-specific Spotify IDs, duplicate physical editions documented.
-// Obnoxious Youth 2005/2009/2010 demos, Ordos 2016 single and 2025 Fire: no confirmed specific Spotify release IDs; do not guess.
+// Obnoxious Youth 2005/2009/2010 demos and Ordos 2016 standalone single: no verified edition-specific Spotify release IDs; do not map them to later recordings.
+// Ordos Fire 2025 *is* linked by verified official DistroKid HyperFollow URL; don't treat it as missing.
 // Ordos Four Altars of Sin is a FOUR-ARTIST split, Ordos appears only on Inferno. Archive release note warns accordingly.
 // Ordos Fire 2025 linked via artist-published DistroKid HyperFollow URL; direct Spotify album ID verified.
 window.ARCHIVE_SPOTIFY = {
