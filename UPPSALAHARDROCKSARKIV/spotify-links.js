@@ -1,3 +1,5 @@
+// Z checked 2026-10-24: Zin 'N' Zin (Uppsala, Swedish Power 1991 track 6 'You Make Me Hot') and Zionide (Uppsala, Promotape 1994/Newsflash 1995).
+// No original Spotify album, song or artist identity confirmed for either. Other Zin, Zion, Zionide, and 'Swedish Power Metal' results are unrelated; do NOT invent links to shared VA compilation or 1995 CD.
 // Y checked 2026-10-24: Uppsala hardcore/metalcore Yersinia added: six band-authorised 2008–2015 original releases, 34 original tracks, distinct from Polish/German homonyms.
 // Original dates from https://yersinia.bandcamp.com/ . Spotify artist 203FoNMgybnorIBb8KAJoW. Streaming category 'single' is not original EP format; 2010 album also distributed in 2015 on some services.
 // X checked 2026-10-24: Xtortex (Uppsala 1989, Twisted 1990 original four-track cassette).
