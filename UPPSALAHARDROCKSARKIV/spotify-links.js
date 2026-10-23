@@ -50,6 +50,10 @@
 // Do not substitute 1992-94 Sarcasm demo recordings with the 31-track 2015 anthology Burial Dimensions or with the 8-track 2015 reissue of the unpublished 1990s album; physical original edition differences noted.
 // 2025 Sanctrum Awaken in Embers, 2012 SHORTONESHORT Pestilence, 2014 Like an Accident, 2020 Sunaglare singles except Baby Said, 2004 Snuffed It's Dirty Chords, Spellbound 1984 Swedish Metal split and 1997/2002 archival compilations lack exact safely confirmed standalone Spotify IDs in this pass. No guessing for other S-band homonyms.
 // Saturniids correction 2026-10-23: exact 2017 four-song original Uppsala doom EP on Spotify verified via 2021 The Obelisk Endtime announcement embed (same four tracks), not Boston SATURNIIDS Spotify profile. Album-only mapping; Spotify artist ID not independently verified.
+// T 2026-10-23: Verified exact artist identities and audio title/track lists for Taiwaz, The 21st Impact, Swedish punk The Ghoulies, The Good Honey Society, The Mist of Avalon, The Unkinds, and Third Storm. Original discs and later digital Spotify catalog years are sometimes different; notes preserve this distinction.
+// Be alert that US Denver The Ghoulies share name and some aggregated music catalogs crosslink; Spotify Communication (2002) and Reclaim the World (2004) share exact original Swedish punk tracklists verified through Sweden band's Bandcamp.
+// The Next Autumn Soundtrack 2003 split with Jeniferever contains two Jeniferever tracks followed by three The Next Autumn Soundtrack recordings; Spotify mapping requires original compilation's own album ID, not Jeniferever artist's entire catalog.
+// Treebeard Uppsala already has dozens of band/album-specific original YouTube uploads; keep these rather than adding duplicate videos; do not link unrelated Australian Treebeard Spotify artists.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -100,7 +104,14 @@ window.ARCHIVE_SPOTIFY = {
     "sportlov": "21XfJHe0ObhUxOqeWhEJYi",
     "stallion-four": "1NMNthl2xRjbbrEsG41enP",
     "statues": "07q3BsqZbVsLcbxqtXzTDH",
-    "sunaglare": "5R9DOuwHzSCXW2kmaJkD6o"
+    "sunaglare": "5R9DOuwHzSCXW2kmaJkD6o",
+    "taiwaz": "3BmGimRZkQRhluCca7UPzU",
+    "the-21st-impact": "0iOQYJuiTQfydLeiEEqkwd",
+    "the-ghoulies": "2g5lDW2Cez7i8sHPMZQTGL",
+    "the-good-honey-society": "4kwRdx0fLZR4VU1fYcngp6",
+    "the-mist-of-avalon": "2sBoNA6K6BQKwRI92eLC8A",
+    "the-unkinds": "3TIZ6zJ2NFE2WDuclxFNk0",
+    "third-storm": "1y8lxKjcSgelcKxUgi1y3X"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -930,6 +941,62 @@ window.ARCHIVE_SPOTIFY = {
     "83e39e2c-baa6-4390-a089-bc8c2a2ef10a": {
       "id": "0GpBaUWeUeTpuAMQOyklG7",
       "note": "Original 2017 Uppsala Saturniids four-track doom/sludge EP (Destroyer of Worlds, I.C.B.M., They Live, Into Oblivion); the band changed name to Endtime in 2019. Spotify URL verified through a contemporaneous 2021 The Obelisk embedded original EP. NOT unrelated Boston SATURNIIDS indie/alternative band or 2026 handpan single."
+    },
+    "0226a220-8033-402a-a4a4-ef0be9b1b275": {
+      "id": "4uPJvxc21HeX7mna2QjK1M",
+      "note": "Taiwaz Uppsala heavy metal 2015 I Am All original eight-track LP. Spotify digital catalog displays 2019 but exact eight tracks include four 2013 new recordings and four 1988/89 demos; this is a shared album recording, not a physical 2015 streaming pressing."
+    },
+    "b7616242-ded2-453a-916c-1a1c02baaa2c": {
+      "id": "4uPJvxc21HeX7mna2QjK1M",
+      "note": "Archive lists Taiwaz I Am All 2014 edition; Spotify digital edition catalogs same eight-track 2015 original LP program in 2019. This maps audio only, not distinct original 2014 pressing."
+    },
+    "d24d8186-13e9-4975-8b14-bb5d674b291b": {
+      "id": "7yTDpHEWbAfBigFMXmqfoK",
+      "note": "Spotify By All Means Necessary 23-track combined catalog reissues material from The 21st Impact; linked only to composite archive 2008 By All Means Necessary – Second To None, not to separate individual albums without their own verified IDs."
+    },
+    "dd8ca975-b460-4663-87fb-1def2cb47157": {
+      "id": "202nfx6JuQwmxgF34BEFqH",
+      "note": "Original Swedish 2002 punk Ghoulies 14-track Communication album, not later American pop-punk Ghoulies. Original title/tracklist checked."
+    },
+    "898647f7-c55d-43a1-bcd6-7ed0cbc33ac3": {
+      "id": "56SvZ43NpiyQFvkOcHtDPE",
+      "note": "2004 16-song Reclaim the World original album by Sweden's punk Ghoulies, band Bandcamp confirms recordings. Apple Music metadata may conflate Denver Ghoulies; rely on exact track order."
+    },
+    "a4e6e697-8069-4c02-80a0-804c8d04015e": {
+      "id": "45bE4Gbqyxk2n0gINCVpV5",
+      "note": "2007 original The Good Honey Society four-song EP Finally Something Burned Out Right, original Uppsala emo/hardcore indie rock act."
+    },
+    "319b8f73-5c82-4a7a-94e2-c055bf0515d6": {
+      "id": "1FLyREzBAoN9x8WmEHtgAE",
+      "note": "2008 original When Whenever Is a Dream album program, re-listed by Spotify in 2017 as digital 9-track release. Album reviewed 2008 in Swedish Groove/Joyzine; not claimed to be physically identical 2017 issue."
+    },
+    "3f8d89b3-1aef-45e3-87ba-b628a05a44e0": {
+      "id": "1FLyREzBAoN9x8WmEHtgAE",
+      "note": "2017 digital edition of 2008 When Whenever Is a Dream album with nine tracks; original and reissue share recorded program."
+    },
+    "82089a77-b72d-4160-bd3f-d9d3667c39a1": {
+      "id": "25djIMDbe1mBP3y0DhlvrZ",
+      "note": "The Mist of Avalon (Uppsala gothic metal) 1998 nine-track Mist of Avalon original album; exact band recording verified via full Spotify embedded tracklist."
+    },
+    "1bf8dfd9-f833-48a9-9d60-016219e836e4": {
+      "id": "36meFM8rhWJC8tjACvp72E",
+      "note": "The Mist of Avalon Here and After full 2000 gothic album, twelve-song Spotify list verified."
+    },
+    "a259ac5e-3be3-4505-8fbf-0b36f146edc1": {
+      "id": "7lBzTxZ54ZT5A34ACF8h59",
+      "note": "Tears six-track EP, archive year 2001 whereas Spotify catalog says 2000; original band title/tracklist identified, no claim that year/platform release match exactly."
+    },
+    "e1e74467-4b09-4b59-97e8-404e4b33ad9b": {
+      "id": "1ukDLTnmDtLU2j9nbvC7lN",
+      "note": "Original Uppsala The Mist of Avalon 2010 Dinya album, twelve tracks. Spotify re-lists as 2011 while original Echozone CD and Apple Music give 2010."
+    },
+    "9f202b2f-33af-44c6-80c0-d9d3b3938572": {
+      "id": "6U5LyjUpUDdD2Bi4NS7s4p",
+      "note": "2023 ten-track The Unkinds Juvenile Battlecries The Lost 97 Session + More archive edition matched original Spotify album, not a 1997 original album."
+    },
+    "b99d7606-14ca-4380-b05c-1bc131ca228f": {
+      "id": "42z9cl8yDOTgpMWnLyN7A8",
+      "note": "2018 original eight-track The Grand Manifestation album by Uppsala black/death metal Third Storm, verified via Dark Descent Records bandcamp original tracklist."
     }
   },
   "releaseTitles": {
