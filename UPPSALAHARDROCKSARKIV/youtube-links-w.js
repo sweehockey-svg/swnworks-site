@@ -443,5 +443,17 @@ window.ARCHIVE_YOUTUBE.push(...[
     "kind": "track",
     "checked": "2026-10-23",
     "sourceNote": "2020 original Two Hearts Breaking one-song digital single by Uppsala Wheel In The Sky, licensed Amuseio, released 14 February 2020."
+  },
+  // Extra verified W-band recordings, 2026-10-24
+  {
+    "band": "wheel-in-the-sky",
+    "release": "c1778289-b2f8-4bef-a9b4-97ab45f1b6b5",
+    "title": "Rainbow of Evil",
+    "id": "0JMaxERdLDc",
+    "views": null,
+    "channel": "The Sign Records",
+    "kind": "track",
+    "checked": "2026-10-24",
+    "sourceNote": "Official The Sign Records promotional video of Rainbow of Evil from Uppsala Wheel In The Sky original Heading For The Night 2015 album. Alternate verified upload already linked from same album."
   }
 ]);
