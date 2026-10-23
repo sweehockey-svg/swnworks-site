@@ -41,6 +41,10 @@
 // No verified streaming identities for Panama (1991 Uppsala), Pessimistjolle, Phunk (2004 Shedding Skin), Planescape (2005 7 Turns), Poets on Payday (related Stockholm), Pure Pain (1992 Sculptures). Do not confuse unrelated same-name artists or the Planescape: Torment game.
 // Q checked 2026-10-23: Quagmire from Uppsala is the same band as QGMR (Viktor Ahnfelt / Mathias Rask-Andersen). Spotify artist is credited QGMR. The Senator (2000) credits both Quagmire and QGMR as performers, making this cross-identity safe.
 // Spotify albums matched to Supabase release UUIDs: The Senator 2000, Quiet Is Not Loud 2003, No Language 2006. Do not map the 2006 No Language EP title track We Know We Don't Know to the full 2008 We Know We Don't Know album. No verified specific 2008 Spotify album ID found.
+// R checked 2026-10-23: Uppsala Reveal! Spotify artist displays as Reveal (without exclamation mark); unique identity verified by Flystrips, Scissorgod, Doppelherz and original Nocturne of Eyes and Teeth track lists.
+// 2011 LP / 2012 CD share 2011 recording, 2021 Doppelherz CD/vinyl/digital share one 10-track streaming album. The physical issues have no independently verified distinct Spotify edition IDs.
+// No confident original Spotify artist or album ID for 1995/1997 Swedish melodic AOR R.A.W. (Lindmark brothers), Råskit/1996 various-artists crust compilation, 1982/84 Uppsala Reptile, 1988 Rue Morgue Pavor Nocturnus or external Royal Big Band. Do not substitute other artists of the same names.
+// Reveal! 2016 Cadmium / No Your Product 7-inch, 2018 Opaque / What Pigs Get 7-inch and 2021 Some Marionettes vinyl single are NOT verified as separate Spotify releases; album track versions must not be used as singles by guess.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -78,7 +82,8 @@ window.ARCHIVE_SPOTIFY = {
     "on-trial": "4nvfNTnpTR4q1Zjs6WkuLz",
     "one-hour-hell": "4imhqIhUhfk21DK1EgRBjj",
     "poeter-blir-dom": "04BjAh3LlAXmBrmR43kQuj",
-    "quagmire": "1P8VH7cchmm1tMXlA7nAZX"
+    "quagmire": "1P8VH7cchmm1tMXlA7nAZX",
+    "reveal": "2dkiROdMEKXaAk4eXHsS6T"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -712,6 +717,34 @@ window.ARCHIVE_SPOTIFY = {
     "740c592f-8612-46ab-8e9c-f8b992d998c8": {
       "id": "4KSjsl5dOnioBjGGikLcLt",
       "note": "Original 2006 three-song No Language EP on Nomethod. Track We Know We Don't Know is an early EP recording, not proof that 2008 album is available on Spotify."
+    },
+    "74f9d6d8-d094-41b5-b67e-271fc8ca6dbe": {
+      "id": "6Scn8C9CdqACVEAaOPKwUS",
+      "note": "Original 2011 7-track Nocturne of Eyes and Teeth recording; original vinyl. Spotify credits title '(Original)'."
+    },
+    "5eb1b28a-6a9d-4edd-93c6-0ad8b2fdbf91": {
+      "id": "6Scn8C9CdqACVEAaOPKwUS",
+      "note": "2012 CD reissue of 2011 7-track Nocturne of Eyes and Teeth recording; same Spotify audio/album ID, not a unique CD Spotify edition."
+    },
+    "bb43d934-b0ea-43e9-a228-e069ff810a9a": {
+      "id": "5v5O2A2UuW2uZyxycKpxpa",
+      "note": "Original 2016 8-track Flystrips album; identical track order/credits verified with artist Bandcamp and Spotify embed."
+    },
+    "3952936d-6dd4-4fe6-94e6-b7fc726bc167": {
+      "id": "0nv9X4V4o5et55HozfYKk7",
+      "note": "Original 2019 9-track Scissorgod album; all tracks verified on Spotify."
+    },
+    "245f4efc-ff0c-46fc-adb7-17cfc7ab84e4": {
+      "id": "0Dt9yibJgJN5QPRL2Vk47g",
+      "note": "2021 Doppelherz CD edition; Spotify is the common 10-track digital album, not CD-specific listing."
+    },
+    "547aec03-ace3-4a72-afcd-481a2761b097": {
+      "id": "0Dt9yibJgJN5QPRL2Vk47g",
+      "note": "2021 Doppelherz 12-inch vinyl edition; Spotify is the common 10-track digital album, not vinyl-specific listing."
+    },
+    "3abb38e2-e82b-46ae-9ffb-c023964a501c": {
+      "id": "0Dt9yibJgJN5QPRL2Vk47g",
+      "note": "Original 2021 Doppelherz digital album, 10 tracks. The 2021 standalone single Some Marionettes, Some Kites (A Few Knives) is not the full album."
     }
   },
   "releaseTitles": {
