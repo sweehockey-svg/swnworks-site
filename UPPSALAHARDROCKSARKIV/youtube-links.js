@@ -11365,5 +11365,28 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "album",
   "checked": "2026-10-23",
   "sourceNote": "Full original 2017 Uppsala Saturniids four-track EP (Destroyer of Worlds, I.C.B.M., They Live, Into Oblivion), same order and durations as 2017 Spotify, not Boston band. Includes archived band Bandcamp and Facebook sources; this is predecessor to Endtime."
-}
+},
+  // Extra verified S-band recordings, 2026-10-24
+  {
+    "band": "snuffed-by-the-yakuza",
+    "release": "64190483-60ce-4ba0-a183-c79032bcfdcf",
+    "title": "Gang War!",
+    "id": "DOA1c8y_9L4",
+    "views": null,
+    "channel": "Hybris Rec",
+    "kind": "track",
+    "checked": "2026-10-24",
+    "sourceNote": "Official Hybris Rec YouTube recording of exact Gang War! song from original 2018 six-track Gang War! EP."
+  },
+  {
+    "band": "snuffed-by-the-yakuza",
+    "release": "",
+    "title": "Gang War (live at Kulturhuset Femman, Uppsala, 14 juni 2019)",
+    "id": "LUrsonrlfiw",
+    "views": null,
+    "channel": "marty1feldman",
+    "kind": "live",
+    "checked": "2026-10-24",
+    "sourceNote": "Live film recorded Kulturhuset Femman, Uppsala, on 2019-06-14. Distinct from the original 2018 studio recording; do not conflate upload with album master."
+  }
 ];
