@@ -8,6 +8,10 @@
 // External On Trial is the Danish psychedelic rock group, not the UK punk band; external One Hour Hell is the Swedish Södertälje group.
 // P checked 2026-10-23: ten tracks from Poeter Blir Dom... original collective recordings; uploader labels 2005, issuing label documents 2004 original vinyl, Spotify album 2020 is separately dated.
 // Other P bands: Panama, Pessimistjolle, Phunk, Planescape, Poets on Payday, Pure Pain – no safe YouTube recording matched to exact identities. Avoid Panama (country), Planescape: Torment (game), and same-name artists.
+// R checked 2026-10-23: verified 1995/1997 Swedish melodic AOR R.A.W. (Lindmark brothers), 2011–2021 Uppsala avant-garde black metal Reveal! (Spotify shows Reveal), and the 1996 Uppsala Crust Compilation including Råskit. Video view numbers are approximate indexed search observations, not live counts.
+// 2004 R.A.W. First is a reissue; 1997 Now We're Cookin' has enhanced-CD and plain-CD listings; 2011/2012 Reveal Nocturne LP/CD share audio; 2021 Doppelherz CD/LP/digital share video links. No false unique audio editions.
+// 1996 Råskit multi-artist compilation full upload is linked ONLY to compilation release (multipleArtists true), never used as an individual Råskit song preview; only its last song Maze Of Pain belongs to Råskit.
+// 1982/84 Reptile from Uppsala, 1988 Rue Morgue Pavor Nocturnus and Stockholm Royal Big Band had no independently verified unique YouTube recording IDs; avoid any unrelated namesakes.
 window.ARCHIVE_YOUTUBE = [
 {
   "band": "acolytes-of-moros",
@@ -10421,5 +10425,358 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "track",
   "checked": "2026-10-23",
   "sourceNote": "2011 archived uploader of Poeter Blir Dom original self-titled Uppsala collective album. Label verifies original physical edition 2004; uploader sometimes labels it 2005. Do not treat it as a newly recorded 2020 master."
+},
+{
+  "band": "r-a-w",
+  "release": "6c7be6cb-3333-4ccb-9c77-dd80e84fa2c1",
+  "title": "Don't Tell Me Lies",
+  "id": "06y0vXW57hQ",
+  "views": 6100,
+  "channel": "Erik",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original melodic hard rock band R.A.W. (Bo/Anders Lindmark) Uppsala, from First original 1995 album. Source: Swedish Hard And Heavy Encyclopedia album tracklist. Verified uploader identifies Bo and Anders Lindmark and 1995 album. ~6.1k views observed in search."
+},
+{
+  "band": "r-a-w",
+  "release": "6c7be6cb-3333-4ccb-9c77-dd80e84fa2c1",
+  "title": "Ran Out Of Love",
+  "id": "OSxdbdqihls",
+  "views": 3800,
+  "channel": "motleycrue24",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original melodic hard rock band R.A.W. (Bo/Anders Lindmark) Uppsala, from First original 1995 album. Source: Swedish Hard And Heavy Encyclopedia album tracklist. Verified 1995 original track. ~3.8k observed."
+},
+{
+  "band": "r-a-w",
+  "release": "6c7be6cb-3333-4ccb-9c77-dd80e84fa2c1",
+  "title": "Too Hot To Handle",
+  "id": "KuTCaYVaGsg",
+  "views": 1700,
+  "channel": "motleycrue24",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original melodic hard rock band R.A.W. (Bo/Anders Lindmark) Uppsala, from First original 1995 album. Source: Swedish Hard And Heavy Encyclopedia album tracklist. Original 1995 album track. ~1.7k observed."
+},
+{
+  "band": "r-a-w",
+  "release": "6c7be6cb-3333-4ccb-9c77-dd80e84fa2c1",
+  "title": "Touch Of Love",
+  "id": "uZp-ro832fk",
+  "views": 652,
+  "channel": "BeRockRadio",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original melodic hard rock band R.A.W. (Bo/Anders Lindmark) Uppsala, from First original 1995 album. Source: Swedish Hard And Heavy Encyclopedia album tracklist. Uploader identifies guest singer Zia Lindberg and 1995 recording; ~652 views observed."
+},
+{
+  "band": "r-a-w",
+  "release": "57544e30-c7ea-4adc-a6f6-dee81f39c12e",
+  "title": "Don't Tell Me Lies",
+  "id": "06y0vXW57hQ",
+  "views": 6100,
+  "channel": "Erik",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original melodic hard rock band R.A.W. (Bo/Anders Lindmark) Uppsala, from First 2004 CD reissue of the same 1995 album recordings, not 2004 re-recordings. Source: Swedish Hard And Heavy Encyclopedia album tracklist. Verified uploader identifies Bo and Anders Lindmark and 1995 album. ~6.1k views observed in search."
+},
+{
+  "band": "r-a-w",
+  "release": "57544e30-c7ea-4adc-a6f6-dee81f39c12e",
+  "title": "Ran Out Of Love",
+  "id": "OSxdbdqihls",
+  "views": 3800,
+  "channel": "motleycrue24",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original melodic hard rock band R.A.W. (Bo/Anders Lindmark) Uppsala, from First 2004 CD reissue of the same 1995 album recordings, not 2004 re-recordings. Source: Swedish Hard And Heavy Encyclopedia album tracklist. Verified 1995 original track. ~3.8k observed."
+},
+{
+  "band": "r-a-w",
+  "release": "57544e30-c7ea-4adc-a6f6-dee81f39c12e",
+  "title": "Too Hot To Handle",
+  "id": "KuTCaYVaGsg",
+  "views": 1700,
+  "channel": "motleycrue24",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original melodic hard rock band R.A.W. (Bo/Anders Lindmark) Uppsala, from First 2004 CD reissue of the same 1995 album recordings, not 2004 re-recordings. Source: Swedish Hard And Heavy Encyclopedia album tracklist. Original 1995 album track. ~1.7k observed."
+},
+{
+  "band": "r-a-w",
+  "release": "57544e30-c7ea-4adc-a6f6-dee81f39c12e",
+  "title": "Touch Of Love",
+  "id": "uZp-ro832fk",
+  "views": 652,
+  "channel": "BeRockRadio",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original melodic hard rock band R.A.W. (Bo/Anders Lindmark) Uppsala, from First 2004 CD reissue of the same 1995 album recordings, not 2004 re-recordings. Source: Swedish Hard And Heavy Encyclopedia album tracklist. Uploader identifies guest singer Zia Lindberg and 1995 recording; ~652 views observed."
+},
+{
+  "band": "r-a-w",
+  "release": "918ab7c9-7dd1-4937-a78a-69c773e1b7e4",
+  "title": "7 Wonders",
+  "id": "rp4ptgJg-pA",
+  "views": 1100,
+  "channel": "kcor5942",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "1997 Now We're Cookin' album, original Swedish melodic R.A.W. band; CD and enhanced CD share source. ~1.1k views observed in indexed YouTube result."
+},
+{
+  "band": "r-a-w",
+  "release": "4f9947a5-68ab-4348-935d-6745fb4ec570",
+  "title": "7 Wonders",
+  "id": "rp4ptgJg-pA",
+  "views": 1100,
+  "channel": "kcor5942",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "1997 Now We're Cookin' album, original Swedish melodic R.A.W. band; CD and enhanced CD share source. ~1.1k views observed in indexed YouTube result."
+},
+{
+  "band": "reveal",
+  "release": "74f9d6d8-d094-41b5-b67e-271fc8ca6dbe",
+  "title": "Nocturne of Eyes and Teeth (full album)",
+  "id": "snpz6d5FfH4",
+  "views": 933,
+  "channel": "Rare Metal Albums",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Reveal! Uppsala 2011 seven-track original album; uploader explicitly mentions 2012 Invictus Productions CD reissue. No original album recordings attributed to other acts. ~933 views observed."
+},
+{
+  "band": "reveal",
+  "release": "74f9d6d8-d094-41b5-b67e-271fc8ca6dbe",
+  "title": "Flowers & Bones",
+  "id": "EQbRSJMIUoA",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Reveal! (Uppsala) track 3 of 2011 original album Nocturne of Eyes and Teeth; artist/title confirmed by uploaded video; 2012 CD uses same recording."
+},
+{
+  "band": "reveal",
+  "release": "5eb1b28a-6a9d-4edd-93c6-0ad8b2fdbf91",
+  "title": "Nocturne of Eyes and Teeth (full album)",
+  "id": "snpz6d5FfH4",
+  "views": 933,
+  "channel": "Rare Metal Albums",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Reveal! Uppsala 2011 seven-track original album; uploader explicitly mentions 2012 Invictus Productions CD reissue. No original album recordings attributed to other acts. ~933 views observed."
+},
+{
+  "band": "reveal",
+  "release": "5eb1b28a-6a9d-4edd-93c6-0ad8b2fdbf91",
+  "title": "Flowers & Bones",
+  "id": "EQbRSJMIUoA",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Reveal! (Uppsala) track 3 of 2011 original album Nocturne of Eyes and Teeth; artist/title confirmed by uploaded video; 2012 CD uses same recording."
+},
+{
+  "band": "reveal",
+  "release": "bb43d934-b0ea-43e9-a228-e069ff810a9a",
+  "title": "Flystrips (full album)",
+  "id": "zZieCv_eKdk",
+  "views": 13000,
+  "channel": "Phosphoros",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "2016 8-track full Flystrips album by Uppsala Reveal!; complete 34-minute upload, ~13K views observed; third party states rights not owned by uploader."
+},
+{
+  "band": "reveal",
+  "release": "bb43d934-b0ea-43e9-a228-e069ff810a9a",
+  "title": "I Am Going To Eat You",
+  "id": "pY6qBBU-RZc",
+  "views": 165,
+  "channel": "Herrvass",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Reveal! (Uppsala) original 2016 Flystrips track 1, uploader explicitly confirms original album; ~165 views observed."
+},
+{
+  "band": "reveal",
+  "release": "bb43d934-b0ea-43e9-a228-e069ff810a9a",
+  "title": "Stale Smoke",
+  "id": "4Dk78kUHhzQ",
+  "views": 78,
+  "channel": "Herrvass",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Reveal! (Uppsala) original Flystrips 2016 track 6, not the separate 2018 London live performance; ~78 views observed."
+},
+{
+  "band": "reveal",
+  "release": "3952936d-6dd4-4fe6-94e6-b7fc726bc167",
+  "title": "Scissorgod (full album)",
+  "id": "66i9DSwhQnk",
+  "views": 5600,
+  "channel": "Metal Vault",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Uppsala Reveal! complete 2019 Scissorgod studio album, 9 original songs with timestamped sequence and Sepulchral Voice links. ~5.6k views observed."
+},
+{
+  "band": "reveal",
+  "release": "3952936d-6dd4-4fe6-94e6-b7fc726bc167",
+  "title": "Scissorgod",
+  "id": "_yp-5kkeJ5s",
+  "views": null,
+  "channel": "Reveal - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Title song issued by official licensed YouTube Topic feed of 2019 album, Sepulchral Voice Records; no verified view count."
+},
+{
+  "band": "reveal",
+  "release": "3952936d-6dd4-4fe6-94e6-b7fc726bc167",
+  "title": "Harder Harder",
+  "id": "VUwBdpxp5T0",
+  "views": null,
+  "channel": "SEPULCHRAL VOICE RECORDS",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2019 official record-label video for Scissorgod track 2, release date and full track sequence supplied."
+},
+{
+  "band": "reveal",
+  "release": "3952936d-6dd4-4fe6-94e6-b7fc726bc167",
+  "title": "Clevermouth",
+  "id": "4l7BxuxEo6M",
+  "views": null,
+  "channel": "SEPULCHRAL VOICE RECORDS",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2019 official music video from Scissorgod track 6, supplied by issuing label."
+},
+{
+  "band": "reveal",
+  "release": "3952936d-6dd4-4fe6-94e6-b7fc726bc167",
+  "title": "Decomposer",
+  "id": "Oo-j4STyojc",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Reveal! Scissorgod original 2019 track 3; fan-made unofficial video, not mislabeled as official."
+},
+{
+  "band": "reveal",
+  "release": "245f4efc-ff0c-46fc-adb7-17cfc7ab84e4",
+  "title": "Doppelherz (full album)",
+  "id": "AV02FItD_l8",
+  "views": 19000,
+  "channel": "SEPULCHRAL VOICE RECORDS",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "2021 original ten-song studio album full stream, officially posted by Sepulchral Voice Records with timestamped tracklist. Identical work for CD, vinyl and digital release pages; ~19k views observed."
+},
+{
+  "band": "reveal",
+  "release": "245f4efc-ff0c-46fc-adb7-17cfc7ab84e4",
+  "title": "Cokkkfights",
+  "id": "k_hKC-q6SXo",
+  "views": 6700,
+  "channel": "SEPULCHRAL VOICE RECORDS",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official issuing-label promotional video for 2021 Doppelherz track 3; ~6.7k views observed in search."
+},
+{
+  "band": "reveal",
+  "release": "245f4efc-ff0c-46fc-adb7-17cfc7ab84e4",
+  "title": "Inshallah",
+  "id": "bQPoNdm9DQQ",
+  "views": null,
+  "channel": "Reveal - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2021 Doppelherz album track 2, licensed YouTube Topic posting from Sepulchral Voice Records. No fresh reliable video view count."
+},
+{
+  "band": "reveal",
+  "release": "547aec03-ace3-4a72-afcd-481a2761b097",
+  "title": "Doppelherz (full album)",
+  "id": "AV02FItD_l8",
+  "views": 19000,
+  "channel": "SEPULCHRAL VOICE RECORDS",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "2021 original ten-song studio album full stream, officially posted by Sepulchral Voice Records with timestamped tracklist. Identical work for CD, vinyl and digital release pages; ~19k views observed."
+},
+{
+  "band": "reveal",
+  "release": "547aec03-ace3-4a72-afcd-481a2761b097",
+  "title": "Cokkkfights",
+  "id": "k_hKC-q6SXo",
+  "views": 6700,
+  "channel": "SEPULCHRAL VOICE RECORDS",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official issuing-label promotional video for 2021 Doppelherz track 3; ~6.7k views observed in search."
+},
+{
+  "band": "reveal",
+  "release": "547aec03-ace3-4a72-afcd-481a2761b097",
+  "title": "Inshallah",
+  "id": "bQPoNdm9DQQ",
+  "views": null,
+  "channel": "Reveal - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2021 Doppelherz album track 2, licensed YouTube Topic posting from Sepulchral Voice Records. No fresh reliable video view count."
+},
+{
+  "band": "reveal",
+  "release": "3abb38e2-e82b-46ae-9ffb-c023964a501c",
+  "title": "Doppelherz (full album)",
+  "id": "AV02FItD_l8",
+  "views": 19000,
+  "channel": "SEPULCHRAL VOICE RECORDS",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "2021 original ten-song studio album full stream, officially posted by Sepulchral Voice Records with timestamped tracklist. Identical work for CD, vinyl and digital release pages; ~19k views observed."
+},
+{
+  "band": "reveal",
+  "release": "3abb38e2-e82b-46ae-9ffb-c023964a501c",
+  "title": "Cokkkfights",
+  "id": "k_hKC-q6SXo",
+  "views": 6700,
+  "channel": "SEPULCHRAL VOICE RECORDS",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official issuing-label promotional video for 2021 Doppelherz track 3; ~6.7k views observed in search."
+},
+{
+  "band": "reveal",
+  "release": "3abb38e2-e82b-46ae-9ffb-c023964a501c",
+  "title": "Inshallah",
+  "id": "bQPoNdm9DQQ",
+  "views": null,
+  "channel": "Reveal - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2021 Doppelherz album track 2, licensed YouTube Topic posting from Sepulchral Voice Records. No fresh reliable video view count."
+},
+{
+  "band": "raskit",
+  "release": "e83e585d-5273-4d20-b080-0650d20d37e9",
+  "title": "Uppsala Crust Compilation (1996, includes Råskit – Maze Of Pain)",
+  "id": "h2FYEBNWEic",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "1996 Uppsala Crust Compilation full multi-band EP (15 songs). Råskit performs only Maze Of Pain (track 15), all other songs belong to other groups. This video covers a COMPILATION, not a Råskit-only album.",
+  "multipleArtists": true
 }
 ];
