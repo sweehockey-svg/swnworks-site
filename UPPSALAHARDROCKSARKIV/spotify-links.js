@@ -1,3 +1,5 @@
+// Y checked 2026-10-24: Uppsala hardcore/metalcore Yersinia added: six band-authorised 2008–2015 original releases, 34 original tracks, distinct from Polish/German homonyms.
+// Original dates from https://yersinia.bandcamp.com/ . Spotify artist 203FoNMgybnorIBb8KAJoW. Streaming category 'single' is not original EP format; 2010 album also distributed in 2015 on some services.
 // X checked 2026-10-24: Xtortex (Uppsala 1989, Twisted 1990 original four-track cassette).
 // No verified Spotify artist identity or exact digital release ID; XT, X-Vortex and other homonyms are NOT Xtortex. No guessed mapping.
 // Checked against Spotify artist discographies on 2026-10-23.
@@ -128,7 +130,8 @@ window.ARCHIVE_SPOTIFY = {
     "violent-silence": "0AliN4fCq3GpTyrFaRBmHV",
     "vorum": "026jwQJuyj7n3il1xDYF42",
     "watain": "4OpHsZuhfJMU9PZ3zkyUQX",
-    "wheel-in-the-sky": "1z42l7pbAEJ5SstTg4JRyg"
+    "wheel-in-the-sky": "1z42l7pbAEJ5SstTg4JRyg",
+    "yersinia": "203FoNMgybnorIBb8KAJoW"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -1286,6 +1289,30 @@ window.ARCHIVE_SPOTIFY = {
     "d6fbb0bb-4ad9-43e6-aebb-a1aea42ba0ec": {
       "id": "6WTazNYSpI4XUgBicNzNVn",
       "note": "Wheel In The Sky original one-track Two Hearts Breaking digital single released Feb 14 2020 by Uppsala group, exact 3:43 min original on band's Bandcamp and Spotify single (intl-th/album/6WTazNYSpI4XUgBicNzNVn)."
+    },
+    "41df07a9-e89a-41f1-b0d7-ac3ee60398fb": {
+      "id": "4s8tEVHDGxfr7bXoYP6mKk",
+      "note": "Uppsala Yersinia original 4-track EP released 2008-12-01 on band Bandcamp. Spotify categorizes 2008 digital edition as 'single', but four-track program matches; do not confuse other Yersinia artists."
+    },
+    "509f1336-78ee-4c5e-963b-3ba85788080f": {
+      "id": "6PilngeJi3DhPDqdnOOjQh",
+      "note": "Uppsala Yersinia original 2009 four-track Lejonhjärta EP. Spotify describes release as single but four original songs and identity match. Some streaming services date September 2009; band's Bandcamp dates original June 20 2009."
+    },
+    "cb224081-b3c2-4a88-93d4-15e5f100eba4": {
+      "id": "3vuQ4l2HvhT98pT4W7cugG",
+      "note": "Yersinia Uppsala original Efter Oss Syndafloden 11-track album released Dec 8 2010 per original Bandcamp. Spotify original digital album 2010, some stores show later 2015 distribution; 11 original songs match."
+    },
+    "510d588e-6293-4725-a6d4-7807b64c85cb": {
+      "id": "0L0mZiuPctXVVdExEYJXRO",
+      "note": "Original Yersinia Uppsala 2011 EP Aldrig Mera Vinter; all five songs; band Bandcamp dates Sept 27 2011, same Spotify EP."
+    },
+    "c927ab31-a263-4d85-a811-daa30cb102de": {
+      "id": "0G1xA1Q1xdMzKCusVhCz5s",
+      "note": "Original Yersinia Uppsala Fraktaler 2012 five-track EP. Spotify also surfaces distinct album ID 6bfj1A3bJ4xjejOtUTWpAZ apparently same five-track stream; keep one link and document edition ambiguity, avoid duplicate mapping."
+    },
+    "d0f5445c-a50a-40f4-8d88-8ce130301739": {
+      "id": "3MGYCQzQbjQrsFO1hgdJfq",
+      "note": "Uppsala Yersinia original Påfågeltronen 2015 five-track EP (Apr 20 2015). Spotify uses 'single' category even though five original tracks, verified correct album and same band."
     }
   },
   "releaseTitles": {
