@@ -9455,5 +9455,16 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "track",
   "checked": "2026-10-23",
   "sourceNote": "1998 The Mothership Movement release."
+},
+{
+  "band": "morbid-illusion",
+  "release": "1a1d0640-58fe-44e4-994d-c03370b26855",
+  "title": "Embellished with Blood (2015 complete EP)",
+  "id": "6vjO_2Ej3AE",
+  "views": null,
+  "channel": "MorbidIllusionBand",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Full six-track 2015 EP directly uploaded by the band from Uppsala."
 }
 ];
