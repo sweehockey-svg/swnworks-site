@@ -37,6 +37,8 @@
 // Ordos Fire 2025 *is* linked by verified official DistroKid HyperFollow URL; don't treat it as missing.
 // Ordos Four Altars of Sin is a FOUR-ARTIST split, Ordos appears only on Inferno. Archive release note warns accordingly.
 // Ordos Fire 2025 linked via artist-published DistroKid HyperFollow URL; direct Spotify album ID verified.
+// P checked 2026-10-23: Poeter Blir Dom... original Swedish hip-hop/Uppsala collective linked to Spotify artist and verified 2020 ten-track digital issue (not 2004 vinyl). Two accessible Spotify album IDs have identical titles, tracks and running times; a single ID is used to avoid duplicate issue mapping.
+// No verified streaming identities for Panama (1991 Uppsala), Pessimistjolle, Phunk (2004 Shedding Skin), Planescape (2005 7 Turns), Poets on Payday (related Stockholm), Pure Pain (1992 Sculptures). Do not confuse unrelated same-name artists or the Planescape: Torment game.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -72,7 +74,8 @@ window.ARCHIVE_SPOTIFY = {
     "offerblod": "1EvEHe8Re4lFpr0lQat7Yq",
     "ordos": "3pYCwlhXW6pbRSnzD2Fshj",
     "on-trial": "4nvfNTnpTR4q1Zjs6WkuLz",
-    "one-hour-hell": "4imhqIhUhfk21DK1EgRBjj"
+    "one-hour-hell": "4imhqIhUhfk21DK1EgRBjj",
+    "poeter-blir-dom": "04BjAh3LlAXmBrmR43kQuj"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -690,6 +693,10 @@ window.ARCHIVE_SPOTIFY = {
     "9a4082d9-bfde-42f2-87d7-16f72f8acece": {
       "id": "0djXqX9zWefAdFhvR0NeT8",
       "note": "Original 2025 five-song album; Spotify album URL supplied by Ordos's official DistroKid HyperFollow link."
+    },
+    "d48d1c97-c400-49fd-91c2-be1b75061cd7": {
+      "id": "5QHsTT57C8d5v2zpAyElV9",
+      "note": "Verifierad 2020 digital utgåva med tio låtar. Även Spotify-album-ID 7HSOaaZQeQB9U6fRmmogeV har samma spårlista; dessa är inte olika originalpressningar. 2004 års vinyl har separat arkivpost och är inte automatiskt samma master."
     }
   },
   "releaseTitles": {
