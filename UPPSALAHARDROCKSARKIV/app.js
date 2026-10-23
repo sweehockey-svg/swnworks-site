@@ -1205,11 +1205,18 @@
       + '<div class="video-roulette" id="video-roulette">'
       + '<div class="video-roulette-top"><div><span class="section-kicker">HÅRDROCKSROULETTE / TIDSMASKINEN</span><h2>Slumpa ett fynd.</h2>'
       + '<p>Välj ett årtionde nedan, tryck på knappen och se var i musikhistorien du hamnar. Årtal avser utgåvan, inte videons uppladdning.</p></div>'
-      + '<button class="button button-primary video-roulette-button" type="button" id="video-random">▶ ÖVERRASKA MIG</button></div>'
+      + '<div class="video-roulette-actions"><button class="button button-primary video-roulette-button" type="button" id="video-random">▶ ÖVERRASKA MIG</button>'
+      + '<button class="button button-ghost video-marathon-start" type="button" id="video-marathon-start">♫ STARTA ARKIVMARATON</button></div></div>'
       + '<div class="video-journey" aria-label="Din upptäcktsrunda">'
       + '<div class="video-journey-info"><strong id="video-journey-count">0 klipp upptäckta</strong><span id="video-journey-bands">0 band upptäckta</span></div>'
       + '<div class="video-journey-controls"><button type="button" id="video-back" disabled>← Tillbaka</button><button type="button" id="video-forward" disabled>Framåt →</button><button type="button" id="video-restart">Börja om ↺</button></div>'
       + '<div class="video-journey-progress" aria-hidden="true"><span id="video-journey-bar"></span></div></div>'
+      + '<div class="video-marathon" id="video-marathon" hidden>'
+      + '<div class="video-marathon-copy"><span class="section-kicker">ARKIVMARATON / FEM FYND</span><strong id="video-marathon-status" role="status">Klipp 1 av 5</strong>'
+      + '<span id="video-marathon-band">Fem olika band. Fem oväntade stopp.</span></div>'
+      + '<div class="video-marathon-controls"><button type="button" id="video-marathon-next">Nästa klipp →</button><button type="button" id="video-marathon-stop">Avsluta ✕</button></div>'
+      + '<div class="video-marathon-progress" id="video-marathon-progress" aria-label="Maratonets framsteg"></div>'
+      + '</div>'
       + '<div class="video-spotlight" id="video-spotlight" aria-live="polite"></div></div>'
       + '<section class="video-quiz" id="video-decade-quiz" aria-labelledby="video-quiz-heading">'
       + '<div class="video-quiz-head"><div><span class="section-kicker">ARKIVUTMANING / MUSIKHISTORIA</span><h2 id="video-quiz-heading">Gissa årtiondet.</h2>'
@@ -1232,6 +1239,26 @@
       + '</section>';
     const search = $('#video-search'), type = $('#video-type'), decade = $('#video-decade'), order = $('#video-order');
     const grid = $('#video-grid'), spotlight = $('#video-spotlight'), roulette = $('#video-random'), more = $('#video-more');
+    const marathonStart = $('#video-marathon-start'), marathonArea = $('#video-marathon');
+    const marathonNext = $('#video-marathon-next'), marathonStop = $('#video-marathon-stop');
+    const marathonStatus = $('#video-marathon-status'), marathonBand = $('#video-marathon-band'), marathonProgress = $('#video-marathon-progress');
+    let marathonQueue = [], marathonIndex = -1;
+    const bandKey = video => String(video.band?.id || video.bandName).toLocaleLowerCase('sv');
+    const updateMarathon = () => {
+      const active = marathonQueue.length > 0 && marathonIndex >= 0;
+      marathonArea.hidden = !active;
+      const availableBands = new Set(filtered.map(bandKey)).size;
+      marathonStart.disabled = availableBands < 2;
+      marathonStart.title = availableBands < 2 ? 'Välj ett urval med minst två olika band' : 'Fem slumpade klipp från olika band';
+      if (!active) return;
+      marathonStatus.textContent = 'Klipp ' + (marathonIndex + 1) + ' av ' + marathonQueue.length;
+      marathonBand.textContent = marathonQueue[marathonIndex].bandName + ' · ' + (marathonQueue.length - marathonIndex - 1) + ' fynd kvar';
+      marathonNext.textContent = marathonIndex >= marathonQueue.length - 1 ? 'MARATONET KLART ✓' : 'NÄSTA KLIPP →';
+      marathonNext.disabled = marathonIndex >= marathonQueue.length - 1;
+      marathonProgress.innerHTML = marathonQueue.map((video,i) => '<span class="' + (i < marathonIndex ? 'is-complete' : i === marathonIndex ? 'is-current' : '') + '" aria-hidden="true"></span>').join('');
+      marathonProgress.setAttribute('aria-label', (marathonIndex + 1) + ' av ' + marathonQueue.length + ' klipp');
+    };
+    const endMarathon = () => { marathonQueue = []; marathonIndex = -1; updateMarathon(); };
     let filtered = [], displayed = 24, selected = null;
     const seen = new Set();
     const journey = [];
@@ -1333,10 +1360,11 @@
       }
       updateGrid();
       updateJourney();
+      updateMarathon();
     };
-    [search,type,decade,order].forEach(input=>input.addEventListener(input===search ? 'input' : 'change',()=>update()));
+    [search,type,decade,order].forEach(input=>input.addEventListener(input===search ? 'input' : 'change',()=>{endMarathon();update();}));
     $('#video-reset').addEventListener('click',()=>{
-      search.value='';type.value='';decade.value='';order.value='old';selected=null;update();search.focus();
+      search.value='';type.value='';decade.value='';order.value='old';selected=null;endMarathon();update();search.focus();
     });
     const randomDiscovery = () => {
       const unseen = filtered.filter(video => !seen.has(video.id));
@@ -1344,20 +1372,54 @@
       feature(unseen[Math.floor(Math.random() * unseen.length)]);
       updateGrid();
     };
-    roulette.addEventListener('click',randomDiscovery);
+    roulette.addEventListener('click',()=>{endMarathon();randomDiscovery();});
+    // Five genuinely different bands, sampled from the active video filters.
+    // A queue only advances after the visitor chooses the next discovery.
+    marathonStart.addEventListener('click',()=>{
+      const shuffled = [...filtered];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i],shuffled[j]] = [shuffled[j],shuffled[i]];
+      }
+      const pickedBands = new Set();
+      marathonQueue = shuffled.filter(video=>{
+        const key = bandKey(video);
+        if (pickedBands.has(key) || pickedBands.size >= 5) return false;
+        pickedBands.add(key);
+        return true;
+      });
+      if (marathonQueue.length < 2) { endMarathon(); return; }
+      marathonIndex = 0;
+      feature(marathonQueue[marathonIndex]);
+      updateGrid();
+      updateMarathon();
+      spotlight.scrollIntoView({behavior:'smooth',block:'nearest'});
+    });
+    marathonNext.addEventListener('click',()=>{
+      if (marathonIndex < 0 || marathonIndex >= marathonQueue.length - 1) return;
+      marathonIndex++;
+      feature(marathonQueue[marathonIndex]);
+      updateGrid();
+      updateMarathon();
+      spotlight.scrollIntoView({behavior:'smooth',block:'nearest'});
+    });
+    marathonStop.addEventListener('click',endMarathon);
     back.addEventListener('click',()=>{
       if (journeyIndex <= 0) return;
+      endMarathon();
       journeyIndex--;
       feature(byVideoId.get(journey[journeyIndex]),false);
       updateGrid();
     });
     forward.addEventListener('click',()=>{
       if (journeyIndex >= journey.length - 1) return;
+      endMarathon();
       journeyIndex++;
       feature(byVideoId.get(journey[journeyIndex]),false);
       updateGrid();
     });
     restart.addEventListener('click',()=>{
+      endMarathon();
       seen.clear(); journey.length = 0; journeyIndex = -1;
       selected = null;
       randomDiscovery();
@@ -1367,6 +1429,7 @@
       const button=event.target.closest('button[data-video-id]');
       const video=byVideoId.get(button?.dataset.videoId);
       if (!video) return;
+      endMarathon();
       feature(video);
       updateGrid();
       spotlight.scrollIntoView({behavior:'smooth',block:'center'});
