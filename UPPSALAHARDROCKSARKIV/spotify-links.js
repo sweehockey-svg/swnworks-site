@@ -1,3 +1,5 @@
+// X checked 2026-10-24: Xtortex (Uppsala 1989, Twisted 1990 original four-track cassette).
+// No verified Spotify artist identity or exact digital release ID; XT, X-Vortex and other homonyms are NOT Xtortex. No guessed mapping.
 // Checked against Spotify artist discographies on 2026-10-23.
 // No verified match: Abuse, Almost Human, Aparat, Aphophis, Avenue, Azotic Reign.
 // Afgrund Corporatocracy (2019 digital edition) and The Relevant EP (2017)
