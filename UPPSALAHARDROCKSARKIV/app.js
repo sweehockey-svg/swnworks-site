@@ -1211,6 +1211,14 @@
       + '<div class="video-journey-controls"><button type="button" id="video-back" disabled>← Tillbaka</button><button type="button" id="video-forward" disabled>Framåt →</button><button type="button" id="video-restart">Börja om ↺</button></div>'
       + '<div class="video-journey-progress" aria-hidden="true"><span id="video-journey-bar"></span></div></div>'
       + '<div class="video-spotlight" id="video-spotlight" aria-live="polite"></div></div>'
+      + '<section class="video-quiz" id="video-decade-quiz" aria-labelledby="video-quiz-heading">'
+      + '<div class="video-quiz-head"><div><span class="section-kicker">ARKIVUTMANING / MUSIKHISTORIA</span><h2 id="video-quiz-heading">Gissa årtiondet.</h2>'
+      + '<p>Lyssna på ett slumpmässigt klipp och gissa vilket årtionde utgåvan kom. Ingen googling. Vi ser dig.</p></div>'
+      + '<div class="video-quiz-score" id="video-quiz-score" role="status">0 rätt av 0 · 0 i rad</div></div>'
+      + '<div class="video-quiz-stage" id="video-quiz-stage"></div>'
+      + '<div class="video-quiz-footer"><button type="button" class="button button-ghost" id="video-quiz-next">↻ NYTT KLIPP</button>'
+      + '<span>Vi räknar utgåvans ursprungliga år, inte när klippet lades upp på YouTube.</span></div>'
+      + '</section>'
       + '<div class="video-catalog-head"><div><span class="section-kicker">UTFORSKA ARKIVET</span><h2>Alla videor</h2></div><p id="video-count" role="status"></p></div>'
       + '<div class="video-filters">'
       + '<label class="video-field video-field-search"><span>Sök band, låt eller utgåva</span><input id="video-search" type="search" maxlength="160" placeholder="Exempel: Watain, demo, live…" autocomplete="off"></label>'
@@ -1367,6 +1375,73 @@
     if (initialVideoId && byVideoId.has(initialVideoId)) selected = byVideoId.get(initialVideoId);
     update();
     if (selected) feature(selected);
+
+    // Arkivutmaning: gissa utgåvans årtionde. Endast kopplade, daterade utgåvor.
+    // Spelet använder en egen videospelare så roulette och filtrering inte påverkas.
+    const quiz = $('#video-decade-quiz');
+    const quizPool = videos.filter(video => video.release && Number.isInteger(video.year));
+    if (decadeValues.length < 2 || quizPool.length < 2) {
+      quiz.hidden = true;
+    } else {
+      const quizStage = $('#video-quiz-stage');
+      const quizScore = $('#video-quiz-score');
+      const quizNext = $('#video-quiz-next');
+      let quizCurrent = null, quizLocked = false, quizPlayed = 0, quizCorrect = 0, quizStreak = 0;
+      const recentQuizIds = [];
+      const shuffleQuiz = values => {
+        const result = [...values];
+        for (let i = result.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [result[i], result[j]] = [result[j], result[i]];
+        }
+        return result;
+      };
+      const showQuizQuestion = () => {
+        const unseen = quizPool.filter(video => !recentQuizIds.includes(video.id));
+        if (!unseen.length) recentQuizIds.length = 0;
+        const available = unseen.length ? unseen : quizPool;
+        quizCurrent = available[Math.floor(Math.random() * available.length)];
+        recentQuizIds.push(quizCurrent.id);
+        if (recentQuizIds.length > Math.min(12, quizPool.length - 1)) recentQuizIds.shift();
+        quizLocked = false;
+        const correctDecade = Math.floor(quizCurrent.year / 10) * 10;
+        const answers = shuffleQuiz([correctDecade, ...shuffleQuiz(decadeValues.filter(year => year !== correctDecade)).slice(0, 2)]);
+        quizStage.innerHTML = '<div class="video-quiz-media"><div class="youtube-preview" data-youtube-id="' + quizCurrent.id + '">'
+          + '<button type="button" class="youtube-play" aria-label="' + escapeHtml('Spela ' + quizCurrent.title) + '">'
+          + '<span aria-hidden="true">▶</span><strong>Lyssna på klippet</strong><span>Klicka för att spela</span>'
+          + '<img class="youtube-thumbnail" src="https://i.ytimg.com/vi/' + quizCurrent.id + '/hqdefault.jpg" loading="lazy" alt="" referrerpolicy="no-referrer"></button></div></div>'
+          + '<div class="video-quiz-question"><span class="video-feature-label">LYSSNA · GISSA · UPPTÄCK</span>'
+          + '<h3>Vilket årtionde?</h3><p class="video-quiz-band">' + escapeHtml(quizCurrent.bandName) + '</p>'
+          + '<p class="video-quiz-hint">När släpptes utgåvan som klippet hör till?</p>'
+          + '<div class="video-quiz-options" role="group" aria-label="Välj årtionde">'
+          + answers.map(year => '<button type="button" data-quiz-decade="' + year + '">' + year + '-talet</button>').join('')
+          + '</div><p class="video-quiz-feedback" id="video-quiz-feedback" role="status"></p></div>';
+        bindYoutubePreviews();
+        quizNext.textContent = '↻ HOPPA TILL NYTT KLIPP';
+      };
+      quizStage.addEventListener('click', event => {
+        const answer = event.target.closest('button[data-quiz-decade]');
+        if (!answer || !quizStage.contains(answer) || !quizCurrent || quizLocked) return;
+        quizLocked = true;
+        const correctDecade = Math.floor(quizCurrent.year / 10) * 10;
+        const right = Number(answer.dataset.quizDecade) === correctDecade;
+        quizPlayed++;
+        if (right) { quizCorrect++; quizStreak++; } else quizStreak = 0;
+        quizStage.querySelectorAll('button[data-quiz-decade]').forEach(button => {
+          button.disabled = true;
+          if (Number(button.dataset.quizDecade) === correctDecade) button.classList.add('is-correct');
+          else if (button === answer) button.classList.add('is-wrong');
+        });
+        const feedback = $('#video-quiz-feedback');
+        feedback.textContent = (right ? 'Rätt svar! ' : 'Inte riktigt. ') + quizCurrent.bandName
+          + ' · ' + quizCurrent.release.title + ' kom ' + quizCurrent.year + '.';
+        feedback.classList.toggle('is-correct', right);
+        quizScore.textContent = quizCorrect + ' rätt av ' + quizPlayed + ' · ' + quizStreak + ' i rad';
+        quizNext.textContent = '↻ NÄSTA UTMANING';
+      });
+      quizNext.addEventListener('click', showQuizQuestion);
+      showQuizQuestion();
+    }
   }
 
   function spotifyLink(band, releaseId) {
