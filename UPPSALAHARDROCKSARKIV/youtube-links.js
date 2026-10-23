@@ -15,6 +15,7 @@
 // S reviewed 2026-10-23: directly matched original Sanctrum, Sarcasm, Searing I, Seethings, Sentinel Sirens, Serpent Omega, Snuffed by the Yakuza, Spellbound, Sportlov, Stallion Four, Stained Red and Sunaglare YouTube uploads to actual songs/albums; view numbers are dated approximate indexing observations, not live.
 // Do not assign old Sarcasm demos to composite Burial Dimensions anthology, or original 2002 Sportlov Svarta Pisten to 2003 album; CDs, LP reissues and album digital editions reuse the original recorded performance with documented distinctions.
 // No unrelated same-name videos entered for Sami/Samsa, Saturniids, Scarve, Scavenger, Sexistor, ShyLie, Six Pack Sonic, Skitsystem, Skrömta, Soxity, Spacebone, Stained Red older demos, Statues or Steve Eastside. Some have no releases at all.
+// Saturniids 2017 Uppsala original EP verified independently via four-track Spotify embed and uploader's original band-site link; not the Boston indie band with identical name.
 window.ARCHIVE_YOUTUBE = [
 {
   "band": "acolytes-of-moros",
@@ -11353,5 +11354,16 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "live",
   "checked": "2026-10-23",
   "sourceNote": "Original Swedish Sunaglare band channel, acoustic live version of song Good Intentions?, not album master; no attachment to 2005 studio CD. ~847 views indexed."
+},
+{
+  "band": "saturniids",
+  "release": "83e39e2c-baa6-4390-a089-bc8c2a2ef10a",
+  "title": "Saturniids (full 2017 EP)",
+  "id": "qx8EKGLGFVE",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Full original 2017 Uppsala Saturniids four-track EP (Destroyer of Worlds, I.C.B.M., They Live, Into Oblivion), same order and durations as 2017 Spotify, not Boston band. Includes archived band Bandcamp and Facebook sources; this is predecessor to Endtime."
 }
 ];
