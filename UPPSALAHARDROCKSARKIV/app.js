@@ -1191,16 +1191,15 @@
     const songs = items.filter(item=>item.kind === 'track');
     const ranked = songs.filter(item=>Number.isFinite(item.views)).sort((a,b)=>b.views-a.views);
     const featured = ranked[0] || songs[0];
-    const link = item => '<a href="https://www.youtube.com/watch?v=' + item.id + '" target="_blank" rel="noopener noreferrer">'
-      + escapeHtml(item.title) + (item.multipleArtists ? ' (hel utgåva med flera band)' : item.kind === 'album' ? ' (hel utgåva)' : '') + ' ↗</a>';
+    if (!featured) return '';
     return '<section class="content-section youtube-section"><h2>Lyssna på YouTube</h2>'
       + (featured ? '<div class="youtube-preview" data-youtube-id="' + featured.id + '"><button type="button" class="youtube-play" aria-label="'
       + escapeHtml('Spela ' + featured.title) + '"><span aria-hidden="true">▶</span><strong>' + escapeHtml(featured.title)
       + '</strong><span>Klicka för att ladda videon</span></button></div>'
-      + '<p class="youtube-caption">' + (featured.kind === 'track' ? 'Mest visad bland sidans länkade låtklipp med kontrollerat visningsantal.' : 'Utvald hel utgåva.')
+      + '<p class="youtube-caption">' + (featured.kind === 'track' ? 'Mest visad bland arkivets verifierade låtklipp för denna sida.' : 'Utvald hel utgåva.')
       + (featured.views != null ? ' Cirka ' + featured.views.toLocaleString('sv-SE') + ' visningar, kontrollerat ' + featured.checked + '.' : '')
       + (featured.channel ? ' Kanal: ' + escapeHtml(featured.channel) + '.' : '') + '</p>' : '')
-      + '<ul class="youtube-links">' + items.map(item=>'<li>' + link(item) + '</li>').join('') + '</ul></section>';
+      + '</section>';
   }
 
   function bindYoutubePreviews() {
