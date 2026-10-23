@@ -5141,5 +5141,200 @@ window.ARCHIVE_YOUTUBE = [
   "channel": "",
   "kind": "track",
   "checked": "2026-10-23"
+},
+// F band links manually checked 2026-10-23; full-album videos kept separate from per-track links.
+{
+  "band": "f-k-u",
+  "release": "fdd54bdf-f51e-483a-94f5-fe2a9735054d",
+  "title": "Metal Moshing Mad (2007 reissue, full album)",
+  "id": "uWyRPF8supo",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Upload marked as 2007 reissue; archive album originally released 1999."
+},
+{
+  "band": "f-k-u",
+  "release": "f99f7799-8a6e-419d-a23c-686c26e4aa46",
+  "title": "Sometimes They Come Back... to Mosh (full album)",
+  "id": "pjl-Phz_PtU",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "f99f7799-8a6e-419d-a23c-686c26e4aa46",
+  "title": "Die toten Core",
+  "id": "lLJIPbGRlZ0",
+  "views": null,
+  "channel": "F.K.Ü.",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "f99f7799-8a6e-419d-a23c-686c26e4aa46",
+  "title": "Marine Marauders",
+  "id": "Qszi9X6CbPw",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "b08c30ad-5800-4034-9966-2926b87b776e",
+  "title": "Where Moshers Dwell (full album)",
+  "id": "U4eE8n3X21Y",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "b08c30ad-5800-4034-9966-2926b87b776e",
+  "title": "Twitch of the Thrash Nerve",
+  "id": "ePXTAb95e3Q",
+  "views": 305000,
+  "channel": "F.K.Ü.",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official F.K.Ü. promo video from the album; approximate views at indexing."
+},
+{
+  "band": "f-k-u",
+  "release": "b08c30ad-5800-4034-9966-2926b87b776e",
+  "title": "The Pit and the Poser",
+  "id": "0-LmR4VjtpU",
+  "views": null,
+  "channel": "F.K.Ü.",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "decf84b3-f9d4-4668-a3e1-7472ec12c5ad",
+  "title": "4: Rise of the Mosh Mongers (full album)",
+  "id": "DOEmDe3L-oQ",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "decf84b3-f9d4-4668-a3e1-7472ec12c5ad",
+  "title": "Black Hole Hell",
+  "id": "SnDmzY6uwAM",
+  "views": null,
+  "channel": "Napalm Records",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "60ea4640-c6fd-45d8-9f51-6dc36afef137",
+  "title": "1981",
+  "id": "IsDngZCw2ic",
+  "views": null,
+  "channel": "F.K.Ü.",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "60ea4640-c6fd-45d8-9f51-6dc36afef137",
+  "title": "Hell Night",
+  "id": "Cl6cCO3LS9k",
+  "views": null,
+  "channel": "F.K.Ü.",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "60ea4640-c6fd-45d8-9f51-6dc36afef137",
+  "title": "Friday the 13th Part 2",
+  "id": "zk9EJvsfPnk",
+  "views": null,
+  "channel": "F.K.Ü.",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "60ea4640-c6fd-45d8-9f51-6dc36afef137",
+  "title": "Nightmares in a Damaged Brain",
+  "id": "4BkL_nfy4gI",
+  "views": null,
+  "channel": "F.K.Ü.",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "7f8ba09f-9fdc-408a-98e1-4e9175aac866",
+  "title": "The Horror and the Metal",
+  "id": "vP3AfJFEaeg",
+  "views": 21500,
+  "channel": "Despotz Records",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "7f8ba09f-9fdc-408a-98e1-4e9175aac866",
+  "title": "The Spawning",
+  "id": "ikyoaFMYfjI",
+  "views": null,
+  "channel": "Despotz Records",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "7f8ba09f-9fdc-408a-98e1-4e9175aac866",
+  "title": "(He Is) The Antichrist",
+  "id": "D8S2yJN5vmY",
+  "views": null,
+  "channel": "Despotz Records",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "f-k-u",
+  "release": "7f8ba09f-9fdc-408a-98e1-4e9175aac866",
+  "title": "Harvester of Horror",
+  "id": "CYcXOuF7m_A",
+  "views": null,
+  "channel": "Despotz Records",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "forcefeed",
+  "release": "2489e687-c3d7-4bdc-86eb-a12d94437fb5",
+  "title": "Soil (1999, complete EP)",
+  "id": "jKC3zNrEH6U",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Upload identifies band Forcefeed and 1999 songs Soil / In Tongues / Pressure."
+},
+{
+  "band": "fucking-funeral",
+  "release": "bd03174c-3e74-4e33-85c4-b5438eb7b3ef",
+  "title": "Necroorgasmic Metal (1997 demo)",
+  "id": "dYeWrMSEIM4",
+  "views": null,
+  "channel": "Getryn",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Identified as the Swedish band's 1997 demo, including six songs."
 }
 ];
