@@ -7,6 +7,8 @@
 // F checked 2026-10-23: six F.K.Ü. full-length albums matched to Spotify releases.
 // No confident matching Spotify entries for Forcefeed, Fucking Funeral, Fury or Fusion.
 // Earlier F.K.Ü. demo/singles/split not mapped to later album tracks with the same song name.
+// G checked 2026-10-23: Gold Spire verified Spotify artist, 2021 and 2026 albums.
+// No verified Spotify matches for Goatworship, Graveless or Gus of Sweden. Do not conflate Goatworship with Goat Worship/Goatwhore, or Gus of Sweden with later Valley of the Dead profiles.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -17,7 +19,8 @@ window.ARCHIVE_SPOTIFY = {
     "anguish": "363hZUarQfQVcU1boQqvC0",
     "endtime": "2Z7XzWiupUPj8HVxFBcz8l",
     "enemy-is-us": "3CYFtRJOB5Np16SCFBglKx",
-    "f-k-u": "5h0HlqYN5TvocKVL1NSJ80"
+    "f-k-u": "5h0HlqYN5TvocKVL1NSJ80",
+    "gold-spire": "5qbFvPQkWPSFyZ6SjBK9MO"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -126,6 +129,14 @@ window.ARCHIVE_SPOTIFY = {
     },
     "7f8ba09f-9fdc-408a-98e1-4e9175aac866": {
       "id": "3uYffN7NIXFTzPGoNpHAIc",
+      "note": ""
+    },
+    "00fae669-2590-4596-bfd8-12a37ca5e815": {
+      "id": "3CR0zfFpmjg7rp5ZDTqm73",
+      "note": ""
+    },
+    "ca18993c-102b-4ed9-a539-098f42494574": {
+      "id": "1K72LlOrimo6bTGEcQuAcl",
       "note": ""
     }
   }
