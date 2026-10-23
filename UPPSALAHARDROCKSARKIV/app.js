@@ -1162,6 +1162,16 @@
     update();
   }
 
+  function spotifyLink(band, releaseId) {
+    const data = window.ARCHIVE_SPOTIFY || {};
+    const release = releaseId ? data.releases?.[releaseId] : null;
+    const id = releaseId ? release?.id : data.artists?.[slugify(band?.canonical_name || '')];
+    if (!/^[A-Za-z0-9]{22}$/.test(id || '')) return '';
+    return '<a class="spotify-link" href="https://open.spotify.com/' + (releaseId ? 'album/' : 'artist/') + id
+      + '" target="_blank" rel="noopener noreferrer">' + (releaseId ? 'Öppna utgåvan på Spotify ↗' : 'Lyssna på Spotify ↗')
+      + '</a>' + (release?.note ? '<small class="spotify-edition">' + escapeHtml(release.note) + '</small>' : '');
+  }
+
   function youtubeItems(band, releaseId) {
     const items = (window.ARCHIVE_YOUTUBE || []).filter(item => /^[A-Za-z0-9_-]{11}$/.test(item.id)
       && (releaseId ? item.release === releaseId : item.band === slugify(band?.canonical_name || '') && !item.multipleArtists));
@@ -1226,7 +1236,7 @@
     const meta = [b.formed_year ? `Bildat ${b.formed_year}` : 'Bildningsår söks', bandPlace, ...(b.genres || [])].map(x => `<span>${escapeHtml(x)}</span>`).join('');
     app.innerHTML = `${breadcrumbs([{label:'Band',href:'#/band'},{label:b.canonical_name}])}${pageHeader(bandKicker,escapeHtml(b.canonical_name),'',meta)}
       <section class="section detail-layout first-section">
-        <aside class="detail-aside">${bandMedia(b) ? `<figure class="detail-media"><img src="${bandMedia(b)}" alt="${escapeHtml(b.canonical_name)}"></figure>${externalMediaCredit(bandMedia(b))}` : ''}<div class="aside-label">Översikt</div><p>${escapeHtml(b.description || defaultDescription)}</p><div class="aside-facts"><div><span>Status</span><strong>${b.status === 'active' ? 'Aktivt' : b.status === 'inactive' ? 'Inaktivt' : 'Okänt'}</strong></div><div><span>Arkivklass</span><strong>${scopeLabel}</strong></div><div><span>Medlemmar i arkivet</span><strong>${memberGroups.length}</strong></div><div><span>Utgåvor i arkivet</span><strong>${rels.length}</strong></div></div></aside>
+        <aside class="detail-aside">${bandMedia(b) ? `<figure class="detail-media"><img src="${bandMedia(b)}" alt="${escapeHtml(b.canonical_name)}"></figure>${externalMediaCredit(bandMedia(b))}` : ''}${spotifyLink(b)}<div class="aside-label">Översikt</div><p>${escapeHtml(b.description || defaultDescription)}</p><div class="aside-facts"><div><span>Status</span><strong>${b.status === 'active' ? 'Aktivt' : b.status === 'inactive' ? 'Inaktivt' : 'Okänt'}</strong></div><div><span>Arkivklass</span><strong>${scopeLabel}</strong></div><div><span>Medlemmar i arkivet</span><strong>${memberGroups.length}</strong></div><div><span>Utgåvor i arkivet</span><strong>${rels.length}</strong></div></div></aside>
         <div class="detail-main">
           <section class="band-tip-panel"><div class="section-kicker">HJÄLP ARKIVET VÄXA</div><h2>Vet du mer om detta band?</h2>
             <p>${bandGaps(b).length ? 'Vi söker: ' + bandGaps(b).map(escapeHtml).join(', ') + '.' : 'Har du en rättelse, ett minne eller material som kompletterar bandets historia?'}</p>
@@ -1419,7 +1429,7 @@
     const meta = [r.release_year || 'Årtal söks', r.release_type, r.format, band?.canonical_name].filter(Boolean).map(x => `<span>${escapeHtml(x)}</span>`).join('');
     app.innerHTML = `${breadcrumbs([{label:'Utgåvor',href:'#/utgavor'},{label:r.title}])}${pageHeader('UTGÅVA / ARKIVPOST',escapeHtml(r.title),'',meta)}
       <section class="section detail-layout first-section">
-        <aside class="detail-aside">${releaseMedia(r) ? `<figure class="detail-media release-artwork"><img src="${releaseMedia(r)}" alt="${escapeHtml(r.title)}"></figure>${externalMediaCredit(releaseMedia(r))}` : ''}<div class="aside-label">Utgåva</div><p>${escapeHtml(r.description || `En ${r.release_type || 'utgåva'} från ${r.release_year || 'okänt år'} i arkivet.`)}</p>${band ? `<a class="button button-ghost aside-button" href="${bandHref(band)}">Öppna ${escapeHtml(band.canonical_name)}</a>` : ''}</aside>
+        <aside class="detail-aside">${releaseMedia(r) ? `<figure class="detail-media release-artwork"><img src="${releaseMedia(r)}" alt="${escapeHtml(r.title)}"></figure>${externalMediaCredit(releaseMedia(r))}` : ''}${spotifyLink(band, r.id)}<div class="aside-label">Utgåva</div><p>${escapeHtml(r.description || `En ${r.release_type || 'utgåva'} från ${r.release_year || 'okänt år'} i arkivet.`)}</p>${band ? `<a class="button button-ghost aside-button" href="${bandHref(band)}">Öppna ${escapeHtml(band.canonical_name)}</a>` : ''}</aside>
         <div class="detail-main">
 
           <section class="content-section"><div class="content-head"><span>01</span><h2>Låtlista</h2></div><div id="release-tracklist" class="release-tracklist" data-release-id="${escapeHtml(r.id)}"><div class="empty-state">Hämtar låtlistan…</div></div></section>

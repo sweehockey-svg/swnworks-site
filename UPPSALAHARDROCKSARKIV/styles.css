@@ -944,3 +944,6 @@ body.network-body-fullscreen { overflow:hidden; }
 .youtube-links a,.youtube-track-link { color:var(--acid); text-underline-offset:4px; line-height:1.6; }
 .youtube-track-link { display:inline-block; font-size:12px; margin-top:6px; }
 .youtube-play:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
+
+.spotify-link { display:block; margin:20px 0 8px; color:var(--acid); font-size:14px; text-underline-offset:4px; }
+.spotify-edition { display:block; color:var(--muted); font-size:12px; margin-bottom:20px; }
