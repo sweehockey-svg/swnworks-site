@@ -56,7 +56,8 @@ window.ARCHIVE_SPOTIFY = {
     "misery-loves-co": "20UgZzpTMlb9kP2ezU0bEs",
     "moder-jords-massiva": "0GTaum09ogUQOSBwcLzXVt",
     "morbid-illusion": "6MCJJMVJAJFPQR1qNEPGoU",
-    "mother-superior": "547I5lsD6Vb4GSOnQ9uz3V"
+    "mother-superior": "547I5lsD6Vb4GSOnQ9uz3V",
+    "monster": "3ByScuTFdxHOrnUVI3qTqK"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -506,6 +507,14 @@ window.ARCHIVE_SPOTIFY = {
     "fb4985ed-578a-4536-8976-9e0fa3b05de6": {
       "id": "6sXtsv5TK8zEcQYFuC3mcQ",
       "note": ""
+    },
+    "9f85058d-ec50-467f-8e05-db35d1f784da": {
+      "id": "4RWxqicYgOUhi2cuvn2ISU",
+      "note": "2023 års tvåspårssingel Bridges Of Glass / Gun."
+    },
+    "ec9ea8e8-ff31-4846-b347-987c89f77c54": {
+      "id": "2Nr5XQ9LKL2RylDPC000hC",
+      "note": "Vinylversion släppt 2023, samma album som digitalutgåvan 2022."
     }
   },
   "releaseTitles": {
