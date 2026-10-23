@@ -131,7 +131,7 @@ button, input { font: inherit; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
 .button { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 19px; text-decoration: none; font-family: var(--condensed); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 12px; }
 .button-primary { background: var(--acid); color: #0b0d0d; }
-.button-ghost { border: 1px solid var(--line-strong); color: var(--ink); }
+.button-ghost { background:transparent; border: 1px solid var(--line-strong); color: var(--ink); }
 .button:hover { transform: translateY(-1px); }
 .hero-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 720px; margin-top: 68px; border-top: 1px solid var(--line-strong); border-bottom: 1px solid var(--line); }
 .hero-stats div { padding: 18px 18px 18px 0; border-right: 1px solid var(--line); }
@@ -1100,7 +1100,7 @@ body.network-body-fullscreen { overflow:hidden; }
 
 /* A five-stop discovery marathon. No autoplay or non-archive content. */
 .video-roulette-actions { display:flex; flex-wrap:wrap; gap:10px; justify-content:flex-end; align-items:center; }
-.video-marathon-start { min-height:58px; cursor:pointer; border-color:var(--acid); }
+.video-marathon-start { min-height:58px; cursor:pointer; border-color:var(--acid); background:#141a16; color:var(--acid); }
 .video-marathon-start:disabled { opacity:.4; cursor:not-allowed; border-color:var(--line); }
 .video-marathon[hidden] { display:none; }
 .video-marathon { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:14px 22px; padding:20px; background:#171b14; border:1px solid rgba(213,255,63,.42); margin:0 0 22px; }
