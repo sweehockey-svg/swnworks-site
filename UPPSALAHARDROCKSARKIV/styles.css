@@ -926,3 +926,8 @@ body.network-body-fullscreen { overflow:hidden; }
 
 .archive-search-form .search-box { flex-direction:column; align-items:stretch; min-width:0; gap:10px; }
 .archive-search-form .search-box input { padding:8px 0; min-width:0; }
+
+/* One year heading for each chronological group. */
+.timeline-year-group > .timeline-year { margin:0; align-self:start; position:sticky; top:90px; overflow-wrap:anywhere; }
+.timeline-events { min-width:0; }
+@media(max-width:600px) { .timeline-year-group > .timeline-year { top:80px; padding-right:12px; } }
