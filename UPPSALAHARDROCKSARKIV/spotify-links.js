@@ -54,6 +54,7 @@
 // Be alert that US Denver The Ghoulies share name and some aggregated music catalogs crosslink; Spotify Communication (2002) and Reclaim the World (2004) share exact original Swedish punk tracklists verified through Sweden band's Bandcamp.
 // The Next Autumn Soundtrack 2003 split with Jeniferever contains two Jeniferever tracks followed by three The Next Autumn Soundtrack recordings; Spotify mapping requires original compilation's own album ID, not Jeniferever artist's entire catalog.
 // Treebeard Uppsala already has dozens of band/album-specific original YouTube uploads; keep these rather than adding duplicate videos; do not link unrelated Australian Treebeard Spotify artists.
+// Additional 2026-10-23 T audit: The Search official bandcamp and Aenaos Records both explicitly link Spotify artist 1qKeXgsFl1puFe0uU6lCZz. Correctly matched original 2006-24 album tracklists and 2015/23 Third Storm, 2019 Taiwaz master vs streaming year. The Search 2004 self-titled remains unmapped because unique Spotify album ID not independently confirmed.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -111,7 +112,8 @@ window.ARCHIVE_SPOTIFY = {
     "the-good-honey-society": "4kwRdx0fLZR4VU1fYcngp6",
     "the-mist-of-avalon": "2sBoNA6K6BQKwRI92eLC8A",
     "the-unkinds": "3TIZ6zJ2NFE2WDuclxFNk0",
-    "third-storm": "1y8lxKjcSgelcKxUgi1y3X"
+    "third-storm": "1y8lxKjcSgelcKxUgi1y3X",
+    "the-search": "1qKeXgsFl1puFe0uU6lCZz"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -997,6 +999,66 @@ window.ARCHIVE_SPOTIFY = {
     "b99d7606-14ca-4380-b05c-1bc131ca228f": {
       "id": "42z9cl8yDOTgpMWnLyN7A8",
       "note": "2018 original eight-track The Grand Manifestation album by Uppsala black/death metal Third Storm, verified via Dark Descent Records bandcamp original tracklist."
+    },
+    "781fd4bb-e762-429b-84a3-b30280663e90": {
+      "id": "5fLLuUpxRNC3NdaLmW2qgk",
+      "note": "The Search 2006 Bloodbathe & Bazaar of Lush Loose Limbs original 15-track recording, exact 15-track Spotify embed verified. Artist 1qKe... linked from band's own Bandcamp and record label."
+    },
+    "991441e3-654f-4b05-972d-a52dfdc55322": {
+      "id": "5DcmfF9mxkOYNeH9bT0adJ",
+      "note": "The Search Deranged Minds Unite: 2007 archive issue vs Spotify catalogue 2010, not proof of physically identical edition. Album titles and original band identity verified."
+    },
+    "e691b0d1-d964-4a4c-9230-6e07d4ebf435": {
+      "id": "7tw2fb8lJleeqBOIVPwVrK",
+      "note": "The Search Saturnine Songs 2008 original 12-track recording, Spotify track list verified."
+    },
+    "cab3d6bd-7600-4e49-8512-c7d304eb410b": {
+      "id": "7tw2fb8lJleeqBOIVPwVrK",
+      "note": "The Search Saturnine Songs 2008 second archive issue/format: same 12-song album stream, no claim of separately verified digital master."
+    },
+    "6c897406-80b2-4183-86a8-e3a2ad5e35fd": {
+      "id": "11gh8116L5weuOHFKRRV2w",
+      "note": "The Search 2011 compilation The Silverslut (2000-2002), Spotify 35-track reissue title confirmed. Original band formerly known as The Silverslut."
+    },
+    "22cfd639-ba9e-4f14-9042-066eb5063df2": {
+      "id": "7qMMNlJKBLddfBWu2RZ3mk",
+      "note": "The Search Staying Alive in a Country Industrialized 2012 original ten tracks, Spotify full tracklist verified."
+    },
+    "a2f0cdd7-7e5b-48b5-bb33-5a1ac42d8362": {
+      "id": "1tB3FL3xh9bCfNgOrNYBrr",
+      "note": "The Search 2014 Our Need for Solace eleven-song original album Spotify match; archive has two format entries sharing audio."
+    },
+    "0d8090fb-5f30-4a77-9ae5-e45f480b5590": {
+      "id": "1tB3FL3xh9bCfNgOrNYBrr",
+      "note": "The Search 2014 Our Need For Solace second archive issue, same full eleven-song recorded program."
+    },
+    "ac1ff291-cf5c-43ca-a4bf-e38712ada845": {
+      "id": "3Kxz0lRfUuksh8awXnMmsa",
+      "note": "The Search Echo 2017 original ten-track Aenaos Records album; Spotify embed verified."
+    },
+    "78e9e148-0e25-4079-8e76-1b18573e564e": {
+      "id": "7I6z64c61dXd6EBc8WTuNG",
+      "note": "The Search Extras 2022 full 12-track album, original Uppsala artist link confirmed by Bandcamp and Spotify."
+    },
+    "d814381c-a73f-46b2-a169-4de0eb998f65": {
+      "id": "3SKuHy9mhe9iMqWSxDg0mC",
+      "note": "The Search Indulgence 2024 original ten-track album with first song Silhouette; same Spotify digital release as second 2024 archive issue."
+    },
+    "54b7cde1-fe5e-4671-b190-6819c11a0bcc": {
+      "id": "3SKuHy9mhe9iMqWSxDg0mC",
+      "note": "The Search Indulgence 2024 other archive format, identical ten-song digital program; no Spotify-format-specific edition asserted."
+    },
+    "307093bc-d460-4b38-b27f-d37ebf95f96c": {
+      "id": "7C7U6OmKThNnE3mDBC0cXb",
+      "note": "Third Storm The Locust Mantra 2023 nine-track album, exact original Spotify embed and issuing Chaos Records original edition."
+    },
+    "869c2493-9a60-4380-9610-be7b95947d75": {
+      "id": "7vV3qV1NWMhOgOSxyzYdf3",
+      "note": "Taiwaz The Uninvited Guest original six-track 2019 LP (Spotify digitally listed 2020). Full studio album, not two-song Spotify 2019 single with same title."
+    },
+    "6448a7c4-f7b1-4427-8df4-02f27db6e615": {
+      "id": "7vV3qV1NWMhOgOSxyzYdf3",
+      "note": "Taiwaz The Uninvited Guest 2019 other archived issue/format shares original six-song studio album; Spotify digitally lists 2020, not same-name two-track 2019 single."
     }
   },
   "releaseTitles": {
