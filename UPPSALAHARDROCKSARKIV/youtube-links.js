@@ -8535,5 +8535,193 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "track",
   "checked": "2026-10-23",
   "sourceNote": "Description identifies When Tomorrow Comes from the split with Dissober."
+},
+// K manually checked 2026-10-23; original 2006 tape and 2010 reissue distinguished.
+{
+  "band": "katalysator",
+  "release": "22957e22-f395-4402-a8e2-6aaadd7af0de",
+  "title": "Banished from Life",
+  "id": "-Btik2R58eY",
+  "views": null,
+  "channel": "DeviantArousal",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Demon Zombie Destruction (2005)"
+},
+{
+  "band": "katalysator",
+  "release": "22957e22-f395-4402-a8e2-6aaadd7af0de",
+  "title": "Zombie Destruction",
+  "id": "rXtMJkLooio",
+  "views": null,
+  "channel": "DeviantArousal",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Demon Zombie Destruction (2005)"
+},
+{
+  "band": "katalysator",
+  "release": "22957e22-f395-4402-a8e2-6aaadd7af0de",
+  "title": "Toxic Death",
+  "id": "l0wTf7y7kGE",
+  "views": null,
+  "channel": "DeviantArousal",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Demon Zombie Destruction (2005)"
+},
+{
+  "band": "katalysator",
+  "release": "342658eb-40d7-47c4-8284-62583f400064",
+  "title": "Mass Genocide Ritual (komplett demo)",
+  "id": "CtPwRZuP_s8",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Video daterad 2007; arkivutgåvan daterad 2006."
+},
+{
+  "band": "katalysator",
+  "release": "342658eb-40d7-47c4-8284-62583f400064",
+  "title": "Invidious Obscurity",
+  "id": "-DXbgpILOYY",
+  "views": null,
+  "channel": "DeviantArousal",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Videotitel: Intro / Invidious Obscurity"
+},
+{
+  "band": "katalysator",
+  "release": "342658eb-40d7-47c4-8284-62583f400064",
+  "title": "Mass Genocide Ritual",
+  "id": "rH9zJDid8pk",
+  "views": null,
+  "channel": "DeviantArousal",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2006 års demoinspelning"
+},
+{
+  "band": "katalysator",
+  "release": "342658eb-40d7-47c4-8284-62583f400064",
+  "title": "Cocoons of Death",
+  "id": "fqkBYI_cOmQ",
+  "views": null,
+  "channel": "DeviantArousal",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2006 års demoinspelning"
+},
+{
+  "band": "katalysator",
+  "release": "cb48c055-4a0b-4eb5-89f9-5b82b8bd9c77",
+  "title": "Mass Genocide Ritual (komplett demo)",
+  "id": "CtPwRZuP_s8",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "2006 års inspelning på nyutgiven kassett från 2010"
+},
+{
+  "band": "katalysator",
+  "release": "cb48c055-4a0b-4eb5-89f9-5b82b8bd9c77",
+  "title": "Invidious Obscurity",
+  "id": "-DXbgpILOYY",
+  "views": null,
+  "channel": "DeviantArousal",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2010 års återutgåva av samma demo"
+},
+{
+  "band": "katalysator",
+  "release": "cb48c055-4a0b-4eb5-89f9-5b82b8bd9c77",
+  "title": "Mass Genocide Ritual",
+  "id": "rH9zJDid8pk",
+  "views": null,
+  "channel": "DeviantArousal",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2010 års återutgåva av samma demo"
+},
+{
+  "band": "katalysator",
+  "release": "cb48c055-4a0b-4eb5-89f9-5b82b8bd9c77",
+  "title": "Cocoons of Death",
+  "id": "fqkBYI_cOmQ",
+  "views": null,
+  "channel": "DeviantArousal",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2010 års återutgåva av samma demo"
+},
+{
+  "band": "katalysator",
+  "release": "06947dc8-5ea1-4cad-8cbb-51bf2ac51bed",
+  "title": "Mass Genocide Ritual",
+  "id": "YLEkHmzxs3A",
+  "views": null,
+  "channel": "Katalysator - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Bandets spår på Swedish Death Metal (2009), samling med flera band"
+},
+{
+  "band": "kelly-8",
+  "release": "5d24ec64-2282-4208-afae-a15fb5f7b7b0",
+  "title": "Break A Habit",
+  "id": "d2EN32sx0j8",
+  "views": null,
+  "channel": "Kelly 8 - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Inspelning från 2004, digitaliserad 2012"
+},
+{
+  "band": "kelly-8",
+  "release": "3dc54a22-de93-4166-9ccc-40e052e00e39",
+  "title": "No Sounds Amplify",
+  "id": "s-40Gb9iVMY",
+  "views": null,
+  "channel": "Kelly 8",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Officiell musikvideo från albumet The Union 2009"
+},
+{
+  "band": "kelly-8",
+  "release": "3dc54a22-de93-4166-9ccc-40e052e00e39",
+  "title": "Quick To The City",
+  "id": "hsfjbA0Di14",
+  "views": null,
+  "channel": "Kelly 8 - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "YouTube-licensierad uppladdning av The Union 2009"
+},
+{
+  "band": "kelly-8",
+  "release": "3dc54a22-de93-4166-9ccc-40e052e00e39",
+  "title": "Now To Calm Me",
+  "id": "yXyYE2AwYug",
+  "views": null,
+  "channel": "Kelly 8 - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Samma låt som öppnar The Union; uppladdad via retrospektiv samling"
+},
+{
+  "band": "knock-out-kings",
+  "release": "7393f669-8d4b-423a-9012-2b16ac25d211",
+  "title": "Maiden Trip",
+  "id": "ohPPR3sgKQw",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Klippet anger Knock Out Kings från Knivsta och samlingen Swedish Power (1991)"
 }
 ];
