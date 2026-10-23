@@ -13,6 +13,10 @@
 // Spotify original edition vs reissue noted where needed. HAERDROCK (released 2026-10-23) is not yet a release in this archive; no album-release UUID to map.
 // No confident Spotify artist match for Harass, Harma, Hellrace or Hoistpoint.
 // H title-keyed Spotify fallback is limited to band HEXED + uniquely verified release title when release UUID could not be read from the archive.
+// I checked 2026-10-23: verified Imperial Domain and In Solitude artist profiles, six + three matched streaming release editions.
+// Imperial Domain's 1996 In the Ashes of the Fallen demo differs from the 1998 album and is not mapped to Spotify album.
+// In Solitude 2008 album on Spotify is a 2013 reissue with bonus tracks. Older demo, singles and EPs without exact Spotify edition are not linked to later album recordings.
+// Inception, Inrage and Invidious: no reliable matching original Spotify album/artist found; avoid similar-name artists.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -27,7 +31,9 @@ window.ARCHIVE_SPOTIFY = {
     "gold-spire": "5qbFvPQkWPSFyZ6SjBK9MO",
     "haerdsmaelta": "0kaX0dfYVIpLKZO8SzwT3g",
     "hasse-froberg-och-musical-companion": "13RTW4shE0TgtPiImh90SS",
-    "hexed": "4iS1F1uWKnRIdQKpg7TJAX"
+    "hexed": "4iS1F1uWKnRIdQKpg7TJAX",
+    "imperial-domain": "368CxcpMLCHAU3a5P4IBe6",
+    "in-solitude": "5CNR5mJJPAhMamFWQ9xJxD"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -216,6 +222,42 @@ window.ARCHIVE_SPOTIFY = {
     },
     "c1fcd69f-80d8-4939-bfbb-f8a52c821e25": {
       "id": "71iOCjhWRt2wr9fhBlkwFp",
+      "note": ""
+    },
+    "c560d1cf-5885-418d-99c3-0ec2ffdab889": {
+      "id": "03qytWFInhW6kXPnIDvSy7",
+      "note": ""
+    },
+    "7b201dda-90f0-4e17-ad24-3684eace3aae": {
+      "id": "26EkAIEQNb6NZ9vx5IKeo7",
+      "note": ""
+    },
+    "82e007c8-16c8-4ddb-b7b7-47dc7a4ae627": {
+      "id": "5tksrD5XC8KDSrLatQGn2G",
+      "note": ""
+    },
+    "c304a3f2-f84f-4836-9482-b92ddfd323f3": {
+      "id": "56wt7WKUM7PG9y1heneWou",
+      "note": ""
+    },
+    "5fddf230-0d19-43be-b7db-31848f571e5e": {
+      "id": "1RLD0QNs5vvTYcfzdHcDGp",
+      "note": ""
+    },
+    "bfd884e7-d007-4ea2-bde3-4745806e394b": {
+      "id": "0aU9XCrJJRUrnysB5BfQ9d",
+      "note": ""
+    },
+    "af472eeb-a840-4dc8-bf85-a47062c0246c": {
+      "id": "28kX05z6UfCBWBfp7cegdX",
+      "note": "Spotify: 2013 års nyutgåva av originalalbumet från 2008, med två bonusspår."
+    },
+    "ebe98587-3813-49d7-a88f-ecb5449db092": {
+      "id": "25SYB9zU1aK8G4jjjVmy7s",
+      "note": "Spotify-titel: The World; The Flesh: The Devil."
+    },
+    "07177abc-82ac-4640-b364-32d40e9cab29": {
+      "id": "7dozEDYcswMbvJTnEBBLGU",
       "note": ""
     }
   },
