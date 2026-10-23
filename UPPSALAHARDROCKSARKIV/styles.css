@@ -947,3 +947,11 @@ body.network-body-fullscreen { overflow:hidden; }
 
 .spotify-link { display:block; margin:20px 0 8px; color:var(--acid); font-size:14px; text-underline-offset:4px; }
 .spotify-edition { display:block; color:var(--muted); font-size:12px; margin-bottom:20px; }
+
+/* YouTube thumbnail, with the player still loaded only on click. */
+.youtube-play { position:relative; overflow:hidden; isolation:isolate; }
+.youtube-thumbnail { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2; }
+.youtube-play::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,#0003,#0009); z-index:-1; }
+.youtube-play > span:first-child { display:grid; place-items:center; width:72px; height:52px; border-radius:12px; background:#f03; color:#fff; font-size:28px; padding-left:4px; }
+.youtube-play strong,.youtube-play > span:last-of-type { color:#fff; text-shadow:0 2px 5px #000; }
+.youtube-play:hover > span:first-child { background:#c00; }
