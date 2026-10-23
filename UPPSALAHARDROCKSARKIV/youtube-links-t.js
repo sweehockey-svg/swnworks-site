@@ -474,5 +474,94 @@ window.ARCHIVE_YOUTUBE.push(...[
     "kind": "track",
     "checked": "2026-10-23",
     "sourceNote": "Third Storm original 2023 The Locust Mantra fourth track, official Chaos Records single/album promotional video."
+  },
+  // Extra verified T-band recordings, 2026-10-24
+  {
+    "band": "the-search",
+    "release": "54b7cde1-fe5e-4671-b190-6819c11a0bcc",
+    "title": "Smooth Skin",
+    "id": "ZNUtRM9AovU",
+    "views": null,
+    "channel": "The Search - Topic",
+    "kind": "track",
+    "checked": "2026-10-24",
+    "sourceNote": "Aenaos Records / IIP-DDS auto-generated YouTube recording, track 3 of Uppsala The Search original Indulgence 2024 release; original author Razmig Tekeyan."
+  },
+  {
+    "band": "the-search",
+    "release": "54b7cde1-fe5e-4671-b190-6819c11a0bcc",
+    "title": "A Vision Of A Life",
+    "id": "6YVZ5vcw1Ks",
+    "views": null,
+    "channel": "The Search - Topic",
+    "kind": "track",
+    "checked": "2026-10-24",
+    "sourceNote": "Aenaos Records / IIP-DDS 2024 Indulgence official album recording, song 10, original composer Razmig Tekeyan."
+  },
+  {
+    "band": "the-search",
+    "release": "54b7cde1-fe5e-4671-b190-6819c11a0bcc",
+    "title": "Teddy",
+    "id": "ft4wMOrgeOc",
+    "views": null,
+    "channel": "The Search - Topic",
+    "kind": "track",
+    "checked": "2026-10-24",
+    "sourceNote": "Aenaos Records / IIP-DDS official original Indulgence 2024 song 8, Razmig Tekeyan."
+  },
+  {
+    "band": "the-search",
+    "release": "54b7cde1-fe5e-4671-b190-6819c11a0bcc",
+    "title": "I Want To Find Sanctuary",
+    "id": "iyn5DTC4kQ0",
+    "views": null,
+    "channel": "The Search - Topic",
+    "kind": "track",
+    "checked": "2026-10-24",
+    "sourceNote": "Aenaos Records / IIP-DDS official original Indulgence 2024 song 4; Uppsala post-punk group not unrelated namesakes."
+  },
+  {
+    "band": "the-search",
+    "release": "54b7cde1-fe5e-4671-b190-6819c11a0bcc",
+    "title": "You Just Want Somebody To Hold You",
+    "id": "9aDc-GhEMFA",
+    "views": null,
+    "channel": "The Search - Topic",
+    "kind": "track",
+    "checked": "2026-10-24",
+    "sourceNote": "Original Aenaos Records single distributed 2024-09-13, also track 2 on 2024 Indulgence. YouTube release metadata identifies the single, not original music-video filming."
+  },
+  {
+    "band": "the-search",
+    "release": "22cfd639-ba9e-4f14-9042-066eb5063df2",
+    "title": "I Could Never Get Close to You",
+    "id": "cybL_KZszl4",
+    "views": null,
+    "channel": "The Search - Topic",
+    "kind": "track",
+    "checked": "2026-10-24",
+    "sourceNote": "Official Aenaos Records/IIP-DDS upload, credits and 2012-04-27 source album Staying Alive in a Country Industrialized match original Uppsala The Search."
+  },
+  {
+    "band": "the-search",
+    "release": "6c897406-80b2-4183-86a8-e3a2ad5e35fd",
+    "title": "A Young Open Wound",
+    "id": "SnByNcFHmmc",
+    "views": null,
+    "channel": "The Search - Topic",
+    "kind": "track",
+    "checked": "2026-10-24",
+    "sourceNote": "Official Aenaos Records/IIP-DDS source release The Silverslut (2000-2002), issued digitally 2011-06-28; archive recording, not claimed to be uploaded during 2000-2002."
+  },
+  {
+    "band": "the-search",
+    "release": "6c897406-80b2-4183-86a8-e3a2ad5e35fd",
+    "title": "Juno",
+    "id": "plG856qQAQQ",
+    "views": null,
+    "channel": "The Search - Topic",
+    "kind": "track",
+    "checked": "2026-10-24",
+    "sourceNote": "Official Aenaos Records/IIP-DDS source release The Silverslut (2000-2002), issued 2011-06-28, original early Uppsala band recording."
   }
 ]);
