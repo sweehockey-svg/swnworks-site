@@ -39,6 +39,8 @@
 // Ordos Fire 2025 linked via artist-published DistroKid HyperFollow URL; direct Spotify album ID verified.
 // P checked 2026-10-23: Poeter Blir Dom... original Swedish hip-hop/Uppsala collective linked to Spotify artist and verified 2020 ten-track digital issue (not 2004 vinyl). Two accessible Spotify album IDs have identical titles, tracks and running times; a single ID is used to avoid duplicate issue mapping.
 // No verified streaming identities for Panama (1991 Uppsala), Pessimistjolle, Phunk (2004 Shedding Skin), Planescape (2005 7 Turns), Poets on Payday (related Stockholm), Pure Pain (1992 Sculptures). Do not confuse unrelated same-name artists or the Planescape: Torment game.
+// Q checked 2026-10-23: Quagmire from Uppsala is the same band as QGMR (Viktor Ahnfelt / Mathias Rask-Andersen). Spotify artist is credited QGMR. The Senator (2000) credits both Quagmire and QGMR as performers, making this cross-identity safe.
+// Spotify albums matched to Supabase release UUIDs: The Senator 2000, Quiet Is Not Loud 2003, No Language 2006. Do not map the 2006 No Language EP title track We Know We Don't Know to the full 2008 We Know We Don't Know album. No verified specific 2008 Spotify album ID found.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -75,7 +77,8 @@ window.ARCHIVE_SPOTIFY = {
     "ordos": "3pYCwlhXW6pbRSnzD2Fshj",
     "on-trial": "4nvfNTnpTR4q1Zjs6WkuLz",
     "one-hour-hell": "4imhqIhUhfk21DK1EgRBjj",
-    "poeter-blir-dom": "04BjAh3LlAXmBrmR43kQuj"
+    "poeter-blir-dom": "04BjAh3LlAXmBrmR43kQuj",
+    "quagmire": "1P8VH7cchmm1tMXlA7nAZX"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -697,6 +700,18 @@ window.ARCHIVE_SPOTIFY = {
     "d48d1c97-c400-49fd-91c2-be1b75061cd7": {
       "id": "5QHsTT57C8d5v2zpAyElV9",
       "note": "Verifierad 2020 digital utgåva med tio låtar. Även Spotify-album-ID 7HSOaaZQeQB9U6fRmmogeV har samma spårlista; dessa är inte olika originalpressningar. 2004 års vinyl har separat arkivpost och är inte automatiskt samma master."
+    },
+    "c4b4f78a-bb5b-4b8f-9003-0d0b5790bf90": {
+      "id": "74UrRGA6QlhDIz25xcOdDi",
+      "note": "Quagmire/QGMR original The Senator EP 2000, four tracks, Carcrash Records. Spotify credits both Quagmire and QGMR; Qobuz separately verifies band members Viktor Ahnfelt and Mathias Rask-Andersen."
+    },
+    "e80a6a04-601e-4ad6-b50a-9aefc0b8bf7c": {
+      "id": "3s5ZHxq41a84ckyaSXQu0f",
+      "note": "Original 2003 QGMR album Quiet Is Not Loud, 10 tracks; do not conflate older physical issue with a different master."
+    },
+    "740c592f-8612-46ab-8e9c-f8b992d998c8": {
+      "id": "4KSjsl5dOnioBjGGikLcLt",
+      "note": "Original 2006 three-song No Language EP on Nomethod. Track We Know We Don't Know is an early EP recording, not proof that 2008 album is available on Spotify."
     }
   },
   "releaseTitles": {
