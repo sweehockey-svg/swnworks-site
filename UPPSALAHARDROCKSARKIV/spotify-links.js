@@ -27,6 +27,8 @@
 // Lou Siffer's 2011 album has a different Spotify title but the same 11 songs; source/edition differences documented in notes.
 // Spotify lacks confirmed standalone Summer 2017 and The Mosher/In the Dark original single release IDs; no album-level guess.
 // Legbiter / Norna 2026 split: matching complete six-track Spotify release (verified via MusicBrainz and label tracklist).
+// M-band streaming check 2026-10-23: original album or unambiguous edition; 2012 deluxe/reissue, duplicated Mönster Life Science and archival sampler editions not conflated.
+// Malaise, Mayadome, Midas Touch, Misery Loves Co., Moder Jords Massiva, Mönster, Morbid Illusion, Mother Superior; Mamma Pappa Barn external.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -47,7 +49,14 @@ window.ARCHIVE_SPOTIFY = {
     "jeniferever": "7dbuDvPGFqDJ1M81BTJ4CX",
     "kelly-8": "0ztpLOCgtfquHkmkfb01RG",
     "loch-vostok": "016GvkOAZuk3P4nMiJ2sX8",
-    "lou-siffer-och-the-howling-demons": "59KfvyT8lPldMaTJLmGlzD"
+    "lou-siffer-och-the-howling-demons": "59KfvyT8lPldMaTJLmGlzD",
+    "malaise": "1jTRZdGBP1HtBSOpEUnBR7",
+    "mayadome": "5hmgH347CWwu6iVzwtQBTM",
+    "midas-touch": "5xbESquzmGTySFINXoq4Wk",
+    "misery-loves-co": "20UgZzpTMlb9kP2ezU0bEs",
+    "moder-jords-massiva": "0GTaum09ogUQOSBwcLzXVt",
+    "morbid-illusion": "6MCJJMVJAJFPQR1qNEPGoU",
+    "mother-superior": "547I5lsD6Vb4GSOnQ9uz3V"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -389,6 +398,114 @@ window.ARCHIVE_SPOTIFY = {
     "246b784f-4d73-43f5-a823-8ab6c103fcd5": {
       "id": "2G7Ygm6E2aY6nrLA3NCW0R",
       "note": "Delad EP med Legbiter (3 låtar) och Norna (3 låtar), släppt 20 mars 2026. Spotify visar hela splitutgåvan."
+    },
+    "b5d500e5-34ff-4abf-a5c9-f3d32b518d86": {
+      "id": "01paaK2dB7BKvLlBkQVwKL",
+      "note": ""
+    },
+    "f960a20e-3f40-4965-93ed-f065798c3d69": {
+      "id": "74PRnrXNilsm7vQcEEhpD2",
+      "note": ""
+    },
+    "c0d1722c-168c-4d04-aae0-2cd829e2696d": {
+      "id": "2OuQIaaPR6UYhDnTqcnUnG",
+      "note": ""
+    },
+    "423b801b-e432-408b-865e-4e0723644f22": {
+      "id": "40T1k8Nsg9VaT4ZNDVv3Rp",
+      "note": ""
+    },
+    "040c2536-08da-4e55-b362-81234fa21aa6": {
+      "id": "20kj3E26EGgA0w9FlGOser",
+      "note": "Spotify presenterar de fem låtarna som EP, ibland som singel."
+    },
+    "8de8bbc5-0d62-4e5b-a28c-930c95b2947f": {
+      "id": "0aVsQTnU3Llj8y05OnjFoy",
+      "note": ""
+    },
+    "8b81d18b-979f-4678-af9d-63a9b20e8d30": {
+      "id": "3zttDgAtk7HlXUzQ18m324",
+      "note": ""
+    },
+    "4ded05fb-3777-4af0-8988-2a8dd80eaf93": {
+      "id": "05kpwTGgb9bcMpHnwWzV2y",
+      "note": "Original 1989 edition; separate 2012 deluxe with 1987 demo material exists."
+    },
+    "5bf6c6cd-41a7-46c1-8556-053cf5fb78d6": {
+      "id": "74qPZrslBmqN8FLU5Prifv",
+      "note": "Original debutalbum 1994, 11 tracks (distinct from 25th Anniversary edition)."
+    },
+    "4d398ca4-d0b7-4592-8b02-fc66fcf22b49": {
+      "id": "4uEbnGaYYnjlmvsJ8R7G28",
+      "note": ""
+    },
+    "b7a28b93-4c75-4cc8-a0a8-3e3c8f850c2c": {
+      "id": "7ANMHu04Q8UTcacsiZPubu",
+      "note": ""
+    },
+    "1babdfd7-b373-45ac-97e2-9a57139b3c0f": {
+      "id": "0IrZvEUVzzOeReoVMYkFLS",
+      "note": ""
+    },
+    "77472a93-35cb-49d9-929b-04afa4f64fd0": {
+      "id": "2cTXU60HWTXSWMahPsZ5AL",
+      "note": ""
+    },
+    "6137a3b9-4ea3-4215-afa4-8d6c33239232": {
+      "id": "6wSwCtrblT3T67atzzM6jc",
+      "note": ""
+    },
+    "ba43f6db-8209-4dda-9ad2-bbb579d4da6f": {
+      "id": "69r85RENLFGMpDdQZ83znj",
+      "note": ""
+    },
+    "e96c0524-9bf1-4f83-beff-9ccd1f2d74d2": {
+      "id": "7510znGDjsSE63UKcHcTSa",
+      "note": ""
+    },
+    "6b89ad86-4ff2-4aa7-b6fa-3a8fb9b5febd": {
+      "id": "05HJPthLqkVtyOLY6DOSti",
+      "note": "Spotify utgivningsår 2004, originalet 2002."
+    },
+    "472bc1e6-093b-4e56-aedf-a19dbfdccfc8": {
+      "id": "4S8g6Zar0g5qOZR2anfHSb",
+      "note": ""
+    },
+    "158b7a62-b74b-4ce3-9c9a-2c177b126d6b": {
+      "id": "1KYtXBbkn4Cet4aWf35TVX",
+      "note": ""
+    },
+    "3ac93a79-f555-4bd3-aaff-70da255725bf": {
+      "id": "0YvaQZdJbHqiZMW0guMraG",
+      "note": ""
+    },
+    "a295b18a-fabc-4024-8846-9b27488736bf": {
+      "id": "5CWdhAnFE1SM5YSDueCAiE",
+      "note": ""
+    },
+    "bb8ad406-0d91-45d0-8993-05365be82a12": {
+      "id": "2Nr5XQ9LKL2RylDPC000hC",
+      "note": "2022 original album; 2023 archive issue has no separately verified digital edition."
+    },
+    "2035bf4d-676f-4917-8af9-25034b5e3051": {
+      "id": "0FTsYc6XH1ptw9Ho2uVEzx",
+      "note": "Spotify 2023 single has 2 tracks."
+    },
+    "e20047ed-0d1e-4602-bb4d-2dbb9044c40c": {
+      "id": "00sMqVS0ifrtO9vTAMwB2N",
+      "note": ""
+    },
+    "c7be003e-932b-4733-8c25-f42ac1d38fef": {
+      "id": "0gXQ08TXuSYD9DuRqBw1N7",
+      "note": "Original 1996 album; 1997 issue in archive is separate."
+    },
+    "68573dc1-791c-4d2b-aad3-2df39aa6e0d2": {
+      "id": "3ZMdJR3FWqguzFf04IZozI",
+      "note": ""
+    },
+    "fb4985ed-578a-4536-8976-9e0fa3b05de6": {
+      "id": "6sXtsv5TK8zEcQYFuC3mcQ",
+      "note": ""
     }
   },
   "releaseTitles": {
