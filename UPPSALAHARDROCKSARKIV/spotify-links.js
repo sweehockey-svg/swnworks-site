@@ -45,6 +45,10 @@
 // 2011 LP / 2012 CD share 2011 recording, 2021 Doppelherz CD/vinyl/digital share one 10-track streaming album. The physical issues have no independently verified distinct Spotify edition IDs.
 // No confident original Spotify artist or album ID for 1995/1997 Swedish melodic AOR R.A.W. (Lindmark brothers), Råskit/1996 various-artists crust compilation, 1982/84 Uppsala Reptile, 1988 Rue Morgue Pavor Nocturnus or external Royal Big Band. Do not substitute other artists of the same names.
 // Reveal! 2016 Cadmium / No Your Product 7-inch, 2018 Opaque / What Pigs Get 7-inch and 2021 Some Marionettes vinyl single are NOT verified as separate Spotify releases; album track versions must not be used as singles by guess.
+// S Spotify verified 2026-10-23: 27 archive S bands. Exact identities and release programs checked for Sanctrum, Sarcasm, Searing I, Serpent Omega, SHORTONESHORT, Snuffed by the Yakuza, Solewire, Spellbound, Sportlov, Stallion Four, Statues and Sunaglare.
+// Original physical format vs digital release discrepancies explicitly noted per UUID; do not claim Spotify houses distinct CD or vinyl master just because both archive formats map to the same album ID.
+// Do not substitute 1992-94 Sarcasm demo recordings with the 31-track 2015 anthology Burial Dimensions or with the 8-track 2015 reissue of the unpublished 1990s album; physical original edition differences noted.
+// 2025 Sanctrum Awaken in Embers, 2012 SHORTONESHORT Pestilence, 2014 Like an Accident, 2020 Sunaglare singles except Baby Said, 2004 Snuffed It's Dirty Chords, Spellbound 1984 Swedish Metal split and 1997/2002 archival compilations lack exact safely confirmed standalone Spotify IDs in this pass. No guessing for other S-band homonyms.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -83,7 +87,19 @@ window.ARCHIVE_SPOTIFY = {
     "one-hour-hell": "4imhqIhUhfk21DK1EgRBjj",
     "poeter-blir-dom": "04BjAh3LlAXmBrmR43kQuj",
     "quagmire": "1P8VH7cchmm1tMXlA7nAZX",
-    "reveal": "2dkiROdMEKXaAk4eXHsS6T"
+    "reveal": "2dkiROdMEKXaAk4eXHsS6T",
+    "sanctrum": "0GVqqZ3Zq6e8f6ObVrJxnr",
+    "sarcasm": "0nDgTe28SFHduQi3iP0LM3",
+    "searing-i": "5FfzWk9usnq312rlk9HOiW",
+    "serpent-omega": "6TYDhQnCSqqZD9mjHC2xxV",
+    "shortoneshort": "540YcWMuuXXZEkORB8h7SE",
+    "snuffed-by-the-yakuza": "2cguYfq3OGoBXm9ZSZhr0C",
+    "solewire": "5Br5enV7QowgyQ30eeAfYV",
+    "spellbound": "5T1ZSmAt5qKp4Z9gGmlqcm",
+    "sportlov": "21XfJHe0ObhUxOqeWhEJYi",
+    "stallion-four": "1NMNthl2xRjbbrEsG41enP",
+    "statues": "07q3BsqZbVsLcbxqtXzTDH",
+    "sunaglare": "5R9DOuwHzSCXW2kmaJkD6o"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -745,6 +761,170 @@ window.ARCHIVE_SPOTIFY = {
     "3abb38e2-e82b-46ae-9ffb-c023964a501c": {
       "id": "0Dt9yibJgJN5QPRL2Vk47g",
       "note": "Original 2021 Doppelherz digital album, 10 tracks. The 2021 standalone single Some Marionettes, Some Kites (A Few Knives) is not the full album."
+    },
+    "b38a5c05-e4e5-425b-ad6c-f1080fde4a3f": {
+      "id": "2FyFcRYTDjPI2ZeS7JKOpM",
+      "note": "Sanctrum 11-track album In Harm's Way. Archive gives original 2008; Spotify catalogs album as 2009. Verified tracklist and band; not an asserted identical 2008 pressing."
+    },
+    "9b47671f-27a1-421b-a564-8740fa3faa14": {
+      "id": "4OCssI0yinhYv53LtBrT6W",
+      "note": "Sanctrum five-track Autumn EP, archive dated 2013 whereas Spotify labels 2012. Exact five-song digital recording confirmed; publication-year discrepancy recorded."
+    },
+    "9ab2fcde-6814-4ea2-bf78-a05e57e3044f": {
+      "id": "4hMBc3Az27TO0wpHOA4ZPE",
+      "note": "Original Sanctrum Rot album 2015 with 10 tracks; Spotify album 4hMB... verified. Another Spotify Rot album ID exists; this one has exact 10-song program."
+    },
+    "84efb5ff-3c01-40a0-bc78-134a1cfd510c": {
+      "id": "2mwoZHo7OkvMj6utCMBBTM",
+      "note": "Original Sanctrum Walk With Vermin EP 2018, five tracks, titles checked via Spotify."
+    },
+    "53c3a650-d856-42f8-b235-83f8f5a5bc93": {
+      "id": "6KHXRE4iRWz1Fzbxfmt4XB",
+      "note": "Eight-track core Burial Dimensions recording. Spotify lists an eight-track 2015 reissue while archive catalogs 2016 original issue; not a physically edition-specific 2016 ID. The 31-track Spotify anthology 2v2X4Gdicikd6op0oXswZF also exists and includes early demos, should not be substituted for individual 1992–94 demos."
+    },
+    "01591de8-8982-4b35-863d-0ce0ca7fb9fc": {
+      "id": "5GX8lAzbUD1BSfVfrM3I3E",
+      "note": "Within the Sphere of Ethereal Minds 2017 album, 8-track Spotify list verified."
+    },
+    "88ed434d-7a1e-43e9-b742-afbc963578d5": {
+      "id": "2YmCmMULsvFsnWtIue5GML",
+      "note": "Esoteric Tales of the Unserene 2019 album, 8 tracks, exact Spotify album."
+    },
+    "e24fe161-d0b4-4d1f-8cfb-e560af7a8bad": {
+      "id": "7Aonfv2U8Hxs5ZMxBXwd4W",
+      "note": "Stellar Stream Obscured 2022, 8-track Spotify album."
+    },
+    "adae136c-894d-4fa6-b607-afd4cd040d3e": {
+      "id": "0AGrawZjkfl9Q4qfbbIDTL",
+      "note": "Mourninghoul 2024 eight-track album confirmed by Spotify."
+    },
+    "db23d24c-9bb5-4b1c-8dd7-c5e0ea01d5ca": {
+      "id": "5KvrXluMghGqmOAzNDgZf2",
+      "note": "Lifeforce Omnibound 2026, eight-track original Spotify program. Same digital program linked to physical CD and digital archive records; no Spotify-CD specific issue asserted."
+    },
+    "13e185b7-4af0-488a-94c7-edfea2a3fb36": {
+      "id": "5KvrXluMghGqmOAzNDgZf2",
+      "note": "Lifeforce Omnibound 2026, eight-track original Spotify program. Same digital program linked to physical CD and digital archive records; no Spotify-CD specific issue asserted."
+    },
+    "fe846d82-7780-411b-a7ae-e43a1b6543a5": {
+      "id": "0ARmE4Gsz8WpCmuLPPItsH",
+      "note": "Bloodshred first album: original album archived 2005; Spotify search labels release 2006, but ℗ 2005 on Spotify page. 14 original tracks verified."
+    },
+    "de883681-119d-4122-ad24-146b5dec1246": {
+      "id": "3j0eKtUwTcyNp8lpIaBUEz",
+      "note": "Post Traumatic Death Disorder: archive 2008 original vs Spotify-listed 2010 digital release. Same named 11-track album, streaming edition date differs."
+    },
+    "adb7d9f9-24b5-45b6-95c7-afe4b36ba846": {
+      "id": "010aTVd0kiXsMnHsQizJjc",
+      "note": "2013 seven-track Serpent Omega debut; Stockholm-based connected external band, not local Uppsala act."
+    },
+    "ff38e012-323e-4a3b-a4cf-b1e77c7d5b12": {
+      "id": "6HY6bCxEvvXQibGIAjsVka",
+      "note": "2020 seven-track Serpent Omega second album II; official Spotify ID verified."
+    },
+    "f75b15c9-529f-4cf5-8058-797685c21485": {
+      "id": "2poXdiOYeQeB2GQYpHeqrG",
+      "note": "2013 three-track Fistful of Downers (Remaster) original SHORTONESHORT digital issue."
+    },
+    "86e0e7b5-cf22-4944-9da2-a9abf3021c5a": {
+      "id": "2xwruP4TXHr6UAGYCrYugx",
+      "note": "2019 No History album by exact Uppsala band SHORTONESHORT."
+    },
+    "beba2ce6-f1e8-407e-9606-3f348e9e1471": {
+      "id": "61dVhhBOZSF56y5LK4JU53",
+      "note": "2003 nine-track Beyond Belief by original Uppsala Snuffed by the Yakuza."
+    },
+    "ed7a9581-00e8-4375-9471-1b8732dd89a0": {
+      "id": "6wgZpz42xhfJvorLr9aqBD",
+      "note": "2004 six-track Yakuza Slide (Spotify EP title Yakuza Slide); same original Snuffed by the Yakuza artist."
+    },
+    "1c1ae97c-fe3e-4bf0-b93c-2c4c164152f0": {
+      "id": "5j418ibev9X2QGqmmjcp2c",
+      "note": "2005 self-titled fourteen-song Snuffed by the Yakuza studio album."
+    },
+    "d3d83ccb-abf4-4bc9-bfbf-43cd8a505447": {
+      "id": "4dpx5szm8otwHlJMIvv0lL",
+      "note": "Everybody's Gonna Die Tonight original 16-song album issued 2006. Archive record is 2006 original CD; 2016 pressing shares master/program, Spotify is a digital album not claimed as an edition-specific 2016 LP."
+    },
+    "dd9f51e8-bc4d-4ad0-8337-3c9b5c5ab115": {
+      "id": "4dpx5szm8otwHlJMIvv0lL",
+      "note": "Everybody's Gonna Die Tonight original 16-song album issued 2006. Archive record is 2016 vinyl reissue; 2016 pressing shares master/program, Spotify is a digital album not claimed as an edition-specific 2016 LP."
+    },
+    "9c3a2b2d-9ba7-4c06-bcfd-ec6cfcbf2c11": {
+      "id": "7zSE6FrlKvc0J57JNSuwsb",
+      "note": "Fast Livin' 2006 four-track original digital EP."
+    },
+    "6a7e353e-041e-4e10-8d03-83f25335f7f6": {
+      "id": "2hMII6LghAQk55zQFFLVqB",
+      "note": "Trippin' 2017 five-song original EP."
+    },
+    "64190483-60ce-4ba0-a183-c79032bcfdcf": {
+      "id": "5ez6wzEwcX5ccyj1HZF0Nb",
+      "note": "Gang War! 2018 original six-track EP."
+    },
+    "e625ae2f-8933-4bd8-a527-5205207520ef": {
+      "id": "29fESJcN5hVNXAGAB7Vx5R",
+      "note": "Get Snuffed 2019 original fourteen-track album, Spotify ID verified."
+    },
+    "6ef1fec1-f95e-42d4-96ad-7ab0691783fb": {
+      "id": "2rziMBCQ53tPHRbVKoW5TZ",
+      "note": "2020 eight-track BY GUN BY ROPE BY KNIFE EP, Spotify categorizes as EP even if archive release_type album."
+    },
+    "1871a3e0-945d-4a91-9ae9-8045f820bf64": {
+      "id": "5cL6N7j78mxHnc9XI72GGe",
+      "note": "The Mourning After by Swedish project Solewire. Archive 2006 original CD; Spotify album corresponds to 10 songs, other platforms may show 2005."
+    },
+    "fa655d65-26ee-448b-a2b6-00855bfda2eb": {
+      "id": "22xvarTqwk7tUG4MzRZANJ",
+      "note": "Original 1984 Breaking the Spell 10-track album by Knivsta Spellbound. Archive 1984 LP and 1995 CD reissue have same ten tracks. Spotify ©1995 but ℗1984; digital issue, not a separate CD master."
+    },
+    "02ac476a-9f84-40a4-95b2-10d9ef0ae142": {
+      "id": "22xvarTqwk7tUG4MzRZANJ",
+      "note": "Original 1984 Breaking the Spell 10-track album by Knivsta Spellbound. Archive 1984 LP and 1995 CD reissue have same ten tracks. Spotify ©1995 but ℗1984; digital issue, not a separate CD master."
+    },
+    "f7fd0d68-cb2e-43ae-9339-61b0091c9f03": {
+      "id": "3ZRsKVVqGNbnigts98DeKw",
+      "note": "1985 Rockin' Reckless original ten-track LP confirmed on Spotify with Knivsta Swedish Spellbound identity (JJ Marsh, Hasse Fröberg)."
+    },
+    "1cc4f9f3-a642-4b1b-81d3-9b2fd0bfc97d": {
+      "id": "4njo5l2zQC59aCb5gQJ8wi",
+      "note": "2002 five-track original Snöbollskrieg EP by Sportlov, not the separate Spotify single with identical title."
+    },
+    "a08b2688-4c8b-4518-970f-c24657a070c9": {
+      "id": "1IzGs4j0uavmO2yTGLEUHH",
+      "note": "2003 nine-track album Offerblod i vallabod. Archive listing 2003 original CD; Spotify is original full album program, no vinyl-edition-specific Spotify link claimed."
+    },
+    "d056c9bf-d83e-46d8-a9bd-bc52298342f5": {
+      "id": "1IzGs4j0uavmO2yTGLEUHH",
+      "note": "2003 nine-track album Offerblod i vallabod. Archive listing 2023 vinyl reissue; Spotify is original full album program, no vinyl-edition-specific Spotify link claimed."
+    },
+    "9b71ffcf-2c16-4969-abe5-182eb56fffe2": {
+      "id": "4NwBQPygwgjX1efpsxFqHq",
+      "note": "2016 two-track Aska single original issue verified on Spotify."
+    },
+    "7d5b6dd6-8361-4ff4-95a5-024334122380": {
+      "id": "6zYt6twe1AWgOLlrCilRux",
+      "note": "2012 original ten-track Rough Times album by Swedish Stallion Four (not unrelated same-name stallion artists); 2024 Radio Edits is distinct and not substituted."
+    },
+    "1f0a2e3e-4716-4a96-868e-7fcdf0fc7736": {
+      "id": "4RqHu1h5RBONw3hPzbDjmQ",
+      "note": "2025 ten-track Dopamine by Umeå-based Statues, a related external artist; not Uppsala band."
+    },
+    "dbe57b0c-1f25-4d36-a131-4c40b647ca3d": {
+      "id": "6rz6LvXd4vPdHevd80CFiv",
+      "note": "2005 nine-track Good Intentions? by original Swedish Sunaglare."
+    },
+    "e19b0183-4656-4711-acb6-be99c0b8d965": {
+      "id": "4vyvoQIdW0TenLZey2xufE",
+      "note": "2010 five-track When My Baby Smells of Gasoline. Archive 2010 original digital EP; Spotify is standard digital version, not separately verified 10-inch master."
+    },
+    "2cea024f-fec0-41bb-ad1b-0fa18b3fb76e": {
+      "id": "4vyvoQIdW0TenLZey2xufE",
+      "note": "2010 five-track When My Baby Smells of Gasoline. Archive 2010 10-inch vinyl pressing; Spotify is standard digital version, not separately verified 10-inch master."
+    },
+    "0ad4e5bc-dc1c-4420-9de9-2fb665f30dfa": {
+      "id": "1toezS5R3iELlc0MeHQqad",
+      "note": "2020 Baby Said (Spotify spellings Baby said) single; original artist Sunaglare."
     }
   },
   "releaseTitles": {
