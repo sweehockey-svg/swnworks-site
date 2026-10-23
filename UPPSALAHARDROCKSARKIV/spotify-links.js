@@ -1280,6 +1280,10 @@ window.ARCHIVE_SPOTIFY = {
     "b6f7dda3-8f51-4404-8170-4337e22cb4c6": {
       "id": "1a83Vb3jL2P2TnVdEGwpEy",
       "note": "Uppsala Wheel In The Sky original 2020 one-song Chariot Of Fire! Spotify single exact 2:40 minutes; confirmed original band Bandcamp released Dec 18 2020."
+    },
+    "d6fbb0bb-4ad9-43e6-aebb-a1aea42ba0ec": {
+      "id": "6WTazNYSpI4XUgBicNzNVn",
+      "note": "Wheel In The Sky original one-track Two Hearts Breaking digital single released Feb 14 2020 by Uppsala group, exact 3:43 min original on band's Bandcamp and Spotify single (intl-th/album/6WTazNYSpI4XUgBicNzNVn)."
     }
   },
   "releaseTitles": {
