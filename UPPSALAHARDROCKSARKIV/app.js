@@ -835,6 +835,36 @@
     return `<nav class="breadcrumbs" aria-label="Brödsmulor">${items.map((x,i) => i === items.length - 1 ? `<span>${escapeHtml(x.label)}</span>` : `<a href="${x.href}">${escapeHtml(x.label)}</a><i>/</i>`).join('')}</nav>`;
   }
 
+  function bandGaps(b) {
+    const gaps = [];
+    if (!b.formed_year) gaps.push('Bildningsår');
+    if (!membershipsForBand(b.id).length) gaps.push('Medlemmar');
+    if (!bandMedia(b) && !bandGallery(b).length) gaps.push('Bilder');
+    return gaps;
+  }
+
+  function bandTipHref(b) {
+    return '#/kontakt/' + encodeURIComponent(slugify(b.canonical_name));
+  }
+
+  function archiveGapsSection() {
+    const candidates = uppsalaBands().map(b => ({band:b, gaps:bandGaps(b)}))
+      .filter(item => item.gaps.length)
+      .sort((a,b) => b.gaps.length - a.gaps.length || a.band.canonical_name.localeCompare(b.band.canonical_name, 'sv'));
+    if (!candidates.length) return '';
+    return `<section class="section archive-gaps">
+      <div class="section-kicker">DIN KUNSKAP KAN GÖRA SKILLNAD</div>
+      <div class="section-head compact-head"><h2>Hjälp oss fylla luckorna</h2><a class="text-link" href="#/kontakt">Alla tips är välkomna →</a></div>
+      <p>Här saknar arkivet uppgifter eller bilder. Känner du till något om banden? Ett årtal, ett namn eller ett gammalt foto kan föra historien vidare.</p>
+      <div class="gap-grid">${candidates.slice(0,6).map(({band:b,gaps}) => `<article class="gap-card">
+        <h3><a href="${bandHref(b)}">${escapeHtml(b.canonical_name)}</a></h3>
+        <p class="gap-label">Vi söker</p><ul>${gaps.map(gap => `<li>${escapeHtml(gap)}</li>`).join('')}</ul>
+        <a class="button button-ghost" href="${bandTipHref(b)}">Jag vet mer <span aria-hidden="true">→</span></a>
+      </article>`).join('')}</div>
+      <p class="gap-note">Saknas i arkivet betyder att uppgiften ännu inte har registrerats här.</p>
+    </section>`;
+  }
+
   function renderHome() {
     const john = state.people.find(p => p.canonical_name === 'John Swahn');
     const johnBands = john ? membershipsForPerson(john.id).map(m => bandsById().get(m.band_id)).filter(Boolean) : [];
@@ -859,6 +889,8 @@
           </div>
         </div>
       </section>
+
+      ${archiveGapsSection()}
 
       <section class="section home-intro">
         <div class="section-kicker">UPPSALA / FRÅN 1980-TALET OCH FRAMÅT</div>
@@ -1072,6 +1104,10 @@
       <section class="section detail-layout first-section">
         <aside class="detail-aside">${bandMedia(b) ? `<figure class="detail-media"><img src="${bandMedia(b)}" alt="${escapeHtml(b.canonical_name)}"></figure>${externalMediaCredit(bandMedia(b))}` : ''}<div class="aside-label">Översikt</div><p>${escapeHtml(b.description || defaultDescription)}</p><div class="aside-facts"><div><span>Status</span><strong>${b.status === 'active' ? 'Aktivt' : b.status === 'inactive' ? 'Inaktivt' : 'Okänt'}</strong></div><div><span>Arkivklass</span><strong>${scopeLabel}</strong></div><div><span>Medlemmar i arkivet</span><strong>${memberGroups.length}</strong></div><div><span>Utgåvor i arkivet</span><strong>${rels.length}</strong></div></div></aside>
         <div class="detail-main">
+          <section class="band-tip-panel"><div class="section-kicker">HJÄLP ARKIVET VÄXA</div><h2>Vet du mer om detta band?</h2>
+            <p>${bandGaps(b).length ? 'Vi söker: ' + bandGaps(b).map(escapeHtml).join(', ') + '.' : 'Har du en rättelse, ett minne eller material som kompletterar bandets historia?'}</p>
+            <a class="button button-primary" href="${bandTipHref(b)}">Tipsa om ${escapeHtml(b.canonical_name)}</a>
+          </section>
           <section class="content-section"><div class="content-head"><span>01</span><h2>Medlemmar</h2></div><div class="credit-list">${memberGroups.length ? memberGroups.map(group => { const p=peopleById().get(group.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(p.canonical_name)}</strong><span>${escapeHtml(group.roles || 'Roll kartläggs')}</span><em>${escapeHtml(group.periods || 'Årtal söks')}</em></a>`; }).join('') : '<div class="empty-state">Lineup kartläggs.</div>'}</div></section>
           <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${rels.length ? rels.map(releaseRow).join('') : '<div class="empty-state">Inga utgåvor registrerade ännu.</div>'}</div></section>
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Bildarkiv</h2></div>${archiveGallery(gallery)}</section>` : ''}
@@ -1614,7 +1650,7 @@
     draw();
   }
 
-  function renderContact() {
+  function renderContact(band) {
     const email = cfg.contactEmail || 'info@swnworks.se';
     app.innerHTML = `${pageHeader('HJÄLP OSS ATT FYLLA LUCKORNA','Kontakt','Har du ett tips, en rättelse eller material från Uppsalas hårdrockshistoria? Hör av dig och hjälp arkivet att växa.')}
       <section class="section first-section contact-section">
@@ -1639,6 +1675,13 @@
         </form>
       </section>`;
     const form = $('.archive-contact-form');
+    if (band) {
+      const gaps = bandGaps(band);
+      $('#contact-subject', form).value = 'Tips om ' + band.canonical_name;
+      $('#contact-message', form).value = 'Band: ' + band.canonical_name + '\nBandsida: ' + location.href.split('#')[0] + bandHref(band) + '\n'
+        + (gaps.length ? '\nArkivet söker: ' + gaps.join(', ') + '.\n' : '')
+        + '\nMitt tips eller min rättelse:\n\n\nKälla eller länk (om du har):\n';
+    }
     const status = $('.contact-status', form);
     form.addEventListener('submit', async event => {
       event.preventDefault();
@@ -1699,7 +1742,7 @@
     else if (path === '/tidslinje') renderTimeline();
     else if (path === '/natverket') renderNetwork();
     else if (path === '/kallor') renderSources();
-    else if (path === '/kontakt') renderContact();
+    else if (path === '/kontakt' || (parts[0] === 'kontakt' && parts[1])) renderContact(parts[1] ? findBand(decodeURIComponent(parts[1])) : null);
     else renderNotFound();
     window.scrollTo({top:0, behavior:'instant'});
     document.title = `${document.querySelector('.page-hero h1, .hero h1')?.textContent.trim().replace(/\s+/g,' ') || 'Uppsala Hårdrocksarkiv'} – Uppsala Hårdrocksarkiv`;
@@ -1722,3 +1765,5 @@
   if (routePath() === '/kontakt') renderRoute();
   load();
 })();
+
+
