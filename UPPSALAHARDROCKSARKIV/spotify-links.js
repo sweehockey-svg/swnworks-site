@@ -57,6 +57,7 @@
 // Additional 2026-10-23 T audit: The Search official bandcamp and Aenaos Records both explicitly link Spotify artist 1qKeXgsFl1puFe0uU6lCZz. Correctly matched original 2006-24 album tracklists and 2015/23 Third Storm, 2019 Taiwaz master vs streaming year. The Search 2004 self-titled remains unmapped because unique Spotify album ID not independently confirmed.
 // 2026-10-23 T: original The 21st Impact Second to None 10-track exactly matches Spotify 2004 (3 physical archive records), By All Means Necessary 13-track core is first 13 of Spotify 2005 expanded 23-track release (two archive records), bonus tracks are 2004 LP. Full archive tracklists checked in Supabase.
 // 2026-10-23 U album audit: four verified Uppsala artists (Unangel, Undergång, Unpure, Usurpress). Distinguish eight/four/six/song count, original EP/vinyl and later Spotify catalog dates. Undergång Mother of Armageddon 23-separate-track Spotify program matches original LP, despite 2011 archived 17 combined segments and alternate 2012 21-track Spotify grouping. Usurpress 2016 Ordained 13-track special archive format has a bonus absent from 12-track Spotify album. No unverified same-name band/compilation IDs.
+// V 2026-10-23: Seven verified archive-release to Spotify-album mappings for Vargavinter (1996 Uppsala), Violent Silence (three Uppsala progressive albums 2005-2020) and Vorum (2009-15 related Åland band). Spotify artist IDs verified. 2003 Violent Silence self-titled album absent from band's Spotify album catalog, preserved as documented research gap. Vargavinter original 'Frostfödd' is misspelled as 'Fröstfodd' on Spotify; same original 8 tracks verified. Old 2010 Vorum Profane Limbs of Ruinous Death has no identical independently verified digital issue; do not substitute 2009 Grim Death Awaits without evidence.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -119,7 +120,10 @@ window.ARCHIVE_SPOTIFY = {
     "unangel": "3mhPpUhBpSLd4DOtTzLZ9F",
     "undergang": "6nKjA6VxSkmKJ0lGIXRrl7",
     "unpure": "6N9kolI2PhxjRyV5F3IvNx",
-    "usurpress": "5yko5EHt0FxUSLyg7uU8VZ"
+    "usurpress": "5yko5EHt0FxUSLyg7uU8VZ",
+    "vargavinter": "7uM7rpv5QGt89KOFFy3ZwV",
+    "violent-silence": "0AliN4fCq3GpTyrFaRBmHV",
+    "vorum": "026jwQJuyj7n3il1xDYF42"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -1173,6 +1177,34 @@ window.ARCHIVE_SPOTIFY = {
     "a13e543d-7111-413d-b2f2-765b2c3a44eb": {
       "id": "79a8SgtojDuGtfRNlyi2Sy",
       "note": "Usurpress original Interregnum 2018 seven-song studio album, four registered formats share same Agonia Records master (exact original full Spotify tracklist). 2018 separate pre-release singles Iron Gates / In Books are distinct physical/digital release entries with no verified unique Spotify album ID."
+    },
+    "3a4db6f1-a378-4a0f-8064-3b3851499a2c": {
+      "id": "4ZtuWbtuVCaMcdLU7p4BNC",
+      "note": "Original Uppsala Vargavinter 1996 Frostfödd eight-song Invasion Records album; Spotify title miscataloged 'Fröstfodd' but first/last and all 8 recordings match original track order (Frostfödd, Älvdans etc). Not another band's recording."
+    },
+    "ebb26dc6-5d8b-4475-a747-54b2e882e7ee": {
+      "id": "0EF4Hq4c5OdRzcVZskyd6w",
+      "note": "Original Uppsala progressive rock Violent Silence Kinetic 2005 full eight-track album; Spotify digital catalogs 2006, same original eight-song sequence. Confirmed via Violent Silence original Bandcamp."
+    },
+    "1f5e7ebd-a6a5-41c5-880e-c68865b2a5b1": {
+      "id": "77McJ4ZEYZLSA7RIapY8yE",
+      "note": "Original Uppsala progressive rock Violent Silence 2013 A Broken Truce four-track album. Spotify original exact four long compositions from Prism Path to title track."
+    },
+    "3fcf5ee0-765a-4db9-88a6-04b33b1f4032": {
+      "id": "2VacJ0VXmfYPCKka3thAr6",
+      "note": "Original Uppsala prog Violent Silence Twilight Furies album 2020 first issue on band's Bandcamp, Spotify catalogs 2021 digital version, original 8-song album, no claim identical 2020 master/pressing."
+    },
+    "e136236d-870a-4cad-b801-629a307b9228": {
+      "id": "2VowUOXa3m9OdGgz339hOE",
+      "note": "Åland/Mariehamn related band Vorum original Grim Death Awaits eight-track 2009 EP recorded and released via Woodcut; Spotify catalogs as 2009 album. Band identity and tracklist from official Spotify verified."
+    },
+    "4d2e1b1d-a774-4762-98cf-03c9f2dfcdbe": {
+      "id": "76Um4VUmTYnuKdcjRbyJJG",
+      "note": "Åland/Mariehamn related band Vorum 2013 full Poisoned Void studio album, 8 tracks; album year and eight songs verified vs original record."
+    },
+    "31e123a5-969c-435d-80f5-3d854115772a": {
+      "id": "6EtqPXcEUVGYP1rQ7x3Mlf",
+      "note": "Åland/Mariehamn related band Vorum 2015 Current Mouth five-track EP, exact first Angel's Death, last Hungry Wounds from original Bandcamp and Spotify."
     }
   },
   "releaseTitles": {
