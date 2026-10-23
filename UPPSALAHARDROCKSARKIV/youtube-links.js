@@ -6025,5 +6025,216 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "album",
   "checked": "2026-10-23",
   "sourceNote": "Full 2011 Invidious EP linked and identified in No Clean Singing's 2013 curated review"
+},
+// J checked 2026-10-23: Jeniferever EPs/albums, Jahimsa/NojsBojs shared cassette, Jane Crow no identifiable streams.
+{
+  "band": "jahimsa",
+  "release": "d06f09dd-614c-451f-9ec0-404904318665",
+  "title": "Nojsbojs / Jahimsa (komplett split)",
+  "id": "uiPoOCLwKB4",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Uppladdningen anges som 1995, medan arkivet daterar den fysiska utgåvan till 1996. Två band förekommer.",
+  "multipleArtists": true
+},
+{
+  "band": "jeniferever",
+  "release": "8ed64410-8e97-4b11-99b1-17dd98a83be2",
+  "title": "Kap Farvel",
+  "id": "JPjyTojWLAA",
+  "views": null,
+  "channel": "Jeniferever",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Jeniferevers spår från den tvåbandsdelade EP:n 2003",
+  "multipleArtists": true
+},
+{
+  "band": "jeniferever",
+  "release": "8ed64410-8e97-4b11-99b1-17dd98a83be2",
+  "title": "The Day The Violence Died",
+  "id": "N3hoxcUMk1U",
+  "views": null,
+  "channel": "Jeniferever",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Jeniferevers andra spår på split-EP:n 2003",
+  "multipleArtists": true
+},
+{
+  "band": "jeniferever",
+  "release": "b6d423b5-8bf8-4dd6-aaa9-002a4c7fa453",
+  "title": "Iris (komplett EP, 2004)",
+  "id": "MTbRdRL8MCg",
+  "views": null,
+  "channel": "GZ Tapes",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Full EP: You Only Move Twice; For The World Is Hollow And I Have Touched The Sky; Atlantis Arise!; White Belt, Black Heart."
+},
+{
+  "band": "jeniferever",
+  "release": "b6d423b5-8bf8-4dd6-aaa9-002a4c7fa453",
+  "title": "You Only Move Twice",
+  "id": "t3zP-EdjJa0",
+  "views": null,
+  "channel": "Jeniferever - Topic",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "jeniferever",
+  "release": "9c88368d-0480-4d02-893c-54b4ec90779e",
+  "title": "Opposites Attract",
+  "id": "1hoFFidazhI",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Video linked to 2006 album Choose a Bright Morning"
+},
+{
+  "band": "jeniferever",
+  "release": "9c88368d-0480-4d02-893c-54b4ec90779e",
+  "title": "From Across The Sea",
+  "id": "RV1lYNfDRbo",
+  "views": null,
+  "channel": "Jeniferever - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Distributor upload from original 2006 album"
+},
+{
+  "band": "jeniferever",
+  "release": "9c88368d-0480-4d02-893c-54b4ec90779e",
+  "title": "Swimming Eyes",
+  "id": "cOh-y5ga478",
+  "views": null,
+  "channel": "Jeniferever - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Distributor upload from original 2006 album"
+},
+{
+  "band": "jeniferever",
+  "release": "681ee93c-6e11-42c4-8921-797c878a7508",
+  "title": "Nangijala",
+  "id": "8Oy7CIk5ju8",
+  "views": null,
+  "channel": "Jeniferever - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2008 EP master, not necessarily identical to 2009 Spring Tides version"
+},
+{
+  "band": "jeniferever",
+  "release": "681ee93c-6e11-42c4-8921-797c878a7508",
+  "title": "When Our Hands Clasped",
+  "id": "SJVMzSe7HH0",
+  "views": null,
+  "channel": "Jeniferever - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2008 EP version"
+},
+{
+  "band": "jeniferever",
+  "release": "681ee93c-6e11-42c4-8921-797c878a7508",
+  "title": "When Our Hands Clasped (live Uppsala)",
+  "id": "jALbxZMrW_I",
+  "views": null,
+  "channel": "",
+  "kind": "live",
+  "checked": "2026-10-23",
+  "sourceNote": "Performance filmed at Regina, Uppsala, during release event for Nangijala EP."
+},
+{
+  "band": "jeniferever",
+  "release": "5bad753b-02a1-49ea-ba0d-b10dcb0b3f0a",
+  "title": "Green Meadow Island",
+  "id": "0GzjCG0JjI4",
+  "views": null,
+  "channel": "Jeniferever",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official music video from Spring Tides (2009)."
+},
+{
+  "band": "jeniferever",
+  "release": "5bad753b-02a1-49ea-ba0d-b10dcb0b3f0a",
+  "title": "St. Gallen",
+  "id": "JpVwyDhQhyk",
+  "views": null,
+  "channel": "Jeniferever - Topic",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "jeniferever",
+  "release": "5bad753b-02a1-49ea-ba0d-b10dcb0b3f0a",
+  "title": "Nangijala",
+  "id": "temcDJLfzJQ",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Upload describes 2009 Spring Tides version."
+},
+{
+  "band": "jeniferever",
+  "release": "1fcf6d12-e303-4147-8545-710dddec7860",
+  "title": "The Beat Of Our Own Blood",
+  "id": "AbpeVTZVA9I",
+  "views": null,
+  "channel": "Broken Pixel",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Animated music video linked to Silesia 2011."
+},
+{
+  "band": "jeniferever",
+  "release": "1fcf6d12-e303-4147-8545-710dddec7860",
+  "title": "A Drink To Remember",
+  "id": "Aynx5wS0tHg",
+  "views": null,
+  "channel": "roteraupe100",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Recording matches Silesia album track."
+},
+{
+  "band": "jeniferever",
+  "release": "1fcf6d12-e303-4147-8545-710dddec7860",
+  "title": "Waifs & Strays",
+  "id": "eruPKIlKphc",
+  "views": null,
+  "channel": "Jeniferever - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Distributor upload"
+},
+{
+  "band": "jeniferever",
+  "release": "1fcf6d12-e303-4147-8545-710dddec7860",
+  "title": "Dover",
+  "id": "5yD149COtfE",
+  "views": null,
+  "channel": "Jeniferever - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Distributor upload"
+},
+{
+  "band": "jeniferever",
+  "release": "1fcf6d12-e303-4147-8545-710dddec7860",
+  "title": "Where The Hills Fall Towards The Ocean",
+  "id": "l32hKLsAOQE",
+  "views": null,
+  "channel": "Jeniferever - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Distributor upload"
 }
 ];
