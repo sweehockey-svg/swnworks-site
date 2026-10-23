@@ -35,6 +35,7 @@
 // O checked 2026-10-23: Obnoxious Youth, Offerblod and Ordos release-specific Spotify IDs, duplicate physical editions documented.
 // Obnoxious Youth 2005/2009/2010 demos, Ordos 2016 single and 2025 Fire: no confirmed specific Spotify release IDs; do not guess.
 // Ordos Four Altars of Sin is a FOUR-ARTIST split, Ordos appears only on Inferno. Archive release note warns accordingly.
+// Ordos Fire 2025 linked via artist-published DistroKid HyperFollow URL; direct Spotify album ID verified.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -682,6 +683,10 @@ window.ARCHIVE_SPOTIFY = {
     "813868d4-b708-49aa-a7a2-fb5c545fd2f2": {
       "id": "17rPrgwQLm1nNQ08kviv2E",
       "note": "A FOUR-BAND SPLIT! Only track 2 Inferno is Ordos. Other tracks by Doomherre, Hexjakt and Kaiser; this is NOT an Ordos solo album."
+    },
+    "9a4082d9-bfde-42f2-87d7-16f72f8acece": {
+      "id": "0djXqX9zWefAdFhvR0NeT8",
+      "note": "Original 2025 five-song album; Spotify album URL supplied by Ordos's official DistroKid HyperFollow link."
     }
   },
   "releaseTitles": {
