@@ -1264,7 +1264,7 @@
         }
       });
       bindYoutubePreviews();
-      $('.video-card').forEach(card=>card.classList.toggle('is-current',card.dataset.videoId===video.id));
+      $$('.video-card').forEach(card=>card.classList.toggle('is-current',card.dataset.videoId===video.id));
     };
     const card = video => '<button type="button" class="video-card' + (selected?.id===video.id ? ' is-current' : '') + '" data-video-id="' + video.id + '" aria-label="' + escapeHtml('Visa '+video.title+' med '+video.bandName) + '">'
       + '<span class="video-card-media"><img loading="lazy" src="https://i.ytimg.com/vi/' + video.id + '/mqdefault.jpg" alt="">'
@@ -1364,7 +1364,7 @@
   }
 
   function bindYoutubePreviews() {
-    $('.youtube-preview button').forEach(button=>{
+    $$('.youtube-preview button').forEach(button=>{
       if (button.dataset.youtubeBound) return;
       button.dataset.youtubeBound = '1';
       button.addEventListener('click',()=>{
