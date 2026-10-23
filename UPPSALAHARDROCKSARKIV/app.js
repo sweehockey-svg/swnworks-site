@@ -1206,6 +1206,10 @@
       + '<div class="video-roulette-top"><div><span class="section-kicker">HÅRDROCKSROULETTE / TIDSMASKINEN</span><h2>Slumpa ett fynd.</h2>'
       + '<p>Välj ett årtionde nedan, tryck på knappen och se var i musikhistorien du hamnar. Årtal avser utgåvan, inte videons uppladdning.</p></div>'
       + '<button class="button button-primary video-roulette-button" type="button" id="video-random">▶ ÖVERRASKA MIG</button></div>'
+      + '<div class="video-journey" aria-label="Din upptäcktsrunda">'
+      + '<div class="video-journey-info"><strong id="video-journey-count">0 klipp upptäckta</strong><span id="video-journey-bands">0 band upptäckta</span></div>'
+      + '<div class="video-journey-controls"><button type="button" id="video-back" disabled>← Tillbaka</button><button type="button" id="video-forward" disabled>Framåt →</button><button type="button" id="video-restart">Börja om ↺</button></div>'
+      + '<div class="video-journey-progress" aria-hidden="true"><span id="video-journey-bar"></span></div></div>'
       + '<div class="video-spotlight" id="video-spotlight" aria-live="polite"></div></div>'
       + '<div class="video-catalog-head"><div><span class="section-kicker">UTFORSKA ARKIVET</span><h2>Alla videor</h2></div><p id="video-count" role="status"></p></div>'
       + '<div class="video-filters">'
@@ -1221,20 +1225,43 @@
     const search = $('#video-search'), type = $('#video-type'), decade = $('#video-decade'), order = $('#video-order');
     const grid = $('#video-grid'), spotlight = $('#video-spotlight'), roulette = $('#video-random'), more = $('#video-more');
     let filtered = [], displayed = 24, selected = null;
+    const seen = new Set();
+    const journey = [];
+    let journeyIndex = -1;
+    const back = $('#video-back'), forward = $('#video-forward'), restart = $('#video-restart');
+    const journeyCount = $('#video-journey-count'), journeyBands = $('#video-journey-bands'), journeyBar = $('#video-journey-bar');
+    const updateJourney = () => {
+      const discoveredBands = new Set([...seen].map(id => byVideoId.get(id)?.band?.id || byVideoId.get(id)?.bandName).filter(Boolean)).size;
+      const unseenInFilter = filtered.filter(video => !seen.has(video.id)).length;
+      journeyCount.textContent = seen.size.toLocaleString('sv-SE') + ' av ' + videos.length.toLocaleString('sv-SE') + ' klipp upptäckta';
+      journeyBands.textContent = discoveredBands.toLocaleString('sv-SE') + ' av ' + bandTotal.toLocaleString('sv-SE') + ' band';
+      journeyBar.style.width = (videos.length ? Math.min(100, seen.size / videos.length * 100) : 0) + '%';
+      roulette.disabled = unseenInFilter === 0;
+      roulette.textContent = !filtered.length ? 'INGA KLIPP ATT SLUMPA' : unseenInFilter ? '▶ ÖVERRASKA MIG · ' + unseenInFilter.toLocaleString('sv-SE') + ' KVAR' : 'ALLA KLIPP I URVALET UPPTÄCKTA ✓';
+      back.disabled = journeyIndex <= 0;
+      forward.disabled = journeyIndex >= journey.length - 1;
+      restart.disabled = seen.size === 0;
+    };
     const sv = (a,b) => a.localeCompare(b,'sv',{sensitivity:'base'});
     const kindName = video => categories[video.kind] || categories.other;
     const meta = video => [video.release?.title, video.year || 'År okänt'].filter(Boolean).join(' · ');
     const safeVideoLink = video => 'https://www.youtube.com/watch?v=' + video.id;
 
-    const feature = video => {
+    const feature = (video, remember = true) => {
       if (!video) {
         selected = null;
         spotlight.innerHTML = '<div class="video-spotlight-empty">Inga klipp matchar dina filter. Prova en annan tidsresa.</div>';
-        roulette.disabled = true;
+        updateJourney();
         return;
       }
       selected = video;
-      roulette.disabled = false;
+      seen.add(video.id);
+      if (remember && journey[journeyIndex] !== video.id) {
+        journey.splice(journeyIndex + 1);
+        journey.push(video.id);
+        journeyIndex = journey.length - 1;
+      }
+      updateJourney();
       const bandUrl = video.band ? bandHref(video.band) : '';
       const releaseUrl = video.release ? releaseHref(video.release) : '';
       spotlight.innerHTML = '<div class="video-feature-copy">'
@@ -1297,17 +1324,36 @@
         feature(filtered.length ? filtered[(day * 7919) % filtered.length] : null);
       }
       updateGrid();
+      updateJourney();
     };
     [search,type,decade,order].forEach(input=>input.addEventListener(input===search ? 'input' : 'change',()=>update()));
     $('#video-reset').addEventListener('click',()=>{
       search.value='';type.value='';decade.value='';order.value='old';selected=null;update();search.focus();
     });
-    roulette.addEventListener('click',()=>{
-      if (!filtered.length) return;
-      let next = Math.floor(Math.random() * filtered.length);
-      if (filtered.length>1 && selected?.id===filtered[next].id) next=(next+1)%filtered.length;
-      feature(filtered[next]);
+    const randomDiscovery = () => {
+      const unseen = filtered.filter(video => !seen.has(video.id));
+      if (!unseen.length) return;
+      feature(unseen[Math.floor(Math.random() * unseen.length)]);
       updateGrid();
+    };
+    roulette.addEventListener('click',randomDiscovery);
+    back.addEventListener('click',()=>{
+      if (journeyIndex <= 0) return;
+      journeyIndex--;
+      feature(byVideoId.get(journey[journeyIndex]),false);
+      updateGrid();
+    });
+    forward.addEventListener('click',()=>{
+      if (journeyIndex >= journey.length - 1) return;
+      journeyIndex++;
+      feature(byVideoId.get(journey[journeyIndex]),false);
+      updateGrid();
+    });
+    restart.addEventListener('click',()=>{
+      seen.clear(); journey.length = 0; journeyIndex = -1;
+      selected = null;
+      randomDiscovery();
+      updateJourney();
     });
     grid.addEventListener('click',event=>{
       const button=event.target.closest('button[data-video-id]');
