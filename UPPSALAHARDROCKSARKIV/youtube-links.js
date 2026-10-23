@@ -5336,5 +5336,160 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "album",
   "checked": "2026-10-23",
   "sourceNote": "Identified as the Swedish band's 1997 demo, including six songs."
+},
+// G manually checked 2026-10-23: only identity-verified bands, albums and video links.
+{
+  "band": "goatworship",
+  "release": "91dacbb1-f5d2-4fe2-a3cd-2c3f62b8f936",
+  "title": "Uråldriga Svenska Folksägner (1994 full demo)",
+  "id": "pGKfLJE41k4",
+  "views": null,
+  "channel": "xexoxex",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Video is explicitly identified as the Swedish Goatworship's 1994 demo."
+},
+{
+  "band": "goatworship",
+  "release": "247fe01e-b74b-4825-9d74-6080ab9ae14c",
+  "title": "Enigmata | The Eminent (Mondocane / Goatworship split)",
+  "id": "F7ZZihbkQ1A",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "multipleArtists": true,
+  "sourceNote": "Split stream includes three Mondocane songs and three Goatworship songs; only link to the shared release."
+},
+{
+  "band": "goatworship",
+  "release": "247fe01e-b74b-4825-9d74-6080ab9ae14c",
+  "title": "Enigmata | The Eminent (full split)",
+  "id": "0mtTmVTZM0w",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "multipleArtists": true,
+  "sourceNote": "Other full stream of the Mondocane / Goatworship split; distinct upload."
+},
+{
+  "band": "gold-spire",
+  "release": "00fae669-2590-4596-bfd8-12a37ca5e815",
+  "title": "Gold Spire (2021 full album stream)",
+  "id": "l-LMlip67ZA",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Full album stream licensed by Chaos Records."
+},
+{
+  "band": "gold-spire",
+  "release": "ca18993c-102b-4ed9-a539-098f42494574",
+  "title": "Steps into Shadow (2026 full album stream)",
+  "id": "1zW2DVP4nHo",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23"
+},
+{
+  "band": "gold-spire",
+  "release": "ca18993c-102b-4ed9-a539-098f42494574",
+  "title": "Starvation",
+  "id": "Ji6loUkcThk",
+  "views": null,
+  "channel": "GOLD SPIRE - Topic",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "gold-spire",
+  "release": "ca18993c-102b-4ed9-a539-098f42494574",
+  "title": "Steps into Shadow",
+  "id": "suIJa7EDYZM",
+  "views": null,
+  "channel": "GOLD SPIRE - Topic",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "gold-spire",
+  "release": "ca18993c-102b-4ed9-a539-098f42494574",
+  "title": "Liberation at Dawn",
+  "id": "IGRyNA7WULo",
+  "views": null,
+  "channel": "GOLD SPIRE - Topic",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "gold-spire",
+  "release": "ca18993c-102b-4ed9-a539-098f42494574",
+  "title": "Crown of Disfigurement",
+  "id": "r8Awl90WpF4",
+  "views": null,
+  "channel": "Awakening Records CN",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Verified single version; may differ from album master."
+},
+{
+  "band": "gold-spire",
+  "release": "ca18993c-102b-4ed9-a539-098f42494574",
+  "title": "A Clarion Call",
+  "id": "uFmUTGaQbEE",
+  "views": null,
+  "channel": "GOLD SPIRE - Topic",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "gold-spire",
+  "release": "ca18993c-102b-4ed9-a539-098f42494574",
+  "title": "Truth is an Empty Fortress",
+  "id": "ORMiwEK6IFY",
+  "views": null,
+  "channel": "GOLD SPIRE - Topic",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "graveless",
+  "release": "9d49882f-0a40-40a2-b908-ba799fbc641a",
+  "title": "From Thy Gate Reincarnated / In Articulo Mortis",
+  "trackTitles": [
+    "Through Thy Gate Reincarnated",
+    "In Articulo Mortis"
+  ],
+  "id": "RY416GZCQ_U",
+  "views": null,
+  "channel": "",
+  "kind": "medley",
+  "checked": "2026-10-23",
+  "sourceNote": "Video identified as Graveless; uploader lists two tracks with alternate wording From Thy Gate Reincarnated."
+},
+{
+  "band": "gus-of-sweden",
+  "release": "6adc6ace-2f44-4196-823f-161a1cd98eba",
+  "title": "Our Wheels Are in Rotation",
+  "id": "CYAbEKYoViU",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Video explicitly credited Valley Of The Dead (a.k.a. Gus Of Sweden), following the 2008 name change."
+},
+{
+  "band": "gus-of-sweden",
+  "release": "4ef2ba49-a110-4c30-8cc8-ba258cdd8bf4",
+  "title": "Our Wheels are in Rotation",
+  "id": "CYAbEKYoViU",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Same recording published under Valley Of The Dead (a.k.a. Gus Of Sweden); Gus of Sweden 2013 retrospective EP."
 }
 ];
