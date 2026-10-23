@@ -12,6 +12,7 @@
 // H checked 2026-10-23: HAERDSMAELTA and Hasse Fröberg & Musical Companion original catalogues; HEXED Spotify artist confirmed.
 // Spotify original edition vs reissue noted where needed. HAERDROCK (released 2026-10-23) is not yet a release in this archive; no album-release UUID to map.
 // No confident Spotify artist match for Harass, Harma, Hellrace or Hoistpoint.
+// H title-keyed Spotify fallback is limited to band HEXED + uniquely verified release title when release UUID could not be read from the archive.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -216,6 +217,22 @@ window.ARCHIVE_SPOTIFY = {
     "c1fcd69f-80d8-4939-bfbb-f8a52c821e25": {
       "id": "71iOCjhWRt2wr9fhBlkwFp",
       "note": ""
+    }
+  },
+  "releaseTitles": {
+    "hexed": {
+      "netherworld": {
+        "id": "2u3sVWM7ejOiSp2FFF0t8n",
+        "note": "HEXED:s originalalbum från 2018"
+      },
+      "pagans-rising": {
+        "id": "5M2efjFCfxIc4X4IhtYg7v",
+        "note": "HEXED:s album från 2022"
+      },
+      "dreams": {
+        "id": "4AEPmArqZ0CEsAeNQPbQ7S",
+        "note": "Spotify anger singelutgåvan som 2017; bandet daterar debutlåten till 2016"
+      }
     }
   }
 };
