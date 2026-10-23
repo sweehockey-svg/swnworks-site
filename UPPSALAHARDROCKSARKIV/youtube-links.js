@@ -6,6 +6,8 @@
 // Original Obey Satan! 2009, artist-uploaded Bandcamp edition 2010, and Dissonant Death cassette 2020 share song titles, but are separate physical/digital editions.
 // 2016 Ordos House of the Dead video covers the original single and the later album. Four Altars of Sin is a four-artist split (Ordos only Inferno).
 // External On Trial is the Danish psychedelic rock group, not the UK punk band; external One Hour Hell is the Swedish Södertälje group.
+// P checked 2026-10-23: ten tracks from Poeter Blir Dom... original collective recordings; uploader labels 2005, issuing label documents 2004 original vinyl, Spotify album 2020 is separately dated.
+// Other P bands: Panama, Pessimistjolle, Phunk, Planescape, Poets on Payday, Pure Pain – no safe YouTube recording matched to exact identities. Avoid Panama (country), Planescape: Torment (game), and same-name artists.
 window.ARCHIVE_YOUTUBE = [
 {
   "band": "acolytes-of-moros",
@@ -10309,5 +10311,115 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "album",
   "checked": "2026-10-23",
   "sourceNote": "Complete 2014 album upload; nine-track timestamped list and band identity verified. This is a full album, not a single song."
+},
+{
+  "band": "poeter-blir-dom",
+  "release": "5aca9ede-9c82-4929-b055-1a8c42ea2f50",
+  "title": "första spåret",
+  "id": "NGeIL1gHyc8",
+  "views": 852,
+  "channel": "Molgir",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2011 archived uploader of Poeter Blir Dom original self-titled Uppsala collective album. Label verifies original physical edition 2004; uploader sometimes labels it 2005. Do not treat it as a newly recorded 2020 master."
+},
+{
+  "band": "poeter-blir-dom",
+  "release": "5aca9ede-9c82-4929-b055-1a8c42ea2f50",
+  "title": "har'u leg",
+  "id": "wrGzeO-eGZE",
+  "views": 1674,
+  "channel": "Molgir",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2011 archived uploader of Poeter Blir Dom original self-titled Uppsala collective album. Label verifies original physical edition 2004; uploader sometimes labels it 2005. Do not treat it as a newly recorded 2020 master."
+},
+{
+  "band": "poeter-blir-dom",
+  "release": "5aca9ede-9c82-4929-b055-1a8c42ea2f50",
+  "title": "önska",
+  "id": "2xVMzEnTowg",
+  "views": 1700,
+  "channel": "Molgir",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2011 archived uploader of Poeter Blir Dom original self-titled Uppsala collective album. Label verifies original physical edition 2004; uploader sometimes labels it 2005. Do not treat it as a newly recorded 2020 master."
+},
+{
+  "band": "poeter-blir-dom",
+  "release": "5aca9ede-9c82-4929-b055-1a8c42ea2f50",
+  "title": "poeter blir dom",
+  "id": "6PSEWWbOu7U",
+  "views": 1200,
+  "channel": "Molgir",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2011 archived uploader of Poeter Blir Dom original self-titled Uppsala collective album. Label verifies original physical edition 2004; uploader sometimes labels it 2005. Do not treat it as a newly recorded 2020 master."
+},
+{
+  "band": "poeter-blir-dom",
+  "release": "5aca9ede-9c82-4929-b055-1a8c42ea2f50",
+  "title": "det är inte roligt längre",
+  "id": "c9IVmquWOpE",
+  "views": null,
+  "channel": "Swedish Hip Hop",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Uploader credits Henry Bowers vocal/trumpet and Kryptonite production; identifies song from Poeter Blir Dom collective album. An earlier Molgir clip is indexed with ~2.3k views but exact watch ID was not verified; do not assign its views to this clip."
+},
+{
+  "band": "poeter-blir-dom",
+  "release": "5aca9ede-9c82-4929-b055-1a8c42ea2f50",
+  "title": "änglar utan ansikten",
+  "id": "1-aC7CY5Og0",
+  "views": 747,
+  "channel": "Molgir",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2011 archived uploader of Poeter Blir Dom original self-titled Uppsala collective album. Label verifies original physical edition 2004; uploader sometimes labels it 2005. Do not treat it as a newly recorded 2020 master."
+},
+{
+  "band": "poeter-blir-dom",
+  "release": "5aca9ede-9c82-4929-b055-1a8c42ea2f50",
+  "title": "det brinner i grannhuset",
+  "id": "WPfJfHdU6yM",
+  "views": 1700,
+  "channel": "Molgir",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2011 archived uploader of Poeter Blir Dom original self-titled Uppsala collective album. Label verifies original physical edition 2004; uploader sometimes labels it 2005. Do not treat it as a newly recorded 2020 master."
+},
+{
+  "band": "poeter-blir-dom",
+  "release": "5aca9ede-9c82-4929-b055-1a8c42ea2f50",
+  "title": "monster",
+  "id": "GFtCuJin0So",
+  "views": 416,
+  "channel": "Molgir",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2011 archived uploader of Poeter Blir Dom original self-titled Uppsala collective album. Label verifies original physical edition 2004; uploader sometimes labels it 2005. Do not treat it as a newly recorded 2020 master."
+},
+{
+  "band": "poeter-blir-dom",
+  "release": "5aca9ede-9c82-4929-b055-1a8c42ea2f50",
+  "title": "dansa eller dö",
+  "id": "JQL6qPurR0I",
+  "views": 804,
+  "channel": "Molgir",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2011 archived uploader of Poeter Blir Dom original self-titled Uppsala collective album. Label verifies original physical edition 2004; uploader sometimes labels it 2005. Do not treat it as a newly recorded 2020 master."
+},
+{
+  "band": "poeter-blir-dom",
+  "release": "5aca9ede-9c82-4929-b055-1a8c42ea2f50",
+  "title": "sista spåret",
+  "id": "eqilO4s-oss",
+  "views": 2000,
+  "channel": "Molgir",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2011 archived uploader of Poeter Blir Dom original self-titled Uppsala collective album. Label verifies original physical edition 2004; uploader sometimes labels it 2005. Do not treat it as a newly recorded 2020 master."
 }
 ];
