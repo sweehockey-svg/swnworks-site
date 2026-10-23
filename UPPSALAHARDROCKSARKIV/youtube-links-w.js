@@ -1,0 +1,447 @@
+// Uppsala Hårdrocksarkiv W research 2026-10-23; loaded AFTER youtube-links-v.js and BEFORE spotify-links.js/app.js.
+// Historical original records use exact release UUID: Warpath Dave Lepard 1996, Watain studio/demo/live 1999-2023, Wheel In The Sky Uppsala 2015-2020, Whimzy rare 1997.
+// Keep original Watain singles distinct: 2010 picture-disc and CD B-side discrepancies noted; Watain 2022 physical The Howling has I Arose B-side that Spotify digital 1-song single lacks.
+// Preserve preview rule: only kind=track is chosen by highest verified dated view count. Full-album, demo and live records are not studio-song preview replacements. Views null if no sourced count.
+window.ARCHIVE_YOUTUBE = window.ARCHIVE_YOUTUBE || [];
+window.ARCHIVE_YOUTUBE.push(...[
+  {
+    "band": "warpath",
+    "release": "abb4c4c4-f0f7-4a6e-85fa-ef657fefea59",
+    "title": "Missed Minded",
+    "id": "z-9qZWMVlQA",
+    "views": null,
+    "channel": "",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Track 01 of original Swedish 1996 Warpath Strangers Hount by Demons EP fronted by Dave Lepard; uploader/discogs metadata confirms same title, not any other Warpath."
+  },
+  {
+    "band": "warpath",
+    "release": "abb4c4c4-f0f7-4a6e-85fa-ef657fefea59",
+    "title": "Zombie of Destruction",
+    "id": "egRqOxJ6W3U",
+    "views": null,
+    "channel": "",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Track 02 of original Swedish 1996 Warpath Strangers Hount by Demons EP, Dave Lepard line-up; archive release UUID match."
+  },
+  {
+    "band": "warpath",
+    "release": "abb4c4c4-f0f7-4a6e-85fa-ef657fefea59",
+    "title": "Growl In My Toilet",
+    "id": "vCvRVzyT3K0",
+    "views": null,
+    "channel": "",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Track 04 of Warpath 1996 EP with Dave Lepard of later Crashdïet; uploader explicitly cites original 1996 release."
+  },
+  {
+    "band": "warpath",
+    "release": "abb4c4c4-f0f7-4a6e-85fa-ef657fefea59",
+    "title": "Doom",
+    "id": "56SsHObKxms",
+    "views": null,
+    "channel": "",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Track 06 of exact 1996 Warpath Strangers Hount by Demons EP, same historic Swedish band, original independent recording."
+  },
+  {
+    "band": "whimzy",
+    "release": "41bca9fa-e9d5-4925-8849-1dded03addda",
+    "title": "Heaven Or Hell (full 1997 album)",
+    "id": "lM5OHUpF8Xk",
+    "views": 753,
+    "channel": "Mr666ironangel",
+    "kind": "album",
+    "checked": "2026-10-23",
+    "sourceNote": "Uppsala Whimzy 1997 original full studio album; uploader lists original songs starting End of the World and Good Lookin', ~753 indexed views. Not other rock artist Heaven & Hell."
+  },
+  {
+    "band": "watain",
+    "release": "fad3dd45-8d46-413d-9ade-ddd3a9835dd0",
+    "title": "Black Metal Sacrifice (original 1999 live recording)",
+    "id": "48WBxGQbEZc",
+    "views": 8600,
+    "channel": "BM Promotion",
+    "kind": "live",
+    "checked": "2026-10-23",
+    "sourceNote": "Rare Watain original 1999 live Black Metal Sacrifice recording, explicitly attributed original cassette/sessions; ~8.6K indexed views. Do not claim it is studio album."
+  },
+  {
+    "band": "watain",
+    "release": "a083fbcd-33f1-4f0d-ac62-ec741d516bd1",
+    "title": "The Essence of Black Purity (original 1999 7-inch full single)",
+    "id": "hbeyi3Mj27w",
+    "views": null,
+    "channel": "",
+    "kind": "album",
+    "checked": "2026-10-23",
+    "sourceNote": "Exact original 1999 Watain 7-inch The Essence of Black Purity containing two studio titles The Essence of Black Purity and On Horns Impaled, not later 2000 digital bonus album."
+  },
+  {
+    "band": "watain",
+    "release": "28639908-36c7-46bb-9c3f-76312d8b7bbf",
+    "title": "Rabid Death's Curse",
+    "id": "Q2lq8mOtxL4",
+    "views": 14000,
+    "channel": "Season of Mist",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Original Watain 2000 studio title track on Rabid Death's Curse, licensed Season of Mist track, ~14K indexed views."
+  },
+  {
+    "band": "watain",
+    "release": "3c95d8e0-f671-4448-976f-22477e0edab2",
+    "title": "The Ritual Macabre (original 2001 full live set)",
+    "id": "2DERLtGay-M",
+    "views": null,
+    "channel": "",
+    "kind": "live",
+    "checked": "2026-10-23",
+    "sourceNote": "Full 2001 Watain The Ritual Macabre live cassette upload, same vintage band recording; separate from studio album Casus Luciferi."
+  },
+  {
+    "band": "watain",
+    "release": "f6ef52c8-26b7-4a92-8bbe-05a08dd6be70",
+    "title": "Casus Luciferi (original 2003 album full stream)",
+    "id": "sf8_7dgpcR8",
+    "views": null,
+    "channel": "",
+    "kind": "album",
+    "checked": "2026-10-23",
+    "sourceNote": "Original eight-track 2003 Watain Casus Luciferi including Devil's Blood, Black Salvation, Opus Dei and Puzzles ov Flesh in original order; excludes 2008 remaster-only bonus."
+  },
+  {
+    "band": "watain",
+    "release": "ac87c59b-f5a1-4731-943e-e1535befa63f",
+    "title": "Sworn to the Dark (full original album)",
+    "id": "iUL8TZZqgD8",
+    "views": 24000,
+    "channel": "Black Metal Promotion",
+    "kind": "album",
+    "checked": "2026-10-23",
+    "sourceNote": "Full 2007 11-track Watain Sworn to the Dark issued on behalf of Season of Mist, ~24K indexed views."
+  },
+  {
+    "band": "watain",
+    "release": "f63a496b-4d3d-493d-bec3-ea81258308bf",
+    "title": "Lawless Darkness (full 2010 original album)",
+    "id": "saJebunVKmo",
+    "views": null,
+    "channel": "",
+    "kind": "album",
+    "checked": "2026-10-23",
+    "sourceNote": "Original Watain Lawless Darkness ten-song studio program 2010; track durations/mix differ by streaming bonus variant; full-album fan upload."
+  },
+  {
+    "band": "watain",
+    "release": "f63a496b-4d3d-493d-bec3-ea81258308bf",
+    "title": "Malfeitor",
+    "id": "TSYh1mFVyUs",
+    "views": 165000,
+    "channel": "Season of Mist",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Season of Mist original Watain 2010 studio song Malfeitor (Lawless Darkness track 2), ~165K indexed YouTube views."
+  },
+  {
+    "band": "watain",
+    "release": "afac031f-bfe8-4689-bd08-748d76acdbdf",
+    "title": "Reaping Death",
+    "id": "8pqYK7DKmO8",
+    "views": 43000,
+    "channel": "Season of Mist",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Verified original Watain 2010 Reaping Death studio single issued via Season of Mist, from both 2010 physical singles and Lawless Darkness album; ~43K views observed, physical singles have DIFFERENT B-sides."
+  },
+  {
+    "band": "watain",
+    "release": "4d67f21c-eef4-44bc-83f0-e09867fd805d",
+    "title": "Reaping Death",
+    "id": "8pqYK7DKmO8",
+    "views": 43000,
+    "channel": "Season of Mist",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Verified original Watain 2010 Reaping Death studio single issued via Season of Mist, from both 2010 physical singles and Lawless Darkness album; ~43K views observed, physical singles have DIFFERENT B-sides."
+  },
+  {
+    "band": "watain",
+    "release": "f63a496b-4d3d-493d-bec3-ea81258308bf",
+    "title": "Reaping Death",
+    "id": "8pqYK7DKmO8",
+    "views": 43000,
+    "channel": "Season of Mist",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Verified original Watain 2010 Reaping Death studio single issued via Season of Mist, from both 2010 physical singles and Lawless Darkness album; ~43K views observed, physical singles have DIFFERENT B-sides."
+  },
+  {
+    "band": "watain",
+    "release": "f3be6e53-31db-4119-8d49-8d05bf95efb4",
+    "title": "Outlaw",
+    "id": "DJvTodICIVU",
+    "views": 2600000,
+    "channel": "Century Media Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official Century Media original 2013 The Wild Hunt song Outlaw studio music video, approx 2.6 million views indexed. Highest reliable individual song video for Watain in this audit."
+  },
+  {
+    "band": "watain",
+    "release": "f3be6e53-31db-4119-8d49-8d05bf95efb4",
+    "title": "They Rode On",
+    "id": "29nvdkIxIpY",
+    "views": 578000,
+    "channel": "Ilias Michoulis",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "2013 original The Wild Hunt track 6 studio recording, exact 8:42 program, visualizer fan upload ~578K views; NOT 2012 live DVD."
+  },
+  {
+    "band": "watain",
+    "release": "31a7aeda-db60-4df7-8a0d-355e28845226",
+    "title": "All That May Bleed",
+    "id": "WgKyfrdcDwY",
+    "views": 480672,
+    "channel": "Century Media Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official 2013 Century Media lyric video for All That May Bleed released as both 7-inch two-song vinyl and fourth track The Wild Hunt album, YouTube 480,672 observed views."
+  },
+  {
+    "band": "watain",
+    "release": "f3be6e53-31db-4119-8d49-8d05bf95efb4",
+    "title": "All That May Bleed",
+    "id": "WgKyfrdcDwY",
+    "views": 480672,
+    "channel": "Century Media Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official 2013 Century Media lyric video for All That May Bleed released as both 7-inch two-song vinyl and fourth track The Wild Hunt album, YouTube 480,672 observed views."
+  },
+  {
+    "band": "watain",
+    "release": "f464063f-d360-45eb-a9f4-c4f28d46646e",
+    "title": "Nuclear Alchemy",
+    "id": "qGPYb2y_PDA",
+    "views": 1116704,
+    "channel": "Century Media Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official Watain Nuclear Alchemy (2017) original music video from forthcoming 2018 Trident Wolf Eclipse; corresponds to 2017 two-track vinyl single and original 2018 album opener, 1,116,704 source views."
+  },
+  {
+    "band": "watain",
+    "release": "aefe231f-ec7e-43e3-98d7-3a8ac83647a8",
+    "title": "Nuclear Alchemy",
+    "id": "qGPYb2y_PDA",
+    "views": 1116704,
+    "channel": "Century Media Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official Watain Nuclear Alchemy (2017) original music video from forthcoming 2018 Trident Wolf Eclipse; corresponds to 2017 two-track vinyl single and original 2018 album opener, 1,116,704 source views."
+  },
+  {
+    "band": "watain",
+    "release": "aefe231f-ec7e-43e3-98d7-3a8ac83647a8",
+    "title": "Trident Wolf Eclipse (full 2018 album)",
+    "id": "tLs8UjJpvjE",
+    "views": null,
+    "channel": "",
+    "kind": "album",
+    "checked": "2026-10-23",
+    "sourceNote": "Full original 2018 nine-song Watain TRIDENT WOLF ECLIPSE album fan upload, tracklisting starts Nuclear Alchemy and Sacred Damnation, not 2007 album."
+  },
+  {
+    "band": "watain",
+    "release": "988332bf-13e3-4da3-98ae-eac34bada50a",
+    "title": "Corona Mortis (2020 original rehearsal cassette)",
+    "id": "1wExn5icNMQ",
+    "views": null,
+    "channel": "",
+    "kind": "album",
+    "checked": "2026-10-23",
+    "sourceNote": "Explicit 2020 limited Watain Corona Mortis quarantine/rehearsal cassette audio stream, original recorded rehearsal (not studio album or concert)."
+  },
+  {
+    "band": "watain",
+    "release": "0ec1a636-8681-4179-9e13-586e986d94dc",
+    "title": "The Agony & Ecstasy of Watain (official full album stream)",
+    "id": "QPnUoXevAjg",
+    "views": null,
+    "channel": "OfficialWatain / Nuclear Blast",
+    "kind": "album",
+    "checked": "2026-10-23",
+    "sourceNote": "Original 2022 full ten-song Watain The Agony & Ecstasy studio album, official band/label stream; not live 2023 album."
+  },
+  {
+    "band": "watain",
+    "release": "14f60f22-c20b-4732-905f-cab104054228",
+    "title": "The Howling",
+    "id": "K_oPqu6xQDM",
+    "views": 829000,
+    "channel": "Nuclear Blast Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official original 2022 Watain The Howling studio video, first single and track 2 of The Agony & Ecstasy of Watain; ~829K indexed views. Physical 7-inch additionally has Profanatica B-side absent from digital 1-song single."
+  },
+  {
+    "band": "watain",
+    "release": "b62125ef-b48f-4cf6-80e4-d02ea1d07c28",
+    "title": "The Howling",
+    "id": "K_oPqu6xQDM",
+    "views": 829000,
+    "channel": "Nuclear Blast Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official original 2022 Watain The Howling studio video, first single and track 2 of The Agony & Ecstasy of Watain; ~829K indexed views. Physical 7-inch additionally has Profanatica B-side absent from digital 1-song single."
+  },
+  {
+    "band": "watain",
+    "release": "0ec1a636-8681-4179-9e13-586e986d94dc",
+    "title": "The Howling",
+    "id": "K_oPqu6xQDM",
+    "views": 829000,
+    "channel": "Nuclear Blast Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official original 2022 Watain The Howling studio video, first single and track 2 of The Agony & Ecstasy of Watain; ~829K indexed views. Physical 7-inch additionally has Profanatica B-side absent from digital 1-song single."
+  },
+  {
+    "band": "watain",
+    "release": "a9276a14-9bb4-466f-92fb-8e31e24dcbd4",
+    "title": "We Remain",
+    "id": "u-bNl58mAY8",
+    "views": 713000,
+    "channel": "Nuclear Blast Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official 2022 original Watain We Remain studio music video featuring Farida Lemouchi/Gottfrid Åhman; matches one-song original digital single and 2022 album master; ~713K observed views."
+  },
+  {
+    "band": "watain",
+    "release": "0ec1a636-8681-4179-9e13-586e986d94dc",
+    "title": "We Remain",
+    "id": "u-bNl58mAY8",
+    "views": 713000,
+    "channel": "Nuclear Blast Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official 2022 original Watain We Remain studio music video featuring Farida Lemouchi/Gottfrid Åhman; matches one-song original digital single and 2022 album master; ~713K observed views."
+  },
+  {
+    "band": "watain",
+    "release": "0ec1a636-8681-4179-9e13-586e986d94dc",
+    "title": "Serimosa",
+    "id": "VFm-ARerxbI",
+    "views": 115000,
+    "channel": "Nuclear Blast Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official original Watain 2022 Serimosa studio lyric video from The Agony & Ecstasy album, about 115K indexed views."
+  },
+  {
+    "band": "watain",
+    "release": "be9f6619-db25-430d-b713-eb97c72a32cc",
+    "title": "Ecstasies in Night Infinite (Live Stockholm 2022)",
+    "id": "Vvzmv-JLUXs",
+    "views": null,
+    "channel": "Nuclear Blast Records",
+    "kind": "live",
+    "checked": "2026-10-23",
+    "sourceNote": "Official 2023 live video from original Watain Die in Fire, Live in Hell release, performance filmed in Stockholm 2022; distinct from 2022 studio master."
+  },
+  {
+    "band": "watain",
+    "release": "be9f6619-db25-430d-b713-eb97c72a32cc",
+    "title": "Before the Cataclysm (Live Stockholm 2022)",
+    "id": "5UCtdwN-ilU",
+    "views": null,
+    "channel": "Nuclear Blast Records",
+    "kind": "live",
+    "checked": "2026-10-23",
+    "sourceNote": "Official 2023 Watain live single video from Die In Fire Live In Hell show recorded Stockholm 2022, NOT original 2022 studio album."
+  },
+  {
+    "band": "wheel-in-the-sky",
+    "release": "c1778289-b2f8-4bef-a9b4-97ab45f1b6b5",
+    "title": "Jezebel",
+    "id": "8cHSmz0yILU",
+    "views": null,
+    "channel": "The Sign Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official Uppsala Wheel In The Sky 2015 Heading for the Night studio album track Jezebel, original issuing label video."
+  },
+  {
+    "band": "wheel-in-the-sky",
+    "release": "c1778289-b2f8-4bef-a9b4-97ab45f1b6b5",
+    "title": "Rainbow of Evil",
+    "id": "-FS6gcN0J-8",
+    "views": null,
+    "channel": "Wheel In The Sky",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Original 2015 Swedish Uppsala rock group Wheel In The Sky song Rainbow of Evil, second official video from Heading for the Night, not Journey track."
+  },
+  {
+    "band": "wheel-in-the-sky",
+    "release": "c1778289-b2f8-4bef-a9b4-97ab45f1b6b5",
+    "title": "God on High",
+    "id": "3yY2e4-d_cA",
+    "views": null,
+    "channel": "",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Original Wheel In The Sky Uppsala 2015 Heading for the Night album track God on High, upload links original The Sign Records issue."
+  },
+  {
+    "band": "wheel-in-the-sky",
+    "release": "dda85348-b748-433c-be82-be60ddb70bfc",
+    "title": "Burn Babylon, Burn!",
+    "id": "pkCVKhlsPd8",
+    "views": null,
+    "channel": "The Sign Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Official music video for original 2018 Uppsala Wheel In The Sky Beyond the Pale album song Burn Babylon Burn, The Sign Records label."
+  },
+  {
+    "band": "wheel-in-the-sky",
+    "release": "dda85348-b748-433c-be82-be60ddb70bfc",
+    "title": "Beyond the Pale (full original 2018 album)",
+    "id": "2V7aDFX1v3c",
+    "views": 3200,
+    "channel": "MrDoom",
+    "kind": "album",
+    "checked": "2026-10-23",
+    "sourceNote": "Original Swedish Wheel In The Sky 2018 nine-song studio LP, uploader timestamps to 36:25, about 3.2K views indexed."
+  },
+  {
+    "band": "wheel-in-the-sky",
+    "release": "b6f7dda3-8f51-4404-8170-4337e22cb4c6",
+    "title": "Chariot Of Fire!",
+    "id": "YE245pDE4bQ",
+    "views": null,
+    "channel": "Wheel In The Sky - Topic",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "2020 original Chariot Of Fire! one-song single from Uppsala band, licensed by Amuseio AB, released 18 December 2020."
+  },
+  {
+    "band": "wheel-in-the-sky",
+    "release": "d6fbb0bb-4ad9-43e6-aebb-a1aea42ba0ec",
+    "title": "Two Hearts Breaking",
+    "id": "9lMdV5xgv1A",
+    "views": null,
+    "channel": "Wheel In The Sky - Topic",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "2020 original Two Hearts Breaking one-song digital single by Uppsala Wheel In The Sky, licensed Amuseio, released 14 February 2020."
+  }
+]);
