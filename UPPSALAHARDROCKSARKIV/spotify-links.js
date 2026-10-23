@@ -19,6 +19,9 @@
 // Inception, Inrage and Invidious: no reliable matching original Spotify album/artist found; avoid similar-name artists.
 // J checked 2026-10-23: Jeniferever Spotify artist + six matching releases (2003 split only the band's two songs in Spotify's 2008 edition).
 // Jeniferever self-titled 2002 EP has no verified matching Spotify release. Jane Crow and Jahimsa no reliable Spotify releases found.
+// K checked 2026-10-23: verified Kelly 8 Spotify artist and three original releases; Spotify reissues 2012 noted where originals are 2002/2004.
+// Kelly 8 'The Emo Diaries, Chapter 8' is a various-artists compilation; band only performs 'Superstud'.
+// Kelly 8 separate 2004 Competition single not mapped to 2012 full EP; Katalysator and Knock Out Kings no verified matching Spotify releases.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -36,7 +39,8 @@ window.ARCHIVE_SPOTIFY = {
     "hexed": "4iS1F1uWKnRIdQKpg7TJAX",
     "imperial-domain": "368CxcpMLCHAU3a5P4IBe6",
     "in-solitude": "5CNR5mJJPAhMamFWQ9xJxD",
-    "jeniferever": "7dbuDvPGFqDJ1M81BTJ4CX"
+    "jeniferever": "7dbuDvPGFqDJ1M81BTJ4CX",
+    "kelly-8": "0ztpLOCgtfquHkmkfb01RG"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -285,6 +289,22 @@ window.ARCHIVE_SPOTIFY = {
     },
     "1fcf6d12-e303-4147-8545-710dddec7860": {
       "id": "59uy7pBEnZ0BLwVJwz3YVA",
+      "note": ""
+    },
+    "5184815f-691e-4100-a3ac-14c4c404d9f4": {
+      "id": "60ze8cCPnh2ewaMEHR5FAD",
+      "note": "Samlingsalbum med flera artister. Kelly 8 medverkar med låten Superstud."
+    },
+    "1e22f900-7018-45ab-975a-32c6022b08d4": {
+      "id": "70PHIV7CrNvVt74MQSxYi2",
+      "note": "Spotify-utgåvan anges som 2012; original-EP:n gavs ut 2002."
+    },
+    "5d24ec64-2282-4208-afae-a15fb5f7b7b0": {
+      "id": "4XQ9w59VUnCy3LODmAAGbJ",
+      "note": "Spotify-utgåvan anges som 2012; albumet gavs ursprungligen ut 2004."
+    },
+    "3dc54a22-de93-4166-9ccc-40e052e00e39": {
+      "id": "5opEmqjSKJyI8XweQQoajQ",
       "note": ""
     }
   },
