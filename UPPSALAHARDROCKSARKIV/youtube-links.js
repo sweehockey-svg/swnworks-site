@@ -12,6 +12,9 @@
 // 2004 R.A.W. First is a reissue; 1997 Now We're Cookin' has enhanced-CD and plain-CD listings; 2011/2012 Reveal Nocturne LP/CD share audio; 2021 Doppelherz CD/LP/digital share video links. No false unique audio editions.
 // 1996 Råskit multi-artist compilation full upload is linked ONLY to compilation release (multipleArtists true), never used as an individual Råskit song preview; only its last song Maze Of Pain belongs to Råskit.
 // 1982/84 Reptile from Uppsala, 1988 Rue Morgue Pavor Nocturnus and Stockholm Royal Big Band had no independently verified unique YouTube recording IDs; avoid any unrelated namesakes.
+// S reviewed 2026-10-23: directly matched original Sanctrum, Sarcasm, Searing I, Seethings, Sentinel Sirens, Serpent Omega, Snuffed by the Yakuza, Spellbound, Sportlov, Stallion Four, Stained Red and Sunaglare YouTube uploads to actual songs/albums; view numbers are dated approximate indexing observations, not live.
+// Do not assign old Sarcasm demos to composite Burial Dimensions anthology, or original 2002 Sportlov Svarta Pisten to 2003 album; CDs, LP reissues and album digital editions reuse the original recorded performance with documented distinctions.
+// No unrelated same-name videos entered for Sami/Samsa, Saturniids, Scarve, Scavenger, Sexistor, ShyLie, Six Pack Sonic, Skitsystem, Skrömta, Soxity, Spacebone, Stained Red older demos, Statues or Steve Eastside. Some have no releases at all.
 window.ARCHIVE_YOUTUBE = [
 {
   "band": "acolytes-of-moros",
@@ -10778,5 +10781,577 @@ window.ARCHIVE_YOUTUBE = [
   "checked": "2026-10-23",
   "sourceNote": "1996 Uppsala Crust Compilation full multi-band EP (15 songs). Råskit performs only Maze Of Pain (track 15), all other songs belong to other groups. This video covers a COMPILATION, not a Råskit-only album.",
   "multipleArtists": true
+},
+{
+  "band": "sanctrum",
+  "release": "9ab2fcde-6814-4ea2-bf78-a05e57e3044f",
+  "title": "The Sickness Within",
+  "id": "Gsik6lg1R0g",
+  "views": null,
+  "channel": "SanctrumSwe",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2015 music video from original Rot album; published by the Uppsala band."
+},
+{
+  "band": "sanctrum",
+  "release": "9ab2fcde-6814-4ea2-bf78-a05e57e3044f",
+  "title": "This Time Around",
+  "id": "P_m_qKa9X9c",
+  "views": null,
+  "channel": "SanctrumSwe",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2015 band music video for Rot track 3, filmed on 2015 tour."
+},
+{
+  "band": "sanctrum",
+  "release": "9ab2fcde-6814-4ea2-bf78-a05e57e3044f",
+  "title": "Rot (full album)",
+  "id": "ePTCqPgPT2w",
+  "views": null,
+  "channel": "Metal Generation",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Ten-song original 2015 Rot album with confirmed track sequence, third-party full album upload."
+},
+{
+  "band": "sanctrum",
+  "release": "17532559-256f-4474-8ccb-8b6369b62cde",
+  "title": "Awaken in Embers (full EP)",
+  "id": "sSUphHJWo7o",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Original 2025 five-song Sanctrum EP, uploader gives release 11 April 2025 and track timestamps."
+},
+{
+  "band": "sanctrum",
+  "release": "17532559-256f-4474-8ccb-8b6369b62cde",
+  "title": "No More",
+  "id": "wwZ1mDp2dwI",
+  "views": null,
+  "channel": "SanctrumSwe",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official band karaoke video for new track No More from Awaken in Embers 2025."
+},
+{
+  "band": "sarcasm",
+  "release": "53c3a650-d856-42f8-b235-83f8f5a5bc93",
+  "title": "Burial Dimensions (1994 recording, full album)",
+  "id": "D6qWnDKW9MI",
+  "views": null,
+  "channel": "Mr666ironangel",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Eight-track Burial Dimensions recording made 1994, eventually issued in mid 2010s. NOT proof of physical 1994 release or the 31-track anthology."
+},
+{
+  "band": "sarcasm",
+  "release": "01591de8-8982-4b35-863d-0ce0ca7fb9fc",
+  "title": "Within the Sphere of Ethereal Minds (full album)",
+  "id": "CzmU_5lKW6M",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "2017 second album full tracklist matching Spotify eight-track program."
+},
+{
+  "band": "sarcasm",
+  "release": "88ed434d-7a1e-43e9-b742-afbc963578d5",
+  "title": "Esoteric Tales of the Unserene (full album)",
+  "id": "1szSV6pTKCk",
+  "views": 6100,
+  "channel": "Chaos Records",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Official Chaos Records full album stream of 2019 album, approximate 6.1K views indexed. Full album, not a single song."
+},
+{
+  "band": "sarcasm",
+  "release": "88ed434d-7a1e-43e9-b742-afbc963578d5",
+  "title": "Flawless Anomalies",
+  "id": "MLPiK-PGh_c",
+  "views": 1700,
+  "channel": "Sarcasm Sweden",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2019 official uploaded album track; ~1.7k indexed views. Album Esoteric Tales of the Unserene."
+},
+{
+  "band": "sarcasm",
+  "release": "e24fe161-d0b4-4d1f-8cfb-e560af7a8bad",
+  "title": "Stellar Stream Obscured (full album)",
+  "id": "s4V_pGOdjuk",
+  "views": 7700,
+  "channel": "Hammerheart Records",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "2022 official Hammerheart complete album stream, 8-song track sequence; approx 7.7k observed."
+},
+{
+  "band": "sarcasm",
+  "release": "adae136c-894d-4fa6-b607-afd4cd040d3e",
+  "title": "Mourninghoul (full album)",
+  "id": "3lJg_0UfbmY",
+  "views": null,
+  "channel": "Hammerheart Records",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "2024 official original album full stream, opening As Northern Gates Open and original timed eight-track sequence."
+},
+{
+  "band": "sarcasm",
+  "release": "db23d24c-9bb5-4b1c-8dd7-c5e0ea01d5ca",
+  "title": "Lifeforce Omnibound (official album stream)",
+  "id": "lpA_zPUDM7s",
+  "views": null,
+  "channel": "Hammerheart Records",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2026 complete eight-track album stream, same recording for archive 2026 digital and CD edition."
+},
+{
+  "band": "sarcasm",
+  "release": "db23d24c-9bb5-4b1c-8dd7-c5e0ea01d5ca",
+  "title": "Altering the Perception",
+  "id": "qlSpAKgPPTQ",
+  "views": null,
+  "channel": "Hammerheart Records",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2026 audio from Lifeforce Omnibound, original title and date confirmed."
+},
+{
+  "band": "sarcasm",
+  "release": "db23d24c-9bb5-4b1c-8dd7-c5e0ea01d5ca",
+  "title": "Essence of Existence",
+  "id": "3drxcTlRFiU",
+  "views": null,
+  "channel": "Hammerheart Records",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2026 audio from Lifeforce Omnibound title program."
+},
+{
+  "band": "sarcasm",
+  "release": "13e185b7-4af0-488a-94c7-edfea2a3fb36",
+  "title": "Lifeforce Omnibound (official album stream)",
+  "id": "lpA_zPUDM7s",
+  "views": null,
+  "channel": "Hammerheart Records",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2026 complete eight-track album stream, same recording for archive 2026 digital and CD edition."
+},
+{
+  "band": "sarcasm",
+  "release": "13e185b7-4af0-488a-94c7-edfea2a3fb36",
+  "title": "Altering the Perception",
+  "id": "qlSpAKgPPTQ",
+  "views": null,
+  "channel": "Hammerheart Records",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2026 audio from Lifeforce Omnibound, original title and date confirmed."
+},
+{
+  "band": "sarcasm",
+  "release": "13e185b7-4af0-488a-94c7-edfea2a3fb36",
+  "title": "Essence of Existence",
+  "id": "3drxcTlRFiU",
+  "views": null,
+  "channel": "Hammerheart Records",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2026 audio from Lifeforce Omnibound title program."
+},
+{
+  "band": "searing-i",
+  "release": "fe846d82-7780-411b-a7ae-e43a1b6543a5",
+  "title": "Empty Threats",
+  "id": "P8MkXllI9RU",
+  "views": null,
+  "channel": "Searing I - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official YouTube audio distribution via CDBaby, ℗ 2005 SEARING I; original Bloodshred album."
+},
+{
+  "band": "searing-i",
+  "release": "fe846d82-7780-411b-a7ae-e43a1b6543a5",
+  "title": "True Identity",
+  "id": "Xk__fFTCRgg",
+  "views": null,
+  "channel": "Searing I - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official Orchard/Black Lotus ℗ 2005 2005 Bloodshred original recording."
+},
+{
+  "band": "searing-i",
+  "release": "fe846d82-7780-411b-a7ae-e43a1b6543a5",
+  "title": "Head First",
+  "id": "OmpBFQsUKu4",
+  "views": null,
+  "channel": "Searing I - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official Orchard/Black Lotus ℗ 2005 2005 Bloodshred original recording."
+},
+{
+  "band": "searing-i",
+  "release": "fe846d82-7780-411b-a7ae-e43a1b6543a5",
+  "title": "A Treacherous Ride",
+  "id": "lbepMfIcTZ8",
+  "views": null,
+  "channel": "Searing I - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2005 original Bloodshred recording auto-distributed via CDBaby; song title also on 2003 demo, not assumed same master."
+},
+{
+  "band": "searing-i",
+  "release": "de883681-119d-4122-ad24-146b5dec1246",
+  "title": "Scapegoat",
+  "id": "OVjWSNBrG_I",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Band official music video for the second Searing I album Post Traumatic Death Disorder (archive 2008, Spotify digital 2010)."
+},
+{
+  "band": "sentinel-sirens",
+  "release": "41678b04-78d4-4436-b6fa-49bb14fbe2de",
+  "title": "Orbithon Wave (full album)",
+  "id": "yZy_vx4WyuM",
+  "views": 348,
+  "channel": "Chaos Records",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Official Chaos Records 2023 full album stream, ten tracks, credits Andreas Engman (Searing I) and Heval Bozarslan (Sarcasm). Approx 348 views indexed. Both CD and digital share the recording."
+},
+{
+  "band": "sentinel-sirens",
+  "release": "27c16d87-975d-4a2f-a7fb-5d7286de391b",
+  "title": "Orbithon Wave (full album)",
+  "id": "yZy_vx4WyuM",
+  "views": 348,
+  "channel": "Chaos Records",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Official Chaos Records 2023 full album stream, ten tracks, credits Andreas Engman (Searing I) and Heval Bozarslan (Sarcasm). Approx 348 views indexed. Both CD and digital share the recording."
+},
+{
+  "band": "seethings",
+  "release": "4b0308a7-952e-4e7c-8c8a-29f0127d1c2b",
+  "title": "Parallels (full album)",
+  "id": "rGsl7-NLAgo",
+  "views": 11000,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Original Swedish Uppsala Seethings 2003 Parallels full album, full thirteen-track list and Lawrence Mackrory band identification. ~11K views indexed."
+},
+{
+  "band": "serpent-omega",
+  "release": "ff38e012-323e-4a3b-a4cf-b1e77c7d5b12",
+  "title": "Orog Nuur",
+  "id": "7z01gqmaFfE",
+  "views": null,
+  "channel": "Icons Creating Evil Art",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official issuing-label original 2020 II album track 1, correct Stockholm-based related Serpent Omega."
+},
+{
+  "band": "serpent-omega",
+  "release": "ff38e012-323e-4a3b-a4cf-b1e77c7d5b12",
+  "title": "Land of Darkness",
+  "id": "l2D_WHjjZ0M",
+  "views": 10000,
+  "channel": "Icons Creating Evil Art",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2020 music video for original II album track Land of Darkness; ~10K views seen in indexed related video information."
+},
+{
+  "band": "serpent-omega",
+  "release": "ff38e012-323e-4a3b-a4cf-b1e77c7d5b12",
+  "title": "II (full album)",
+  "id": "rdEcNSmXA4w",
+  "views": null,
+  "channel": "Icons Creating Evil Art",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Official label HQ original 2020 full seven-track album, despite uploader mistakenly using 'EP' in description."
+},
+{
+  "band": "snuffed-by-the-yakuza",
+  "release": "e625ae2f-8933-4bd8-a527-5205207520ef",
+  "title": "Turn It Up Louder",
+  "id": "5LMORllPZfo",
+  "views": null,
+  "channel": "Snuffed by the Yakuza",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2019 Get Snuffed song/video; video description calls album 2018 while Spotify release date is 2019. Not assigned to 2018 Gang War EP."
+},
+{
+  "band": "snuffed-by-the-yakuza",
+  "release": "e625ae2f-8933-4bd8-a527-5205207520ef",
+  "title": "Paid The Cost",
+  "id": "IJdOUBeX4yo",
+  "views": null,
+  "channel": "Snuffed by the Yakuza - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official ALOADED AB distribution from 2019 Get Snuffed album."
+},
+{
+  "band": "snuffed-by-the-yakuza",
+  "release": "e625ae2f-8933-4bd8-a527-5205207520ef",
+  "title": "Street Trash",
+  "id": "uHLnPdICX-Q",
+  "views": null,
+  "channel": "Snuffed by the Yakuza - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official ALOADED AB 2019 Get Snuffed album distribution."
+},
+{
+  "band": "spellbound",
+  "release": "fa655d65-26ee-448b-a2b6-00855bfda2eb",
+  "title": "Love Taker",
+  "id": "zdsvNVipaoo",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Verified music video for 1984 Breaking the Spell from Swedish Hasse Fröberg/JJ Marsh group, identical recording on 1995 CD reissue."
+},
+{
+  "band": "spellbound",
+  "release": "fa655d65-26ee-448b-a2b6-00855bfda2eb",
+  "title": "Raise the Roof",
+  "id": "IuvbByWdnis",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "1984 original Breaking the Spell album track; French pressing referenced in uploader title, Swedish album same recording."
+},
+{
+  "band": "spellbound",
+  "release": "fa655d65-26ee-448b-a2b6-00855bfda2eb",
+  "title": "Seducer",
+  "id": "6oTUb2dB4Cc",
+  "views": null,
+  "channel": "Spellbound - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Universal Music ℗ 1984 official distribution, opening track of Breaking the Spell, shared 1995 CD reissue."
+},
+{
+  "band": "spellbound",
+  "release": "02ac476a-9f84-40a4-95b2-10d9ef0ae142",
+  "title": "Love Taker",
+  "id": "zdsvNVipaoo",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Verified music video for 1984 Breaking the Spell from Swedish Hasse Fröberg/JJ Marsh group, identical recording on 1995 CD reissue."
+},
+{
+  "band": "spellbound",
+  "release": "02ac476a-9f84-40a4-95b2-10d9ef0ae142",
+  "title": "Raise the Roof",
+  "id": "IuvbByWdnis",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "1984 original Breaking the Spell album track; French pressing referenced in uploader title, Swedish album same recording."
+},
+{
+  "band": "spellbound",
+  "release": "02ac476a-9f84-40a4-95b2-10d9ef0ae142",
+  "title": "Seducer",
+  "id": "6oTUb2dB4Cc",
+  "views": null,
+  "channel": "Spellbound - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Universal Music ℗ 1984 official distribution, opening track of Breaking the Spell, shared 1995 CD reissue."
+},
+{
+  "band": "spellbound",
+  "release": "f7fd0d68-cb2e-43ae-9339-61b0091c9f03",
+  "title": "Rockin' Reckless",
+  "id": "N4aGe9hYyzw",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Exact 1985 Sonet Swedish LP title song from Knivsta Spellbound, not 1986 separate recording."
+},
+{
+  "band": "spellbound",
+  "release": "f7fd0d68-cb2e-43ae-9339-61b0091c9f03",
+  "title": "Love on the Run",
+  "id": "n_HGfjHx81Q",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "1985 second track on original Rockin' Reckless LP; verified Swedish metal band identity."
+},
+{
+  "band": "sportlov",
+  "release": "1cc4f9f3-a642-4b1b-81d3-9b2fd0bfc97d",
+  "title": "Svarta Pisten",
+  "id": "qW1nmz0vk7g",
+  "views": 78000,
+  "channel": "VirtualPowerslave",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "From original 2002 Snöbollskrieg EP track 2; ~78K views indexed. No assumption it is on 2003 Offerblod album."
+},
+{
+  "band": "sportlov",
+  "release": "1cc4f9f3-a642-4b1b-81d3-9b2fd0bfc97d",
+  "title": "Snöbollskrieg",
+  "id": "fZbrM3OtbQM",
+  "views": null,
+  "channel": "Hateisgod",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original 2002 Snöbollskrieg EP title track by Uppsala Sportlov. Older indexed ~77K views need direct ID-count check; not assigned unverified count here."
+},
+{
+  "band": "sportlov",
+  "release": "1cc4f9f3-a642-4b1b-81d3-9b2fd0bfc97d",
+  "title": "Snöbollskrieg (full EP)",
+  "id": "h1lf8lKgc9s",
+  "views": 3200,
+  "channel": "UndergroundUploads",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "2002 five-track original EP, matches original Metal Archives list. ~3.2K views search snapshot."
+},
+{
+  "band": "sportlov",
+  "release": "a08b2688-4c8b-4518-970f-c24657a070c9",
+  "title": "Bränn Holmenkollen (Behåll Lugnet)",
+  "id": "_6Fn4FZJ5_4",
+  "views": 9500,
+  "channel": "Burningfromwithin",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Track 5 from 2003 Offerblod i vallabod; ~9.5K indexed views. 2023 vinyl is reissue of same album recording."
+},
+{
+  "band": "sportlov",
+  "release": "a08b2688-4c8b-4518-970f-c24657a070c9",
+  "title": "Offerblod I Vallabod",
+  "id": "HR3RtQg7lQc",
+  "views": 1000,
+  "channel": "Forneus X",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2003 album title song, not a full album despite the title; original CD and 2023 vinyl reissue, approx 1K views."
+},
+{
+  "band": "sportlov",
+  "release": "a08b2688-4c8b-4518-970f-c24657a070c9",
+  "title": "Offerblod i vallabod (full album)",
+  "id": "c9OM6rV71LU",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Complete original 2003 Uppsala Sportlov album video, not a new 2023 recording."
+},
+{
+  "band": "sportlov",
+  "release": "d056c9bf-d83e-46d8-a9bd-bc52298342f5",
+  "title": "Bränn Holmenkollen (Behåll Lugnet)",
+  "id": "_6Fn4FZJ5_4",
+  "views": 9500,
+  "channel": "Burningfromwithin",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Track 5 from 2003 Offerblod i vallabod; ~9.5K indexed views. 2023 vinyl is reissue of same album recording."
+},
+{
+  "band": "sportlov",
+  "release": "d056c9bf-d83e-46d8-a9bd-bc52298342f5",
+  "title": "Offerblod I Vallabod",
+  "id": "HR3RtQg7lQc",
+  "views": 1000,
+  "channel": "Forneus X",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2003 album title song, not a full album despite the title; original CD and 2023 vinyl reissue, approx 1K views."
+},
+{
+  "band": "sportlov",
+  "release": "d056c9bf-d83e-46d8-a9bd-bc52298342f5",
+  "title": "Offerblod i vallabod (full album)",
+  "id": "c9OM6rV71LU",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Complete original 2003 Uppsala Sportlov album video, not a new 2023 recording."
+},
+{
+  "band": "stallion-four",
+  "release": "7d5b6dd6-8361-4ff4-95a5-024334122380",
+  "title": "Madness",
+  "id": "yc41VVVkEtk",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Stallion Four original Rough Times 2012 album, uploader names exact title, album and year."
+},
+{
+  "band": "stallion-four",
+  "release": "7d5b6dd6-8361-4ff4-95a5-024334122380",
+  "title": "Searching Man",
+  "id": "7WB1b7TCt80",
+  "views": 1100,
+  "channel": "rocker6616",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Stallion Four original 2012 Rough Times album song, ~1.1K views indexed."
+},
+{
+  "band": "stained-red",
+  "release": "d7355d12-58d5-43e0-afd0-aef2aae5fa83",
+  "title": "What Are We Building (complete EP)",
+  "id": "zPkFJpErRbY",
+  "views": 485,
+  "channel": "LostandFoundTapes",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Original 2006 Stained Red EP full upload with timestamped tracks Constant Replay, Who We Are, Kill For A Lullaby, The List etc., ~485 views."
+},
+{
+  "band": "sunaglare",
+  "release": "",
+  "title": "Good Intentions? (acoustic live performance)",
+  "id": "VQRbw7WIbCY",
+  "views": 847,
+  "channel": "Sunaglare",
+  "kind": "live",
+  "checked": "2026-10-23",
+  "sourceNote": "Original Swedish Sunaglare band channel, acoustic live version of song Good Intentions?, not album master; no attachment to 2005 studio CD. ~847 views indexed."
 }
 ];
