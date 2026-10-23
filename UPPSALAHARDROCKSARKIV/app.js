@@ -1259,10 +1259,27 @@
       marathonProgress.setAttribute('aria-label', (marathonIndex + 1) + ' av ' + marathonQueue.length + ' klipp');
     };
     const endMarathon = () => { marathonQueue = []; marathonIndex = -1; updateMarathon(); };
-    let filtered = [], displayed = 24, selected = null;
-    const seen = new Set();
-    const journey = [];
-    let journeyIndex = -1;
+    // Local-only discovery progress, with safe fallback when browser storage is disabled.
+    const journeyStorageKey = 'uppsala-hardrocksarkiv-videojourney-v1';
+    const savedJourney = (() => {
+      try {
+        const value = JSON.parse(localStorage.getItem(journeyStorageKey) || 'null');
+        return value && Array.isArray(value.seen) && Array.isArray(value.journey) ? value : null;
+      } catch { return null; }
+    })();
+    const seen = new Set((savedJourney?.seen || []).filter(id => byVideoId.has(id)));
+    const journey = (savedJourney?.journey || []).filter(id => byVideoId.has(id)).slice(-1500);
+    let journeyIndex = journey.length
+      ? Math.max(0, Math.min(Number.isInteger(savedJourney?.index) ? savedJourney.index : journey.length - 1, journey.length - 1))
+      : -1;
+    const persistJourney = () => {
+      try {
+        localStorage.setItem(journeyStorageKey, JSON.stringify({
+          seen:[...seen], journey, index:journeyIndex
+        }));
+      } catch { /* The roulette still works when storage is unavailable. */ }
+    };
+    let filtered = [], displayed = 24, selected = byVideoId.get(journey[journeyIndex]) || null;
     const back = $('#video-back'), forward = $('#video-forward'), restart = $('#video-restart');
     const journeyCount = $('#video-journey-count'), journeyBands = $('#video-journey-bands'), journeyBar = $('#video-journey-bar');
     const updateJourney = () => {
@@ -1272,7 +1289,11 @@
       journeyBands.textContent = discoveredBands.toLocaleString('sv-SE') + ' av ' + bandTotal.toLocaleString('sv-SE') + ' band';
       journeyBar.style.width = (videos.length ? Math.min(100, seen.size / videos.length * 100) : 0) + '%';
       roulette.disabled = unseenInFilter === 0;
-      roulette.textContent = !filtered.length ? 'INGA KLIPP ATT SLUMPA' : unseenInFilter ? '▶ ÖVERRASKA MIG · ' + unseenInFilter.toLocaleString('sv-SE') + ' KVAR' : 'ALLA KLIPP I URVALET UPPTÄCKTA ✓';
+      const filtersActive = Boolean(search.value.trim() || type.value || decade.value);
+      roulette.textContent = !filtered.length ? 'INGA KLIPP ATT SLUMPA' : unseenInFilter
+        ? '▶ ÖVERRASKA MIG · ' + unseenInFilter.toLocaleString('sv-SE') + ' KVAR' + (filtersActive ? ' I URVALET' : '')
+        : 'ALLA KLIPP I URVALET UPPTÄCKTA ✓';
+      roulette.title = filtersActive ? unseenInFilter + ' oupptäckta klipp inom nuvarande filter (' + filtered.length + ' klipp i urvalet).' : unseenInFilter + ' oupptäckta klipp i hela arkivet.';
       back.disabled = journeyIndex <= 0;
       forward.disabled = journeyIndex >= journey.length - 1;
       restart.disabled = seen.size === 0;
@@ -1296,6 +1317,7 @@
         journey.push(video.id);
         journeyIndex = journey.length - 1;
       }
+      persistJourney();
       updateJourney();
       const bandUrl = video.band ? bandHref(video.band) : '';
       const releaseUrl = video.release ? releaseHref(video.release) : '';
@@ -1421,6 +1443,7 @@
     restart.addEventListener('click',()=>{
       endMarathon();
       seen.clear(); journey.length = 0; journeyIndex = -1;
+      persistJourney();
       selected = null;
       randomDiscovery();
       updateJourney();
