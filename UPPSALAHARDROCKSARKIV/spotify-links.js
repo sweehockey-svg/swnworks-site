@@ -29,6 +29,9 @@
 // Legbiter / Norna 2026 split: matching complete six-track Spotify release (verified via MusicBrainz and label tracklist).
 // M-band streaming check 2026-10-23: original album or unambiguous edition; 2012 deluxe/reissue, duplicated Mönster Life Science and archival sampler editions not conflated.
 // Malaise, Mayadome, Midas Touch, Misery Loves Co., Moder Jords Massiva, Mönster, Morbid Illusion, Mother Superior; Mamma Pappa Barn external.
+// N checked 2026-10-23: Nazghor (original 8 albums, verified singles), Noctum 2010 first pressing vs Spotify 2011.
+// No Future and NojsBojs Uppsala named entities do not have securely identified Spotify identities in searched results. No guessed matches.
+// Noctum Final Sacrifice, The Fiddler and Nazghor 2025 duplicate Esoteric Bloodline await independently confirmed exact editions.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -57,7 +60,9 @@ window.ARCHIVE_SPOTIFY = {
     "moder-jords-massiva": "0GTaum09ogUQOSBwcLzXVt",
     "morbid-illusion": "6MCJJMVJAJFPQR1qNEPGoU",
     "mother-superior": "547I5lsD6Vb4GSOnQ9uz3V",
-    "monster": "3ByScuTFdxHOrnUVI3qTqK"
+    "monster": "3ByScuTFdxHOrnUVI3qTqK",
+    "nazghor": "1Yj3Q9JEqpFCytALOgE1oI",
+    "noctum": "2xRLubVsbZtsFZ1ommKvRw"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -515,6 +520,74 @@ window.ARCHIVE_SPOTIFY = {
     "ec9ea8e8-ff31-4846-b347-987c89f77c54": {
       "id": "2Nr5XQ9LKL2RylDPC000hC",
       "note": "Vinylversion släppt 2023, samma album som digitalutgåvan 2022."
+    },
+    "84f2d7b4-74ef-409a-8094-2f68f2e33139": {
+      "id": "73ub7V7qEtTqVwas5dmnkD",
+      "note": ""
+    },
+    "33e46f37-2dae-46f6-9030-d8a3da724eef": {
+      "id": "5BMDwr7BR8SiqyLyht7FSG",
+      "note": ""
+    },
+    "3c538f14-937c-4d05-a694-3c152fa57b32": {
+      "id": "38H93PKMhB9PCu8QBI8L3n",
+      "note": ""
+    },
+    "27db07e3-8faf-4dfc-b9d0-3dea89b4af41": {
+      "id": "4N3lAKTrOu2SO6qyXkhWFF",
+      "note": ""
+    },
+    "3a3dbcf0-a28c-407b-baed-3348f86a22f3": {
+      "id": "7BMup3pDJNMcqt2OCP5N2H",
+      "note": ""
+    },
+    "7687df7e-d401-4330-a72e-653df19199ae": {
+      "id": "7E4zBmRGNFRvWLIqE1tzj1",
+      "note": ""
+    },
+    "9e010d6b-32f9-4cb3-88b7-53ebfa504869": {
+      "id": "4Mbdu1XlqGkECLVoY9tIZp",
+      "note": ""
+    },
+    "4c1cf929-f22e-47a9-a69e-ea87affa8af7": {
+      "id": "1W522VvuyzPxggxO70SSg1",
+      "note": ""
+    },
+    "a632cd52-a507-41c8-b11a-9f3bb809fce2": {
+      "id": "4BiYXBX4aCSBUHcOMRAaXX",
+      "note": ""
+    },
+    "90839f06-11c0-4307-b187-afeb99a2aeac": {
+      "id": "27O8sj45HZ4IEVUfnXKBNP",
+      "note": ""
+    },
+    "fc1ca3b6-6e9b-4161-b6af-3aa0c27cb2da": {
+      "id": "5KqFXxLiZt6Yfcz6lpxkOC",
+      "note": "Spotify singeln daterad 2024. Arkivet har även en separat post för 2025, ännu ingen verifierad separat Spotify-utgåva."
+    },
+    "c41047c0-c78a-466e-af40-dd6bb3060891": {
+      "id": "5ycK4c6zXNbUG1LIuO8mXR",
+      "note": ""
+    },
+    "02959a92-990b-4603-a344-4c1d5945a8f3": {
+      "id": "47n20VKbnBOOx7iVorVHmm",
+      "note": ""
+    },
+    "ed590b7a-b322-46a1-8ab3-f899c1c10bc9": {
+      "id": "4laLnj3qKXCHf3ILjjqNcM",
+      "note": "A World Ablaze 2026 består av nyinspelade versioner av äldre låtar, inte originalmastrar."
+    },
+    "183a9792-3b5f-4ae3-8873-d721981a8652": {
+      "id": "4613flEM5XziJKmGRK3jOr",
+      "note": ""
+    },
+    "2559af03-cdc4-49bf-b4bd-0df9a969e37b": {
+      "id": "30ZGfXoyMmK9PSpippQAjK",
+      "note": "Spotify anger The Seance 2011; arkivets originalpressning 2010."
+    },
+    "34915122-4af9-4c94-b5ad-f6796eaa635b": {
+      "id": "6K60bDiO25S3A3Bhz3lIr7",
+      "note": ""
     }
   },
   "releaseTitles": {
