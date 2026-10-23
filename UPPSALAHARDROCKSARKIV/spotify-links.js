@@ -22,6 +22,10 @@
 // K checked 2026-10-23: verified Kelly 8 Spotify artist and three original releases; Spotify reissues 2012 noted where originals are 2002/2004.
 // Kelly 8 'The Emo Diaries, Chapter 8' is a various-artists compilation; band only performs 'Superstud'.
 // Kelly 8 separate 2004 Competition single not mapped to 2012 full EP; Katalysator and Knock Out Kings no verified matching Spotify releases.
+// L manually checked 2026-10-23: Loch Vostok, Lou Siffer and the Howling Demons streaming catalogues. Correct Uppsala band identities verified.
+// Do not map early demos, lost/defunct Lost Souls albums, or unknown-name band profiles to guessed Spotify releases.
+// Lou Siffer's 2011 album has a different Spotify title but the same 11 songs; source/edition differences documented in notes.
+// Spotify lacks confirmed standalone Summer 2017 and The Mosher/In the Dark original single release IDs; no album-level guess.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -40,7 +44,9 @@ window.ARCHIVE_SPOTIFY = {
     "imperial-domain": "368CxcpMLCHAU3a5P4IBe6",
     "in-solitude": "5CNR5mJJPAhMamFWQ9xJxD",
     "jeniferever": "7dbuDvPGFqDJ1M81BTJ4CX",
-    "kelly-8": "0ztpLOCgtfquHkmkfb01RG"
+    "kelly-8": "0ztpLOCgtfquHkmkfb01RG",
+    "loch-vostok": "016GvkOAZuk3P4nMiJ2sX8",
+    "lou-siffer-och-the-howling-demons": "59KfvyT8lPldMaTJLmGlzD"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -305,6 +311,78 @@ window.ARCHIVE_SPOTIFY = {
     },
     "3dc54a22-de93-4166-9ccc-40e052e00e39": {
       "id": "5opEmqjSKJyI8XweQQoajQ",
+      "note": ""
+    },
+    "83f6cc20-8cb8-46ac-9ae5-d7e360958f56": {
+      "id": "0duJDFLPQlxD0pweL9raew",
+      "note": "Spotify anger 2004; arkivet daterar den första utgåvan 2003."
+    },
+    "097f77e7-d6ed-4f75-953c-76cf3198f37b": {
+      "id": "7btSnQBOoyxXgp2bHsG6Nt",
+      "note": ""
+    },
+    "389990ea-75a4-4538-ab0c-59450afc8ae3": {
+      "id": "6UPXbX3tbWeseo6Mz64zVg",
+      "note": ""
+    },
+    "d96de973-1546-4a37-9ff6-d73c1d3bae9b": {
+      "id": "6wrf3qVF5Dvkh3efophUk9",
+      "note": ""
+    },
+    "90a3079d-1310-4832-8e80-bf63c949bc33": {
+      "id": "1hDRpkodJPKE6BFW3Swa2Q",
+      "note": ""
+    },
+    "a63cf975-84e0-43a5-a8a2-007ca22aafcb": {
+      "id": "0EH7S5qY9SvNM6WZJ3wvoP",
+      "note": ""
+    },
+    "d7b8a74d-c5ea-4f43-9c29-410af240497d": {
+      "id": "0bzY4ouzpHwg3DVBPqLZWQ",
+      "note": ""
+    },
+    "f18cb17b-c15a-4839-96f1-dbadfcaa6f4f": {
+      "id": "3dZG3iBI1wB2KlnZjbrvyT",
+      "note": ""
+    },
+    "7598ccc7-4e57-4d68-94fc-b8efeaab30a6": {
+      "id": "1nsJzlag6yBcbrkVKF9VyN",
+      "note": ""
+    },
+    "281c8109-0042-4b70-9a57-e2e7b52219a0": {
+      "id": "0jDkiIqiXdEv5W0VBAKKGZ",
+      "note": ""
+    },
+    "0aae11d1-fd58-4f0f-8738-80f412547c08": {
+      "id": "1nBjEq9fBfodZZinHZNcJY",
+      "note": ""
+    },
+    "6e8ebaec-81e6-45d0-950d-ce4d08a012c9": {
+      "id": "6WgvQehin5PWZHg6xS8Cii",
+      "note": ""
+    },
+    "dd744c21-4f50-4452-bb5e-4a3f49de445f": {
+      "id": "64cYDaGp1bVTCd6YwbuboL",
+      "note": ""
+    },
+    "380f857c-559b-486d-8b13-86d217247bb2": {
+      "id": "3vYxsPtOyRfB2ygGdfgELA",
+      "note": "Spotify-utgåvan heter The Devil. Låtlistan med 11 spår motsvarar The Devil's Ride från 2011."
+    },
+    "cc00398c-659b-4458-921c-ea2e7b071cfb": {
+      "id": "4fE6wOpKHrmfhe4PgvZtx3",
+      "note": ""
+    },
+    "33ea7d01-f893-43b4-8d73-786911edfdda": {
+      "id": "1BomrbgQDQEqzJfOQTFuKV",
+      "note": "Spotify anger singelår 2015; arkivet anger 2016."
+    },
+    "cbad5bfc-4498-4849-979e-b9c8d811fdc0": {
+      "id": "1QNk1Hbql1U2qnCAAoHuFJ",
+      "note": "Spotify anger EP:n som LSHD (2015); arkivet daterar L.S.H.D. till 2016."
+    },
+    "bec703e3-4407-4d35-8a62-58b5b8c5dfc4": {
+      "id": "0PuQOIizNeyeEfPmYHZI07",
       "note": ""
     }
   },
