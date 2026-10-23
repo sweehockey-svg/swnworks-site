@@ -32,6 +32,9 @@
 // N checked 2026-10-23: Nazghor (original 8 albums, verified singles), Noctum 2010 first pressing vs Spotify 2011.
 // No Future and NojsBojs Uppsala named entities do not have securely identified Spotify identities in searched results. No guessed matches.
 // Noctum Final Sacrifice, The Fiddler and Nazghor 2025 duplicate Esoteric Bloodline await independently confirmed exact editions.
+// O checked 2026-10-23: Obnoxious Youth, Offerblod and Ordos release-specific Spotify IDs, duplicate physical editions documented.
+// Obnoxious Youth 2005/2009/2010 demos, Ordos 2016 single and 2025 Fire: no confirmed specific Spotify release IDs; do not guess.
+// Ordos Four Altars of Sin is a FOUR-ARTIST split, Ordos appears only on Inferno. Archive release note warns accordingly.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -62,7 +65,10 @@ window.ARCHIVE_SPOTIFY = {
     "mother-superior": "547I5lsD6Vb4GSOnQ9uz3V",
     "monster": "3ByScuTFdxHOrnUVI3qTqK",
     "nazghor": "1Yj3Q9JEqpFCytALOgE1oI",
-    "noctum": "2xRLubVsbZtsFZ1ommKvRw"
+    "noctum": "2xRLubVsbZtsFZ1ommKvRw",
+    "obnoxious-youth": "5cf1DA2dih2227vquyZ9Vw",
+    "offerblod": "1EvEHe8Re4lFpr0lQat7Yq",
+    "ordos": "3pYCwlhXW6pbRSnzD2Fshj"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -588,6 +594,94 @@ window.ARCHIVE_SPOTIFY = {
     "34915122-4af9-4c94-b5ad-f6796eaa635b": {
       "id": "6K60bDiO25S3A3Bhz3lIr7",
       "note": ""
+    },
+    "e1bf54b4-c11a-4fe2-a8f2-b8bf47560e48": {
+      "id": "7FkIciEAHahE0abUhhoKOh",
+      "note": "2011 original album, ten tracks"
+    },
+    "ecf957d5-a3e9-4405-bd00-2bf33d4c2f8e": {
+      "id": "7FkIciEAHahE0abUhhoKOh",
+      "note": "Another archive entry for the 2011 original album, same Spotify master"
+    },
+    "522d9a57-f0a3-4330-980e-c857fa1d8bc2": {
+      "id": "7dwZ8lSocpjSozKV90kvvv",
+      "note": "Original 2013 four-track EP"
+    },
+    "51f1e8ee-75bd-43bc-9ad5-ac2a9bcd5fe4": {
+      "id": "7dwZ8lSocpjSozKV90kvvv",
+      "note": "Archive entry for 2018 EP issue; Spotify carries the 2013 four-track release"
+    },
+    "cd51c0a9-9b80-4bf4-b704-119197f49461": {
+      "id": "78vMWLSGjzlQMXSrlCSc4k",
+      "note": "Original 2017 album"
+    },
+    "68454020-538f-4e20-af56-11e23169cb3e": {
+      "id": "78vMWLSGjzlQMXSrlCSc4k",
+      "note": "Separate archive entry for 2017 album, same digital release"
+    },
+    "16ab7378-eba0-465f-b2c5-099124ef63e9": {
+      "id": "76ErEGTAoHmJgFyzPBxzRL",
+      "note": "Original 2020 six-track EP"
+    },
+    "f4017056-1a5a-4f98-ba64-e31ac7a4ad40": {
+      "id": "5LVdOzhOhD3bf8ndnu1wtQ",
+      "note": "2024 album, twelve tracks"
+    },
+    "ac8c706a-dbcb-43aa-88fd-411172f12ea8": {
+      "id": "5LVdOzhOhD3bf8ndnu1wtQ",
+      "note": "Second archive entry for 2024 full album"
+    },
+    "c63477a0-13d2-4f74-a731-76d0566060d1": {
+      "id": "5jJe01ocQn0NijiAKiXsdP",
+      "note": "Standalone 2024 Burning Savage single, not the twelve-track album"
+    },
+    "6cc31457-8ca4-4692-b2aa-e6447f7d7b55": {
+      "id": "2TC1bhb2OT3TUrS9OuAax0",
+      "note": "Standalone 2024 Ethereal Termination single"
+    },
+    "6afaef5c-c950-4924-be4f-9b43417cd847": {
+      "id": "0ygIn0VU7aPNBCw9Hq645A",
+      "note": "Original 2021 single"
+    },
+    "0168bbe3-6d01-461e-804b-932762a6d693": {
+      "id": "74ylznvCYqSmlXSUbu7ViY",
+      "note": "Original four-track 2022 EP"
+    },
+    "6f0e0eca-2aef-4261-b758-65c78086f93e": {
+      "id": "19AHJU5CaycH2hYdBS6dOP",
+      "note": "Original 2022 single"
+    },
+    "d58e1261-30fa-4e36-844a-47a45459c477": {
+      "id": "74ylznvCYqSmlXSUbu7ViY",
+      "note": "2023 archive entry for Vårt sista nederlag; Spotify shows original 2022 four-track EP, no separate 2023 edition verified"
+    },
+    "7a42f3f5-94c3-47ac-a4fc-f0a9d703dfa2": {
+      "id": "39f72pwLUpKGXZFuvtMeoN",
+      "note": "Original 2025 single"
+    },
+    "ba658116-51b5-49f3-9c77-b5d255c28e2a": {
+      "id": "5r0mac38tn1eBwVFqlXtu6",
+      "note": "Original 2025 single"
+    },
+    "9a019094-ed10-4c2f-9bd3-e6d692587a82": {
+      "id": "0EeRJUsZTaBZRweATbArUQ",
+      "note": "Original 2025 single"
+    },
+    "23b1c400-e37f-41e3-a46a-8dd3fb92f58e": {
+      "id": "51WR9oAdoupI9N4HDejxh3",
+      "note": "Original album 2013; streaming platforms also list a 2015 Ordos S/T reissue"
+    },
+    "5d5e04ab-78df-4871-96af-ced4f38b0cb2": {
+      "id": "78OJFtx8SKUOZWqYHKxwcx",
+      "note": "Original six-song 2017 House of the Dead album, not the 2016 standalone single"
+    },
+    "1412ad15-6f0e-4387-bf14-03b56ab314c8": {
+      "id": "7Cc2NdmZAVT1cbcFHvEvJw",
+      "note": "Original 2019 eight-song album"
+    },
+    "813868d4-b708-49aa-a7a2-fb5c545fd2f2": {
+      "id": "17rPrgwQLm1nNQ08kviv2E",
+      "note": "A FOUR-BAND SPLIT! Only track 2 Inferno is Ordos. Other tracks by Doomherre, Hexjakt and Kaiser; this is NOT an Ordos solo album."
     }
   },
   "releaseTitles": {
