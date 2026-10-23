@@ -69,7 +69,9 @@ window.ARCHIVE_SPOTIFY = {
     "noctum": "2xRLubVsbZtsFZ1ommKvRw",
     "obnoxious-youth": "5cf1DA2dih2227vquyZ9Vw",
     "offerblod": "1EvEHe8Re4lFpr0lQat7Yq",
-    "ordos": "3pYCwlhXW6pbRSnzD2Fshj"
+    "ordos": "3pYCwlhXW6pbRSnzD2Fshj",
+    "on-trial": "4nvfNTnpTR4q1Zjs6WkuLz",
+    "one-hour-hell": "4imhqIhUhfk21DK1EgRBjj"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
