@@ -17,6 +17,8 @@
 // Imperial Domain's 1996 In the Ashes of the Fallen demo differs from the 1998 album and is not mapped to Spotify album.
 // In Solitude 2008 album on Spotify is a 2013 reissue with bonus tracks. Older demo, singles and EPs without exact Spotify edition are not linked to later album recordings.
 // Inception, Inrage and Invidious: no reliable matching original Spotify album/artist found; avoid similar-name artists.
+// J checked 2026-10-23: Jeniferever Spotify artist + six matching releases (2003 split only the band's two songs in Spotify's 2008 edition).
+// Jeniferever self-titled 2002 EP has no verified matching Spotify release. Jane Crow and Jahimsa no reliable Spotify releases found.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -33,7 +35,8 @@ window.ARCHIVE_SPOTIFY = {
     "hasse-froberg-och-musical-companion": "13RTW4shE0TgtPiImh90SS",
     "hexed": "4iS1F1uWKnRIdQKpg7TJAX",
     "imperial-domain": "368CxcpMLCHAU3a5P4IBe6",
-    "in-solitude": "5CNR5mJJPAhMamFWQ9xJxD"
+    "in-solitude": "5CNR5mJJPAhMamFWQ9xJxD",
+    "jeniferever": "7dbuDvPGFqDJ1M81BTJ4CX"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -258,6 +261,30 @@ window.ARCHIVE_SPOTIFY = {
     },
     "07177abc-82ac-4640-b364-32d40e9cab29": {
       "id": "7dozEDYcswMbvJTnEBBLGU",
+      "note": ""
+    },
+    "8ed64410-8e97-4b11-99b1-17dd98a83be2": {
+      "id": "5iscyw3mqUdInegVZJ2dNH",
+      "note": "Endast Jeniferevers två spår på Spotify (utgåva daterad 2008). Originalsplitten från 2003 har fem spår inklusive The Next Autumn Soundtrack."
+    },
+    "b6d423b5-8bf8-4dd6-aaa9-002a4c7fa453": {
+      "id": "7qDz2BKVRYnThIu40OuB2Z",
+      "note": ""
+    },
+    "9c88368d-0480-4d02-893c-54b4ec90779e": {
+      "id": "3DUOo6tD8NIBfHvykuyKJo",
+      "note": ""
+    },
+    "681ee93c-6e11-42c4-8921-797c878a7508": {
+      "id": "0wmeFRWmIBf0EC0u8ujzTd",
+      "note": ""
+    },
+    "5bad753b-02a1-49ea-ba0d-b10dcb0b3f0a": {
+      "id": "1QpPp7dSDxF7JkO7fhCETz",
+      "note": ""
+    },
+    "1fcf6d12-e303-4147-8545-710dddec7860": {
+      "id": "59uy7pBEnZ0BLwVJwz3YVA",
       "note": ""
     }
   },
