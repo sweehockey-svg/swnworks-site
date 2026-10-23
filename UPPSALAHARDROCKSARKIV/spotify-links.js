@@ -49,6 +49,7 @@
 // Original physical format vs digital release discrepancies explicitly noted per UUID; do not claim Spotify houses distinct CD or vinyl master just because both archive formats map to the same album ID.
 // Do not substitute 1992-94 Sarcasm demo recordings with the 31-track 2015 anthology Burial Dimensions or with the 8-track 2015 reissue of the unpublished 1990s album; physical original edition differences noted.
 // 2025 Sanctrum Awaken in Embers, 2012 SHORTONESHORT Pestilence, 2014 Like an Accident, 2020 Sunaglare singles except Baby Said, 2004 Snuffed It's Dirty Chords, Spellbound 1984 Swedish Metal split and 1997/2002 archival compilations lack exact safely confirmed standalone Spotify IDs in this pass. No guessing for other S-band homonyms.
+// Saturniids correction 2026-10-23: exact 2017 four-song original Uppsala doom EP on Spotify verified via 2021 The Obelisk Endtime announcement embed (same four tracks), not Boston SATURNIIDS Spotify profile. Album-only mapping; Spotify artist ID not independently verified.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -925,6 +926,10 @@ window.ARCHIVE_SPOTIFY = {
     "0ad4e5bc-dc1c-4420-9de9-2fb665f30dfa": {
       "id": "1toezS5R3iELlc0MeHQqad",
       "note": "2020 Baby Said (Spotify spellings Baby said) single; original artist Sunaglare."
+    },
+    "83e39e2c-baa6-4390-a089-bc8c2a2ef10a": {
+      "id": "0GpBaUWeUeTpuAMQOyklG7",
+      "note": "Original 2017 Uppsala Saturniids four-track doom/sludge EP (Destroyer of Worlds, I.C.B.M., They Live, Into Oblivion); the band changed name to Endtime in 2019. Spotify URL verified through a contemporaneous 2021 The Obelisk embedded original EP. NOT unrelated Boston SATURNIIDS indie/alternative band or 2026 handpan single."
     }
   },
   "releaseTitles": {
