@@ -5682,6 +5682,7 @@ window.ARCHIVE_YOUTUBE = [
 {
   "band": "hexed",
   "release": "",
+  "releaseTitle": "pagans-rising",
   "title": "Pagans Rising",
   "id": "ik0yEI-rF_o",
   "views": null,
@@ -5693,6 +5694,7 @@ window.ARCHIVE_YOUTUBE = [
 {
   "band": "hexed",
   "release": "",
+  "releaseTitle": "pagans-rising",
   "title": "Stigma Diaboli",
   "id": "VtwQXNChrLs",
   "views": null,
@@ -5704,6 +5706,7 @@ window.ARCHIVE_YOUTUBE = [
 {
   "band": "hexed",
   "release": "",
+  "releaseTitle": "pagans-rising",
   "title": "Repentance",
   "id": "4xhSFVWtHZc",
   "views": null,
@@ -5715,6 +5718,7 @@ window.ARCHIVE_YOUTUBE = [
 {
   "band": "hexed",
   "release": "",
+  "releaseTitle": "pagans-rising",
   "title": "Resurrection",
   "id": "PumevNRRvZ0",
   "views": null,
@@ -5726,6 +5730,7 @@ window.ARCHIVE_YOUTUBE = [
 {
   "band": "hexed",
   "release": "",
+  "releaseTitle": "pagans-rising",
   "title": "Blasphemy",
   "id": "KlcgNTsTdPo",
   "views": null,
@@ -5737,6 +5742,7 @@ window.ARCHIVE_YOUTUBE = [
 {
   "band": "hexed",
   "release": "",
+  "releaseTitle": "pagans-rising",
   "title": "Symphony of Tragedy (live)",
   "id": "Qby1DveudWQ",
   "views": null,
@@ -5748,6 +5754,7 @@ window.ARCHIVE_YOUTUBE = [
 {
   "band": "hexed",
   "release": "",
+  "releaseTitle": "netherworld",
   "title": "Obedience",
   "id": "fPpDdqhkMI8",
   "views": null,
@@ -5759,6 +5766,7 @@ window.ARCHIVE_YOUTUBE = [
 {
   "band": "hexed",
   "release": "",
+  "releaseTitle": "netherworld",
   "title": "Exhaling Life",
   "id": "10uumiUuksM",
   "views": null,
