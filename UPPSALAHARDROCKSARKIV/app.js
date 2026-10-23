@@ -986,13 +986,30 @@
 
 
 
+  function normalizedFilterText(value) {
+    return String(value || '').normalize('NFC').trim().replace(/\s+/g, ' ');
+  }
+
+  function genreFilterLabel(value) {
+    return normalizedFilterText(value).toLocaleLowerCase('sv')
+      .replace(/\s*\/\s*/g, ' / ')
+      .split(' ').map(word => word === 'aor' ? 'AOR' : word.charAt(0).toLocaleUpperCase('sv') + word.slice(1)).join(' ');
+  }
+
+  function cityFilterLabel(value) {
+    const places = normalizedFilterText(value).split('/').map(part => normalizedFilterText(part).toLocaleLowerCase('sv'))
+      .filter(Boolean);
+    return [...new Set(places)].sort((a,b) => a === b ? 0 : a === 'uppsala' ? -1 : b === 'uppsala' ? 1 : a.localeCompare(b,'sv'))
+      .map(place => place.replace(/(^|[\s-])\p{L}/gu, letter => letter.toLocaleUpperCase('sv'))).join(' / ');
+  }
+
   function renderBandIndex() {
     const bands = uppsalaBands();
     const byName = (a, b) => a.canonical_name.localeCompare(b.canonical_name, 'sv', { sensitivity: 'base' });
     const selectOptions = values => values.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('');
-    const genres = [...new Set(bands.flatMap(b => Array.isArray(b.genres) ? b.genres : []).filter(Boolean))]
+    const genres = [...new Set(bands.flatMap(b => Array.isArray(b.genres) ? b.genres.map(genreFilterLabel) : []).filter(Boolean))]
       .sort((a, b) => a.localeCompare(b, 'sv'));
-    const cities = [...new Set(bands.map(b => b.city).filter(Boolean))]
+    const cities = [...new Set(bands.map(b => cityFilterLabel(b.city)).filter(Boolean))]
       .sort((a, b) => a.localeCompare(b, 'sv'));
     const decades = [...new Set(bands.map(b => Number(b.formed_year))
       .filter(year => Number.isInteger(year) && year >= 1900)
@@ -1003,7 +1020,7 @@
       releaseIds.get(link.band_id).add(link.release_id);
     });
     const releaseCount = band => releaseIds.get(band.id)?.size || 0;
-    const hasPhoto = band => Boolean(bandPhoto(b) ||
+    const hasPhoto = band => Boolean(bandPhoto(band) ||
       /\.(?:jpe?g|png|webp)(?:\?|$)/i.test(BAND_MEDIA[slugify(band.canonical_name)] || ''));
 
     app.innerHTML = `${pageHeader('BAND I ARKIVET','Band','Från tidig hårdrock och thrash till death, black och senare grenar av Uppsalas metalscen.')}
@@ -1047,10 +1064,10 @@
       const selectedDecade = decade.value;
       const selectedCity = city.value;
       const filtered = bands.filter(b => {
-        if (term && !`${b.canonical_name} ${(b.genres || []).join(' ')} ${b.city || ''} ${b.formed_year || ''}`.toLocaleLowerCase('sv').includes(term)) return false;
-        if (selectedGenre && !(b.genres || []).includes(selectedGenre)) return false;
+        if (term && !`${b.canonical_name} ${(b.genres || []).join(' ')} ${b.city || ''} ${cityFilterLabel(b.city)} ${b.formed_year || ''}`.toLocaleLowerCase('sv').includes(term)) return false;
+        if (selectedGenre && !(b.genres || []).some(value => genreFilterLabel(value) === selectedGenre)) return false;
         if (selectedDecade && Math.floor(Number(b.formed_year) / 10) * 10 !== Number(selectedDecade)) return false;
-        if (selectedCity && b.city !== selectedCity) return false;
+        if (selectedCity && cityFilterLabel(b.city) !== selectedCity) return false;
         if (photoOnly.checked && !hasPhoto(b)) return false;
         return true;
       });
@@ -1765,5 +1782,3 @@
   if (routePath() === '/kontakt') renderRoute();
   load();
 })();
-
-
