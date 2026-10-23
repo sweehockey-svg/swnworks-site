@@ -5491,5 +5491,280 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "track",
   "checked": "2026-10-23",
   "sourceNote": "Same recording published under Valley Of The Dead (a.k.a. Gus Of Sweden); Gus of Sweden 2013 retrospective EP."
+},
+// H verified 2026-10-23. HEXED clips associated with band until exact release IDs can be retrieved.
+{
+  "band": "haerdsmaelta",
+  "release": "1663334c-0ad2-41ef-9ecf-1ab9ad839eaf",
+  "title": "Acid Rainbow",
+  "id": "u05bpSjll6s",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2018 song video, single subsequently catalogued as 2019."
+},
+{
+  "band": "haerdsmaelta",
+  "release": "1663334c-0ad2-41ef-9ecf-1ab9ad839eaf",
+  "title": "Fence Builders",
+  "id": "ncu9yxhkmGM",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2019 music video for song included on Gone In Grey EP."
+},
+{
+  "band": "haerdsmaelta",
+  "release": "6591b14a-3b10-4a82-a4a3-be503deb1380",
+  "title": "Acid Rainbow",
+  "id": "u05bpSjll6s",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Music video of same track also mapped to Gone In Grey EP."
+},
+{
+  "band": "haerdsmaelta",
+  "release": "c5cf4455-9a2d-4b6d-990e-87ef8a529cda",
+  "title": "Fence Builders",
+  "id": "ncu9yxhkmGM",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official video also mapped to Gone In Grey."
+},
+{
+  "band": "haerdsmaelta",
+  "release": "61c2a08a-5bc1-482d-99e4-b70c3e756a79",
+  "title": "Upon a Star",
+  "id": "r6pci9s3hVk",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "haerdsmaelta",
+  "release": "61c2a08a-5bc1-482d-99e4-b70c3e756a79",
+  "title": "Class of Inevitable Doom",
+  "id": "1SRUN4LWYYg",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "haerdsmaelta",
+  "release": "61c2a08a-5bc1-482d-99e4-b70c3e756a79",
+  "title": "A Disaster Worth Celebrating",
+  "id": "6lOMc5H2z24",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "haerdsmaelta",
+  "release": "0dfa7748-6001-4e4b-9205-b0e506bd6306",
+  "title": "Unravel Them Fears",
+  "id": "X3gh8-h__7g",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "haerdsmaelta",
+  "release": "0dfa7748-6001-4e4b-9205-b0e506bd6306",
+  "title": "We Got High",
+  "id": "shTFFZ-aqro",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "haerdsmaelta",
+  "release": "a70b414a-0d2b-44c2-b65a-c354dfd41edb",
+  "title": "Enjoy The Feast",
+  "id": "Q5flGpIJ2qY",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "haerdsmaelta",
+  "release": "e0fcf90d-f2f4-4079-82d1-1ef7fe62d37b",
+  "title": "City of the Dead",
+  "id": "pxMg_fZRwOg",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "haerdsmaelta",
+  "release": "5662eaac-0514-4383-aabb-f63273e6882f",
+  "title": "The Kids Are Alt-Right",
+  "id": "l5TQ9jPaXDk",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "haerdsmaelta",
+  "release": "d1ed9f31-b2f6-41bd-be61-6f622336ca41",
+  "title": "Artificial Ignorance",
+  "id": "2-B17AZKdlE",
+  "views": null,
+  "channel": "HAERDSMAELTA",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "hasse-froberg-och-musical-companion",
+  "release": "ed440011-0c32-42f5-870b-ef4164a21e76",
+  "title": "The World Keeps Turning",
+  "id": "h0ZhyOJncPQ",
+  "views": null,
+  "channel": "HFMC",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2026 lyric video for track on original 2012 Powerplay album"
+},
+{
+  "band": "hasse-froberg-och-musical-companion",
+  "release": "4c17f968-d998-4fc7-a4f2-287792af5545",
+  "title": "To Those Who Rule The World",
+  "id": "QuIRbdQgzVw",
+  "views": null,
+  "channel": "HFMC",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "hasse-froberg-och-musical-companion",
+  "release": "c1fcd69f-80d8-4939-bfbb-f8a52c821e25",
+  "title": "Once In A Lifetime",
+  "id": "d-kptuQUpM4",
+  "views": null,
+  "channel": "HFMC",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "hasse-froberg-och-musical-companion",
+  "release": "c1fcd69f-80d8-4939-bfbb-f8a52c821e25",
+  "title": "Wherever You May Go",
+  "id": "41xHXgIHQY8",
+  "views": null,
+  "channel": "HFMC",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official edited video of album song"
+},
+{
+  "band": "hasse-froberg-och-musical-companion",
+  "release": "c1fcd69f-80d8-4939-bfbb-f8a52c821e25",
+  "title": "Blind Dog",
+  "id": "wmHTjJtj9O4",
+  "views": null,
+  "channel": "Hasse Fröberg Musical Companion - Topic",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "hexed",
+  "release": "",
+  "title": "Pagans Rising",
+  "id": "ik0yEI-rF_o",
+  "views": null,
+  "channel": "HEXED Official",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official band video, from 2022 Pagans Rising album; release UUID not accessible"
+},
+{
+  "band": "hexed",
+  "release": "",
+  "title": "Stigma Diaboli",
+  "id": "VtwQXNChrLs",
+  "views": null,
+  "channel": "HEXED Official",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official band video, from 2022 Pagans Rising album; release UUID not accessible"
+},
+{
+  "band": "hexed",
+  "release": "",
+  "title": "Repentance",
+  "id": "4xhSFVWtHZc",
+  "views": null,
+  "channel": "HEXED Official",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official band video, from 2022 Pagans Rising album; release UUID not accessible"
+},
+{
+  "band": "hexed",
+  "release": "",
+  "title": "Resurrection",
+  "id": "PumevNRRvZ0",
+  "views": null,
+  "channel": "HEXED Official",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official band video, from 2022 Pagans Rising album; release UUID not accessible"
+},
+{
+  "band": "hexed",
+  "release": "",
+  "title": "Blasphemy",
+  "id": "KlcgNTsTdPo",
+  "views": null,
+  "channel": "HEXED Official",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official band video, from 2022 Pagans Rising album; release UUID not accessible"
+},
+{
+  "band": "hexed",
+  "release": "",
+  "title": "Symphony of Tragedy (live)",
+  "id": "Qby1DveudWQ",
+  "views": null,
+  "channel": "HEXED Official",
+  "kind": "live",
+  "checked": "2026-10-23",
+  "sourceNote": "Official live performance of 2022 Pagans Rising song; release UUID not accessible"
+},
+{
+  "band": "hexed",
+  "release": "",
+  "title": "Obedience",
+  "id": "fPpDdqhkMI8",
+  "views": null,
+  "channel": "HEXED Official",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official song video from Netherworld (2018); release UUID not accessible"
+},
+{
+  "band": "hexed",
+  "release": "",
+  "title": "Exhaling Life",
+  "id": "10uumiUuksM",
+  "views": null,
+  "channel": "HEXED Official",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official song video featuring Thomas Vikström; release UUID not accessible"
 }
 ];
