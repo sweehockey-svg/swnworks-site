@@ -55,6 +55,7 @@
 // The Next Autumn Soundtrack 2003 split with Jeniferever contains two Jeniferever tracks followed by three The Next Autumn Soundtrack recordings; Spotify mapping requires original compilation's own album ID, not Jeniferever artist's entire catalog.
 // Treebeard Uppsala already has dozens of band/album-specific original YouTube uploads; keep these rather than adding duplicate videos; do not link unrelated Australian Treebeard Spotify artists.
 // Additional 2026-10-23 T audit: The Search official bandcamp and Aenaos Records both explicitly link Spotify artist 1qKeXgsFl1puFe0uU6lCZz. Correctly matched original 2006-24 album tracklists and 2015/23 Third Storm, 2019 Taiwaz master vs streaming year. The Search 2004 self-titled remains unmapped because unique Spotify album ID not independently confirmed.
+// 2026-10-23 T: original The 21st Impact Second to None 10-track exactly matches Spotify 2004 (3 physical archive records), By All Means Necessary 13-track core is first 13 of Spotify 2005 expanded 23-track release (two archive records), bonus tracks are 2004 LP. Full archive tracklists checked in Supabase.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -1059,6 +1060,26 @@ window.ARCHIVE_SPOTIFY = {
     "6448a7c4-f7b1-4427-8df4-02f27db6e615": {
       "id": "7vV3qV1NWMhOgOSxyzYdf3",
       "note": "Taiwaz The Uninvited Guest 2019 other archived issue/format shares original six-song studio album; Spotify digitally lists 2020, not same-name two-track 2019 single."
+    },
+    "77d6d35b-bf09-4f13-ac5a-49b2f7eac050": {
+      "id": "5G55W00SMSOljarWqrDQLo",
+      "note": "Swedish Uppsala The 21st Impact original ten-track Second to None recording; archive has separate 2002/2004 edition entries, Spotify original full ten tracks match exact ordered tracklist; Spotify metadata labels 2004."
+    },
+    "a4f4844c-34ba-44fb-8a95-607aeb9e6b96": {
+      "id": "5G55W00SMSOljarWqrDQLo",
+      "note": "Swedish Uppsala The 21st Impact original ten-track Second to None recording; archive has separate 2002/2004 edition entries, Spotify original full ten tracks match exact ordered tracklist; Spotify metadata labels 2004."
+    },
+    "90d8a36f-7db0-4b48-bcf4-18aac374351b": {
+      "id": "5G55W00SMSOljarWqrDQLo",
+      "note": "Swedish Uppsala The 21st Impact original ten-track Second to None recording; archive has separate 2002/2004 edition entries, Spotify original full ten tracks match exact ordered tracklist; Spotify metadata labels 2004."
+    },
+    "d7b49b47-5850-4ee7-8f9c-3d84b3603604": {
+      "id": "7yTDpHEWbAfBigFMXmqfoK",
+      "note": "The 21st Impact original 2006 By All Means Necessary 13-track core program appears as FIRST 13 songs on Spotify's 23-song 2005 expanded digital album, which adds complete Second to None tracks 14-23. Spotify is an expanded streaming edition NOT exact 13-track original CD; documented rather than claimed identical pressing."
+    },
+    "ba08edce-f31d-491a-88f6-47f527e385cb": {
+      "id": "7yTDpHEWbAfBigFMXmqfoK",
+      "note": "The 21st Impact original 2006 By All Means Necessary 13-track core program appears as FIRST 13 songs on Spotify's 23-song 2005 expanded digital album, which adds complete Second to None tracks 14-23. Spotify is an expanded streaming edition NOT exact 13-track original CD; documented rather than claimed identical pressing."
     }
   },
   "releaseTitles": {
