@@ -26,6 +26,7 @@
 // Do not map early demos, lost/defunct Lost Souls albums, or unknown-name band profiles to guessed Spotify releases.
 // Lou Siffer's 2011 album has a different Spotify title but the same 11 songs; source/edition differences documented in notes.
 // Spotify lacks confirmed standalone Summer 2017 and The Mosher/In the Dark original single release IDs; no album-level guess.
+// Legbiter / Norna 2026 split: matching complete six-track Spotify release (verified via MusicBrainz and label tracklist).
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -384,6 +385,10 @@ window.ARCHIVE_SPOTIFY = {
     "bec703e3-4407-4d35-8a62-58b5b8c5dfc4": {
       "id": "0PuQOIizNeyeEfPmYHZI07",
       "note": ""
+    },
+    "246b784f-4d73-43f5-a823-8ab6c103fcd5": {
+      "id": "2G7Ygm6E2aY6nrLA3NCW0R",
+      "note": "Delad EP med Legbiter (3 låtar) och Norna (3 låtar), släppt 20 mars 2026. Spotify visar hela splitutgåvan."
     }
   },
   "releaseTitles": {
