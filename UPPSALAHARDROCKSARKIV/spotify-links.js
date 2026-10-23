@@ -56,6 +56,7 @@
 // Treebeard Uppsala already has dozens of band/album-specific original YouTube uploads; keep these rather than adding duplicate videos; do not link unrelated Australian Treebeard Spotify artists.
 // Additional 2026-10-23 T audit: The Search official bandcamp and Aenaos Records both explicitly link Spotify artist 1qKeXgsFl1puFe0uU6lCZz. Correctly matched original 2006-24 album tracklists and 2015/23 Third Storm, 2019 Taiwaz master vs streaming year. The Search 2004 self-titled remains unmapped because unique Spotify album ID not independently confirmed.
 // 2026-10-23 T: original The 21st Impact Second to None 10-track exactly matches Spotify 2004 (3 physical archive records), By All Means Necessary 13-track core is first 13 of Spotify 2005 expanded 23-track release (two archive records), bonus tracks are 2004 LP. Full archive tracklists checked in Supabase.
+// 2026-10-23 U album audit: four verified Uppsala artists (Unangel, Undergång, Unpure, Usurpress). Distinguish eight/four/six/song count, original EP/vinyl and later Spotify catalog dates. Undergång Mother of Armageddon 23-separate-track Spotify program matches original LP, despite 2011 archived 17 combined segments and alternate 2012 21-track Spotify grouping. Usurpress 2016 Ordained 13-track special archive format has a bonus absent from 12-track Spotify album. No unverified same-name band/compilation IDs.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -114,7 +115,11 @@ window.ARCHIVE_SPOTIFY = {
     "the-mist-of-avalon": "2sBoNA6K6BQKwRI92eLC8A",
     "the-unkinds": "3TIZ6zJ2NFE2WDuclxFNk0",
     "third-storm": "1y8lxKjcSgelcKxUgi1y3X",
-    "the-search": "1qKeXgsFl1puFe0uU6lCZz"
+    "the-search": "1qKeXgsFl1puFe0uU6lCZz",
+    "unangel": "3mhPpUhBpSLd4DOtTzLZ9F",
+    "undergang": "6nKjA6VxSkmKJ0lGIXRrl7",
+    "unpure": "6N9kolI2PhxjRyV5F3IvNx",
+    "usurpress": "5yko5EHt0FxUSLyg7uU8VZ"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -1080,6 +1085,94 @@ window.ARCHIVE_SPOTIFY = {
     "ba08edce-f31d-491a-88f6-47f527e385cb": {
       "id": "7yTDpHEWbAfBigFMXmqfoK",
       "note": "The 21st Impact original 2006 By All Means Necessary 13-track core program appears as FIRST 13 songs on Spotify's 23-song 2005 expanded digital album, which adds complete Second to None tracks 14-23. Spotify is an expanded streaming edition NOT exact 13-track original CD; documented rather than claimed identical pressing."
+    },
+    "6e7e1564-d1cb-4990-9fe9-6fef2e780fc3": {
+      "id": "6BRkWvjtLBw9VUPh4TeuAO",
+      "note": "Original 2011 Uppsala Unangel seven-track Amongst Cowards EP. Spotify categorizes as album, archive categories EP, identical 7-song original program verified."
+    },
+    "828fa0e8-d0c2-424b-9056-7e27b7dd131d": {
+      "id": "50UOn5Pb9pEkthGFZFh3qZ",
+      "note": "Original Uppsala Unangel 2014 Drunk On Hate six-track EP. Band promoted earlier 2013 as upcoming EP; archive 2014 matches Spotify 2014 final edition."
+    },
+    "eb6467b6-a0c9-47b4-858d-963fb5c198b3": {
+      "id": "0RpMAIbrziOY7S0a2rnkIE",
+      "note": "Undergång 2009 original 10-track ...and You Will Live in Terror seven-inch punk EP master, Spotify distributes same 10 tracks dated 2011. Verified Spotify original tracklist from first The Beyond to You're Fucked!, not later 2011 album."
+    },
+    "477b2137-5be2-4964-96a1-c26e8413a5f6": {
+      "id": "6elvAg0AJ7GUq2XsC9j2x0",
+      "note": "Original Uppsala Undergång The Mother of Armageddon album. Spotify 2011 digital program 23 SEPARATE songs verified matching 2012/2013 23-song LP; archive 2011 digital has 17 combined headings from same recording, so linked to common studio master not identical listing. Another Spotify 2012 21-song edition 0qcvabNplnFerGuI8LGjYk groups Pedophiliac Priest/De-Evolution and Skate/Die/D.J.M.T.A. but is not the 23 separate LP tracks."
+    },
+    "6e9ebc9b-f038-4d72-8913-7e71c8e6483e": {
+      "id": "6elvAg0AJ7GUq2XsC9j2x0",
+      "note": "Original Uppsala Undergång The Mother of Armageddon album. Spotify 2011 digital program 23 SEPARATE songs verified matching 2012/2013 23-song LP; archive 2011 digital has 17 combined headings from same recording, so linked to common studio master not identical listing. Another Spotify 2012 21-song edition 0qcvabNplnFerGuI8LGjYk groups Pedophiliac Priest/De-Evolution and Skate/Die/D.J.M.T.A. but is not the 23 separate LP tracks."
+    },
+    "bcc6725a-f873-404a-b633-4e6bee0d6b75": {
+      "id": "6elvAg0AJ7GUq2XsC9j2x0",
+      "note": "Original Uppsala Undergång The Mother of Armageddon album. Spotify 2011 digital program 23 SEPARATE songs verified matching 2012/2013 23-song LP; archive 2011 digital has 17 combined headings from same recording, so linked to common studio master not identical listing. Another Spotify 2012 21-song edition 0qcvabNplnFerGuI8LGjYk groups Pedophiliac Priest/De-Evolution and Skate/Die/D.J.M.T.A. but is not the 23 separate LP tracks."
+    },
+    "24446222-80a3-4018-9e2a-f9a12d9e1837": {
+      "id": "7sRJoBXFmKoHFoF2MC6EFD",
+      "note": "Original Uppsala Unpure 2023 Prophecies Ablaze eight-song Invictus Productions album; all songs and first/last track checked against official band Bandcamp."
+    },
+    "3aa40805-32b6-4b4d-94b5-23c5ecb43865": {
+      "id": "4x6rbspMbjqkrk4i0kEouB",
+      "note": "Eight-song original Usurpress In Permanent Twilight 2011 studio program; Spotify digital cataloged 2012. Archive 2011 and 2012 editions refer to same eight original songs; not proven separately mastered."
+    },
+    "0be559ab-4fd6-4329-9a0f-a57e32d97a60": {
+      "id": "4x6rbspMbjqkrk4i0kEouB",
+      "note": "Eight-song original Usurpress In Permanent Twilight 2011 studio program; Spotify digital cataloged 2012. Archive 2011 and 2012 editions refer to same eight original songs; not proven separately mastered."
+    },
+    "8c1ff611-8197-4087-a528-a9b6690823fe": {
+      "id": "7AZWqHugwWXc6A8dxDWMWk",
+      "note": "Original Usurpress 2012 Trenches of the Netherworld full eleven-track album, exact original studio version verified."
+    },
+    "ddcfeb29-baa8-4e6c-a500-c79f73eadf8f": {
+      "id": "31SF9STPZWWuYnj2em77VC",
+      "note": "Usurpress Ordained core 12-track original studio program 2014, Spotify album confirmed. Archive 2014 formats, 2016 reissue and undated edition share songs; one 2016 archive item lists thirteenth bonus track The Insatiable Sky which is NOT on the Spotify 12-song digital album. Not a separate 13-track Spotify pressing."
+    },
+    "8d96e44e-2f5b-4752-8ab7-5993d2ecefda": {
+      "id": "31SF9STPZWWuYnj2em77VC",
+      "note": "Usurpress Ordained core 12-track original studio program 2014, Spotify album confirmed. Archive 2014 formats, 2016 reissue and undated edition share songs; one 2016 archive item lists thirteenth bonus track The Insatiable Sky which is NOT on the Spotify 12-song digital album. Not a separate 13-track Spotify pressing."
+    },
+    "440b769f-5005-42c0-bb45-655847d20f48": {
+      "id": "31SF9STPZWWuYnj2em77VC",
+      "note": "Usurpress Ordained core 12-track original studio program 2014, Spotify album confirmed. Archive 2014 formats, 2016 reissue and undated edition share songs; one 2016 archive item lists thirteenth bonus track The Insatiable Sky which is NOT on the Spotify 12-song digital album. Not a separate 13-track Spotify pressing."
+    },
+    "b7739eb2-9e3f-45b0-8306-7e591cd66280": {
+      "id": "31SF9STPZWWuYnj2em77VC",
+      "note": "Usurpress Ordained core 12-track original studio program 2014, Spotify album confirmed. Archive 2014 formats, 2016 reissue and undated edition share songs; one 2016 archive item lists thirteenth bonus track The Insatiable Sky which is NOT on the Spotify 12-song digital album. Not a separate 13-track Spotify pressing."
+    },
+    "3b3dcc95-7875-478b-b969-0a1d05aec6c9": {
+      "id": "7pOL4NoIpj9syhe3AvW4aw",
+      "note": "Usurpress original The Regal Tribe 2016 ten-track album. 4 archive physical/digital formats share same ten-song Spotify original program, no separate Spotify issue IDs per pressing."
+    },
+    "f6b0db50-18e7-4ca9-9778-a8280b15d393": {
+      "id": "7pOL4NoIpj9syhe3AvW4aw",
+      "note": "Usurpress original The Regal Tribe 2016 ten-track album. 4 archive physical/digital formats share same ten-song Spotify original program, no separate Spotify issue IDs per pressing."
+    },
+    "773e698a-3338-4ef1-9fed-67efade3e033": {
+      "id": "7pOL4NoIpj9syhe3AvW4aw",
+      "note": "Usurpress original The Regal Tribe 2016 ten-track album. 4 archive physical/digital formats share same ten-song Spotify original program, no separate Spotify issue IDs per pressing."
+    },
+    "032b1e44-24fe-4446-bfd4-1508fae8608b": {
+      "id": "7pOL4NoIpj9syhe3AvW4aw",
+      "note": "Usurpress original The Regal Tribe 2016 ten-track album. 4 archive physical/digital formats share same ten-song Spotify original program, no separate Spotify issue IDs per pressing."
+    },
+    "e5b518ee-f1d7-4c4e-a53c-e4c82b06cae0": {
+      "id": "79a8SgtojDuGtfRNlyi2Sy",
+      "note": "Usurpress original Interregnum 2018 seven-song studio album, four registered formats share same Agonia Records master (exact original full Spotify tracklist). 2018 separate pre-release singles Iron Gates / In Books are distinct physical/digital release entries with no verified unique Spotify album ID."
+    },
+    "9b9f4a42-f9bc-4b2c-a26b-c82d0c69bf1c": {
+      "id": "79a8SgtojDuGtfRNlyi2Sy",
+      "note": "Usurpress original Interregnum 2018 seven-song studio album, four registered formats share same Agonia Records master (exact original full Spotify tracklist). 2018 separate pre-release singles Iron Gates / In Books are distinct physical/digital release entries with no verified unique Spotify album ID."
+    },
+    "f9df485a-ab7f-498d-b82d-d56882116d30": {
+      "id": "79a8SgtojDuGtfRNlyi2Sy",
+      "note": "Usurpress original Interregnum 2018 seven-song studio album, four registered formats share same Agonia Records master (exact original full Spotify tracklist). 2018 separate pre-release singles Iron Gates / In Books are distinct physical/digital release entries with no verified unique Spotify album ID."
+    },
+    "a13e543d-7111-413d-b2f2-765b2c3a44eb": {
+      "id": "79a8SgtojDuGtfRNlyi2Sy",
+      "note": "Usurpress original Interregnum 2018 seven-song studio album, four registered formats share same Agonia Records master (exact original full Spotify tracklist). 2018 separate pre-release singles Iron Gates / In Books are distinct physical/digital release entries with no verified unique Spotify album ID."
     }
   },
   "releaseTitles": {
