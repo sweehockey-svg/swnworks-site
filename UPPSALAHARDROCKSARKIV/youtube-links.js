@@ -5774,5 +5774,256 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "track",
   "checked": "2026-10-23",
   "sourceNote": "Official song video featuring Thomas Vikström; release UUID not accessible"
+},
+// I bands checked 2026-10-23. Archive cassette vs Spotify reissues deliberately kept distinct.
+{
+  "band": "imperial-domain",
+  "release": "c560d1cf-5885-418d-99c3-0ec2ffdab889",
+  "title": "In the Ashes of the Fallen (1998 full album)",
+  "id": "4t-IZAuykis",
+  "views": null,
+  "channel": "Rare Metal Albums",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Uppsala 1998 album 10 tracks, not 1996 demo of same title"
+},
+{
+  "band": "imperial-domain",
+  "release": "8e6f6438-4f39-4599-b387-1f82157aec55",
+  "title": "The Ordeal (2003 full album)",
+  "id": "N_CPrs4Xy-Q",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23"
+},
+{
+  "band": "imperial-domain",
+  "release": "8e6f6438-4f39-4599-b387-1f82157aec55",
+  "title": "The Wind Cries Her Name",
+  "id": "eL9s7PY6piA",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "imperial-domain",
+  "release": "7b201dda-90f0-4e17-ad24-3684eace3aae",
+  "title": "True Face of War",
+  "id": "xUkQmwd8bEE",
+  "views": null,
+  "channel": "Imperial Domain",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official 2018 music video, available also on 2018 album The Deluge"
+},
+{
+  "band": "imperial-domain",
+  "release": "82e007c8-16c8-4ddb-b7b7-47dc7a4ae627",
+  "title": "True Face of War",
+  "id": "xUkQmwd8bEE",
+  "views": null,
+  "channel": "Imperial Domain",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "The Deluge opening song; also released as own single"
+},
+{
+  "band": "imperial-domain",
+  "release": "82e007c8-16c8-4ddb-b7b7-47dc7a4ae627",
+  "title": "The Future Is Lost",
+  "id": "h17RcDUvmpI",
+  "views": null,
+  "channel": "Imperial Domain",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "imperial-domain",
+  "release": "82e007c8-16c8-4ddb-b7b7-47dc7a4ae627",
+  "title": "Ever Since That Day",
+  "id": "gpQwEynj9Os",
+  "views": null,
+  "channel": "Imperial Domain - Topic",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "imperial-domain",
+  "release": "c304a3f2-f84f-4836-9482-b92ddfd323f3",
+  "title": "Portentum (2025 full album)",
+  "id": "k_2g1vsle1U",
+  "views": null,
+  "channel": "WormHoleDeathLabel",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Full 2025 album including 8 named tracks"
+},
+{
+  "band": "imperial-domain",
+  "release": "c304a3f2-f84f-4836-9482-b92ddfd323f3",
+  "title": "Portentum",
+  "id": "9uOzYd80w2A",
+  "views": null,
+  "channel": "WormHoleDeathLabel",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "imperial-domain",
+  "release": "c304a3f2-f84f-4836-9482-b92ddfd323f3",
+  "title": "History Repeating",
+  "id": "o4HTtmGfMWo",
+  "views": null,
+  "channel": "WormHoleDeathLabel",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "imperial-domain",
+  "release": "c304a3f2-f84f-4836-9482-b92ddfd323f3",
+  "title": "Retribution",
+  "id": "oRjvtoJqh_Y",
+  "views": null,
+  "channel": "WormHoleDeathLabel",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "imperial-domain",
+  "release": "bfd884e7-d007-4ea2-bde3-4745806e394b",
+  "title": "History Repeating",
+  "id": "o4HTtmGfMWo",
+  "views": null,
+  "channel": "WormHoleDeathLabel",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Single and album carry same song"
+},
+{
+  "band": "imperial-domain",
+  "release": "5fddf230-0d19-43be-b7db-31848f571e5e",
+  "title": "Retribution",
+  "id": "oRjvtoJqh_Y",
+  "views": null,
+  "channel": "WormHoleDeathLabel",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Single and album carry same song"
+},
+{
+  "band": "in-solitude",
+  "release": "af472eeb-a840-4dc8-bf85-a47062c0246c",
+  "title": "In Solitude (2008 full album)",
+  "id": "xaj970rLGuo",
+  "views": null,
+  "channel": "Boba Fett",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Original 2008 album, eight tracks"
+},
+{
+  "band": "in-solitude",
+  "release": "ebe98587-3813-49d7-a88f-ecb5449db092",
+  "title": "The World, the Flesh, the Devil",
+  "id": "VBmOyuMJEek",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "in-solitude",
+  "release": "ebe98587-3813-49d7-a88f-ecb5449db092",
+  "title": "Serpents Are Rising",
+  "id": "QzRyOSz2fjE",
+  "views": null,
+  "channel": "Metal Blade Records",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "in-solitude",
+  "release": "ebe98587-3813-49d7-a88f-ecb5449db092",
+  "title": "To Her Darkness",
+  "id": "owM9lptCU6U",
+  "views": null,
+  "channel": "Metal Blade Records",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "in-solitude",
+  "release": "ebe98587-3813-49d7-a88f-ecb5449db092",
+  "title": "We Were Never Here",
+  "id": "n4RF6-F96cE",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "in-solitude",
+  "release": "07177abc-82ac-4640-b364-32d40e9cab29",
+  "title": "Sister (2013 full album)",
+  "id": "gP2aSZvzQpU",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23"
+},
+{
+  "band": "in-solitude",
+  "release": "07177abc-82ac-4640-b364-32d40e9cab29",
+  "title": "Sister",
+  "id": "R4EiRvFHrCo",
+  "views": null,
+  "channel": "Metal Blade Records",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "in-solitude",
+  "release": "07177abc-82ac-4640-b364-32d40e9cab29",
+  "title": "Lavender",
+  "id": "IhrcQDxn4bs",
+  "views": null,
+  "channel": "In Solitude - Topic",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "in-solitude",
+  "release": "02a9a13e-9c5b-442b-87fa-8cc5f9462a18",
+  "title": "Lavender",
+  "id": "IhrcQDxn4bs",
+  "views": null,
+  "channel": "In Solitude - Topic",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Album master of Lavender from Sister, not confirmed as same performance as 2013 Lavender / Jesus I Betong split single"
+},
+{
+  "band": "in-solitude",
+  "release": "935dc8c7-67cb-4a7f-a02b-2d1f3bb70eb4",
+  "title": "Serpents Are Rising",
+  "id": "QzRyOSz2fjE",
+  "views": null,
+  "channel": "Metal Blade Records",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Track video from 2011 album; 2014 split/single format may differ"
+},
+{
+  "band": "invidious",
+  "release": "d7616eb0-1fc3-4e20-b302-dc84525efc0c",
+  "title": "In Death (2011 EP)",
+  "id": "elbfeMwv3pY",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Full 2011 Invidious EP linked and identified in No Clean Singing's 2013 curated review"
 }
 ];
