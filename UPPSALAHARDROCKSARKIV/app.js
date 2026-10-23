@@ -1196,7 +1196,7 @@
       + (featured ? '<div class="youtube-preview" data-youtube-id="' + featured.id + '"><button type="button" class="youtube-play" aria-label="'
       + escapeHtml('Spela ' + featured.title) + '"><span aria-hidden="true">▶</span><strong>' + escapeHtml(featured.title)
       + '</strong><span>Klicka för att ladda videon</span><img class="youtube-thumbnail" src="https://i.ytimg.com/vi/' + featured.id + '/hqdefault.jpg" alt="" loading="lazy" referrerpolicy="no-referrer"></button></div>'
-      + '<p class="youtube-caption">' + (featured.kind === 'track' ? 'Mest visad bland arkivets verifierade låtklipp för denna sida.' : 'Utvald hel utgåva.')
+      + '<p class="youtube-caption">' + (featured.kind === 'track' ? 'Verifierat låtklipp ur arkivet.' : featured.kind === 'medley' ? 'Verifierat klipp med flera låtar.' : 'Verifierad inspelning av utgåvan.')
       + (featured.views != null ? ' Cirka ' + featured.views.toLocaleString('sv-SE') + ' visningar, kontrollerat ' + featured.checked + '.' : '')
       + (featured.channel ? ' Kanal: ' + escapeHtml(featured.channel) + '.' : '') + '</p>' : '')
       + '</section>';
