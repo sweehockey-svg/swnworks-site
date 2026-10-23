@@ -1399,9 +1399,26 @@
     return rows.sort((a,b) => (a.year || 9999) - (b.year || 9999) || a.title.localeCompare(b.title,'sv'));
   }
 
+  function groupTimelineRows(rows) {
+    const groups = new Map();
+    rows.forEach(row => {
+      const year = row.year ? String(row.year) : '';
+      if (!groups.has(year)) groups.set(year, {year, events:[]});
+      groups.get(year).events.push(row);
+    });
+    return [...groups.values()];
+  }
+
   function renderTimeline() {
-    app.innerHTML = `${pageHeader('ÅR FÖR ÅR','Tidslinjen','Utgåvor, bandbildningar och andra hållpunkter samlade kronologiskt.')}
-      <section class="section page-section first-section"><div class="timeline">${timelineRows().map(row => `<article class="timeline-row"><div class="timeline-year">${row.year || '—'}</div><div class="timeline-content"><h3><a href="${row.href}">${escapeHtml(row.title)}</a></h3><p>${escapeHtml(row.text)}</p><div class="timeline-tags">${row.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div></div></article>`).join('')}</div></section>`;
+    const groups = groupTimelineRows(timelineRows());
+    const event = row => '<article class="timeline-content"><h3><a href="' + row.href + '">' + escapeHtml(row.title)
+      + '</a></h3><p>' + escapeHtml(row.text) + '</p><div class="timeline-tags">'
+      + row.tags.map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('') + '</div></article>';
+    app.innerHTML = pageHeader('ÅR FÖR ÅR','Tidslinjen','Utgåvor, bandbildningar och andra hållpunkter samlade kronologiskt.')
+      + '<section class="section page-section first-section"><div class="timeline">'
+      + groups.map(group => '<section class="timeline-row timeline-year-group" aria-label="' + escapeHtml(group.year || 'Årtal saknas')
+        + '"><h2 class="timeline-year">' + escapeHtml(group.year || 'Årtal saknas') + '</h2><div class="timeline-events">'
+        + group.events.map(event).join('') + '</div></section>').join('') + '</div></section>';
   }
 
   function claimList(claims) {
