@@ -4,6 +4,9 @@
 // differ from the archive's original/split releases and are not mapped to them.
 // E checked 2026-10-23: Endtime and Enemy Is Us. No confirmed Spotify artist or matching edition for Edison, Embalmed, Equinox.
 // Enemy Is Us 2003 Ashes of the World demo and Endtime's Blåst På Konfekten not matched to later releases.
+// F checked 2026-10-23: six F.K.Ü. full-length albums matched to Spotify releases.
+// No confident matching Spotify entries for Forcefeed, Fucking Funeral, Fury or Fusion.
+// Earlier F.K.Ü. demo/singles/split not mapped to later album tracks with the same song name.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -13,7 +16,8 @@ window.ARCHIVE_SPOTIFY = {
     "always-war": "79sSkrLnHfevUkd9YhHpNA",
     "anguish": "363hZUarQfQVcU1boQqvC0",
     "endtime": "2Z7XzWiupUPj8HVxFBcz8l",
-    "enemy-is-us": "3CYFtRJOB5Np16SCFBglKx"
+    "enemy-is-us": "3CYFtRJOB5Np16SCFBglKx",
+    "f-k-u": "5h0HlqYN5TvocKVL1NSJ80"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -98,6 +102,30 @@ window.ARCHIVE_SPOTIFY = {
     },
     "004eac94-7741-45fb-8e33-cd0ed2104b09": {
       "id": "1Z0YsGHrsclyoW3p6L4ny2",
+      "note": ""
+    },
+    "fdd54bdf-f51e-483a-94f5-fe2a9735054d": {
+      "id": "1BXxv5LYlPcRLWK5uoMhVl",
+      "note": "Spotify-utgåvan innehåller 22 spår"
+    },
+    "f99f7799-8a6e-419d-a23c-686c26e4aa46": {
+      "id": "4QMlafjzV7mXrfW0DR54WF",
+      "note": ""
+    },
+    "b08c30ad-5800-4034-9966-2926b87b776e": {
+      "id": "0CCc8KR3pZtSEMDdnU6X6X",
+      "note": "Spotify-utgåva 2013 av albumet från 2009"
+    },
+    "decf84b3-f9d4-4668-a3e1-7472ec12c5ad": {
+      "id": "7fr5eZ2Q1Y3A2SRAk66o6M",
+      "note": "Spotify-utgåvan innehåller 19 spår; arkivet listar 17"
+    },
+    "60ea4640-c6fd-45d8-9f51-6dc36afef137": {
+      "id": "0PxntkihJpMJ6EuME9V4OH",
+      "note": "Spotify-utgåvan innehåller 15 spår; arkivet listar 14"
+    },
+    "7f8ba09f-9fdc-408a-98e1-4e9175aac866": {
+      "id": "3uYffN7NIXFTzPGoNpHAIc",
       "note": ""
     }
   }
