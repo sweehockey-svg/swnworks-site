@@ -1040,3 +1040,18 @@ body.network-body-fullscreen { overflow:hidden; }
   .video-card-play { width:43px; height:32px; font-size:15px; }
 }
 @media(prefers-reduced-motion:reduce) { .video-card { transition:none; } }
+
+
+/* Videoarkiv: upptäcktsrunda utan repriser, med historik och progress. */
+.video-journey { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:16px 26px; padding:0 0 22px; margin:-3px 0 22px; border-bottom:1px solid var(--line); }
+.video-journey-info { display:flex; flex-wrap:wrap; align-items:center; gap:9px 20px; font:500 13px var(--sans); color:var(--muted); }
+.video-journey-info strong { color:var(--ink); font-weight:700; }
+.video-journey-controls { display:flex; flex-wrap:wrap; gap:8px; }
+.video-journey-controls button { background:#181b20; color:var(--ink); border:1px solid var(--line-strong); font:600 12px var(--condensed); letter-spacing:.055em; text-transform:uppercase; padding:10px 13px; cursor:pointer; }
+.video-journey-controls button:hover:not(:disabled) { border-color:var(--acid); color:var(--acid); }
+.video-journey-controls button:disabled { opacity:.35; cursor:not-allowed; }
+.video-journey-controls button:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
+.video-journey-progress { grid-column:1/-1; height:3px; background:rgba(255,255,255,.12); overflow:hidden; }
+.video-journey-progress span { display:block; height:100%; width:0; background:var(--acid); transition:width .25s ease; }
+@media(max-width:760px) { .video-journey { grid-template-columns:1fr; gap:12px; } .video-journey-controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; } .video-journey-controls button { padding:10px 6px; font-size:11px; } }
+@media(prefers-reduced-motion:reduce) { .video-journey-progress span { transition:none; } }
