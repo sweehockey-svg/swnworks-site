@@ -865,6 +865,67 @@
     </section>`;
   }
 
+  function searchText(value) {
+    return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('sv');
+  }
+
+  function archiveSearch(query) {
+    const terms = searchText(query).trim().split(/\s+/).filter(Boolean);
+    if (!terms.length) return {bands:[], people:[], releases:[]};
+    const matches = text => terms.every(term => searchText(text).includes(term));
+    const people = peopleById(), bands = bandsById();
+    const bandPeople = new Map(), personBands = new Map(), releasePeople = new Map(), releaseBandNames = new Map();
+    const add = (map,id,value) => map.set(id,[...(map.get(id) || []),value]);
+    state.memberships.forEach(m => {
+      add(bandPeople,m.band_id,people.get(m.person_id)?.canonical_name || '');
+      add(personBands,m.person_id,bands.get(m.band_id)?.canonical_name || '');
+    });
+    state.releaseMembers.forEach(c => add(releasePeople,c.release_id,
+      (people.get(c.person_id)?.canonical_name || '') + ' ' + (c.credited_as || '')));
+    state.releaseBands.forEach(c => add(releaseBandNames,c.release_id,bands.get(c.band_id)?.canonical_name || ''));
+    const order = (items,name) => items.sort((a,b) => {
+      const q = searchText(query).trim();
+      const score = item => searchText(name(item)) === q ? 0 : searchText(name(item)).startsWith(q) ? 1 : 2;
+      return score(a)-score(b) || name(a).localeCompare(name(b),'sv');
+    });
+    return {
+      bands:order(allBandRows().filter(b => matches([b.canonical_name,(b.genres || []).join(' '),b.city,(bandPeople.get(b.id) || []).join(' ')].join(' '))),b=>b.canonical_name),
+      people:order(state.people.filter(p => matches([p.canonical_name,(personBands.get(p.id) || []).join(' ')].join(' '))),p=>p.canonical_name),
+      releases:order(state.releases.filter(r => matches([r.title,r.release_year,(releaseBandNames.get(r.id) || []).join(' '),(releasePeople.get(r.id) || []).join(' ')].join(' '))),r=>r.title)
+    };
+  }
+
+  function renderSearch(initialQuery = '') {
+    app.innerHTML = pageHeader('HELA ARKIVET','Sök i arkivet','Hitta band, personer och utgåvor. Sök på ett namn, en titel, en genre eller ett årtal.')
+      + '<section class="section first-section archive-search"><form class="archive-search-form" role="search">'
+      + '<label class="search-box" for="archive-search-input"><span>Sök i hela arkivet</span>'
+      + '<input id="archive-search-input" type="search" placeholder="Band, person eller utgåva…" autocomplete="off" maxlength="200"></label>'
+      + '<button class="button button-primary" type="submit">Sök</button></form>'
+      + '<p id="archive-search-status" role="status" aria-live="polite"></p><div id="archive-search-results"></div></section>';
+    const input = $('#archive-search-input');
+    input.value = initialQuery.slice(0,200);
+    const renderResults = () => {
+      const query = input.value.trim(), results = archiveSearch(query);
+      const total = results.bands.length + results.people.length + results.releases.length;
+      $('#archive-search-status').textContent = query ? total + ' träffar: ' + results.bands.length + ' band, ' + results.people.length + ' personer, ' + results.releases.length + ' utgåvor.' : 'Börja skriva för att söka i hela arkivet.';
+      const group = (title,items,row) => '<section class="search-result-group"><h2>' + title + ' <span>(' + items.length + ')</span></h2>'
+        + (items.length ? '<ul>' + items.map(item=>'<li>' + row(item) + '</li>').join('') + '</ul>' : '<p class="search-no-results">Inga träffar i denna kategori.</p>') + '</section>';
+      const row = (href,title,meta) => '<a href="' + href + '"><strong>' + escapeHtml(title) + '</strong><span>' + escapeHtml(meta) + '</span></a>';
+      $('#archive-search-results').innerHTML = !query ? '' : !total
+        ? '<div class="empty-state">Inga träffar. Prova ett kortare namn, en annan stavning eller ett annat sökord.</div>'
+        : group('Band',results.bands,b=>row(bandHref(b),b.canonical_name,[isUppsalaBand(b) ? 'Uppsala-band' : 'Relaterat band',(b.genres || []).join(' / ')].filter(Boolean).join(' · ')))
+        + group('Personer',results.people,p=>row(personHref(p),p.canonical_name,[...new Set(membershipsForPerson(p.id).map(m=>bandsById().get(m.band_id)?.canonical_name).filter(Boolean))].join(' · ')))
+        + group('Utgåvor',results.releases,r=>row(releaseHref(r),r.title,[releaseBand(r.id)?.canonical_name,r.release_year].filter(Boolean).join(' · ')));
+    };
+    input.addEventListener('input',renderResults);
+    $('.archive-search-form').addEventListener('submit',event=>{
+      event.preventDefault();
+      history.replaceState(null,'', '#/sok' + (input.value.trim() ? '/' + encodeURIComponent(input.value.trim()) : ''));
+      renderResults();
+    });
+    renderResults();
+  }
+
   function renderHome() {
     const john = state.people.find(p => p.canonical_name === 'John Swahn');
     const johnBands = john ? membershipsForPerson(john.id).map(m => bandsById().get(m.band_id)).filter(Boolean) : [];
@@ -880,7 +941,7 @@
           <p class="eyebrow">ETT LEVANDE ARKIV ÖVER EN SCEN</p>
           <h1>Där banden<br><span>hänger ihop.</span></h1>
           <p class="hero-lead">En växande kartläggning av Uppsalas hårdrock och metal — människorna, banden, demokassetterna och vägarna mellan dem.</p>
-          <div class="hero-actions"><a class="button button-primary" href="#/band">Utforska banden</a><a class="button button-ghost" href="#/tidslinje">Se tidslinjen</a></div>
+          <div class="hero-actions"><a class="button button-primary" href="#/sok">Sök i arkivet</a><a class="button button-ghost" href="#/band">Utforska banden</a><a class="button button-ghost" href="#/tidslinje">Se tidslinjen</a></div>
           <div class="hero-stats">
             <div><strong>${archiveBands.length}</strong><span>Uppsala-band</span></div>
             <div><strong>${state.people.length}</strong><span>personer</span></div>
@@ -1750,6 +1811,7 @@
     $('.nav-toggle')?.setAttribute('aria-expanded','false');
     const parts = path.split('/').filter(Boolean);
     if (path === '/') renderHome();
+    else if (parts[0] === 'sok') { let query = ''; try { query = decodeURIComponent(parts.slice(1).join('/')); } catch {} renderSearch(query); }
     else if (path === '/band') renderBandIndex();
     else if (parts[0] === 'band' && parts[1]) { const b=findBand(parts[1]); b ? renderBandDetail(b) : renderNotFound(); }
     else if (path === '/personer') renderPeopleIndex();
