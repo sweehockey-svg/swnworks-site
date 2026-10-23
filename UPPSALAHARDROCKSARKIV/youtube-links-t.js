@@ -422,13 +422,57 @@ window.ARCHIVE_YOUTUBE.push(...[
   },
   {
     "band": "the-search",
-    "release": "",
+    "release": "d814381c-a73f-46b2-a169-4de0eb998f65",
     "title": "Silhouette",
     "id": "a4oSwVgVxIM",
     "views": null,
     "channel": "The Search - Topic",
     "kind": "track",
     "checked": "2026-10-23",
-    "sourceNote": "Indulgence 2024, Aenaos Records, tillfälligt bandkopplad då release UUID inte verifierats"
+    "sourceNote": "The Search original Uppsala Aenaos album Indulgence 2024, track 1; verified exact Spotify full album tracklist, original edition."
+  },
+  {
+    "band": "the-search",
+    "release": "54b7cde1-fe5e-4671-b190-6819c11a0bcc",
+    "title": "Silhouette",
+    "id": "a4oSwVgVxIM",
+    "views": null,
+    "channel": "The Search - Topic",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "The Search Indulgence 2024 other archive edition, same title track/studio master as original ten-song Spotify album."
+  },
+  {
+    "band": "taiwaz",
+    "release": "6448a7c4-f7b1-4427-8df4-02f27db6e615",
+    "title": "The Uninvited Guest (full album)",
+    "id": "cQG3H1ymr_g",
+    "views": null,
+    "channel": "",
+    "kind": "album",
+    "checked": "2026-10-23",
+    "sourceNote": "Original six-song 2019 Taiwaz Uppsala album, same studio program for second registered format, verified original label Bandcamp; NOT 2019 two-song Spotify single."
+  },
+  {
+    "band": "third-storm",
+    "release": "307093bc-d460-4b38-b27f-d37ebf95f96c",
+    "title": "The Locust Mantra (official full album)",
+    "id": "Id0mdEO5QPg",
+    "views": null,
+    "channel": "Chaos Records",
+    "kind": "album",
+    "checked": "2026-10-23",
+    "sourceNote": "2023 official Chaos Records complete album stream of nine original Third Storm tracks, verified matching Spotify original."
+  },
+  {
+    "band": "third-storm",
+    "release": "307093bc-d460-4b38-b27f-d37ebf95f96c",
+    "title": "World Infernal",
+    "id": "c46ptsu4Oyo",
+    "views": null,
+    "channel": "Chaos Records",
+    "kind": "track",
+    "checked": "2026-10-23",
+    "sourceNote": "Third Storm original 2023 The Locust Mantra fourth track, official Chaos Records single/album promotional video."
   }
 ]);
