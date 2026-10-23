@@ -9088,5 +9088,372 @@ window.ARCHIVE_YOUTUBE = [
   "checked": "2026-10-23",
   "sourceNote": "Full split of two bands, three Lucifer's Fall tracks and two Acolytes of Moros tracks.",
   "multipleArtists": true
+},
+// M-band streams independently checked 2026-10-23; exact albums/tracks and duplicate-name identity matched.
+{
+  "band": "malaise",
+  "release": "b5d500e5-34ff-4abf-a5c9-f3d32b518d86",
+  "title": "Secession (1993 full EP)",
+  "id": "pI5sftwIsSQ",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Swedish gothic band original 1993 EP"
+},
+{
+  "band": "malaise",
+  "release": "b5d500e5-34ff-4abf-a5c9-f3d32b518d86",
+  "title": "Submissive",
+  "id": "uzUYMKNIH1Y",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "malaise",
+  "release": "f960a20e-3f40-4965-93ed-f065798c3d69",
+  "title": "Fifty-Two Ways (1996 full album)",
+  "id": "i3Q98Bm-G6M",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23"
+},
+{
+  "band": "malaise",
+  "release": "c0d1722c-168c-4d04-aae0-2cd829e2696d",
+  "title": "A World of Broken Images (1999 full album)",
+  "id": "AIU65pUzPvA",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23"
+},
+{
+  "band": "malaise",
+  "release": "c0d1722c-168c-4d04-aae0-2cd829e2696d",
+  "title": "Bitter Waters",
+  "id": "V4P3y8raGzI",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "malaise",
+  "release": "040c2536-08da-4e55-b362-81234fa21aa6",
+  "title": "In Your Dreams",
+  "id": "5pd3BXmfYgM",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "malaise",
+  "release": "040c2536-08da-4e55-b362-81234fa21aa6",
+  "title": "This Is For A Friend",
+  "id": "VcdfPDU6I7A",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "malaise",
+  "release": "040c2536-08da-4e55-b362-81234fa21aa6",
+  "title": "No Confusion",
+  "id": "hQH9UeD0iEM",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "mayadome",
+  "release": "8de8bbc5-0d62-4e5b-a28c-930c95b2947f",
+  "title": "Paranormal Activity (1996 full album)",
+  "id": "-gGmyv7mMHo",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23"
+},
+{
+  "band": "mayadome",
+  "release": "8de8bbc5-0d62-4e5b-a28c-930c95b2947f",
+  "title": "Wait a Minute",
+  "id": "ZR_ctuEM_9Q",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "mayadome",
+  "release": "8de8bbc5-0d62-4e5b-a28c-930c95b2947f",
+  "title": "Paranormal Activity (instrumental)",
+  "id": "p7qPm-7HnjQ",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "mayadome",
+  "release": "8b81d18b-979f-4678-af9d-63a9b20e8d30",
+  "title": "Near Life Experience (1999 full album)",
+  "id": "c06EGcqMKpY",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Uploader description says 1998 while record and archive date the album 1999."
+},
+{
+  "band": "mayadome",
+  "release": "8b81d18b-979f-4678-af9d-63a9b20e8d30",
+  "title": "Restorepair",
+  "id": "cLvMlsY4EUM",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "midas-touch",
+  "release": "246e4b9d-5e8f-42c3-9d61-4b6f6206c58e",
+  "title": "Ground Zero (1987 full demo)",
+  "id": "AI4O0gzWxH8",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23"
+},
+{
+  "band": "midas-touch",
+  "release": "4ded05fb-3777-4af0-8988-2a8dd80eaf93",
+  "title": "Presage of Disaster (1989 full album)",
+  "id": "mLho_2IjEts",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23"
+},
+{
+  "band": "misery-loves-co",
+  "release": "5bf6c6cd-41a7-46c1-8556-053cf5fb78d6",
+  "title": "Need Another One",
+  "id": "ZxpDqm3h9mU",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original album song uploaded by label"
+},
+{
+  "band": "misery-loves-co",
+  "release": "5bf6c6cd-41a7-46c1-8556-053cf5fb78d6",
+  "title": "My Mind Still Speaks",
+  "id": "bqtLXuIHaN4",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "misery-loves-co",
+  "release": "1babdfd7-b373-45ac-97e2-9a57139b3c0f",
+  "title": "Would You? (live 2017)",
+  "id": "daTiHxHYl0U",
+  "views": null,
+  "channel": "",
+  "kind": "live",
+  "checked": "2026-10-23",
+  "sourceNote": "Live video from 70000 Tons of Metal 2017; not the studio single master."
+},
+{
+  "band": "misery-loves-co",
+  "release": "77472a93-35cb-49d9-929b-04afa4f64fd0",
+  "title": "Suburban Breakdown",
+  "id": "Ck5l3Q79_ag",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Band clip of same song as single; 2019 album distributor uses different video."
+},
+{
+  "band": "misery-loves-co",
+  "release": "6137a3b9-4ea3-4215-afa4-8d6c33239232",
+  "title": "Only Happy When It Rains",
+  "id": "26qEtuVK8r0",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official band video."
+},
+{
+  "band": "misery-loves-co",
+  "release": "e96c0524-9bf1-4f83-beff-9ccd1f2d74d2",
+  "title": "Suburban Breakdown",
+  "id": "-ayZu9OZZ7g",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original album 2019 distributor upload."
+},
+{
+  "band": "misery-loves-co",
+  "release": "e96c0524-9bf1-4f83-beff-9ccd1f2d74d2",
+  "title": "Only Happy When It Rains",
+  "id": "26qEtuVK8r0",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Official band video; also released as 2018 single."
+},
+{
+  "band": "misery-loves-co",
+  "release": "e96c0524-9bf1-4f83-beff-9ccd1f2d74d2",
+  "title": "Way Back Home",
+  "id": "fATda36Bspk",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "moder-jords-massiva",
+  "release": "6b89ad86-4ff2-4aa7-b6fa-3a8fb9b5febd",
+  "title": "En Annan Trumma",
+  "id": "mMpZafMBLJQ",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Archive original 2002 album; digital releases vary."
+},
+{
+  "band": "moder-jords-massiva",
+  "release": "472bc1e6-093b-4e56-aedf-a19dbfdccfc8",
+  "title": "Dina Dagar (2003 video)",
+  "id": "2xUuHOs12tg",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Music video filmed in 2003 and directed by David Giese."
+},
+{
+  "band": "moder-jords-massiva",
+  "release": "3ac93a79-f555-4bd3-aaff-70da255725bf",
+  "title": "Hårt Väder",
+  "id": "jKpQP_ynZbs",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2007 Ren Ondska album version."
+},
+{
+  "band": "moder-jords-massiva",
+  "release": "3ac93a79-f555-4bd3-aaff-70da255725bf",
+  "title": "Vapen",
+  "id": "N7UgmADm9q4",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "moder-jords-massiva",
+  "release": "3ac93a79-f555-4bd3-aaff-70da255725bf",
+  "title": "Smal sak",
+  "id": "54Xrtzf6cmc",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "monster",
+  "release": "bb8ad406-0d91-45d0-8993-05365be82a12",
+  "title": "Bridges Of Glass",
+  "id": "VJoNUigw9-A",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original 2022 Life Science stream; Mönster from Uppsala, not English Monster bands."
+},
+{
+  "band": "monster",
+  "release": "bb8ad406-0d91-45d0-8993-05365be82a12",
+  "title": "Spacechild",
+  "id": "gt0Vmcsp-08",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "monster",
+  "release": "2035bf4d-676f-4917-8af9-25034b5e3051",
+  "title": "Skogens Män (Forest Mix)",
+  "id": "xIQWr-OM_cY",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "2023 two-track single release, alternate mix."
+},
+{
+  "band": "morbid-illusion",
+  "release": "e20047ed-0d1e-4602-bb4d-2dbb9044c40c",
+  "title": "In the Crypt of the Stifled (2018 full album)",
+  "id": "x1F2sBR9C5A",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Title on uploader contains a spelling error 'Styfled'; actual 2018 album In the Crypt of the Stifled."
+},
+{
+  "band": "morbid-illusion",
+  "release": "e20047ed-0d1e-4602-bb4d-2dbb9044c40c",
+  "title": "Mutation Amputation",
+  "id": "DiU5TRsPf5k",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "mother-superior",
+  "release": "c7be003e-932b-4733-8c25-f42ac1d38fef",
+  "title": "Love Gone Bad",
+  "id": "zj3aH2vUW38",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Original Swedish Mother's Superior 1996 debut, not American hard rock band of same name."
+},
+{
+  "band": "mother-superior",
+  "release": "68573dc1-791c-4d2b-aad3-2df39aa6e0d2",
+  "title": "Wreck My Mind",
+  "id": "JhmMEod5mdo",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "1998 The Mothership Movement release."
 }
 ];
