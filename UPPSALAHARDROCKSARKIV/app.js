@@ -1162,6 +1162,167 @@
     update();
   }
 
+
+  // Videoarkivet återanvänder de källkontrollerade YouTube-kopplingarna.
+  // Årtionden baseras på utgåvans år, aldrig YouTubes uppladdningsdatum.
+  function archiveVideoCatalog() {
+    const bands = new Map(allBandRows().map(b => [slugify(b.canonical_name), b]));
+    const bandIds = bandsById();
+    const releases = releasesById();
+    const releaseBandIds = new Map(state.releaseBands.map(rb => [rb.release_id, rb.band_id]));
+    const unique = new Map();
+    (window.ARCHIVE_YOUTUBE || []).forEach(item => {
+      if (!/^[A-Za-z0-9_-]{11}$/.test(item?.id || '')) return;
+      const release = releases.get(item.release) || null;
+      const band = bands.get(item.band) || bandIds.get(releaseBandIds.get(item.release)) || null;
+      const yearValue = Number(release?.release_year);
+      const year = Number.isInteger(yearValue) && yearValue >= 1950 && yearValue <= 2100 ? yearValue : null;
+      const kind = ['track','album','live','medley','interview'].includes(item.kind) ? item.kind : 'other';
+      const record = {
+        id:item.id, title:String(item.title || release?.title || 'Arkivklipp'), band, release,
+        bandName:band?.canonical_name || String(item.band || 'Okänt band').replace(/-/g,' '),
+        year, kind, channel:String(item.channel || '')
+      };
+      const previous = unique.get(item.id);
+      if (!previous || (!isUppsalaBand(previous.band) && isUppsalaBand(band))) unique.set(item.id,record);
+    });
+    return [...unique.values()];
+  }
+
+  function renderVideos(initialVideoId = '') {
+    const videos = archiveVideoCatalog();
+    const byVideoId = new Map(videos.map(video => [video.id,video]));
+    const categories = {
+      track:'Låt / inspelning', album:'Hela utgåvan', live:'Live',
+      medley:'Medley', interview:'Intervju', other:'Övrigt'
+    };
+    const decadeValues = [...new Set(videos.filter(v=>v.year).map(v=>Math.floor(v.year/10)*10))].sort((a,b)=>a-b);
+    const options = decadeValues.map(y=>'<option value="' + y + '">' + y + '-talet</option>').join('');
+    const bandTotal = new Set(videos.map(v=>v.band?.id || v.bandName)).size;
+    app.innerHTML = pageHeader('MUSIK / FILM / ARKIV','Videor','Musik, fullängdare, liveupptagningar och sällsynta inspelningar från band i och kring Uppsalas hårdrocksscen.',
+      '<span>' + videos.length.toLocaleString('sv-SE') + ' unika klipp</span><span>' + bandTotal + ' band</span>')
+      + '<section class="section first-section video-page">'
+      + '<div class="video-roulette" id="video-roulette">'
+      + '<div class="video-roulette-top"><div><span class="section-kicker">HÅRDROCKSROULETTE / TIDSMASKINEN</span><h2>Slumpa ett fynd.</h2>'
+      + '<p>Välj ett årtionde nedan, tryck på knappen och se var i musikhistorien du hamnar. Årtal avser utgåvan, inte videons uppladdning.</p></div>'
+      + '<button class="button button-primary video-roulette-button" type="button" id="video-random">▶ ÖVERRASKA MIG</button></div>'
+      + '<div class="video-spotlight" id="video-spotlight" aria-live="polite"></div></div>'
+      + '<div class="video-catalog-head"><div><span class="section-kicker">UTFORSKA ARKIVET</span><h2>Alla videor</h2></div><p id="video-count" role="status"></p></div>'
+      + '<div class="video-filters">'
+      + '<label class="video-field video-field-search"><span>Sök band, låt eller utgåva</span><input id="video-search" type="search" maxlength="160" placeholder="Exempel: Watain, demo, live…" autocomplete="off"></label>'
+      + '<label class="video-field"><span>Videotyp</span><select id="video-type"><option value="">Alla typer</option><option value="track">Låtar</option><option value="album">Hela utgåvor</option><option value="live">Live</option><option value="medley">Medley</option><option value="interview">Intervjuer</option><option value="other">Övrigt</option></select></label>'
+      + '<label class="video-field"><span>Tidsmaskin · utgåveår</span><select id="video-decade"><option value="">Alla årtionden</option>' + options + '<option value="unknown">Okänt år</option></select></label>'
+      + '<label class="video-field"><span>Sortera</span><select id="video-order"><option value="old">Äldsta först</option><option value="new">Nyaste först</option><option value="band">Band A–Ö</option></select></label>'
+      + '<button class="video-reset" type="button" id="video-reset">Rensa filter ↺</button></div>'
+      + '<div class="video-grid" id="video-grid"></div>'
+      + '<div class="video-more-wrap"><button class="button button-ghost" type="button" id="video-more">Visa fler videor ↓</button></div>'
+      + '<p class="video-archive-note">Videorna ligger kvar på YouTube och laddas här först när du väljer att spela upp dem. Saknas något? <a href="#/kontakt">Tipsa arkivet.</a></p>'
+      + '</section>';
+    const search = $('#video-search'), type = $('#video-type'), decade = $('#video-decade'), order = $('#video-order');
+    const grid = $('#video-grid'), spotlight = $('#video-spotlight'), roulette = $('#video-random'), more = $('#video-more');
+    let filtered = [], displayed = 24, selected = null;
+    const sv = (a,b) => a.localeCompare(b,'sv',{sensitivity:'base'});
+    const kindName = video => categories[video.kind] || categories.other;
+    const meta = video => [video.release?.title, video.year || 'År okänt'].filter(Boolean).join(' · ');
+    const safeVideoLink = video => 'https://www.youtube.com/watch?v=' + video.id;
+
+    const feature = video => {
+      if (!video) {
+        selected = null;
+        spotlight.innerHTML = '<div class="video-spotlight-empty">Inga klipp matchar dina filter. Prova en annan tidsresa.</div>';
+        roulette.disabled = true;
+        return;
+      }
+      selected = video;
+      roulette.disabled = false;
+      const bandUrl = video.band ? bandHref(video.band) : '';
+      const releaseUrl = video.release ? releaseHref(video.release) : '';
+      spotlight.innerHTML = '<div class="video-feature-copy">'
+        + '<span class="video-feature-label">ARKIVFYND <span aria-hidden="true">✦</span> ' + escapeHtml(kindName(video)) + '</span>'
+        + '<h3>' + escapeHtml(video.title) + '</h3>'
+        + '<p class="video-feature-band">' + escapeHtml(video.bandName) + '</p>'
+        + '<p class="video-feature-meta">' + escapeHtml(meta(video)) + '</p>'
+        + '<div class="video-feature-links">'
+        + (bandUrl ? '<a href="' + bandUrl + '">Bandsida ↗</a>' : '')
+        + (releaseUrl ? '<a href="' + releaseUrl + '">Utgåvan ↗</a>' : '')
+        + '<a href="' + safeVideoLink(video) + '" target="_blank" rel="noopener noreferrer">YouTube ↗</a>'
+        + '<button type="button" id="video-share">Kopiera arkivlänk ↗</button></div>'
+        + (video.channel ? '<p class="video-feature-channel">YouTube-kanal: ' + escapeHtml(video.channel) + '</p>' : '')
+        + '</div><div class="video-feature-media"><div class="youtube-preview" data-youtube-id="' + video.id + '">'
+        + '<button type="button" class="youtube-play" aria-label="' + escapeHtml('Spela '+ video.title) + '">'
+        + '<span aria-hidden="true">▶</span><strong>' + escapeHtml(video.title) + '</strong>'
+        + '<span>Spela videon</span><img class="youtube-thumbnail" src="https://i.ytimg.com/vi/' + video.id + '/hqdefault.jpg" alt="" loading="lazy" referrerpolicy="no-referrer">'
+        + '</button></div></div>';
+      $('#video-share')?.addEventListener('click', async event => {
+        const url = location.href.split('#')[0] + '#/videor/' + video.id;
+        try {
+          if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+          await navigator.clipboard.writeText(url);
+          event.currentTarget.textContent = 'Länken kopierad ✓';
+        } catch (e) {
+          window.prompt('Kopiera länken till arkivklippet:', url);
+        }
+      });
+      bindYoutubePreviews();
+      $('.video-card').forEach(card=>card.classList.toggle('is-current',card.dataset.videoId===video.id));
+    };
+    const card = video => '<button type="button" class="video-card' + (selected?.id===video.id ? ' is-current' : '') + '" data-video-id="' + video.id + '" aria-label="' + escapeHtml('Visa '+video.title+' med '+video.bandName) + '">'
+      + '<span class="video-card-media"><img loading="lazy" src="https://i.ytimg.com/vi/' + video.id + '/mqdefault.jpg" alt="">'
+      + '<span class="video-card-play" aria-hidden="true">▶</span><span class="video-card-kind">' + escapeHtml(kindName(video)) + '</span></span>'
+      + '<span class="video-card-copy"><span class="video-card-band">' + escapeHtml(video.bandName) + '</span>'
+      + '<strong>' + escapeHtml(video.title) + '</strong><small>' + escapeHtml(meta(video)) + '</small></span></button>';
+    const updateGrid = () => {
+      grid.innerHTML = filtered.length
+        ? filtered.slice(0,displayed).map(card).join('')
+        : '<div class="video-empty">Inga videor matchar sökningen. Testa färre filter.</div>';
+      $('#video-count').textContent = filtered.length.toLocaleString('sv-SE') + ' videor · visar ' + Math.min(displayed,filtered.length).toLocaleString('sv-SE');
+      more.hidden = filtered.length <= displayed;
+    };
+    const update = (reset = true) => {
+      if (reset) displayed = 24;
+      const query = search.value.trim().toLocaleLowerCase('sv');
+      const decadeFilter = decade.value;
+      filtered = videos.filter(video => (!type.value || video.kind===type.value)
+        && (!decadeFilter || (decadeFilter==='unknown' ? !video.year : video.year && Math.floor(video.year/10)*10===Number(decadeFilter)))
+        && (!query || [video.title,video.bandName,video.release?.title,video.channel,String(video.year || '')]
+          .join(' ').toLocaleLowerCase('sv').includes(query)));
+      filtered.sort((a,b) => order.value==='band'
+        ? sv(a.bandName,b.bandName) || sv(a.title,b.title)
+        : order.value==='new'
+          ? (b.year || -1)-(a.year || -1) || sv(a.bandName,b.bandName)
+          : (a.year || 9999)-(b.year || 9999) || sv(a.bandName,b.bandName));
+      if (!selected || !filtered.some(video=>video.id===selected.id)) {
+        // Ett stabilt dagens fynd, slumpknappen ger därefter nya överraskningar.
+        const day = Math.floor(Date.now()/86400000);
+        feature(filtered.length ? filtered[(day * 7919) % filtered.length] : null);
+      }
+      updateGrid();
+    };
+    [search,type,decade,order].forEach(input=>input.addEventListener(input===search ? 'input' : 'change',()=>update()));
+    $('#video-reset').addEventListener('click',()=>{
+      search.value='';type.value='';decade.value='';order.value='old';selected=null;update();search.focus();
+    });
+    roulette.addEventListener('click',()=>{
+      if (!filtered.length) return;
+      let next = Math.floor(Math.random() * filtered.length);
+      if (filtered.length>1 && selected?.id===filtered[next].id) next=(next+1)%filtered.length;
+      feature(filtered[next]);
+      updateGrid();
+    });
+    grid.addEventListener('click',event=>{
+      const button=event.target.closest('button[data-video-id]');
+      const video=byVideoId.get(button?.dataset.videoId);
+      if (!video) return;
+      feature(video);
+      updateGrid();
+      spotlight.scrollIntoView({behavior:'smooth',block:'center'});
+    });
+    more.addEventListener('click',()=>{displayed+=24;updateGrid();});
+    if (initialVideoId && byVideoId.has(initialVideoId)) selected = byVideoId.get(initialVideoId);
+    update();
+    if (selected) feature(selected);
+  }
+
   function spotifyLink(band, releaseId) {
     const data = window.ARCHIVE_SPOTIFY || {};
     const release = releaseId ? data.releases?.[releaseId] : null;
@@ -1203,7 +1364,10 @@
   }
 
   function bindYoutubePreviews() {
-    $$('.youtube-preview button').forEach(button=>button.addEventListener('click',()=>{
+    $('.youtube-preview button').forEach(button=>{
+      if (button.dataset.youtubeBound) return;
+      button.dataset.youtubeBound = '1';
+      button.addEventListener('click',()=>{
       const holder = button.parentElement;
       const id = holder.dataset.youtubeId;
       if (!/^[A-Za-z0-9_-]{11}$/.test(id)) return;
@@ -1214,7 +1378,8 @@
       frame.allowFullscreen = true;
       frame.referrerPolicy = 'strict-origin-when-cross-origin';
       holder.replaceChildren(frame);
-    }));
+      });
+    });
   }
 
   function renderBandDetail(b) {
@@ -1887,6 +2052,7 @@
     const parts = path.split('/').filter(Boolean);
     if (path === '/') renderHome();
     else if (parts[0] === 'sok') { let query = ''; try { query = decodeURIComponent(parts.slice(1).join('/')); } catch {} renderSearch(query); }
+    else if (path === '/videor' || parts[0] === 'videor' && parts[1]) renderVideos(parts[1] || '');
     else if (path === '/band') renderBandIndex();
     else if (parts[0] === 'band' && parts[1]) { const b=findBand(parts[1]); b ? renderBandDetail(b) : renderNotFound(); }
     else if (path === '/personer') renderPeopleIndex();
