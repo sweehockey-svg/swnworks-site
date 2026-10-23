@@ -2,6 +2,8 @@
 // No verified match: Abuse, Almost Human, Aparat, Aphophis, Avenue, Azotic Reign.
 // Afgrund Corporatocracy (2019 digital edition) and The Relevant EP (2017)
 // differ from the archive's original/split releases and are not mapped to them.
+// E checked 2026-10-23: Endtime and Enemy Is Us. No confirmed Spotify artist or matching edition for Edison, Embalmed, Equinox.
+// Enemy Is Us 2003 Ashes of the World demo and Endtime's Blåst På Konfekten not matched to later releases.
 window.ARCHIVE_SPOTIFY = {
   "checked": "2026-10-23",
   "artists": {
@@ -9,7 +11,9 @@ window.ARCHIVE_SPOTIFY = {
     "afgrund": "2B3393sT5fqraa7jo8GRBX",
     "alkemia": "3RtMbV6AfuBEJJ4ueRKLcQ",
     "always-war": "79sSkrLnHfevUkd9YhHpNA",
-    "anguish": "363hZUarQfQVcU1boQqvC0"
+    "anguish": "363hZUarQfQVcU1boQqvC0",
+    "endtime": "2Z7XzWiupUPj8HVxFBcz8l",
+    "enemy-is-us": "3CYFtRJOB5Np16SCFBglKx"
   },
   "releases": {
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
@@ -70,6 +74,30 @@ window.ARCHIVE_SPOTIFY = {
     },
     "c71d470c-9186-4303-8321-0eb9f3db1afa": {
       "id": "4wi9WKyEOTVmG82U8ujaG1",
+      "note": ""
+    },
+    "7bd651b9-ccff-4ae6-9a70-b41d3588daf5": {
+      "id": "3NJQ1QPyGgOfuNJX4UyRIw",
+      "note": ""
+    },
+    "9d32067a-c493-4c7d-be56-91301ff0be95": {
+      "id": "7F5BCyXR6ROuk6VBR9EeOl",
+      "note": ""
+    },
+    "3689790d-754a-4fac-a325-6c8341031a58": {
+      "id": "2fLd79LwrXrxWHUX3Ma267",
+      "note": ""
+    },
+    "f048bdeb-4dc1-49f6-8f4a-598ce5fc64cb": {
+      "id": "3BGwmYj8SsezEzQAgr1tgk",
+      "note": ""
+    },
+    "c6bfb9de-0be9-48e6-87df-e1ed556c0315": {
+      "id": "4RxXlxncZhl9LpuUbuaTcu",
+      "note": ""
+    },
+    "004eac94-7741-45fb-8e33-cd0ed2104b09": {
+      "id": "1Z0YsGHrsclyoW3p6L4ny2",
       "note": ""
     }
   }
