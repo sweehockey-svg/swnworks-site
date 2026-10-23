@@ -1162,6 +1162,52 @@
     update();
   }
 
+  function youtubeItems(band, releaseId) {
+    const items = (window.ARCHIVE_YOUTUBE || []).filter(item => /^[A-Za-z0-9_-]{11}$/.test(item.id)
+      && (releaseId ? item.release === releaseId : item.band === slugify(band?.canonical_name || '')));
+    return [...new Map(items.map(item=>[item.id,item])).values()];
+  }
+
+  function youtubeTrackLink(releaseId, title) {
+    const normalize = value => String(value || '').normalize('NFC').toLocaleLowerCase('sv').trim().replace(/\s+/g,' ');
+    const item = youtubeItems(null,releaseId).find(item => (item.kind === 'track' || item.kind === 'medley') && [item.title,...(item.trackTitles || [])].some(value=>normalize(value) === normalize(title)));
+    return item ? '<a class="youtube-track-link" href="https://www.youtube.com/watch?v=' + item.id
+      + '" target="_blank" rel="noopener noreferrer" aria-label="' + escapeHtml(title + ' på YouTube (öppnas i ny flik)') + '">YouTube ↗</a>' : '';
+  }
+
+  function youtubeSection(band, releaseId) {
+    const items = youtubeItems(band,releaseId);
+    if (!items.length) return '';
+    const songs = items.filter(item=>item.kind === 'track');
+    const ranked = (songs.length ? songs : items).filter(item=>Number.isFinite(item.views)).sort((a,b)=>b.views-a.views);
+    const featured = ranked[0] || songs[0] || items[0];
+    const link = item => '<a href="https://www.youtube.com/watch?v=' + item.id + '" target="_blank" rel="noopener noreferrer">'
+      + escapeHtml(item.title) + (item.kind === 'album' ? ' (hel utgåva)' : '') + ' ↗</a>';
+    return '<section class="content-section youtube-section"><h2>Lyssna på YouTube</h2>'
+      + '<div class="youtube-preview" data-youtube-id="' + featured.id + '"><button type="button" class="youtube-play" aria-label="'
+      + escapeHtml('Spela ' + featured.title) + '"><span aria-hidden="true">▶</span><strong>' + escapeHtml(featured.title)
+      + '</strong><span>Klicka för att ladda videon</span></button></div>'
+      + '<p class="youtube-caption">' + (featured.kind === 'track' ? 'Mest visad bland sidans länkade låtklipp med kontrollerat visningsantal.' : 'Utvald hel utgåva.')
+      + (featured.views != null ? ' Cirka ' + featured.views.toLocaleString('sv-SE') + ' visningar, kontrollerat ' + featured.checked + '.' : '')
+      + (featured.channel ? ' Kanal: ' + escapeHtml(featured.channel) + '.' : '') + '</p>'
+      + '<ul class="youtube-links">' + items.map(item=>'<li>' + link(item) + '</li>').join('') + '</ul></section>';
+  }
+
+  function bindYoutubePreviews() {
+    $$('.youtube-preview button').forEach(button=>button.addEventListener('click',()=>{
+      const holder = button.parentElement;
+      const id = holder.dataset.youtubeId;
+      if (!/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      const frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.title = button.getAttribute('aria-label');
+      frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      frame.allowFullscreen = true;
+      frame.referrerPolicy = 'strict-origin-when-cross-origin';
+      holder.replaceChildren(frame);
+    }));
+  }
+
   function renderBandDetail(b) {
     const mems = membershipsForBand(b.id);
     const memberGroups = groupedMembershipsForBand(b.id);
@@ -1188,6 +1234,7 @@
           </section>
           <section class="content-section"><div class="content-head"><span>01</span><h2>Medlemmar</h2></div><div class="credit-list">${memberGroups.length ? memberGroups.map(group => { const p=peopleById().get(group.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(p.canonical_name)}</strong><span>${escapeHtml(group.roles || 'Roll kartläggs')}</span><em>${escapeHtml(group.periods || 'Årtal söks')}</em></a>`; }).join('') : '<div class="empty-state">Lineup kartläggs.</div>'}</div></section>
           <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${rels.length ? rels.map(releaseRow).join('') : '<div class="empty-state">Inga utgåvor registrerade ännu.</div>'}</div></section>
+          ${youtubeSection(b)}
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Bildarkiv</h2></div>${archiveGallery(gallery)}</section>` : ''}
           ${links.length ? `<section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Kopplingar</h2></div><div class="relation-grid">${links.map(r => { const otherId = r.from_band_id === b.id ? r.to_band_id : r.from_band_id; const other = bandsById().get(otherId); return `<a href="${bandHref(other)}"><span>${escapeHtml(relationSv(r.relation_type))}</span><strong>${escapeHtml(other.canonical_name)}</strong><em>${r.from_year || ''}</em></a>`; }).join('')}</div></section>` : ''}
           <section class="content-section"><div class="content-head"><span>${String(3 + (gallery.length ? 1 : 0) + (links.length ? 1 : 0)).padStart(2,'0')}</span><h2>Källäge</h2></div>${claimList(claims)}</section>
@@ -1352,6 +1399,7 @@
           <span class="release-track-main"><strong>${escapeHtml(track.title)}</strong>
             ${displayCredits ? `<span class="release-track-credit">${displayCredits}</span>` : ''}
             ${notes}
+            ${youtubeTrackLink(releaseId, track.title)}
           </span>
           <span class="release-track-duration">${formatDuration(track.duration_seconds)}</span>
         </li>`;
@@ -1375,6 +1423,7 @@
         <div class="detail-main">
 
           <section class="content-section"><div class="content-head"><span>01</span><h2>Låtlista</h2></div><div id="release-tracklist" class="release-tracklist" data-release-id="${escapeHtml(r.id)}"><div class="empty-state">Hämtar låtlistan…</div></div></section>
+          ${youtubeSection(band, r.id)}
           <section class="content-section"><div class="content-head"><span>02</span><h2>Krediter</h2></div><div class="credit-list">${credits.length ? credits.map(c => { const p=peopleById().get(c.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(c.credited_as || p.canonical_name)}</strong><span>${escapeHtml(roleSv(c.role || ''))}</span><em>${escapeHtml(p.canonical_name)}</em></a>`; }).join('') : '<div class="empty-state">Krediter kartläggs.</div>'}</div></section>
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Omslag & originalmaterial</h2></div>${archiveGallery(gallery)}</section>` : ''}
           <section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Källäge</h2></div>${claimList(claims)}</section>
@@ -1840,6 +1889,7 @@
     else if (path === '/kallor') renderSources();
     else if (path === '/kontakt' || (parts[0] === 'kontakt' && parts[1])) renderContact(parts[1] ? findBand(decodeURIComponent(parts[1])) : null);
     else renderNotFound();
+    bindYoutubePreviews();
     window.scrollTo({top:0, behavior:'instant'});
     document.title = `${document.querySelector('.page-hero h1, .hero h1')?.textContent.trim().replace(/\s+/g,' ') || 'Uppsala Hårdrocksarkiv'} – Uppsala Hårdrocksarkiv`;
   }
