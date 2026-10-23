@@ -5018,5 +5018,128 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "track",
   "checked": "2026-10-23",
   "sourceNote": "Official HaHa Fonogram metadata or band channel; Burnt Lamb is identified as the single from Ghost Without Saying."
+},
+// E bands: matched releases and verified video/source identity (2026-10-23).
+{
+  "band": "embalmed",
+  "release": "ba15bd92-841b-472d-b23e-504ee95c662d",
+  "title": "Decomposed Desires (demo 1990)",
+  "id": "2o5dDeChldE",
+  "views": null,
+  "channel": "",
+  "kind": "album",
+  "checked": "2026-10-23",
+  "sourceNote": "Linked by Bazillion Points' 2013 profile of the Uppsala Embalmed demo."
+},
+{
+  "band": "endtime",
+  "release": "7bd651b9-ccff-4ae6-9a70-b41d3588daf5",
+  "title": "Harbinger of Disease",
+  "id": "5E2T4Q5bZ08",
+  "views": null,
+  "channel": "HEAVY PSYCH SOUNDS RECORDS",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "endtime",
+  "release": "9d32067a-c493-4c7d-be56-91301ff0be95",
+  "title": "Harbinger of Disease",
+  "id": "5E2T4Q5bZ08",
+  "views": null,
+  "channel": "HEAVY PSYCH SOUNDS RECORDS",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "endtime",
+  "release": "3689790d-754a-4fac-a325-6c8341031a58",
+  "title": "Living Graves",
+  "id": "kwOiWtax65s",
+  "views": null,
+  "channel": "HEAVY PSYCH SOUNDS RECORDS",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "endtime",
+  "release": "9d32067a-c493-4c7d-be56-91301ff0be95",
+  "title": "Living Graves",
+  "id": "kwOiWtax65s",
+  "views": null,
+  "channel": "HEAVY PSYCH SOUNDS RECORDS",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "endtime",
+  "release": "f048bdeb-4dc1-49f6-8f4a-598ce5fc64cb",
+  "title": "Tunnel of Life",
+  "id": "A5vxqMZFWJA",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23",
+  "sourceNote": "Directly linked from Endtime's own Linktree."
+},
+{
+  "band": "enemy-is-us",
+  "release": "004eac94-7741-45fb-8e33-cd0ed2104b09",
+  "title": "End This Life",
+  "id": "bTdtlTipwc4",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "enemy-is-us",
+  "release": "004eac94-7741-45fb-8e33-cd0ed2104b09",
+  "title": "Venomized",
+  "id": "WpCcH5uQbvc",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "enemy-is-us",
+  "release": "004eac94-7741-45fb-8e33-cd0ed2104b09",
+  "title": "The Red Inside",
+  "id": "YpFmHa7HAbQ",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "enemy-is-us",
+  "release": "004eac94-7741-45fb-8e33-cd0ed2104b09",
+  "title": "My Cross to Bear",
+  "id": "dnoSPu57vDk",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "enemy-is-us",
+  "release": "c6bfb9de-0be9-48e6-87df-e1ed556c0315",
+  "title": "The Walking Dead",
+  "id": "MJYt-hJXXXw",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
+},
+{
+  "band": "enemy-is-us",
+  "release": "c6bfb9de-0be9-48e6-87df-e1ed556c0315",
+  "title": "Plagued from Within",
+  "id": "rw63u3nwc3c",
+  "views": null,
+  "channel": "",
+  "kind": "track",
+  "checked": "2026-10-23"
 }
 ];
