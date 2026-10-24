@@ -71,7 +71,7 @@
       ['https://www.earsplitcompound.com/site/wp-content/uploads/2022/08/ANIMA-MORTE-February-2022-by-Martin-Gustafsson-scaled.jpg','Anima Morte · pressbild 2022','https://www.earsplitcompound.com/anima-morte-swedish-cinematic-instrumental-prog-outfit-to-release-serpents-in-the-fields-of-sleep-lp-via-cadabra-records-the-sleeping-shaman-premieres-blood-of-the-iconoclast-video/','EarSplit Compound · foto Martin Gustafsson'],
       ['https://i.scdn.co/image/ab67616d0000b2735250aa72f96efb7d4ece5664','Wuthering Heights · The Shadow Cabinet · Teddy Möller på bas / engineering','https://open.spotify.com/album/7pCdMyoHEukSMz0KcCk65v','Spotify / Wuthering Heights'],
       ['https://metal-temple.com/wp-content/uploads/2023/10/Flagellation-Incinerate-Disintegrate-album-cover.webp','Flagellation · Incinerate Disintegrate · Teddy Möller på gitarr och sång','https://metal-temple.com/review/flagellation-incinerate-disintegrate/','Metal Temple'],
-      ['https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Wuthering_Heights_Salt.png/440px-Wuthering_Heights_Salt.png','Wuthering Heights · Salt · Teddy Möller på bas, gitarr, kör och engineering/mix','https://www.metal-archives.com/albums/Wuthering_Heights/Salt/261309','Wuthering Heights / Metal Archives'],
+      ['https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Wuthering_Heights_Salt.png/500px-Wuthering_Heights_Salt.png','Wuthering Heights · Salt · Teddy Möller på bas, gitarr, kör och engineering/mix','https://www.metal-archives.com/albums/Wuthering_Heights/Salt/261309','Wuthering Heights / Metal Archives'],
       ['https://electricvinylrecords.com/4444-large_default/one-hour-hell-voidwalker-2-lp-double-green-vinyl-limited-edition-of-200-copies.jpg','One Hour Hell · Voidwalker · Teddy Möller på bas','https://www.metal-archives.com/albums/One_Hour_Hell/Voidwalker/789098','One Hour Hell / Metal Archives'],
       ['https://www.fwoshm.com/images/artists/1739998100_tradorefoto.png','Tradore · Uppsala 1980-tal · Teddy Möller på trummor','https://www.fwoshm.com/index/T/1587-tradore-swe','Swedish Hard And Heavy Encyclopedia'],
       ['https://www.fwoshm.com/images/artists/mpswedenuppsala.png','Mellow Poetry · Uppsala · Teddy Möller på trummor','https://www.fwoshm.com/index/M/1647-mellow-poetry-swe','Swedish Hard And Heavy Encyclopedia']
@@ -181,12 +181,12 @@
     'anima-morte|face-the-sea-of-darkness':'https://f4.bcbits.com/img/a3943680144_10.jpg',
     'anima-morte|the-nightmare-becomes-reality':'https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/29/3a/c8/293ac827-51ff-0428-8bfa-f2d2c170c6e1/artwork.jpg/600x600bf-60.jpg',
     'anima-morte|upon-darkened-stains':'https://f4.bcbits.com/img/a0700897435_16.jpg',
-    'anima-morte|serpents-in-the-fields-of-sleep':'https://www.progarchives.com/progressive_rock_discography_covers/6589/cover_42188392022_r.jpg',
+    'anima-morte|serpents-in-the-fields-of-sleep':'https://f4.bcbits.com/img/a3325705352_10.jpg',
     'gauntlet-rule|the-plague-court':'https://f4.bcbits.com/img/a0283925770_16.jpg',
-    'f-k-u|metal-moshing-mad':'https://i0.wp.com/assets.bigcartel.com/product_images/58355477/R-1449287-1221061884_1_.jpeg?ssl=1',
+    'f-k-u|metal-moshing-mad':'https://www.moshoholics.com/img/releases/metal-moshing-mad.jpg',
     'the-hidden|fearful-symmetry':'https://f4.bcbits.com/img/a1140447514_10.jpg',
     'wuthering-heights|the-shadow-cabinet':'https://i.scdn.co/image/ab67616d0000b2735250aa72f96efb7d4ece5664',
-    'wuthering-heights|salt':'https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Wuthering_Heights_Salt.png/440px-Wuthering_Heights_Salt.png',
+    'wuthering-heights|salt':'https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Wuthering_Heights_Salt.png/500px-Wuthering_Heights_Salt.png',
     'one-hour-hell|voidwalker':'https://electricvinylrecords.com/4444-large_default/one-hour-hell-voidwalker-2-lp-double-green-vinyl-limited-edition-of-200-copies.jpg',
     'flagellation|incinerate-disintegrate':'https://metal-temple.com/wp-content/uploads/2023/10/Flagellation-Incinerate-Disintegrate-album-cover.webp'
   };
@@ -273,7 +273,7 @@
       ['https://www.earsplitcompound.com/site/wp-content/uploads/2022/08/ANIMA-MORTE-February-2022-by-Martin-Gustafsson-scaled.jpg','Anima Morte · pressbild 2022 · foto Martin Gustafsson','https://www.earsplitcompound.com/anima-morte-swedish-cinematic-instrumental-prog-outfit-to-release-serpents-in-the-fields-of-sleep-lp-via-cadabra-records-the-sleeping-shaman-premieres-blood-of-the-iconoclast-video/','EarSplit Compound'],
       ['https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/29/3a/c8/293ac827-51ff-0428-8bfa-f2d2c170c6e1/artwork.jpg/600x600bf-60.jpg','Anima Morte · The Nightmare Becomes Reality · 2011','https://animamorte.bandcamp.com/album/the-nightmare-becomes-reality','Anima Morte / Bandcamp'],
       ['https://f4.bcbits.com/img/a0700897435_16.jpg','Anima Morte · Upon Darkened Stains · 2014','https://animamorte.bandcamp.com/album/upon-darkened-stains','Anima Morte / Bandcamp'],
-      ['https://www.progarchives.com/progressive_rock_discography_covers/6589/cover_42188392022_r.jpg','Anima Morte · Serpents in the Fields of Sleep · 2022','https://animamorte.bandcamp.com/album/serpents-in-the-fields-of-sleep','Anima Morte / Bandcamp']
+      ['https://f4.bcbits.com/img/a3325705352_10.jpg','Anima Morte · Serpents in the Fields of Sleep · 2022','https://animamorte.bandcamp.com/album/serpents-in-the-fields-of-sleep','Anima Morte / Bandcamp']
     ],
     'gauntlet-rule': [
       ['https://d2x4qakry0y44a.cloudfront.net/wp-content/uploads/2021/06/18091910/GAUNTLET-RULE.jpg','Gauntlet Rule · Rogga Johansson, Peter Svensson och Teddy Möller','https://tntradiorock.com/rogga-johansson-peter-svensson-y-teddy-moller-unen-fuerzas-en-gauntlet-rule-banda-de-heavy-metal/','TNT Radio Rock'],
@@ -282,7 +282,7 @@
     'f-k-u': [
       ['https://i.scdn.co/image/ab6761610000e5eb20e6daa5877918a60c401aa0','F.K.Ü. · bandbild','https://open.spotify.com/artist/5h0HlqYN5TvocKVL1NSJ80','Spotify'],
       ['https://www.moshoholics.com/img/banners/tour-2024-xs.jpg','F.K.Ü. · live 2024','https://www.moshoholics.com/tour.php','F.K.Ü. · officiell sida'],
-      ['https://i0.wp.com/assets.bigcartel.com/product_images/58355477/R-1449287-1221061884_1_.jpeg?ssl=1','F.K.Ü. · Metal Moshing Mad · 1999','https://www.moshoholics.com/releases.php','F.K.Ü. · officiell diskografi']
+      ['https://www.moshoholics.com/img/releases/metal-moshing-mad.jpg','F.K.Ü. · Metal Moshing Mad · 1999','https://www.moshoholics.com/releases.php','F.K.Ü. · officiell diskografi']
     ],
     'the-hidden': [
       ['https://f4.bcbits.com/img/a1140447514_10.jpg','The Hidden · Fearful Symmetry · 2014','https://tribunalrecords.bandcamp.com/album/fearful-symmetry-2','Tribunal / Divebomb Records']
@@ -292,7 +292,7 @@
     ],
     'wuthering-heights': [
       ['https://i.scdn.co/image/ab67616d0000b2735250aa72f96efb7d4ece5664','Wuthering Heights · The Shadow Cabinet · 2006','https://open.spotify.com/album/7pCdMyoHEukSMz0KcCk65v','Spotify'],
-      ['https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Wuthering_Heights_Salt.png/440px-Wuthering_Heights_Salt.png','Wuthering Heights · Salt · 2010','https://www.metal-archives.com/albums/Wuthering_Heights/Salt/261309','Metal Archives']
+      ['https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Wuthering_Heights_Salt.png/500px-Wuthering_Heights_Salt.png','Wuthering Heights · Salt · 2010','https://www.metal-archives.com/albums/Wuthering_Heights/Salt/261309','Metal Archives']
     ],
     'one-hour-hell': [
       ['https://electricvinylrecords.com/4444-large_default/one-hour-hell-voidwalker-2-lp-double-green-vinyl-limited-edition-of-200-copies.jpg','One Hour Hell · Voidwalker · 2019','https://www.metal-archives.com/albums/One_Hour_Hell/Voidwalker/789098','Metal Archives']
@@ -319,7 +319,7 @@
       ['https://f4.bcbits.com/img/a0283925770_16.jpg','The Plague Court · officiellt Bandcamp-omslag','https://gauntletrulesweden.bandcamp.com/album/the-plague-court','Gauntlet Rule / Bandcamp']
     ],
     'f-k-u|metal-moshing-mad': [
-      ['https://i0.wp.com/assets.bigcartel.com/product_images/58355477/R-1449287-1221061884_1_.jpeg?ssl=1','Metal Moshing Mad · 1999','https://www.moshoholics.com/releases.php','F.K.Ü. · officiell diskografi']
+      ['https://www.moshoholics.com/img/releases/metal-moshing-mad.jpg','Metal Moshing Mad · 1999','https://www.moshoholics.com/releases.php','F.K.Ü. · officiell diskografi']
     ],
     'the-hidden|fearful-symmetry': [
       ['https://f4.bcbits.com/img/a1140447514_10.jpg','Fearful Symmetry · 2014','https://tribunalrecords.bandcamp.com/album/fearful-symmetry-2','Tribunal / Divebomb Records']
@@ -328,7 +328,7 @@
       ['https://i.scdn.co/image/ab67616d0000b2735250aa72f96efb7d4ece5664','The Shadow Cabinet · 2006','https://open.spotify.com/album/7pCdMyoHEukSMz0KcCk65v','Spotify']
     ],
     'wuthering-heights|salt': [
-      ['https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Wuthering_Heights_Salt.png/440px-Wuthering_Heights_Salt.png','Salt · 2010','https://www.metal-archives.com/albums/Wuthering_Heights/Salt/261309','Metal Archives']
+      ['https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Wuthering_Heights_Salt.png/500px-Wuthering_Heights_Salt.png','Salt · 2010','https://www.metal-archives.com/albums/Wuthering_Heights/Salt/261309','Metal Archives']
     ],
     'one-hour-hell|voidwalker': [
       ['https://electricvinylrecords.com/4444-large_default/one-hour-hell-voidwalker-2-lp-double-green-vinyl-limited-edition-of-200-copies.jpg','Voidwalker · 2019','https://www.metal-archives.com/albums/One_Hour_Hell/Voidwalker/789098','Metal Archives']
@@ -343,7 +343,7 @@
       ['https://f4.bcbits.com/img/a0700897435_16.jpg','Upon Darkened Stains · 2014','https://animamorte.bandcamp.com/album/upon-darkened-stains','Anima Morte / Bandcamp']
     ],
     'anima-morte|serpents-in-the-fields-of-sleep': [
-      ['https://www.progarchives.com/progressive_rock_discography_covers/6589/cover_42188392022_r.jpg','Serpents in the Fields of Sleep · 2022','https://animamorte.bandcamp.com/album/serpents-in-the-fields-of-sleep','Anima Morte / Bandcamp']
+      ['https://f4.bcbits.com/img/a3325705352_10.jpg','Serpents in the Fields of Sleep · 2022','https://animamorte.bandcamp.com/album/serpents-in-the-fields-of-sleep','Anima Morte / Bandcamp']
     ],
     'hexed|netherworld': [
       ['https://f4.bcbits.com/img/a0128858293_10.jpg','Netherworld · officiellt omslag','https://hexedmetal.bandcamp.com/album/netherworld','HEXED / Bandcamp']
@@ -509,11 +509,11 @@
     'https://f4.bcbits.com/img/a0283925770_16.jpg': {label:'Gauntlet Rule / Bandcamp · The Plague Court',sourceUrl:'https://gauntletrulesweden.bandcamp.com/album/the-plague-court'},
     'https://i.scdn.co/image/ab6761610000e5eb20e6daa5877918a60c401aa0': {label:'F.K.Ü. · artistbild',sourceUrl:'https://www.moshoholics.com/band.php'},
     'https://www.moshoholics.com/img/banners/tour-2024-xs.jpg': {label:'F.K.Ü. · officiell sida · live 2024',sourceUrl:'https://www.moshoholics.com/tour.php'},
-    'https://i0.wp.com/assets.bigcartel.com/product_images/58355477/R-1449287-1221061884_1_.jpeg?ssl=1': {label:'F.K.Ü. · Metal Moshing Mad',sourceUrl:'https://www.moshoholics.com/releases.php'},
+    'https://www.moshoholics.com/img/releases/metal-moshing-mad.jpg': {label:'F.K.Ü. · Metal Moshing Mad',sourceUrl:'https://www.moshoholics.com/releases.php'},
     'https://f4.bcbits.com/img/a1140447514_10.jpg': {label:'The Hidden / Tribunal + Divebomb Records · Fearful Symmetry',sourceUrl:'https://tribunalrecords.bandcamp.com/album/fearful-symmetry-2'},
     'https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/29/3a/c8/293ac827-51ff-0428-8bfa-f2d2c170c6e1/artwork.jpg/600x600bf-60.jpg': {label:'Anima Morte · The Nightmare Becomes Reality',sourceUrl:'https://animamorte.bandcamp.com/album/the-nightmare-becomes-reality'},
     'https://f4.bcbits.com/img/a0700897435_16.jpg': {label:'Anima Morte / Bandcamp · Upon Darkened Stains',sourceUrl:'https://animamorte.bandcamp.com/album/upon-darkened-stains'},
-    'https://www.progarchives.com/progressive_rock_discography_covers/6589/cover_42188392022_r.jpg': {label:'Anima Morte · Serpents in the Fields of Sleep',sourceUrl:'https://animamorte.bandcamp.com/album/serpents-in-the-fields-of-sleep'},
+    'https://f4.bcbits.com/img/a3325705352_10.jpg': {label:'Anima Morte · Serpents in the Fields of Sleep',sourceUrl:'https://animamorte.bandcamp.com/album/serpents-in-the-fields-of-sleep'},
     'https://www.fwoshm.com/images/artists/1739998100_tradorefoto.png': {label:'Swedish Hard And Heavy Encyclopedia · Tradore bandfoto',sourceUrl:'https://www.fwoshm.com/index/T/1587-tradore-swe'},
     'https://www.metal-archives.com/images/6/8/6/7/68676_photo.jpg': {label:'Metal Archives · Tradore bandfoto',sourceUrl:'https://www.metal-archives.com/bands/Tradore/68676'},
     'https://www.fwoshm.com/images/artists/1739998159_tradorelogga.png': {label:'Swedish Hard And Heavy Encyclopedia · Tradore logotyp',sourceUrl:'https://www.fwoshm.com/index/T/1587-tradore-swe'},
