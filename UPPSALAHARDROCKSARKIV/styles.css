@@ -1071,3 +1071,10 @@ body.network-body-fullscreen { overflow:hidden; }
   .video-marathon-controls button { flex:1; min-height:44px; }
 }
 
+
+/* Shared notes remain available without repeating them beneath each song. */
+.tracklist-shared-notes{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}
+.tracklist-shared-notes summary{cursor:pointer;color:var(--acid);font-size:13px;line-height:1.6}
+.tracklist-shared-notes summary:focus-visible{outline:2px solid var(--acid);outline-offset:4px}
+.tracklist-shared-notes .release-track-note{margin-top:16px;overflow-wrap:anywhere}
+.tracklist-shared-notes p{margin:6px 0 0;white-space:pre-line}
