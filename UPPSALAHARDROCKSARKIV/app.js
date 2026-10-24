@@ -821,7 +821,7 @@
   function findBand(slug) { return allBandRows().find(x => slugify(x.canonical_name) === slug); }
   function findPerson(slug) {
     // Preserve incoming links when verified duplicate profiles are merged.
-    const aliases = {'john-s-swahn':'john-swahn', 'affe-piran':'afshin-affe-piran'};
+    const aliases = {'john-s-swahn':'john-swahn', 'affe-piran':'afshin-affe-piran', 'spine':'lukas-hager', 'set-teitan':'davide-totaro', 'tina-gunnarsson':'tina-moller', 'henry-bowers':'nils-jansson', 'j-meggido':'joel-lindholm', 'hans-bruniusson':'hasse-bruniusson'};
     return state.people.find(x => slugify(x.canonical_name) === (aliases[slug] || slug));
   }
   function findRelease(slug) { return state.releases.find(x => slugify(`${x.title}-${x.release_year || ''}`) === slug); }
