@@ -1078,3 +1078,14 @@ body.network-body-fullscreen { overflow:hidden; }
 .tracklist-shared-notes summary:focus-visible{outline:2px solid var(--acid);outline-offset:4px}
 .tracklist-shared-notes .release-track-note{margin-top:16px;overflow-wrap:anywhere}
 .tracklist-shared-notes p{margin:6px 0 0;white-space:pre-line}
+
+/* Registry controls stay compact while all matching records remain searchable. */
+.registry-letters { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px; }
+.registry-letters button { min-width:36px; min-height:40px; padding:8px; border:1px solid var(--line-strong); color:var(--ink); background:#101216; font:500 14px var(--condensed); cursor:pointer; }
+.registry-letters button[aria-pressed="true"] { color:#090a0c; background:var(--acid); border-color:var(--acid); }
+.registry-letters button:focus-visible, #registry-more:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
+.registry-reset { margin:8px 0 24px; }
+.registry-footer { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; margin-top:28px; }
+.registry-footer p { color:var(--muted); font-size:14px; }
+.registry-footer .button { margin:0; }
+.registry-footer button[hidden] { display:none; }
