@@ -1483,7 +1483,7 @@
     if (!items.length) return '';
     const songs = items.filter(item=>item.kind === 'track');
     const ranked = songs.filter(item=>Number.isFinite(item.views)).sort((a,b)=>b.views-a.views);
-    const featured = ranked[0] || songs[0] || items.find(item => item.kind === 'album') || items.find(item => item.kind === 'medley');
+    const featured = items.find(item => item.featured === true) || ranked[0] || songs[0] || items.find(item => item.kind === 'album') || items.find(item => item.kind === 'medley');
     if (!featured) return '';
     return '<section class="content-section youtube-section"><h2>Lyssna på YouTube</h2>'
       + (featured ? '<div class="youtube-preview" data-youtube-id="' + featured.id + '"><button type="button" class="youtube-play" aria-label="'

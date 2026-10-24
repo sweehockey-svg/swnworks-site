@@ -2046,6 +2046,7 @@ window.ARCHIVE_YOUTUBE = [
   "release": "50de354c-5bed-49a8-91f9-98ff1d12585a",
   "title": "Mordor Blizz",
   "id": "aU6PKTDgrto",
+  "featured": true,
   "views": 37,
   "channel": "SwahnSong Productions",
   "kind": "track",
