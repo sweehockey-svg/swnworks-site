@@ -2247,14 +2247,27 @@
     document.title = `${document.querySelector('.page-hero h1, .hero h1')?.textContent.trim().replace(/\s+/g,' ') || 'Uppsala Hårdrocksarkiv'} – Uppsala Hårdrocksarkiv`;
   }
 
-  document.addEventListener('error', e => {
-    const img = e.target;
+  function handleArchiveImageError(img) {
     if (!(img instanceof HTMLImageElement)) return;
-    if (!/^https?:/i.test(img.getAttribute('src') || '')) return;
     const wrap = img.closest('.detail-media, .band-card, .person-card-portrait, .release-cover-thumb, .archive-gallery-media');
-    if (wrap) wrap.classList.add('external-image-failed');
+    if (!wrap) return;
     img.style.display = 'none';
-  }, true);
+    // Failed band photos should behave like the existing text-only band cards.
+    if (wrap.classList.contains('band-card')) {
+      wrap.classList.remove('has-media');
+      const shade = wrap.querySelector('.band-card-shade');
+      if (shade) shade.hidden = true;
+      return;
+    }
+    wrap.classList.add('external-image-failed');
+    if (wrap.querySelector('.image-unavailable')) return;
+    const message = document.createElement('span');
+    message.className = 'image-unavailable';
+    message.textContent = wrap.classList.contains('release-cover-thumb') ? 'UHA' : 'Bild ej tillgänglig';
+    wrap.appendChild(message);
+  }
+
+  document.addEventListener('error', e => handleArchiveImageError(e.target), true);
 
   window.addEventListener('hashchange', renderRoute);
   $('.nav-toggle').addEventListener('click', e => {

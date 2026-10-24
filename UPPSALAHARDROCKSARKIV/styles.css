@@ -547,21 +547,10 @@ button, input { font: inherit; }
   letter-spacing:.08em;
 }
 .archive-source-link:hover{color:var(--acid)}
-.external-image-failed{position:relative;min-height:96px;background:linear-gradient(135deg,#0b0d0f,#11151a)}
-.external-image-failed::after{
-  content:'Extern bild kunde inte laddas';
-  position:absolute;
-  inset:0;
-  display:grid;
-  place-items:center;
-  padding:14px;
-  color:#737a84;
-  font-family:var(--condensed);
-  font-size:10px;
-  text-transform:uppercase;
-  letter-spacing:.08em;
-  text-align:center;
-}
+.external-image-failed{position:relative;min-height:72px;display:grid;place-items:center;background:#0c0e10}
+.external-image-failed::after{content:none}
+.image-unavailable{display:block;padding:16px;color:#a6aaae;font-family:var(--condensed);font-size:12px;text-align:center}
+.release-cover-thumb.external-image-failed{min-height:0}
 
 .section-intro{max-width:780px;margin:-8px 0 20px;color:#85898d;font-size:13px;line-height:1.65}
 
