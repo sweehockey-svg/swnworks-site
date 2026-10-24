@@ -819,7 +819,11 @@
   function releaseHref(r) { return `#/utgava/${slugify(`${r.title}-${r.release_year || ''}`)}`; }
 
   function findBand(slug) { return allBandRows().find(x => slugify(x.canonical_name) === slug); }
-  function findPerson(slug) { return state.people.find(x => slugify(x.canonical_name) === (slug === 'john-s-swahn' ? 'john-swahn' : slug)); }
+  function findPerson(slug) {
+    // Preserve incoming links when verified duplicate profiles are merged.
+    const aliases = {'john-s-swahn':'john-swahn', 'affe-piran':'afshin-affe-piran'};
+    return state.people.find(x => slugify(x.canonical_name) === (aliases[slug] || slug));
+  }
   function findRelease(slug) { return state.releases.find(x => slugify(`${x.title}-${x.release_year || ''}`) === slug); }
 
   function pageHeader(kicker, title, lead = '', meta = '') {
