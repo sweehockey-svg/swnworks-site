@@ -895,7 +895,7 @@
       return score(a)-score(b) || name(a).localeCompare(name(b),'sv');
     });
     return {
-      bands:order(allBandRows().filter(b => matches([b.canonical_name,(b.genres || []).join(' '),b.city,(bandPeople.get(b.id) || []).join(' ')].join(' '))),b=>b.canonical_name),
+      bands:order(allBandRows().filter(b => matches([b.canonical_name,(b.genres || []).join(' '),b.city,b.formed_year,(bandPeople.get(b.id) || []).join(' ')].join(' '))),b=>b.canonical_name),
       people:order(state.people.filter(p => matches([p.canonical_name,(personBands.get(p.id) || []).join(' ')].join(' '))),p=>p.canonical_name),
       releases:order(state.releases.filter(r => matches([r.title,r.release_year,(releaseBandNames.get(r.id) || []).join(' '),(releasePeople.get(r.id) || []).join(' ')].join(' '))),r=>r.title)
     };
@@ -919,7 +919,7 @@
       const row = (href,title,meta) => '<a href="' + href + '"><strong>' + escapeHtml(title) + '</strong><span>' + escapeHtml(meta) + '</span></a>';
       $('#archive-search-results').innerHTML = !query ? '' : !total
         ? '<div class="empty-state">Inga träffar. Prova ett kortare namn, en annan stavning eller ett annat sökord.</div>'
-        : group('Band',results.bands,b=>row(bandHref(b),b.canonical_name,[isUppsalaBand(b) ? 'Uppsala-band' : 'Relaterat band',(b.genres || []).join(' / ')].filter(Boolean).join(' · ')))
+        : group('Band',results.bands,b=>row(bandHref(b),b.canonical_name,[isUppsalaBand(b) ? 'Uppsala-band' : 'Relaterat band',b.formed_year ? 'Bildat ' + b.formed_year : '',(b.genres || []).join(' / ')].filter(Boolean).join(' · ')))
         + group('Personer',results.people,p=>row(personHref(p),p.canonical_name,[...new Set(membershipsForPerson(p.id).map(m=>bandsById().get(m.band_id)?.canonical_name).filter(Boolean))].join(' · ')))
         + group('Utgåvor',results.releases,r=>row(releaseHref(r),r.title,[releaseBand(r.id)?.canonical_name,r.release_year].filter(Boolean).join(' · ')));
     };
