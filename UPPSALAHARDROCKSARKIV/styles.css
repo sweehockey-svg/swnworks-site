@@ -1089,3 +1089,10 @@ body.network-body-fullscreen { overflow:hidden; }
 .registry-footer p { color:var(--muted); font-size:14px; }
 .registry-footer .button { margin:0; }
 .registry-footer button[hidden] { display:none; }
+
+/* Keep credits available without making every timeline event a long paragraph. */
+.timeline-credits { margin-top:12px; color:var(--muted); font-size:13px; }
+.timeline-credits summary { cursor:pointer; color:var(--acid); width:fit-content; }
+.timeline-credits summary:focus-visible { outline:2px solid var(--acid); outline-offset:4px; }
+.timeline-credits p { margin-top:12px; }
+.timeline:has(> .empty-state)::before { display:none; }

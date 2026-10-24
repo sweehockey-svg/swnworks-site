@@ -1881,16 +1881,21 @@
   }
 
   function timelineRows() {
-    const rows = [];
+    const rows = [], localIds = new Set(uppsalaBands().map(b=>b.id));
+    const releaseLocal = new Set(state.releaseBands.filter(link=>localIds.has(link.band_id)).map(link=>link.release_id));
     state.releases.forEach(r => {
       const b = releaseBand(r.id);
       const credits = creditsForRelease(r.id).map(c => `${personName(c.person_id)} (${roleSv(c.role)})`);
-      rows.push({year:r.release_year, href:releaseHref(r), title:`${b?.canonical_name || 'Okänt band'} — ${r.title}`, text:credits.length ? `Dokumenterade krediter: ${credits.join(', ')}.` : `${r.release_type || 'Utgåva'} i arkivet.`, tags:[r.release_type,r.format].filter(Boolean)});
+      rows.push({year:r.release_year, kind:'release', local:releaseLocal.has(r.id) || localIds.has(b?.id),
+        href:releaseHref(r), title:`${b?.canonical_name || 'Okänt band'} — ${r.title}`,
+        text:'Utgåva i arkivet.', credits:credits.join(', '), tags:[r.release_type,r.format].filter(Boolean)});
     });
+    const bandMap = bandsById();
     state.claims.filter(c => c.claim_type === 'band_formation' && c.from_year).forEach(c => {
       const ent = state.claimEntities.find(e => e.claim_id === c.id && e.entity_type === 'band' && e.entity_role === 'subject');
-      const b = ent ? bandsById().get(ent.entity_id) : null;
-      rows.push({year:c.from_year, href:b ? bandHref(b) : '#/band', title:b?.canonical_name || 'Ny knutpunkt', text:translateClaim(c.statement), tags:[statusSv(c.status)]});
+      const b = ent ? bandMap.get(ent.entity_id) : null;
+      rows.push({year:c.from_year, kind:'formation', local:localIds.has(b?.id), href:b ? bandHref(b) : '#/band',
+        title:b?.canonical_name || 'Ny knutpunkt', text:translateClaim(c.statement), tags:['Bandbildning',statusSv(c.status)]});
     });
     return rows.sort((a,b) => (a.year || 9999) - (b.year || 9999) || a.title.localeCompare(b.title,'sv'));
   }
@@ -1906,15 +1911,46 @@
   }
 
   function renderTimeline() {
-    const groups = groupTimelineRows(timelineRows());
-    const event = row => '<article class="timeline-content"><h3><a href="' + row.href + '">' + escapeHtml(row.title)
-      + '</a></h3><p>' + escapeHtml(row.text) + '</p><div class="timeline-tags">'
-      + row.tags.map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('') + '</div></article>';
-    app.innerHTML = pageHeader('ÅR FÖR ÅR','Tidslinjen','Utgåvor, bandbildningar och andra hållpunkter samlade kronologiskt.')
-      + '<section class="section page-section first-section"><div class="timeline">'
-      + groups.map(group => '<section class="timeline-row timeline-year-group" aria-label="' + escapeHtml(group.year || 'Årtal saknas')
+    const rows = timelineRows();
+    const decades = [...new Set(rows.filter(row=>row.year).map(row=>Math.floor(row.year/10)*10))].sort((a,b)=>a-b);
+    const event = row => '<article class="timeline-content"><h3><a href="' + escapeHtml(row.href) + '">' + escapeHtml(row.title)
+      + '</a></h3><p>' + escapeHtml(row.text) + '</p>'
+      + (row.credits ? '<details class="timeline-credits"><summary>Visa dokumenterade krediter</summary><p>' + escapeHtml(row.credits) + '</p></details>' : '')
+      + '<div class="timeline-tags">' + row.tags.map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('') + '</div></article>';
+    app.innerHTML = `${pageHeader('ÅR FÖR ÅR','Tidslinjen','Utgåvor och dokumenterade bandbildningar samlade kronologiskt. Årtal utan dokumenterad uppgift visas sist.')}
+      <section class="section page-section first-section">
+        <div class="index-toolbar"><label class="search-box"><span>Sök i tidslinjen</span><input id="timeline-search" type="search" placeholder="Band, utgåva, person eller år…"></label><div class="index-count"><strong id="timeline-count"></strong> händelser</div></div>
+        <div class="band-filter-bar">
+          <label class="band-filter-field"><span>Årtionde</span><select id="timeline-decade"><option value="">Alla årtionden</option>${decades.map(year=>`<option value="${year}">${year}-talet</option>`).join('')}<option value="unknown">Årtal saknas</option></select></label>
+          <label class="band-filter-field"><span>Händelsetyp</span><select id="timeline-kind"><option value="">Alla händelser</option><option value="release">Utgåvor</option><option value="formation">Bandbildningar</option></select></label>
+          <label class="band-filter-field"><span>Bandkoppling</span><select id="timeline-scope"><option value="">Alla band i arkivet</option><option value="uppsala">Endast klassade Uppsala-band</option></select></label>
+        </div>
+        <button id="timeline-reset" class="band-filter-reset registry-reset" type="button">Rensa filter</button>
+        <div class="timeline" id="timeline-results"></div>
+        <div class="registry-footer"><p id="timeline-status" role="status"></p><button id="timeline-more" class="button button-dark" type="button">Visa fler år</button></div>
+      </section>`;
+    const input=$('#timeline-search'), decade=$('#timeline-decade'), kind=$('#timeline-kind'), scope=$('#timeline-scope'), more=$('#timeline-more');
+    let limit=8;
+    function update(append=false) {
+      const term=input.value.trim().toLocaleLowerCase('sv');
+      const filtered=rows.filter(row=>
+        (!kind.value || row.kind===kind.value) && (!scope.value || row.local) &&
+        (!decade.value || (decade.value==='unknown' ? !row.year : row.year && Math.floor(row.year/10)*10===Number(decade.value))) &&
+        `${row.title} ${row.text} ${row.credits || ''} ${row.year || ''} ${row.tags.join(' ')}`.toLocaleLowerCase('sv').includes(term));
+      const groups=groupTimelineRows(filtered), visible=groups.slice(0,limit), holder=$('#timeline-results');
+      const previous=holder.querySelectorAll('.timeline-year-group').length;
+      holder.innerHTML=visible.length ? visible.map(group=>'<section class="timeline-row timeline-year-group" aria-label="' + escapeHtml(group.year || 'Årtal saknas')
         + '"><h2 class="timeline-year">' + escapeHtml(group.year || 'Årtal saknas') + '</h2><div class="timeline-events">'
-        + group.events.map(event).join('') + '</div></section>').join('') + '</div></section>';
+        + group.events.map(event).join('') + '</div></section>').join('') : '<div class="empty-state">Inga träffar. Prova ett annat sökord eller rensa filtren.</div>';
+      $('#timeline-count').textContent=filtered.length;
+      $('#timeline-status').textContent=`Visar ${visible.reduce((sum,group)=>sum+group.events.length,0)} av ${filtered.length} händelser · ${visible.length} av ${groups.length} årsgrupper`;
+      more.hidden=visible.length>=groups.length;
+      if(append && more.hidden) holder.querySelectorAll('.timeline-year-group')[previous]?.querySelector('a')?.focus();
+    }
+    [[input,'input'],[decade,'change'],[kind,'change'],[scope,'change']].forEach(([control,eventName])=>control.addEventListener(eventName,()=> {limit=8;update();}));
+    more.addEventListener('click',()=> {limit+=8;update(true);});
+    $('#timeline-reset').addEventListener('click',()=> {input.value='';decade.value='';kind.value='';scope.value='';limit=8;update();});
+    update();
   }
 
   function claimList(claims) {
