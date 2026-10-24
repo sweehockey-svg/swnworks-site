@@ -1458,15 +1458,17 @@
 
   async function invokeAccessAdmin(body) {
     if(!client||!isAccessAdmin()) return {ok:false,error:"admin_required"};
-    const {data,error}=await client.functions.invoke("commentator-access-admin",{body});
-    if(error) return {ok:false,error:String(error.message||error)};
-    return data||{ok:false,error:"invalid_response"};
+    try{
+      const {data,error}=await client.functions.invoke("commentator-access-admin",{body});
+      if(error) return {ok:false,error:String(error.message||error)};
+      return data||{ok:false,error:"invalid_response"};
+    }catch{return {ok:false,error:"request_failed"};}
   }
 
   async function refreshAccessAdminList() {
     if(!isAccessAdmin()||state.accessAdminBusy) return false;
     state.accessAdminBusy=true;
-    state.accessAdminError="";
+    // A successful list refresh must not erase an earlier save failure.
     const result=await invokeAccessAdmin({action:"list"});
     state.accessAdminBusy=false;
     state.accessAdminLoaded=true;
@@ -1512,7 +1514,7 @@
         '<input id="accessName" maxlength="120" placeholder="Namn (valfritt)">' +
         '<select id="accessScope"><option value="team">Lagaccess</option><option value="league">Ligaaccess · '+esc(league.displayName)+'</option><option value="admin">Global admin</option></select>' +
         '<select id="accessTeam">'+teamOptions+'</select>' +
-        '<button type="submit">LÄGG TILL / UPPDATERA</button>' +
+        '<button type="submit" '+(state.accessAdminBusy?'disabled':'')+'>LÄGG TILL / UPPDATERA</button>' +
       '</form>' +
       '<div class="access-scope-note" id="accessScopeNote">Lagaccess gäller bara valt lag i '+esc(league.displayName)+'.</div>' +
       (state.accessAdminError?'<div class="account-message">'+esc(state.accessAdminError)+'</div>':"") +
@@ -1578,6 +1580,15 @@
       swahnworksAboutCard();
   }
 
+  function restoreAccessFormDraft(payload) {
+    const values={accessEmail:payload.email,accessName:payload.display_name,accessScope:payload.scope,accessTeam:payload.team_id};
+    for(const [id,value] of Object.entries(values)){
+      const field=document.getElementById(id);
+      if(field&&value!==null&&value!==undefined) field.value=value;
+    }
+    document.getElementById("accessScope")?.dispatchEvent(new Event("change"));
+  }
+
   function bindAccountUi() {
     const form=document.getElementById("accountForm");
     if(form){
@@ -1640,21 +1651,26 @@
         if(state.accessAdminBusy) return;
         const email=String(document.getElementById("accessEmail")?.value||"").trim();
         if(!email) return;
-        state.accessAdminBusy=true;
-        state.accessAdminError="";
-        renderDrawer("account");
         const scope=document.getElementById("accessScope")?.value||"team";
-        const result=await invokeAccessAdmin({
+        const payload={
           action:"upsert",
           email,
           display_name:String(document.getElementById("accessName")?.value||"").trim(),
           scope,
           league_key:scope==="admin"?null:league.accessKey,
           team_id:scope==="team"?document.getElementById("accessTeam")?.value:null
-        });
+        };
+        state.accessAdminBusy=true;
+        state.accessAdminError="";
+        renderDrawer("account");
+        restoreAccessFormDraft(payload);
+        const result=await invokeAccessAdmin(payload);
         state.accessAdminBusy=false;
         if(!result?.ok){
           state.accessAdminError="Kunde inte uppdatera användaren.";
+          renderDrawer("account");
+          restoreAccessFormDraft(payload);
+          return;
         }
         await refreshAccessAdminList();
         renderDrawer("account");
@@ -1664,6 +1680,7 @@
     drawerBody.querySelectorAll("[data-access-deactivate]").forEach((button)=>{
       button.addEventListener("click",async()=>{
         state.accessAdminBusy=true;
+        state.accessAdminError="";
         renderDrawer("account");
         const result=await invokeAccessAdmin({
           action:"deactivate",
@@ -1679,6 +1696,7 @@
     drawerBody.querySelectorAll("[data-access-reactivate]").forEach((button)=>{
       button.addEventListener("click",async()=>{
         state.accessAdminBusy=true;
+        state.accessAdminError="";
         renderDrawer("account");
         const scope=button.dataset.accessScope||"team";
         const result=await invokeAccessAdmin({
