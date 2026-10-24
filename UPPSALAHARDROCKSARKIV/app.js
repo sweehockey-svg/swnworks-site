@@ -940,8 +940,6 @@
   }
 
   function renderHome() {
-    const john = state.people.find(p => p.canonical_name === 'John Swahn');
-    const johnBands = john ? membershipsForPerson(john.id).map(m => bandsById().get(m.band_id)).filter(Boolean) : [];
     const archiveBands = uppsalaBands();
     const earlyBands = [...archiveBands].sort((a,b) => (a.formed_year || 9999) - (b.formed_year || 9999)).slice(0, 6);
     const recentReleases = [...state.releases].sort((a,b) => (a.release_year || 9999) - (b.release_year || 9999)).slice(0, 6);
@@ -979,18 +977,6 @@
           <div class="confidence-card"><strong class="verified">${counts.confirmed || 0}</strong><span>bekräftade uppgifter</span></div>
           <div class="confidence-card"><strong>${counts.probable || 0}</strong><span>troliga uppgifter</span></div>
           <div class="confidence-card"><strong>${state.claims.length}</strong><span>källkopplade uppgifter</span></div>
-        </div>
-      </section>
-
-      <section class="feature-story section home-feature">
-        <div class="feature-side"><span class="feature-index">01</span><span class="feature-label">FÖRSTA INGÅNGEN</span></div>
-        <div class="feature-main">
-          <p class="eyebrow">PERSON / JOHN SWAHN</p>
-          <h2>En tråd genom flera band.</h2>
-          <div class="feature-grid">
-            <div><p class="feature-lead">John Swahn är den första ingången till kartläggningen. Hans bandsida och personprofil blir en knutpunkt där äldre och senare grenar kan byggas ut.</p><a class="button button-dark" href="${john ? personHref(john) : '#/personer'}">Öppna John Swahns sida</a></div>
-            <div class="john-path">${johnBands.map(b => `<a class="john-path-item" href="${bandHref(b)}"><div class="john-path-year">${b.formed_year || '—'}</div><div><div class="john-path-band">${escapeHtml(b.canonical_name)}</div><div class="john-path-role">${escapeHtml((b.genres || []).join(' / '))}</div></div><div class="john-path-role">Öppna →</div></a>`).join('')}</div>
-          </div>
         </div>
       </section>
 
