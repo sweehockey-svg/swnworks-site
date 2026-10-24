@@ -1563,17 +1563,63 @@
       </section>`;
   }
 
+
+  function registryOptions(values) {
+    return values.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('');
+  }
+
+  function registryFooter() {
+    return '<div class="registry-footer"><p id="registry-status" role="status"></p><button id="registry-more" class="button button-dark" type="button">Visa fler</button></div>';
+  }
+
+  function bindRegistry(getRows, renderRows, listId, controls) {
+    const list = $('#'+listId), more = $('#registry-more');
+    let limit = 48;
+    function update(append = false) {
+      const rows = getRows(), shown = rows.slice(0,limit);
+      const previousCount = list.querySelectorAll('a').length;
+      list.innerHTML = shown.length ? renderRows(shown) : '<div class="empty-state">Inga träffar. Prova ett annat sökord eller rensa filtren.</div>';
+      $('#registry-count').textContent = rows.length;
+      $('#registry-status').textContent = `Visar ${shown.length} av ${rows.length} träffar`;
+      more.hidden = shown.length >= rows.length;
+      more.textContent = `Visa fler (${Math.min(48,rows.length-shown.length)})`;
+      if (append && more.hidden) {
+        const next = list.querySelectorAll('a')[previousCount];
+        if (next) next.focus();
+      }
+    }
+    controls.forEach(([element,event]) => element.addEventListener(event,()=> { limit=48; update(); }));
+    more.addEventListener('click',()=> { limit+=48; update(true); });
+    update();
+    return () => { limit=48; update(); };
+  }
+
   function renderPeopleIndex() {
     const ordered = [...state.people].sort((a,b) => a.canonical_name.localeCompare(b.canonical_name,'sv'));
+    const names = new Map(ordered.map(p => [p.id, membershipsForPerson(p.id).map(m => bandName(m.band_id)).join(' ')]));
+    const initial = p => p.canonical_name.trim().charAt(0).toLocaleUpperCase('sv');
+    const letters = [...new Set(ordered.map(initial))].sort((a,b)=>a.localeCompare(b,'sv'));
     app.innerHTML = `${pageHeader('MÄNNISKORNA BAKOM BANDEN','Personer','Följ en musiker genom olika band, perioder och dokumenterade utgåvekrediter.')}
-      <section class="section page-section first-section"><div class="index-toolbar"><label class="search-box"><span>Sök person</span><input id="people-search" type="search" placeholder="Namn eller band…"></label><div class="index-count"><strong id="people-count">${ordered.length}</strong> personer</div></div><div class="people-grid" id="people-grid">${ordered.map(personCard).join('')}</div></section>`;
+      <section class="section page-section first-section">
+        <div class="index-toolbar"><label class="search-box"><span>Sök person</span><input id="people-search" type="search" placeholder="Namn eller band…"></label><div class="index-count"><strong id="registry-count"></strong> personer</div></div>
+        <div class="registry-letters" role="group" aria-label="Första bokstaven i personens namn"><button type="button" data-letter="" aria-pressed="true">Alla</button>${letters.map(letter=>`<button type="button" data-letter="${escapeHtml(letter)}" aria-pressed="false">${escapeHtml(letter)}</button>`).join('')}</div>
+        <button class="band-filter-reset registry-reset" id="registry-reset" type="button">Rensa filter</button>
+        <div class="people-grid" id="people-grid"></div>${registryFooter()}
+      </section>`;
     const input = $('#people-search');
-    input.addEventListener('input', () => {
-      const term = input.value.trim().toLocaleLowerCase('sv');
-      const filtered = ordered.filter(p => `${p.canonical_name} ${membershipsForPerson(p.id).map(m => bandName(m.band_id)).join(' ')}`.toLocaleLowerCase('sv').includes(term));
-      $('#people-grid').innerHTML = filtered.map(personCard).join('');
-      $('#people-count').textContent = filtered.length;
-    });
+    let selected = '';
+    const update = bindRegistry(() => {
+      const term=input.value.trim().toLocaleLowerCase('sv');
+      return ordered.filter(p => (!selected || initial(p)===selected) && `${p.canonical_name} ${names.get(p.id)}`.toLocaleLowerCase('sv').includes(term));
+    }, rows => rows.map(personCard).join(''), 'people-grid', [[input,'input']]);
+    const buttons = [...document.querySelectorAll('[data-letter]')];
+    function selectLetter(letter) {
+      selected=letter;
+      buttons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.letter===letter)));
+      update();
+    }
+    buttons.forEach(button=>button.addEventListener('click',()=>selectLetter(button.dataset.letter)));
+    $('#registry-reset').addEventListener('click',()=> { input.value=''; selectLetter(''); });
   }
 
   // Graph edges represent documented membership in the same band, not
@@ -1652,18 +1698,37 @@
   }
 
   function renderReleasesIndex() {
-    const ordered = [...state.releases].sort((a,b) => (a.release_year || 9999) - (b.release_year || 9999) || a.title.localeCompare(b.title,'sv'));
+    const types = [...new Set(state.releases.map(r=>r.release_type).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'sv'));
+    const decades = [...new Set(state.releases.filter(r=>r.release_year).map(r=>Math.floor(r.release_year/10)*10))].sort((a,b)=>a-b);
     app.innerHTML = `${pageHeader('DEMOER / KASSETTER / UTGÅVOR','Utgåvor','Utgåvorna är ofta de bästa hållpunkterna för årtal, lineups och hur scenen faktiskt såg ut vid en viss tidpunkt.')}
-      <section class="section page-section first-section"><div class="index-toolbar"><label class="search-box"><span>Sök utgåva</span><input id="release-search" type="search" placeholder="Titel, band eller år…"></label><div class="index-count"><strong id="release-count">${ordered.length}</strong> utgåvor</div></div><div class="release-stack" id="release-stack">${ordered.map(releaseRow).join('')}</div></section>`;
-    const input = $('#release-search');
-    input.addEventListener('input', () => {
-      const term = input.value.trim().toLocaleLowerCase('sv');
-      const filtered = ordered.filter(r => `${r.title} ${releaseBand(r.id)?.canonical_name || ''} ${r.release_year || ''}`.toLocaleLowerCase('sv').includes(term));
-      $('#release-stack').innerHTML = filtered.map(releaseRow).join('');
-      $('#release-count').textContent = filtered.length;
-    });
+      <section class="section page-section first-section">
+        <div class="index-toolbar"><label class="search-box"><span>Sök utgåva</span><input id="release-search" type="search" placeholder="Titel, band eller år…"></label><div class="index-count"><strong id="registry-count"></strong> utgåvor</div></div>
+        <div class="band-filter-bar">
+          <label class="band-filter-field"><span>Utgåvetyp</span><select id="release-type"><option value="">Alla typer</option>${registryOptions(types)}</select></label>
+          <label class="band-filter-field"><span>Årtionde</span><select id="release-decade"><option value="">Alla årtionden</option>${decades.map(year=>`<option value="${year}">${year}-talet</option>`).join('')}<option value="unknown">Årtal saknas</option></select></label>
+          <label class="band-filter-field"><span>Sortera</span><select id="release-sort"><option value="oldest">Äldsta först</option><option value="newest">Nyaste först</option><option value="title">Titel A–Ö</option><option value="band">Band A–Ö</option></select></label>
+        </div>
+        <button class="band-filter-reset registry-reset" id="registry-reset" type="button">Rensa filter</button>
+        <div class="release-stack" id="release-stack"></div>${registryFooter()}
+      </section>`;
+    const input=$('#release-search'), type=$('#release-type'), decade=$('#release-decade'), sort=$('#release-sort');
+    const bandNames=new Map(state.releases.map(r=>[r.id,releaseBand(r.id)?.canonical_name || '']));
+    const update=bindRegistry(()=> {
+      const term=input.value.trim().toLocaleLowerCase('sv');
+      return state.releases.filter(r=>
+        `${r.title} ${bandNames.get(r.id)} ${r.release_year||''}`.toLocaleLowerCase('sv').includes(term) &&
+        (!type.value || r.release_type===type.value) &&
+        (!decade.value || (decade.value==='unknown' ? !r.release_year : r.release_year && Math.floor(r.release_year/10)*10===Number(decade.value)))
+      ).sort((a,b)=> {
+        if(sort.value==='title') return a.title.localeCompare(b.title,'sv');
+        if(sort.value==='band') return bandNames.get(a.id).localeCompare(bandNames.get(b.id),'sv') || a.title.localeCompare(b.title,'sv');
+        const yearA=a.release_year || (sort.value==='newest' ? -1 : 9999);
+        const yearB=b.release_year || (sort.value==='newest' ? -1 : 9999);
+        return (sort.value==='newest' ? yearB-yearA : yearA-yearB) || a.title.localeCompare(b.title,'sv');
+      });
+    },rows=>rows.map(releaseRow).join(''),'release-stack',[[input,'input'],[type,'change'],[decade,'change'],[sort,'change']]);
+    $('#registry-reset').addEventListener('click',()=> { input.value=''; type.value=''; decade.value=''; sort.value='oldest'; update(); });
   }
-
 
   // Public, read-only track metadata. Fetch only the release being viewed to
   // avoid downloading thousands of tracks in the archive snapshot.
@@ -1863,8 +1928,21 @@
 
   function renderSources() {
     const ordered = [...state.sources].sort((a,b) => (a.reliability === 'high' ? -1 : 1) - (b.reliability === 'high' ? -1 : 1) || a.title.localeCompare(b.title,'sv'));
+    const qualities = [...new Set(ordered.map(s=>s.reliability || 'unknown'))];
     app.innerHTML = `${pageHeader('KÄLLLÄGET ÄR EN DEL AV HISTORIEN','Källor','Arkivet skiljer mellan förstahandskällor, bandens egna historieskrivningar och specialistdatabaser.')}
-      <section class="section page-section first-section">${sourceList(ordered)}</section>`;
+      <section class="section page-section first-section">
+        <div class="index-toolbar"><label class="search-box"><span>Sök källa</span><input id="source-search" type="search" placeholder="Titel, utgivare eller webbadress…"></label><div class="index-count"><strong id="registry-count"></strong> källor</div></div>
+        <div class="band-filter-bar"><label class="band-filter-field"><span>Källbedömning</span><select id="source-quality"><option value="">Alla bedömningar</option>${qualities.map(q=>`<option value="${escapeHtml(q)}">${escapeHtml(sourceReliabilitySv(q))}</option>`).join('')}</select></label></div>
+        <button class="band-filter-reset registry-reset" id="registry-reset" type="button">Rensa filter</button>
+        <div id="source-results"></div>${registryFooter()}
+      </section>`;
+    const input=$('#source-search'), quality=$('#source-quality');
+    const update=bindRegistry(()=> {
+      const term=input.value.trim().toLocaleLowerCase('sv');
+      return ordered.filter(s=>(!quality.value || (s.reliability || 'unknown')===quality.value) &&
+        `${s.title} ${s.publisher||''} ${s.url||''}`.toLocaleLowerCase('sv').includes(term));
+    },sourceList,'source-results',[[input,'input'],[quality,'change']]);
+    $('#registry-reset').addEventListener('click',()=> { input.value=''; quality.value=''; update(); });
   }
 
   function renderNetwork() {
