@@ -1667,6 +1667,27 @@
 
   // Public, read-only track metadata. Fetch only the release being viewed to
   // avoid downloading thousands of tracks in the archive snapshot.
+  function groupTrackNotes(tracks) {
+    const groups = new Map();
+    tracks.forEach(track => {
+      const note = String(track.notes || '').trim();
+      if (note) groups.set(note, [...(groups.get(note) || []), track]);
+    });
+    return groups;
+  }
+
+  function sharedTrackNotes(groups, tracks) {
+    const shared = [...groups].filter(([,items]) => items.length > 1);
+    if (!shared.length) return '';
+    const multiDisc = new Set(tracks.map(track => track.disc_number || 1)).size > 1;
+    return '<details class="tracklist-shared-notes"><summary>Gemensamma anteckningar (' + shared.length + ')</summary>'
+      + shared.map(([note,items]) => {
+        const scope = items.length === tracks.length ? 'Alla spår' : 'Spår ' + items.map(track =>
+          (multiDisc ? (track.disc_number || 1) + ':' : '') + String(track.track_number).padStart(2,'0')).join(', ');
+        return '<div class="release-track-note"><strong>' + escapeHtml(scope) + '</strong><p>' + escapeHtml(note) + '</p></div>';
+      }).join('') + '</details>';
+  }
+
   async function renderReleaseTracklist(releaseId) {
     const holder = $('#release-tracklist');
     if (!holder || holder.dataset.releaseId !== String(releaseId)) return;
@@ -1704,6 +1725,7 @@
         if (!byTrack.has(credit.track_id)) byTrack.set(credit.track_id, []);
         byTrack.get(credit.track_id).push(credit);
       });
+      const noteGroups = groupTrackNotes(tracks);
       const formatDuration = seconds => {
         if (seconds === null || seconds === undefined || !Number.isFinite(Number(seconds))) return '';
         const total = Number(seconds);
@@ -1715,7 +1737,8 @@
           const name = credit.credited_as || person?.canonical_name || 'Okänd';
           return `${escapeHtml(name)} · ${escapeHtml(roleSv(credit.role || ''))}`;
         }).join(' · ');
-        const notes = track.notes ? `<span class="release-track-note">${escapeHtml(track.notes)}</span>` : '';
+        const note = String(track.notes || '').trim();
+        const notes = note && noteGroups.get(note).length === 1 ? `<span class="release-track-note">${escapeHtml(note)}</span>` : '';
         return `<li class="release-track">
           <span class="release-track-number">${String(track.track_number).padStart(2,'0')}</span>
           <span class="release-track-main"><strong>${escapeHtml(track.title)}</strong>
@@ -1725,7 +1748,7 @@
           </span>
           <span class="release-track-duration">${formatDuration(track.duration_seconds)}</span>
         </li>`;
-      }).join('')}</ol>`;
+      }).join('')}</ol>${sharedTrackNotes(noteGroups, tracks)}`;
     } catch (error) {
       console.warn('Låtlistan kunde inte hämtas', error);
       if (activeHolder()) {
