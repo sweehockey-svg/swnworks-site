@@ -1668,7 +1668,7 @@
       return current?.dataset.releaseId === String(releaseId) ? current : null;
     };
     try {
-      const query = `${cfg.supabaseUrl}/rest/v1/release_tracks?select=id,disc_number,track_number,title,duration_seconds,notes&release_id=eq.${encodeURIComponent(releaseId)}&order=disc_number.asc,track_number.asc`;
+      const query = `${cfg.supabaseUrl}/rest/v1/release_tracks?select=id,disc_number,track_number,title,duration_seconds,source_id,notes&release_id=eq.${encodeURIComponent(releaseId)}&order=disc_number.asc,track_number.asc`;
       const headers = {apikey: cfg.publishableKey, Accept: 'application/json'};
       const res = await fetch(query, {headers});
       if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1676,6 +1676,7 @@
       if (!Array.isArray(tracks)) throw new Error('Ogiltigt svar');
       if (!activeHolder()) return;
       if (!tracks.length) {
+        renderReleaseSources(releaseId, [], [], 'ready');
         activeHolder().innerHTML = '<div class="empty-state">Låtlistan kartläggs.</div>';
         return;
       }
@@ -1683,13 +1684,14 @@
       let credits = [];
       try {
         const ids = tracks.map(track => track.id).join(',');
-        const creditsUrl = `${cfg.supabaseUrl}/rest/v1/release_track_credits?select=track_id,person_id,role,credited_as,notes&track_id=in.(${ids})`;
+        const creditsUrl = `${cfg.supabaseUrl}/rest/v1/release_track_credits?select=track_id,person_id,role,credited_as,source_id,notes&track_id=in.(${ids})`;
         const creditRes = await fetch(creditsUrl, {headers});
         if (creditRes.ok) credits = await creditRes.json();
       } catch (error) {
         console.warn('Spårcredits kunde inte hämtas', error);
       }
       if (!activeHolder()) return;
+      renderReleaseSources(releaseId, tracks, Array.isArray(credits) ? credits : [], 'ready');
       const byTrack = new Map();
       (Array.isArray(credits) ? credits : []).forEach(credit => {
         if (!byTrack.has(credit.track_id)) byTrack.set(credit.track_id, []);
@@ -1719,8 +1721,44 @@
       }).join('')}</ol>`;
     } catch (error) {
       console.warn('Låtlistan kunde inte hämtas', error);
-      if (activeHolder()) activeHolder().innerHTML = '<div class="empty-state">Låtlistan kunde inte hämtas just nu.</div>';
+      if (activeHolder()) {
+        activeHolder().innerHTML = '<div class="empty-state">Låtlistan kunde inte hämtas just nu.</div>';
+        renderReleaseSources(releaseId, [], [], 'error');
+      }
     }
+  }
+
+  function renderReleaseSources(releaseId, tracks = [], trackCredits = [], status = 'loading') {
+    const holder = $('#release-sources');
+    if (!holder || holder.dataset.releaseId !== String(releaseId)) return;
+    const claims = claimsForEntity('release', releaseId);
+    const known = new Map(state.sources.map(source => [source.id, source]));
+    const claimSources = sourcesForClaims(claims);
+    const trackSourceIds = new Set(tracks.map(track => track.source_id).filter(Boolean));
+    const creditSourceIds = new Set(trackCredits.map(credit => credit.source_id).filter(Boolean));
+    const sources = new Map(claimSources.map(source => [source.id, source]));
+    [...trackSourceIds, ...creditSourceIds].forEach(id => {
+      if (known.has(id)) sources.set(id, known.get(id));
+    });
+    const sourcedTracks = tracks.filter(track => known.has(track.source_id)).length;
+    const sourcedCredits = trackCredits.filter(credit => known.has(credit.source_id)).length;
+    const summary = [];
+    if (sourcedTracks) summary.push(sourcedTracks + ' av ' + tracks.length + ' spår har registrerad källa');
+    if (sourcedCredits) summary.push(sourcedCredits + ' av ' + trackCredits.length + ' spårkrediter har registrerad källa');
+    const note = status === 'loading' ? 'Källor för låtlistan hämtas…'
+      : status === 'error' ? 'Källor för låtlistan kunde inte kontrolleras just nu.'
+      : summary.length ? summary.join('. ') + '. Källhänvisningarna gäller dessa uppgifter, inte automatiskt hela utgåvan.'
+      : 'Inga källkopplingar är registrerade för låtlistans spår. Det betyder inte att källor saknas utanför arkivet.';
+    const context = $('#release-source-status');
+    if (context) context.innerHTML = (claims.length ? claimList(claims) : '')
+      + '<p class="empty-state">' + escapeHtml(note) + '</p>';
+    holder.innerHTML = sources.size ? [...sources.values()].map(source => {
+      const scope = [];
+      if (claimSources.some(item => item.id === source.id)) scope.push('Källkopplade faktauppgifter');
+      if (trackSourceIds.has(source.id)) scope.push('Låtlista: ' + tracks.filter(track => track.source_id === source.id).map(track => track.title).join(', '));
+      if (creditSourceIds.has(source.id)) scope.push('Spårkrediter');
+      return sourceList([source]) + '<p class="release-track-note">' + escapeHtml(scope.join(' · ')) + '</p>';
+    }).join('') : '<div class="empty-state">' + (status === 'loading' ? 'Hämtar källhänvisningar…' : 'Inga källhänvisningar att visa för de inlästa uppgifterna.') + '</div>';
   }
 
   function renderReleaseDetail(r) {
@@ -1739,10 +1777,11 @@
           ${youtubeSection(band, r.id)}
           <section class="content-section"><div class="content-head"><span>02</span><h2>Krediter</h2></div><div class="credit-list">${credits.length ? credits.map(c => { const p=peopleById().get(c.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(c.credited_as || p.canonical_name)}</strong><span>${escapeHtml(roleSv(c.role || ''))}</span><em>${escapeHtml(p.canonical_name)}</em></a>`; }).join('') : '<div class="empty-state">Krediter kartläggs.</div>'}</div></section>
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Omslag & originalmaterial</h2></div>${archiveGallery(gallery)}</section>` : ''}
-          <section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Källäge</h2></div>${claimList(claims)}</section>
-          ${sources.length ? `<section class="content-section"><div class="content-head"><span>${gallery.length ? '05':'04'}</span><h2>Källor</h2></div>${sourceList(sources)}</section>` : ''}
+          <section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Källäge</h2></div><div id="release-source-status"></div></section>
+          <section class="content-section"><div class="content-head"><span>${gallery.length ? '05':'04'}</span><h2>Källor</h2></div><div id="release-sources" data-release-id="${escapeHtml(r.id)}"></div></section>
         </div>
       </section>`;
+    renderReleaseSources(r.id);
     renderReleaseTracklist(r.id);
   }
 
