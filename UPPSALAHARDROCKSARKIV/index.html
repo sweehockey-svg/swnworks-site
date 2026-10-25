@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2.97">
+  <link rel="stylesheet" href="styles.css?v=2.99">
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div>
@@ -24,7 +24,12 @@
       </span>
     </a>
 
-    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Meny</button>
+    <div class="header-actions">
+      <a class="header-youtube" href="https://www.youtube.com/@UPPSALAHARDROCKSARKIV" target="_blank" rel="noopener noreferrer" aria-label="Uppsala Hårdrocksarkiv på YouTube (öppnas i ny flik)" title="Besök vår YouTube-kanal">
+        <svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true" focusable="false"><rect x="1.5" y="4.5" width="21" height="15" rx="4" fill="currentColor"/><path d="m10 8.2 6 3.8-6 3.8z" fill="#fff"/></svg>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Meny</button>
+    </div>
     <nav class="site-nav" id="site-nav" aria-label="Huvudmeny">
       <a data-route="/band" href="#/band">Band</a>
       <a data-route="/personer" href="#/personer">Personer</a>
@@ -61,8 +66,12 @@
       <strong>UPPSALA HÅRDROCKSARKIV</strong>
       <p>Ett pågående kartläggningsprojekt. Fakta kompletteras och korrigeras när bättre källor hittas.</p>
       <a href="#/kontakt">Tipsa arkivet / Kontakt</a>
+      <div class="footer-socials" aria-label="Följ Uppsala Hårdrocksarkiv">
+        <a href="https://www.youtube.com/@UPPSALAHARDROCKSARKIV" target="_blank" rel="noopener noreferrer" aria-label="YouTube (öppnas i ny flik)">YouTube ↗</a>
+        <a href="https://www.instagram.com/uppsalahardrocksarkiv/" target="_blank" rel="noopener noreferrer" aria-label="Instagram (öppnas i ny flik)">Instagram ↗</a>
+      </div>
     </div>
-    <div class="footer-status"><span class="signal-dot"></span><span id="sync-label">Hämtar arkivet…</span><span class="site-version">WEBB V2.97</span></div>
+    <div class="footer-status"><span class="signal-dot"></span><span id="sync-label">Hämtar arkivet…</span><span class="site-version">WEBB V2.99</span></div>
   </footer>
 
   <script src="config.js?v=2.30"></script>
@@ -85,6 +94,6 @@
   <script src="youtube-links-almost-human.js?v=3"></script>
   <script src="youtube-links-develop.js?v=1"></script>
   <script src="youtube-links-the-unkinds.js?v=1"></script>
-  <script src="app.js?v=2.98"></script>
+  <script src="app.js?v=2.99"></script>
 </body>
 </html>
