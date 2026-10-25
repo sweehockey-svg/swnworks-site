@@ -11389,5 +11389,203 @@ window.ARCHIVE_YOUTUBE = [
     "kind": "live",
     "checked": "2026-10-24",
     "sourceNote": "Live film recorded Kulturhuset Femman, Uppsala, on 2019-06-14. Distinct from the original 2018 studio recording; do not conflate upload with album master."
-  }
+  },
+{
+  "band": "stained-red",
+  "release": "7911d1d9-8848-47c7-a0de-6b6ae4ddd922",
+  "title": "Stained Red II: The Sequel (complete demo)",
+  "id": "ush5j29CsxU",
+  "views": null,
+  "channel": "Lost and Found Tapes",
+  "kind": "album",
+  "checked": "2026-10-26",
+  "sourceNote": "1998 demo, entire recording"
+},
+{
+  "band": "stained-red",
+  "release": "890ada6e-90a6-41f8-8493-2e74d7e90b8f",
+  "title": "Stained Red II: The Sequel (complete EP, alternate uploader)",
+  "id": "6DBohP7ICuc",
+  "views": null,
+  "channel": "fear7820",
+  "kind": "album",
+  "checked": "2026-10-26",
+  "sourceNote": "1999 five-song CD version; confirm same performances"
+},
+{
+  "band": "stained-red",
+  "release": "d5e8e514-e0be-4755-a287-7c7883d779e8",
+  "title": "Tredje demon (complete EP)",
+  "id": "KU1g29vR-KE",
+  "views": null,
+  "channel": "Lost and Found Tapes",
+  "kind": "album",
+  "checked": "2026-10-26",
+  "sourceNote": "Full 1999 demo"
+},
+{
+  "band": "stained-red",
+  "release": "d5e8e514-e0be-4755-a287-7c7883d779e8",
+  "title": "Khey Nyne",
+  "id": "L0kfjhAG-6k",
+  "views": null,
+  "channel": "UnderNu",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "1999 track 1"
+},
+{
+  "band": "stained-red",
+  "release": "d5e8e514-e0be-4755-a287-7c7883d779e8",
+  "title": "Trick",
+  "id": "-uGOHkq-rmA",
+  "views": null,
+  "channel": "UnderNu",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "1999 track 2"
+},
+{
+  "band": "stained-red",
+  "release": "d5e8e514-e0be-4755-a287-7c7883d779e8",
+  "title": "Trippin' Zero (uploaded as Tripping Zero)",
+  "id": "hZkOB1b2Ynk",
+  "views": null,
+  "channel": "UnderNu",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "1999 track 3; video title spells Tripping"
+},
+{
+  "band": "stained-red",
+  "release": "d5e8e514-e0be-4755-a287-7c7883d779e8",
+  "title": "Lamb",
+  "id": "vIJ1iTZbhJk",
+  "views": null,
+  "channel": "UnderNu",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "1999 track 4"
+},
+{
+  "band": "stained-red",
+  "release": "d5e8e514-e0be-4755-a287-7c7883d779e8",
+  "title": "Sleepy Head",
+  "id": "ZYZaCM_xH7c",
+  "views": null,
+  "channel": "UnderNu",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "1999 track 5"
+},
+{
+  "band": "stained-red",
+  "release": "d5e8e514-e0be-4755-a287-7c7883d779e8",
+  "title": "P. (video labeled 06; album database track 7)",
+  "id": "gHV5XaebJsY",
+  "views": null,
+  "channel": "UnderNu",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "Song P., uploader labels 06 while Discogs tracklist specifies 07. Match by title, not uploader order."
+},
+{
+  "band": "stained-red",
+  "release": "bebd1d4b-b19d-43d2-b1c9-c23f888ab1e4",
+  "title": "Four The Sake Of Riddling (complete EP)",
+  "id": "oSsZW3A1rQg",
+  "views": null,
+  "channel": "Lost and Found Tapes",
+  "kind": "album",
+  "checked": "2026-10-26",
+  "sourceNote": "Full EP; uploader calls it 1999, database issue documented 2000"
+},
+{
+  "band": "stained-red",
+  "release": "f8ae11c6-1f93-4012-828d-5b290b842843",
+  "title": "Mean Folks (complete EP)",
+  "id": "64QjzdCAi0U",
+  "views": null,
+  "channel": "Lost and Found Tapes",
+  "kind": "album",
+  "checked": "2026-10-26",
+  "sourceNote": "Full 2000 EP"
+},
+{
+  "band": "stained-red",
+  "release": "f8ae11c6-1f93-4012-828d-5b290b842843",
+  "title": "Clean Strokes",
+  "id": "vDN-rYZ5nZc",
+  "views": null,
+  "channel": "Ayumu Belfegor",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "Stand-alone original song upload"
+},
+{
+  "band": "stained-red",
+  "release": "f8ae11c6-1f93-4012-828d-5b290b842843",
+  "title": "Clean Strokes (alternate upload)",
+  "id": "8pjemwLMzjg",
+  "views": null,
+  "channel": "Underground Music Central",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "2000 stand-alone Stained Red song"
+},
+{
+  "band": "stained-red",
+  "release": "f8ae11c6-1f93-4012-828d-5b290b842843",
+  "title": "Floating",
+  "id": "Pa-D7-WgaF8",
+  "views": null,
+  "channel": "Underground Music Central",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "2000 EP track 4"
+},
+{
+  "band": "stained-red",
+  "release": "3aea6c4d-6521-497d-a309-71de87d8c014",
+  "title": "New (complete 2001 EP)",
+  "id": "G4DuN6xNZtE",
+  "views": null,
+  "channel": "Lost and Found Tapes",
+  "kind": "album",
+  "checked": "2026-10-26",
+  "sourceNote": "Full CD edition Blow, Icon, Kid B, The Way I See It, A Lie-to-be"
+},
+{
+  "band": "stained-red",
+  "release": "7bcbbc0a-0633-4595-b15d-9ba52937f79a",
+  "title": "It Won't Stop Bleeding (official video, upscaled)",
+  "id": "D8g9rlUGouE",
+  "views": null,
+  "channel": "NINE ART",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "2004 This City song, official music video reupload upscaled; appeared in video game The Darkness"
+},
+{
+  "band": "stained-red",
+  "release": "7bcbbc0a-0633-4595-b15d-9ba52937f79a",
+  "title": "It Won't Stop Bleeding (original music video upload)",
+  "id": "P7zDOFPBO-E",
+  "views": null,
+  "channel": "Psiakupia",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "Original Stained Red music video track from 2004 EP"
+},
+{
+  "band": "stained-red",
+  "release": "7bcbbc0a-0633-4595-b15d-9ba52937f79a",
+  "title": "It Won't Stop Bleeding (alternate upload)",
+  "id": "6mTzW_2LQYY",
+  "views": null,
+  "channel": "slapshock shp",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "Alternate upload of original music video"
+}
 ];
