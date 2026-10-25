@@ -607,7 +607,25 @@
     const bandSlug = b ? slugify(b.canonical_name) : '';
     const titleSlug = slugify(r.title);
     const yearKey = `${bandSlug}|${titleSlug}|${r.release_year || ''}`;
-    return RELEASE_GALLERY[yearKey] || RELEASE_GALLERY[`${bandSlug}|${titleSlug}`] || [];
+    const curated = RELEASE_GALLERY[yearKey] || RELEASE_GALLERY[`${bandSlug}|${titleSlug}`] || [];
+    // Also show scans of cassette inserts, credits, labels and other archival material
+    // that have been linked to a release in Supabase.
+    const linked = state.mediaLinks
+      .filter(link => link.entity_type === 'release' && link.entity_id === r.id)
+      .map(link => ({ link, item: state.mediaItems.find(item => item.id === link.media_id) }))
+      .filter(({item}) => item && typeof item.original_url === 'string' && /^https?:\/\//i.test(item.original_url));
+    const scans = linked.filter(({item}) => item.media_type === 'scan');
+    const originals = scans.length ? linked.filter(({item}) => item.media_type === 'cover_art') : [];
+    const sourceImages = [...originals, ...scans].map(({item}) => {
+      const source = state.sources.find(source => source.id === item.source_id);
+      return [item.original_url, item.title || r.title, source?.url || '', source?.title || ''];
+    });
+    const seen = new Set();
+    return [...curated, ...sourceImages].filter(item => {
+      if (!item?.[0] || seen.has(item[0])) return false;
+      seen.add(item[0]);
+      return true;
+    });
   }
 
   function externalMediaMeta(src='') {
