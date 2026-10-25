@@ -11587,5 +11587,16 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "track",
   "checked": "2026-10-26",
   "sourceNote": "Alternate upload of original music video"
+},
+{
+  "band": "stained-red",
+  "release": "7bcbbc0a-0633-4595-b15d-9ba52937f79a",
+  "title": "This City (complete EP)",
+  "id": "rS9nXPi1r1E",
+  "views": null,
+  "channel": "Lost and Found Tapes",
+  "kind": "album",
+  "checked": "2026-10-26",
+  "sourceNote": "Confirmed via live YouTube playlist: Stained Red – This City EP 2004 [Full Album], 19:04, six track timestamps and guest singers Lawrence Mackrory and Ronnie Nyman."
 }
 ];
