@@ -1222,7 +1222,7 @@
       + '<aside class="archive-channel-banner" aria-label="Uppsala Hårdrocksarkiv på YouTube">'
       + '<div class="archive-channel-copy"><span class="section-kicker">VÅR EGEN YOUTUBE-KANAL</span>'
       + '<h2>Gamla demos. Ny chans att höras.</h2>'
-      + '<p>Lyssna på bevarade demolåtar, rariteter och historiska inspelningar från Uppsalas hårdrocksscen. Kanalen växer i takt med arkivet.</p></div>'
+      + '<p>Lyssna på bevarade demolåtar, rariteter och historiska inspelningar från Uppsalas hårdrocksscen. Kanalen växer i takt med arkivet. Har du gamla demos, liveinspelningar eller annat material? Var gärna med och bidra! <a href="#/kontakt">Tipsa arkivet ↗</a></p></div>'
       + '<div class="archive-channel-actions"><a class="archive-channel-visit" href="https://www.youtube.com/@UPPSALAHARDROCKSARKIV" target="_blank" rel="noopener noreferrer">▶ Besök YouTube-kanalen ↗</a>'
       + '<a class="archive-channel-subscribe" href="https://www.youtube.com/@UPPSALAHARDROCKSARKIV?sub_confirmation=1" target="_blank" rel="noopener noreferrer">Prenumerera på kanalen ↗</a></div>'
       + '</aside>'
