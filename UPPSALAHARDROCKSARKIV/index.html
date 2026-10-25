@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2.94">
+  <link rel="stylesheet" href="styles.css?v=2.97">
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div>
@@ -26,16 +26,26 @@
 
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Meny</button>
     <nav class="site-nav" id="site-nav" aria-label="Huvudmeny">
-      <a data-route="/" href="#/">Start</a>
-      <a data-route="/tidslinje" href="#/tidslinje">Tidslinje</a>
-      <a data-route="/sok" href="#/sok">Sök</a>
       <a data-route="/band" href="#/band">Band</a>
       <a data-route="/personer" href="#/personer">Personer</a>
       <a data-route="/utgavor" href="#/utgavor">Utgåvor</a>
-      <a data-route="/videor" href="#/videor">Videor</a>
-      <a data-route="/natverket" href="#/natverket">Nätverket</a>
-      <a data-route="/kallor" href="#/kallor">Källor</a>
-      <a data-route="/kontakt" href="#/kontakt">Kontakt</a>
+      <details class="nav-group">
+        <summary>Utforska</summary>
+        <div class="nav-submenu">
+          <a data-route="/tidslinje" href="#/tidslinje">Tidslinjen</a>
+          <a data-route="/natverket" href="#/natverket">Nätverket</a>
+          <a data-route="/videor" href="#/videor">Videor</a>
+        </div>
+      </details>
+      <details class="nav-group">
+        <summary>Om arkivet</summary>
+        <div class="nav-submenu">
+          <a data-route="/om" href="#/om">Bakgrund</a>
+          <a data-route="/kallor" href="#/kallor">Källor</a>
+          <a data-route="/kontakt" href="#/kontakt">Kontakt</a>
+        </div>
+      </details>
+      <a class="nav-search" data-route="/sok" href="#/sok"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>Sök</span></a>
     </nav>
   </header>
 
@@ -52,7 +62,7 @@
       <p>Ett pågående kartläggningsprojekt. Fakta kompletteras och korrigeras när bättre källor hittas.</p>
       <a href="#/kontakt">Tipsa arkivet / Kontakt</a>
     </div>
-    <div class="footer-status"><span class="signal-dot"></span><span id="sync-label">Hämtar arkivet…</span><span class="site-version">WEBB V2.95</span></div>
+    <div class="footer-status"><span class="signal-dot"></span><span id="sync-label">Hämtar arkivet…</span><span class="site-version">WEBB V2.97</span></div>
   </footer>
 
   <script src="config.js?v=2.30"></script>
@@ -73,6 +83,6 @@
   <script src="spotify-links-ae.js?v=1"></script>
   <script src="spotify-links-oe.js?v=1"></script>
   <script src="youtube-links-almost-human.js?v=3"></script>
-  <script src="app.js?v=2.96"></script>
+  <script src="app.js?v=2.97"></script>
 </body>
 </html>

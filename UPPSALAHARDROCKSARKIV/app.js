@@ -2344,17 +2344,59 @@
     app.innerHTML = `${pageHeader('404','Sidan hittades inte','Länken pekar inte på någon registrerad sida i arkivet.')}<section class="section first-section"><a class="button button-primary" href="#/">Till startsidan</a></section>`;
   }
 
+  function renderAbout() {
+    app.innerHTML = `${pageHeader('OM UPPSALA HÅRDROCKSARKIV','Om arkivet','Ett pågående kartläggningsprojekt om Uppsalas hårdrock och metal – banden, människorna, utgåvorna och kopplingarna mellan dem.')}
+      <section class="section page-section first-section about-archive">
+        <h2>En scen med många ingångar</h2>
+        <p>Arkivet samlar bandhistorik, medlemskap, utgåvor och dokumenterade uppgifter om Uppsalas musikscen. Du kan följa ett band, en person eller en utgåva och upptäcka kopplingarna vidare.</p>
+        <h2>Så läser du arkivet</h2>
+        <p>Uppgifter kompletteras och korrigeras när bättre källor hittas. Bekräftade, troliga och osäkra uppgifter skiljs åt där de är bedömda. Ett medlemskap i samma band betyder inte automatiskt att två personer spelade där samtidigt.</p>
+        <p>Band som klassas som Uppsala-band skiljs från andra band som finns med för att visa personkopplingar och sammanhang. En adress i Uppsala län räcker inte i sig för att ett band ska räknas till Uppsalas scen.</p>
+        <div class="hero-actions"><a class="button button-ghost" href="#/kallor">Se arkivets källor</a><a class="button button-primary" href="#/kontakt">Tipsa eller rätta en uppgift</a></div>
+      </section>`;
+  }
+
+  function closeNavGroups() {
+    $$('#site-nav .nav-group').forEach(group => { group.open = false; });
+  }
+
+  function bindNavigation() {
+    const nav = $('#site-nav'), toggle = $('.nav-toggle');
+    const close = () => { nav.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); closeNavGroups(); };
+    toggle.addEventListener('click', () => {
+      const open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded',String(open));
+      if (!open) closeNavGroups();
+    });
+    const groups = $$('#site-nav .nav-group');
+    groups.forEach(group => group.addEventListener('toggle', () => {
+      if (group.open) groups.forEach(other => { if (other !== group) other.open = false; });
+    }));
+    nav.addEventListener('click', event => { if (event.target.closest('a')) close(); });
+    document.addEventListener('click', event => { if (!event.target.closest('.site-header')) close(); });
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      const openGroup = groups.find(group => group.open);
+      if (openGroup) { openGroup.open = false; openGroup.querySelector('summary').focus(); }
+      else if (nav.classList.contains('open')) { close(); toggle.focus(); }
+    });
+  }
+
   function updateNav(path) {
+    path = path.split('?')[0];
     $$('#site-nav a').forEach(a => {
       const r=a.dataset.route;
       const active = r === '/' ? path === '/' : path === r || path.startsWith(`${r}/`) || (r === '/band' && path.startsWith('/band/')) || (r === '/personer' && path.startsWith('/person/')) || (r === '/utgavor' && path.startsWith('/utgava/'));
       a.classList.toggle('active', active);
+      if (active) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
     });
+    $$('#site-nav .nav-group').forEach(group => group.classList.toggle('active', Boolean(group.querySelector('a.active'))));
   }
 
   function renderRoute() {
     const path = routePath();
     updateNav(path);
+    closeNavGroups();
     $('#site-nav')?.classList.remove('open');
     $('.nav-toggle')?.setAttribute('aria-expanded','false');
     const parts = path.split('/').filter(Boolean);
@@ -2370,6 +2412,7 @@
     else if (path === '/tidslinje') renderTimeline();
     else if (path === '/natverket') renderNetwork();
     else if (path === '/kallor') renderSources();
+    else if (path === '/om') renderAbout();
     else if (path === '/kontakt' || (parts[0] === 'kontakt' && parts[1])) renderContact(parts[1] ? findBand(decodeURIComponent(parts[1])) : null);
     else renderNotFound();
     bindYoutubePreviews();
@@ -2400,9 +2443,7 @@
   document.addEventListener('error', e => handleArchiveImageError(e.target), true);
 
   window.addEventListener('hashchange', renderRoute);
-  $('.nav-toggle').addEventListener('click', e => {
-    const nav=$('#site-nav'); nav.classList.toggle('open'); e.currentTarget.setAttribute('aria-expanded',nav.classList.contains('open'));
-  });
+  bindNavigation();
   if (!location.hash) history.replaceState(null,'','#/');
   if (routePath() === '/kontakt') renderRoute();
   load();
