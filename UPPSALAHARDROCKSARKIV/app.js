@@ -1219,6 +1219,13 @@
     app.innerHTML = pageHeader('MUSIK / FILM / ARKIV','Videor','Musik, fullängdare, liveupptagningar och sällsynta inspelningar från band i och kring Uppsalas hårdrocksscen.',
       '<span>' + videos.length.toLocaleString('sv-SE') + ' unika klipp</span><span>' + bandTotal + ' band</span>')
       + '<section class="section first-section video-page">'
+      + '<aside class="archive-channel-banner" aria-label="Uppsala Hårdrocksarkiv på YouTube">'
+      + '<div class="archive-channel-copy"><span class="section-kicker">VÅR EGEN YOUTUBE-KANAL</span>'
+      + '<h2>Gamla demos. Ny chans att höras.</h2>'
+      + '<p>Lyssna på bevarade demolåtar, rariteter och historiska inspelningar från Uppsalas hårdrocksscen. Kanalen växer i takt med arkivet.</p></div>'
+      + '<div class="archive-channel-actions"><a class="archive-channel-visit" href="https://www.youtube.com/@UPPSALAHARDROCKSARKIV" target="_blank" rel="noopener noreferrer">▶ Besök YouTube-kanalen ↗</a>'
+      + '<a class="archive-channel-subscribe" href="https://www.youtube.com/@UPPSALAHARDROCKSARKIV?sub_confirmation=1" target="_blank" rel="noopener noreferrer">Prenumerera på kanalen ↗</a></div>'
+      + '</aside>'
       + '<div class="video-roulette" id="video-roulette">'
       + '<div class="video-roulette-top"><div><span class="section-kicker">HÅRDROCKSROULETTE / TIDSMASKINEN</span><h2>Slumpa ett fynd.</h2>'
       + '<p>Välj ett årtionde nedan, tryck på knappen och se var i musikhistorien du hamnar. Årtal avser utgåvan, inte videons uppladdning.</p></div>'
