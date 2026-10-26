@@ -1192,7 +1192,7 @@
       if (!/^[A-Za-z0-9_-]{11}$/.test(item?.id || '')) return;
       const release = releases.get(item.release) || null;
       const band = bands.get(item.band) || bandIds.get(releaseBandIds.get(item.release)) || null;
-      const yearValue = Number(release?.release_year);
+      const yearValue = Number(release?.release_year ?? item.year);
       const year = Number.isInteger(yearValue) && yearValue >= 1950 && yearValue <= 2100 ? yearValue : null;
       const kind = ['track','album','live','medley','interview'].includes(item.kind) ? item.kind : 'other';
       const record = {
@@ -1229,10 +1229,10 @@
       + '<section class="archive-playlist" aria-labelledby="archive-playlist-heading">'
       + '<div class="archive-playlist-header"><div><span class="section-kicker">ARKIVETS SPELLISTOR / STAINED RED</span>'
       + '<h2 id="archive-playlist-heading">Stained Red – Complete Archive</h2>'
-      + '<p>Åtta videor från 1998–2006. Hela skivor och musikvideo, samlade från olika YouTube-kanaler. Spellistan uppdateras när vi hittar fler inspelningar.</p></div>'
+      + '<p>Skivor, rariteter och liveklipp från 1998–2006, samlade från olika YouTube-kanaler. Spellistan uppdateras när vi hittar fler inspelningar.</p></div>'
       + '<a class="archive-playlist-link" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/playlist?list=PLIeK5vAGnSxw">Öppna spellistan på YouTube ↗</a></div>'
       + '<div class="archive-playlist-player" id="archive-playlist-player">'
-      + '<button class="archive-playlist-load" type="button" id="archive-playlist-load" aria-label="Spela upp Stained Reds YouTube-spellista med åtta videor">▶ SPELA SPELLISTAN <span>8 VIDEOR</span></button></div>'
+      + '<button class="archive-playlist-load" type="button" id="archive-playlist-load" aria-label="Spela upp Stained Reds YouTube-spellista">▶ SPELA SPELLISTAN <span>STAINED RED</span></button></div>'
       + '<p class="archive-playlist-privacy">Spelaren hämtas från YouTube först när du klickar på Spela. Videorna ligger kvar hos sina ursprungliga uppladdare.</p>'
       + '</section>'
       + '<div class="video-roulette" id="video-roulette">'
