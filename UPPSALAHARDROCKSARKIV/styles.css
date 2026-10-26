@@ -798,7 +798,7 @@ body.network-body-fullscreen { overflow:hidden; }
 .band-filter-field select:hover { border-color: rgba(213,255,63,.55); }
 .band-filter-field select:focus-visible,
 .band-filter-reset:focus-visible,
-.band-photo-toggle input:focus-visible { outline: 2px solid var(--acid); outline-offset: 3px; }
+.band-demo-toggle input:focus-visible { outline: 2px solid var(--acid); outline-offset: 3px; }
 .band-filter-actions {
   min-height: 41px;
   margin-bottom: 22px;
@@ -808,7 +808,7 @@ body.network-body-fullscreen { overflow:hidden; }
   justify-content: space-between;
   gap: 12px 24px;
 }
-.band-photo-toggle {
+.band-demo-toggle {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -819,8 +819,8 @@ body.network-body-fullscreen { overflow:hidden; }
   text-transform: uppercase;
   letter-spacing: .08em;
 }
-.band-photo-toggle:hover { color: var(--ink); }
-.band-photo-toggle input { width: 16px; height: 16px; margin: 0; accent-color: var(--acid); cursor: pointer; }
+.band-demo-toggle:hover { color: var(--ink); }
+.band-demo-toggle input { width: 16px; height: 16px; margin: 0; accent-color: var(--acid); cursor: pointer; }
 .band-filter-reset {
   padding: 5px 0 5px 8px;
   color: var(--acid);
