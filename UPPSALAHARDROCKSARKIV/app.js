@@ -1226,6 +1226,15 @@
       + '<div class="archive-channel-actions"><a class="archive-channel-visit" href="https://www.youtube.com/@UPPSALAHARDROCKSARKIV" target="_blank" rel="noopener noreferrer">▶ Besök YouTube-kanalen ↗</a>'
       + '<a class="archive-channel-subscribe" href="https://www.youtube.com/@UPPSALAHARDROCKSARKIV?sub_confirmation=1" target="_blank" rel="noopener noreferrer">Prenumerera på kanalen ↗</a></div>'
       + '</aside>'
+      + '<section class="archive-playlist" aria-labelledby="archive-playlist-heading">'
+      + '<div class="archive-playlist-header"><div><span class="section-kicker">ARKIVETS SPELLISTOR / STAINED RED</span>'
+      + '<h2 id="archive-playlist-heading">Stained Red – Complete Archive</h2>'
+      + '<p>Åtta videor från 1998–2006. Hela skivor och musikvideo, samlade från olika YouTube-kanaler. Spellistan uppdateras när vi hittar fler inspelningar.</p></div>'
+      + '<a class="archive-playlist-link" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/playlist?list=PLIeK5vAGnSxw">Öppna spellistan på YouTube ↗</a></div>'
+      + '<div class="archive-playlist-player" id="archive-playlist-player">'
+      + '<button class="archive-playlist-load" type="button" id="archive-playlist-load" aria-label="Spela upp Stained Reds YouTube-spellista med åtta videor">▶ SPELA SPELLISTAN <span>8 VIDEOR</span></button></div>'
+      + '<p class="archive-playlist-privacy">Spelaren hämtas från YouTube först när du klickar på Spela. Videorna ligger kvar hos sina ursprungliga uppladdare.</p>'
+      + '</section>'
       + '<div class="video-roulette" id="video-roulette">'
       + '<div class="video-roulette-top"><div><span class="section-kicker">HÅRDROCKSROULETTE / TIDSMASKINEN</span><h2>Slumpa ett fynd.</h2>'
       + '<p>Välj ett årtionde nedan, tryck på knappen och se var i musikhistorien du hamnar. Årtal avser utgåvan, inte videons uppladdning.</p></div>'
@@ -1253,6 +1262,18 @@
       + '<div class="video-more-wrap"><button class="button button-ghost" type="button" id="video-more">Visa fler videor ↓</button></div>'
       + '<p class="video-archive-note">Videorna ligger kvar på YouTube och laddas här först när du väljer att spela upp dem. Saknas något? <a href="#/kontakt">Tipsa arkivet.</a></p>'
       + '</section>';
+    const curatedPlaylistButton = $('#archive-playlist-load');
+    if (curatedPlaylistButton) curatedPlaylistButton.addEventListener('click', () => {
+      const player = $('#archive-playlist-player');
+      if (!player) return;
+      const frame = document.createElement('iframe');
+      frame.title = 'Stained Red – Complete Archive (1998–2006), YouTube-spellista';
+      frame.src = 'https://www.youtube-nocookie.com/embed/videoseries?list=PLIeK5vAGnSxw&autoplay=1';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.allowFullscreen = true;
+      frame.loading = 'lazy';
+      player.replaceChildren(frame);
+    });
     const search = $('#video-search'), type = $('#video-type'), decade = $('#video-decade'), order = $('#video-order');
     const grid = $('#video-grid'), spotlight = $('#video-spotlight'), roulette = $('#video-random'), more = $('#video-more');
     const marathonStart = $('#video-marathon-start'), marathonArea = $('#video-marathon');
