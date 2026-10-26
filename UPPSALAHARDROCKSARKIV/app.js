@@ -1098,8 +1098,19 @@
       releaseIds.get(link.band_id).add(link.release_id);
     });
     const releaseCount = band => releaseIds.get(band.id)?.size || 0;
-    const hasPhoto = band => Boolean(bandPhoto(band) ||
-      /\.(?:jpe?g|png|webp)(?:\?|$)/i.test(BAND_MEDIA[slugify(band.canonical_name)] || ''));
+    // "Demoband" är en försiktig, arkivbaserad klassificering:
+    // minst en demo, ingen känd bolagsutgåva och inga registrerade
+    // album/EP/singlar/splits/samlingsskivor. Okända band exkluderas.
+    const releasesByIdForFilter = byId(state.releases);
+    const publishedReleaseTypes = new Set(['album', 'ep', 'single', 'split', 'compilation']);
+    const demoBandIds = new Set();
+    for (const [bandId, ids] of releaseIds) {
+      const releases = [...ids].map(id => releasesByIdForFilter.get(id)).filter(Boolean);
+      if (releases.some(r => r.release_type === 'demo')
+          && releases.every(r => r.has_registered_label === false && !publishedReleaseTypes.has(r.release_type))) {
+        demoBandIds.add(bandId);
+      }
+    }
 
     app.innerHTML = `${pageHeader('BAND I ARKIVET','Band','Från tidig hårdrock och thrash till death, black och senare grenar av Uppsalas metalscen.')}
       <section class="section page-section first-section">
@@ -1120,7 +1131,7 @@
           <label class="band-filter-field"><span>Ort</span><select id="band-city"><option value="">Alla orter</option>${selectOptions(cities)}</select></label>
         </div>
         <div class="band-filter-actions">
-          <label class="band-photo-toggle"><input id="band-photo-only" type="checkbox"><span>Endast band med foto</span></label>
+          <label class="band-demo-toggle" title="Band med minst en registrerad demo men inga kända bolagsutgåvor, album, EP, singlar, splittar eller samlingsskivor. Baseras på arkivets nuvarande uppgifter."><input id="band-demo-only" type="checkbox"><span>Endast demoband</span></label>
           <button class="band-filter-reset" id="band-filter-reset" type="button" hidden>Rensa filter <span aria-hidden="true">×</span></button>
         </div>
         <div class="band-grid" id="band-grid"></div>
@@ -1131,7 +1142,7 @@
     const genre = $('#band-genre');
     const decade = $('#band-decade');
     const city = $('#band-city');
-    const photoOnly = $('#band-photo-only');
+    const demoOnly = $('#band-demo-only');
     const reset = $('#band-filter-reset');
     const grid = $('#band-grid');
     const count = $('#band-count');
@@ -1146,7 +1157,7 @@
         if (selectedGenre && !(b.genres || []).some(value => genreFilterLabel(value) === selectedGenre)) return false;
         if (selectedDecade && Math.floor(Number(b.formed_year) / 10) * 10 !== Number(selectedDecade)) return false;
         if (selectedCity && cityFilterLabel(b.city) !== selectedCity) return false;
-        if (photoOnly.checked && !hasPhoto(b)) return false;
+        if (demoOnly.checked && !demoBandIds.has(b.id)) return false;
         return true;
       });
       const year = b => Number(b.formed_year) >= 1900 ? Number(b.formed_year) : null;
@@ -1161,18 +1172,18 @@
         ? filtered.map((band, index) => bandCard(band, index)).join('')
         : '<div class="band-filter-empty"><strong>Inga band hittades.</strong><span>Prova en annan sökning eller rensa filtren.</span></div>';
       count.textContent = filtered.length;
-      reset.hidden = !(term || sort.value !== 'oldest' || selectedGenre || selectedDecade || selectedCity || photoOnly.checked);
+      reset.hidden = !(term || sort.value !== 'oldest' || selectedGenre || selectedDecade || selectedCity || demoOnly.checked);
     };
 
     input.addEventListener('input', update);
-    [sort, genre, decade, city, photoOnly].forEach(control => control.addEventListener('change', update));
+    [sort, genre, decade, city, demoOnly].forEach(control => control.addEventListener('change', update));
     reset.addEventListener('click', () => {
       input.value = '';
       sort.value = 'oldest';
       genre.value = '';
       decade.value = '';
       city.value = '';
-      photoOnly.checked = false;
+      demoOnly.checked = false;
       update();
       input.focus();
     });
