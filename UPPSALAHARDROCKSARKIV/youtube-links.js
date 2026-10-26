@@ -11598,5 +11598,28 @@ window.ARCHIVE_YOUTUBE = [
   "kind": "album",
   "checked": "2026-10-26",
   "sourceNote": "Confirmed via live YouTube playlist: Stained Red – This City EP 2004 [Full Album], 19:04, six track timestamps and guest singers Lawrence Mackrory and Ronnie Nyman."
+},
+{
+  "band": "stained-red",
+  "release": null,
+  "title": "Haruleg? (feat. Spakur), tidigare outgiven 2005",
+  "year": 2005,
+  "id": "a6TyJOsJ3Xc",
+  "views": null,
+  "channel": "callerudolfsson",
+  "kind": "track",
+  "checked": "2026-10-26",
+  "sourceNote": "Uploader labels unreleased track from 2005, featuring Spakur; Swedish song about bouncers. Not attributed to a released EP."
+},
+{
+  "band": "stained-red",
+  "release": "7bcbbc0a-0633-4595-b15d-9ba52937f79a",
+  "title": "It Won't Stop Bleeding (live på Augustibuller 2004)",
+  "id": "HrpAaJcYLo8",
+  "views": null,
+  "channel": "callerudolfsson",
+  "kind": "live",
+  "checked": "2026-10-26",
+  "sourceNote": "Uploader explicitly describes this live recording from Augustibuller festival Sweden 2004; exact performance date needs confirmation."
 }
 ];
