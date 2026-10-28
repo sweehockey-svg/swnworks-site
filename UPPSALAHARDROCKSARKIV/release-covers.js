@@ -1416,5 +1416,161 @@ window.ARCHIVE_RELEASE_COVERS = {
     "sourceUrl": "https://oi-the-shop.com/en/OEstra-Aros-Tiundaland-LP-lim.-400-diff.-col./OTS-17304.2",
     "label": "Östra Aros — Tiundaland",
     "checked": "2026-10-28"
+  },
+  "17532559-256f-4474-8ccb-8b6369b62cde": {
+    "src": "assets/release-covers/17532559-256f-4474-8ccb-8b6369b62cde.jpg",
+    "sourceUrl": "https://sanctrum.bandcamp.com/album/awaken-in-embers",
+    "label": "Sanctrum — Awaken In Embers",
+    "checked": "2026-10-28"
+  },
+  "d58e1261-30fa-4e36-844a-47a45459c477": {
+    "src": "assets/release-covers/d58e1261-30fa-4e36-844a-47a45459c477.jpg",
+    "sourceUrl": "https://open.spotify.com/album/74ylznvCYqSmlXSUbu7ViY",
+    "label": "Offerblod — Vårt sista nederlag",
+    "checked": "2026-10-28"
+  },
+  "16ab7378-eba0-465f-b2c5-099124ef63e9": {
+    "src": "assets/release-covers/16ab7378-eba0-465f-b2c5-099124ef63e9.jpg",
+    "sourceUrl": "https://obnoxiousyouth.bandcamp.com/album/mouths-sewn-shut",
+    "label": "Obnoxious Youth — Mouths Sewn Shut",
+    "checked": "2026-10-28"
+  },
+  "64190483-60ce-4ba0-a183-c79032bcfdcf": {
+    "src": "assets/release-covers/64190483-60ce-4ba0-a183-c79032bcfdcf.jpg",
+    "sourceUrl": "https://open.spotify.com/album/5ez6wzEwcX5ccyj1HZF0Nb",
+    "label": "Snuffed By The Yakuza — Gang War! - EP",
+    "checked": "2026-10-28"
+  },
+  "51f1e8ee-75bd-43bc-9ad5-ac2a9bcd5fe4": {
+    "src": "assets/release-covers/51f1e8ee-75bd-43bc-9ad5-ac2a9bcd5fe4.jpg",
+    "sourceUrl": "https://obnoxiousyouth.bandcamp.com/album/suck-on-the-cross",
+    "label": "Obnoxious Youth — Suck On The Cross EP",
+    "checked": "2026-10-28"
+  },
+  "da901ea5-1140-40b7-9ea5-112b9527d4e6": {
+    "src": "assets/release-covers/da901ea5-1140-40b7-9ea5-112b9527d4e6.jpg",
+    "sourceUrl": "https://open.spotify.com/album/4gP2NBzseRBhwzDDN1ujXt",
+    "label": "Östra Aros — Upsala",
+    "checked": "2026-10-28"
+  },
+  "84efb5ff-3c01-40a0-bc78-134a1cfd510c": {
+    "src": "assets/release-covers/84efb5ff-3c01-40a0-bc78-134a1cfd510c.jpg",
+    "sourceUrl": "https://sanctrum.bandcamp.com/album/walk-with-vermin",
+    "label": "Sanctrum — Walk With Vermin",
+    "checked": "2026-10-28"
+  },
+  "6a7e353e-041e-4e10-8d03-83f25335f7f6": {
+    "src": "assets/release-covers/6a7e353e-041e-4e10-8d03-83f25335f7f6.jpg",
+    "sourceUrl": "https://open.spotify.com/album/2hMII6LghAQk55zQFFLVqB",
+    "label": "Snuffed By The Yakuza — Trippin' - EP",
+    "checked": "2026-10-28"
+  },
+  "d0f5445c-a50a-40f4-8d88-8ce130301739": {
+    "src": "assets/release-covers/d0f5445c-a50a-40f4-8d88-8ce130301739.jpg",
+    "sourceUrl": "https://yersinia.bandcamp.com/album/p-f-geltronen",
+    "label": "Yersinia — Påfågeltronen",
+    "checked": "2026-10-28"
+  },
+  "0c48f5c2-0524-4276-a3ab-0b689506fccc": {
+    "src": "assets/release-covers/0c48f5c2-0524-4276-a3ab-0b689506fccc.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/like-an-accident-with-nowhere-to-happen-remaster-single/1168692861?uo=4",
+    "label": "SHORTONESHORT — Like an Accident With Nowhere To Happen (Remaster)",
+    "checked": "2026-10-28"
+  },
+  "9b47671f-27a1-421b-a564-8740fa3faa14": {
+    "src": "assets/release-covers/9b47671f-27a1-421b-a564-8740fa3faa14.jpg",
+    "sourceUrl": "https://sanctrum.bandcamp.com/album/autumn",
+    "label": "Sanctrum — Autumn",
+    "checked": "2026-10-28"
+  },
+  "f75b15c9-529f-4cf5-8058-797685c21485": {
+    "src": "assets/release-covers/f75b15c9-529f-4cf5-8058-797685c21485.jpg",
+    "sourceUrl": "https://open.spotify.com/album/2poXdiOYeQeB2GQYpHeqrG",
+    "label": "SHORTONESHORT — Fistful of Downers (Remaster)",
+    "checked": "2026-10-28"
+  },
+  "c927ab31-a263-4d85-a811-daa30cb102de": {
+    "src": "assets/release-covers/c927ab31-a263-4d85-a811-daa30cb102de.jpg",
+    "sourceUrl": "https://yersinia.bandcamp.com/album/fraktaler",
+    "label": "Yersinia — Fraktaler",
+    "checked": "2026-10-28"
+  },
+  "6ec60c9e-cabd-46f9-b053-6ee403488f44": {
+    "src": "assets/release-covers/6ec60c9e-cabd-46f9-b053-6ee403488f44.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/pestilence-remaster-ep/1162851481?uo=4",
+    "label": "SHORTONESHORT — Pestilence (Remaster)",
+    "checked": "2026-10-28"
+  },
+  "510d588e-6293-4725-a6d4-7807b64c85cb": {
+    "src": "assets/release-covers/510d588e-6293-4725-a6d4-7807b64c85cb.jpg",
+    "sourceUrl": "https://yersinia.bandcamp.com/album/aldrig-mera-vinter",
+    "label": "Yersinia — Aldrig Mera Vinter",
+    "checked": "2026-10-28"
+  },
+  "6e7e1564-d1cb-4990-9fe9-6fef2e780fc3": {
+    "src": "assets/release-covers/6e7e1564-d1cb-4990-9fe9-6fef2e780fc3.jpg",
+    "sourceUrl": "https://open.spotify.com/album/6BRkWvjtLBw9VUPh4TeuAO",
+    "label": "Unangel — Amongst Cowards",
+    "checked": "2026-10-28"
+  },
+  "97b29324-6ca9-4bcf-96f8-cf4322f60041": {
+    "src": "assets/release-covers/97b29324-6ca9-4bcf-96f8-cf4322f60041.jpg",
+    "sourceUrl": "https://akhanarit.hpage.com/d/detained-detained-70.html",
+    "label": "Detained — Detained",
+    "checked": "2026-10-28"
+  },
+  "509f1336-78ee-4c5e-963b-3ba85788080f": {
+    "src": "assets/release-covers/509f1336-78ee-4c5e-963b-3ba85788080f.jpg",
+    "sourceUrl": "https://yersinia.bandcamp.com/album/lejonhj-rta",
+    "label": "Yersinia — Lejonhjärta",
+    "checked": "2026-10-28"
+  },
+  "41df07a9-e89a-41f1-b0d7-ac3ee60398fb": {
+    "src": "assets/release-covers/41df07a9-e89a-41f1-b0d7-ac3ee60398fb.jpg",
+    "sourceUrl": "https://yersinia.bandcamp.com/album/yersinia",
+    "label": "Yersinia — Yersinia",
+    "checked": "2026-10-28"
+  },
+  "9c3a2b2d-9ba7-4c06-bcfd-ec6cfcbf2c11": {
+    "src": "assets/release-covers/9c3a2b2d-9ba7-4c06-bcfd-ec6cfcbf2c11.jpg",
+    "sourceUrl": "https://open.spotify.com/album/7zSE6FrlKvc0J57JNSuwsb",
+    "label": "Snuffed By The Yakuza — Fast Livin' - EP",
+    "checked": "2026-10-28"
+  },
+  "ed7a9581-00e8-4375-9471-1b8732dd89a0": {
+    "src": "assets/release-covers/ed7a9581-00e8-4375-9471-1b8732dd89a0.jpg",
+    "sourceUrl": "https://open.spotify.com/album/6wgZpz42xhfJvorLr9aqBD",
+    "label": "Snuffed By The Yakuza — The Yakuza Slide - EP",
+    "checked": "2026-10-28"
+  },
+  "a259ac5e-3be3-4505-8fbf-0b36f146edc1": {
+    "src": "assets/release-covers/a259ac5e-3be3-4505-8fbf-0b36f146edc1.jpg",
+    "sourceUrl": "https://open.spotify.com/album/7lBzTxZ54ZT5A34ACF8h59",
+    "label": "The Mist of Avalon — Tears",
+    "checked": "2026-10-28"
+  },
+  "c1c846a4-e8a4-4717-9af3-d133ee10ace8": {
+    "src": "assets/release-covers/c1c846a4-e8a4-4717-9af3-d133ee10ace8.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/sleepless-ep/296986495?uo=4",
+    "label": "The Mist of Avalon — Sleepless",
+    "checked": "2026-10-28"
+  },
+  "b13b6b18-5b49-46cd-8d98-8b77ad91ca38": {
+    "src": "assets/release-covers/b13b6b18-5b49-46cd-8d98-8b77ad91ca38.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/dans-mot-tiden-ep/1770757223?uo=4",
+    "label": "Big Fish — Dans mot tiden",
+    "checked": "2026-10-28"
+  },
+  "cdaaf766-7f68-4355-9715-a67a5cb18980": {
+    "src": "assets/release-covers/cdaaf766-7f68-4355-9715-a67a5cb18980.jpg",
+    "sourceUrl": "https://heavymetal.dk/anmeldelse/noctum-fiddler",
+    "label": "Noctum — The Fiddler",
+    "checked": "2026-10-28"
+  },
+  "18574277-f154-46c6-a4d2-888a2c462b32": {
+    "src": "assets/release-covers/18574277-f154-46c6-a4d2-888a2c462b32.jpg",
+    "sourceUrl": "https://www.metal-archives.com/albums/The_Mist_of_Avalon/The_Mist_of_Avalon_Limited/166127",
+    "label": "The Mist of Avalon — The Mist of Avalon Limited",
+    "checked": "2026-10-28"
   }
 };
