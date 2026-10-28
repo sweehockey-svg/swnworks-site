@@ -1,3 +1,4 @@
+/* Verified release artwork; album identity and source recorded per release. */
 window.ARCHIVE_RELEASE_COVERS = {
   "e2f1b77a-a469-4400-b29b-1d5881af4045": {
     "src": "assets/release-covers/e2f1b77a-a469-4400-b29b-1d5881af4045.svg",
@@ -1072,6 +1073,348 @@ window.ARCHIVE_RELEASE_COVERS = {
     "src": "assets/release-covers/6ef1fec1-f95e-42d4-96ad-7ab0691783fb.jpg",
     "sourceUrl": "https://music.apple.com/se/album/by-gun-by-rope-by-knife/1516271894?uo=4",
     "label": "Snuffed By The Yakuza — By Gun by Rope by Knife",
+    "checked": "2026-10-28"
+  },
+  "88ed434d-7a1e-43e9-b742-afbc963578d5": {
+    "src": "assets/release-covers/88ed434d-7a1e-43e9-b742-afbc963578d5.jpg",
+    "sourceUrl": "https://sarcasm-sweden.bandcamp.com/album/esoteric-tales-of-the-unserene",
+    "label": "Sarcasm — Esoteric Tales of the Unserene",
+    "checked": "2026-10-28"
+  },
+  "e625ae2f-8933-4bd8-a527-5205207520ef": {
+    "src": "assets/release-covers/e625ae2f-8933-4bd8-a527-5205207520ef.jpg",
+    "sourceUrl": "https://open.spotify.com/album/29fESJcN5hVNXAGAB7Vx5R",
+    "label": "Snuffed By The Yakuza — Get Snuffed",
+    "checked": "2026-10-28"
+  },
+  "6dfa9575-6df3-46af-b7e7-29e794f2e3dd": {
+    "src": "assets/release-covers/6dfa9575-6df3-46af-b7e7-29e794f2e3dd.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/s-t/1472784869?uo=4",
+    "label": "Östra Aros — S/T",
+    "checked": "2026-10-28"
+  },
+  "3952936d-6dd4-4fe6-94e6-b7fc726bc167": {
+    "src": "assets/release-covers/3952936d-6dd4-4fe6-94e6-b7fc726bc167.jpg",
+    "sourceUrl": "https://reveal-svr.bandcamp.com/album/scissorgod",
+    "label": "Reveal! — Scissorgod",
+    "checked": "2026-10-28"
+  },
+  "1412ad15-6f0e-4387-bf14-03b56ab314c8": {
+    "src": "assets/release-covers/1412ad15-6f0e-4387-bf14-03b56ab314c8.jpg",
+    "sourceUrl": "https://open.spotify.com/album/7Cc2NdmZAVT1cbcFHvEvJw",
+    "label": "Ordos — The End",
+    "checked": "2026-10-28"
+  },
+  "6448a7c4-f7b1-4427-8df4-02f27db6e615": {
+    "src": "assets/release-covers/6448a7c4-f7b1-4427-8df4-02f27db6e615.jpg",
+    "sourceUrl": "https://open.spotify.com/album/7vV3qV1NWMhOgOSxyzYdf3",
+    "label": "Taiwaz — The Uninvited Guest",
+    "checked": "2026-10-28"
+  },
+  "869c2493-9a60-4380-9610-be7b95947d75": {
+    "src": "assets/release-covers/6448a7c4-f7b1-4427-8df4-02f27db6e615.jpg",
+    "sourceUrl": "https://open.spotify.com/album/7vV3qV1NWMhOgOSxyzYdf3",
+    "label": "Taiwaz — The Uninvited Guest",
+    "checked": "2026-10-28"
+  },
+  "d2fd6116-5952-4b2b-ae20-79dbe6ed1157": {
+    "src": "assets/release-covers/d2fd6116-5952-4b2b-ae20-79dbe6ed1157.jpg",
+    "sourceUrl": "https://open.spotify.com/album/1EWIces986n3s7HllcrXzo",
+    "label": "Å — Ånyo",
+    "checked": "2026-10-28"
+  },
+  "68454020-538f-4e20-af56-11e23169cb3e": {
+    "src": "assets/release-covers/68454020-538f-4e20-af56-11e23169cb3e.jpg",
+    "sourceUrl": "https://obnoxiousyouth.bandcamp.com/album/disturbing-the-graves",
+    "label": "Obnoxious Youth — Disturbing the Graves",
+    "checked": "2026-10-28"
+  },
+  "cd51c0a9-9b80-4bf4-b704-119197f49461": {
+    "src": "assets/release-covers/68454020-538f-4e20-af56-11e23169cb3e.jpg",
+    "sourceUrl": "https://obnoxiousyouth.bandcamp.com/album/disturbing-the-graves",
+    "label": "Obnoxious Youth — Disturbing the Graves",
+    "checked": "2026-10-28"
+  },
+  "ac1ff291-cf5c-43ca-a4bf-e38712ada845": {
+    "src": "assets/release-covers/ac1ff291-cf5c-43ca-a4bf-e38712ada845.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/echo",
+    "label": "The Search — Echo",
+    "checked": "2026-10-28"
+  },
+  "5d5e04ab-78df-4871-96af-ced4f38b0cb2": {
+    "src": "assets/release-covers/5d5e04ab-78df-4871-96af-ced4f38b0cb2.jpg",
+    "sourceUrl": "https://ordosofficial.bandcamp.com/album/house-of-the-dead",
+    "label": "Ordos — House Of The Dead",
+    "checked": "2026-10-28"
+  },
+  "3f8d89b3-1aef-45e3-87ba-b628a05a44e0": {
+    "src": "assets/release-covers/3f8d89b3-1aef-45e3-87ba-b628a05a44e0.jpg",
+    "sourceUrl": "https://open.spotify.com/album/1FLyREzBAoN9x8WmEHtgAE",
+    "label": "The Good Honey Society — When Whenever Is a Dream",
+    "checked": "2026-10-28"
+  },
+  "319b8f73-5c82-4a7a-94e2-c055bf0515d6": {
+    "src": "assets/release-covers/3f8d89b3-1aef-45e3-87ba-b628a05a44e0.jpg",
+    "sourceUrl": "https://open.spotify.com/album/1FLyREzBAoN9x8WmEHtgAE",
+    "label": "The Good Honey Society — When Whenever Is a Dream",
+    "checked": "2026-10-28"
+  },
+  "01591de8-8982-4b35-863d-0ce0ca7fb9fc": {
+    "src": "assets/release-covers/01591de8-8982-4b35-863d-0ce0ca7fb9fc.jpg",
+    "sourceUrl": "https://sarcasm-sweden.bandcamp.com/album/within-the-sphere-of-ethereal-minds",
+    "label": "Sarcasm — Within the Sphere of Ethereal Minds",
+    "checked": "2026-10-28"
+  },
+  "dd9f51e8-bc4d-4ad0-8337-3c9b5c5ab115": {
+    "src": "assets/release-covers/dd9f51e8-bc4d-4ad0-8337-3c9b5c5ab115.jpg",
+    "sourceUrl": "https://open.spotify.com/album/4dpx5szm8otwHlJMIvv0lL",
+    "label": "Snuffed By The Yakuza — Everybody's Gonna Die Tonight",
+    "checked": "2026-10-28"
+  },
+  "bb43d934-b0ea-43e9-a228-e069ff810a9a": {
+    "src": "assets/release-covers/bb43d934-b0ea-43e9-a228-e069ff810a9a.jpg",
+    "sourceUrl": "https://reveal-svr.bandcamp.com/album/flystrips",
+    "label": "Reveal! — Flystrips",
+    "checked": "2026-10-28"
+  },
+  "0226a220-8033-402a-a4a4-ef0be9b1b275": {
+    "src": "assets/release-covers/0226a220-8033-402a-a4a4-ef0be9b1b275.jpg",
+    "sourceUrl": "https://open.spotify.com/album/4uPJvxc21HeX7mna2QjK1M",
+    "label": "Taiwaz — I Am All",
+    "checked": "2026-10-28"
+  },
+  "b7616242-ded2-453a-916c-1a1c02baaa2c": {
+    "src": "assets/release-covers/0226a220-8033-402a-a4a4-ef0be9b1b275.jpg",
+    "sourceUrl": "https://open.spotify.com/album/4uPJvxc21HeX7mna2QjK1M",
+    "label": "Taiwaz — I Am All",
+    "checked": "2026-10-28"
+  },
+  "9ab2fcde-6814-4ea2-bf78-a05e57e3044f": {
+    "src": "assets/release-covers/9ab2fcde-6814-4ea2-bf78-a05e57e3044f.jpg",
+    "sourceUrl": "https://open.spotify.com/album/4hMBc3Az27TO0wpHOA4ZPE",
+    "label": "Sanctrum — Rot",
+    "checked": "2026-10-28"
+  },
+  "c2dfd003-e175-4aaa-b9a5-a46f30cdae9f": {
+    "src": "assets/release-covers/c2dfd003-e175-4aaa-b9a5-a46f30cdae9f.jpg",
+    "sourceUrl": "https://open.spotify.com/album/3q82xL6rDjR4RMZpZtDhKY",
+    "label": "Å — Å",
+    "checked": "2026-10-28"
+  },
+  "a2f0cdd7-7e5b-48b5-bb33-5a1ac42d8362": {
+    "src": "assets/release-covers/a2f0cdd7-7e5b-48b5-bb33-5a1ac42d8362.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/our-need-for-solace",
+    "label": "The Search — Our Need for Solace",
+    "checked": "2026-10-28"
+  },
+  "0d8090fb-5f30-4a77-9ae5-e45f480b5590": {
+    "src": "assets/release-covers/a2f0cdd7-7e5b-48b5-bb33-5a1ac42d8362.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/our-need-for-solace",
+    "label": "The Search — Our Need for Solace",
+    "checked": "2026-10-28"
+  },
+  "aa035406-35f5-4b01-a482-6dd3f154ab4a": {
+    "src": "assets/release-covers/aa035406-35f5-4b01-a482-6dd3f154ab4a.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/final-sacrifice/699336866?uo=4",
+    "label": "Noctum — Final Sacrifice",
+    "checked": "2026-10-28"
+  },
+  "23b1c400-e37f-41e3-a46a-8dd3fb92f58e": {
+    "src": "assets/release-covers/23b1c400-e37f-41e3-a46a-8dd3fb92f58e.jpg",
+    "sourceUrl": "https://ordosofficial.bandcamp.com/album/ordos",
+    "label": "Ordos — Ordos",
+    "checked": "2026-10-28"
+  },
+  "5eb1b28a-6a9d-4edd-93c6-0ad8b2fdbf91": {
+    "src": "assets/release-covers/5eb1b28a-6a9d-4edd-93c6-0ad8b2fdbf91.jpg",
+    "sourceUrl": "https://open.spotify.com/album/6Scn8C9CdqACVEAaOPKwUS",
+    "label": "Reveal! — Nocturne of Eyes and Teeth",
+    "checked": "2026-10-28"
+  },
+  "74f9d6d8-d094-41b5-b67e-271fc8ca6dbe": {
+    "src": "assets/release-covers/5eb1b28a-6a9d-4edd-93c6-0ad8b2fdbf91.jpg",
+    "sourceUrl": "https://open.spotify.com/album/6Scn8C9CdqACVEAaOPKwUS",
+    "label": "Reveal! — Nocturne of Eyes and Teeth",
+    "checked": "2026-10-28"
+  },
+  "22cfd639-ba9e-4f14-9042-066eb5063df2": {
+    "src": "assets/release-covers/22cfd639-ba9e-4f14-9042-066eb5063df2.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/staying-alive-in-a-country-industrialized",
+    "label": "The Search — Staying Alive In A Country Industrialized",
+    "checked": "2026-10-28"
+  },
+  "e1bf54b4-c11a-4fe2-a8f2-b8bf47560e48": {
+    "src": "assets/release-covers/e1bf54b4-c11a-4fe2-a8f2-b8bf47560e48.jpg",
+    "sourceUrl": "https://obnoxiousyouth.bandcamp.com/album/the-eternal-void",
+    "label": "Obnoxious Youth — The Eternal Void",
+    "checked": "2026-10-28"
+  },
+  "f75e23e8-c63c-4b7c-85e0-6059fcfca600": {
+    "src": "assets/release-covers/f75e23e8-c63c-4b7c-85e0-6059fcfca600.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/the-search-for-connection-contact-and-community",
+    "label": "The Search — The Search For Connection Contact And Community",
+    "checked": "2026-10-28"
+  },
+  "0bebb734-04da-4684-8310-7aa5882776a7": {
+    "src": "assets/release-covers/0bebb734-04da-4684-8310-7aa5882776a7.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/wilderness/1185049414?uo=4",
+    "label": "The Horror The Horror — Wilderness",
+    "checked": "2026-10-28"
+  },
+  "e1e74467-4b09-4b59-97e8-404e4b33ad9b": {
+    "src": "assets/release-covers/e1e74467-4b09-4b59-97e8-404e4b33ad9b.jpg",
+    "sourceUrl": "https://open.spotify.com/album/1ukDLTnmDtLU2j9nbvC7lN",
+    "label": "The Mist of Avalon — Dinya",
+    "checked": "2026-10-28"
+  },
+  "cb224081-b3c2-4a88-93d4-15e5f100eba4": {
+    "src": "assets/release-covers/cb224081-b3c2-4a88-93d4-15e5f100eba4.jpg",
+    "sourceUrl": "https://open.spotify.com/album/3vuQ4l2HvhT98pT4W7cugG",
+    "label": "Yersinia — Efter Oss Syndafloden",
+    "checked": "2026-10-28"
+  },
+  "2559af03-cdc4-49bf-b4bd-0df9a969e37b": {
+    "src": "assets/release-covers/2559af03-cdc4-49bf-b4bd-0df9a969e37b.jpg",
+    "sourceUrl": "https://open.spotify.com/album/30ZGfXoyMmK9PSpippQAjK",
+    "label": "Noctum — The Seance",
+    "checked": "2026-10-28"
+  },
+  "e691b0d1-d964-4a4c-9230-6e07d4ebf435": {
+    "src": "assets/release-covers/e691b0d1-d964-4a4c-9230-6e07d4ebf435.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/saturnine-songs",
+    "label": "The Search — Saturnine Songs",
+    "checked": "2026-10-28"
+  },
+  "cab3d6bd-7600-4e49-8512-c7d304eb410b": {
+    "src": "assets/release-covers/e691b0d1-d964-4a4c-9230-6e07d4ebf435.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/saturnine-songs",
+    "label": "The Search — Saturnine Songs",
+    "checked": "2026-10-28"
+  },
+  "b80efc43-8d55-4d2a-bc73-48bc0c26b90d": {
+    "src": "assets/release-covers/b80efc43-8d55-4d2a-bc73-48bc0c26b90d.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/wired-boy-child/1184980102?uo=4",
+    "label": "The Horror The Horror — Wired Boy Child",
+    "checked": "2026-10-28"
+  },
+  "991441e3-654f-4b05-972d-a52dfdc55322": {
+    "src": "assets/release-covers/991441e3-654f-4b05-972d-a52dfdc55322.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/deranged-minds-unite",
+    "label": "The Search — Deranged Minds Unite",
+    "checked": "2026-10-28"
+  },
+  "781fd4bb-e762-429b-84a3-b30280663e90": {
+    "src": "assets/release-covers/781fd4bb-e762-429b-84a3-b30280663e90.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/bloodbathe-bazaar-of-lush-loose-limbs",
+    "label": "The Search — Bloodbathe & Bazaar Of Lush Loose Limbs",
+    "checked": "2026-10-28"
+  },
+  "b0138afc-e3cd-49e0-83c0-4e7583ea3d68": {
+    "src": "assets/release-covers/b0138afc-e3cd-49e0-83c0-4e7583ea3d68.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/the-horror-the-horror/1185022871?uo=4",
+    "label": "The Horror The Horror — The Horror The Horror",
+    "checked": "2026-10-28"
+  },
+  "1c1ae97c-fe3e-4bf0-b93c-2c4c164152f0": {
+    "src": "assets/release-covers/1c1ae97c-fe3e-4bf0-b93c-2c4c164152f0.jpg",
+    "sourceUrl": "https://open.spotify.com/album/5j418ibev9X2QGqmmjcp2c",
+    "label": "Snuffed By The Yakuza — Snuffed By the Yakuza",
+    "checked": "2026-10-28"
+  },
+  "5e59e428-2cc5-4a4f-85cb-b27075ace3f7": {
+    "src": "assets/release-covers/5e59e428-2cc5-4a4f-85cb-b27075ace3f7.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/its-dirty-chords-but-someones-gotta-play-them/492756466?uo=4",
+    "label": "Snuffed By The Yakuza — It's Dirty Chords, But Someone's Gotta Play Them",
+    "checked": "2026-10-28"
+  },
+  "898647f7-c55d-43a1-bcd6-7ed0cbc33ac3": {
+    "src": "assets/release-covers/898647f7-c55d-43a1-bcd6-7ed0cbc33ac3.jpg",
+    "sourceUrl": "https://open.spotify.com/album/56SvZ43NpiyQFvkOcHtDPE",
+    "label": "The Ghoulies — Reclaim the World",
+    "checked": "2026-10-28"
+  },
+  "77d6d35b-bf09-4f13-ac5a-49b2f7eac050": {
+    "src": "assets/release-covers/77d6d35b-bf09-4f13-ac5a-49b2f7eac050.jpg",
+    "sourceUrl": "https://open.spotify.com/album/5G55W00SMSOljarWqrDQLo",
+    "label": "The 21st Impact — Second to None",
+    "checked": "2026-10-28"
+  },
+  "90d8a36f-7db0-4b48-bcf4-18aac374351b": {
+    "src": "assets/release-covers/77d6d35b-bf09-4f13-ac5a-49b2f7eac050.jpg",
+    "sourceUrl": "https://open.spotify.com/album/5G55W00SMSOljarWqrDQLo",
+    "label": "The 21st Impact — Second to None",
+    "checked": "2026-10-28"
+  },
+  "a4f4844c-34ba-44fb-8a95-607aeb9e6b96": {
+    "src": "assets/release-covers/77d6d35b-bf09-4f13-ac5a-49b2f7eac050.jpg",
+    "sourceUrl": "https://open.spotify.com/album/5G55W00SMSOljarWqrDQLo",
+    "label": "The 21st Impact — Second to None",
+    "checked": "2026-10-28"
+  },
+  "beba2ce6-f1e8-407e-9606-3f348e9e1471": {
+    "src": "assets/release-covers/beba2ce6-f1e8-407e-9606-3f348e9e1471.jpg",
+    "sourceUrl": "https://open.spotify.com/album/61dVhhBOZSF56y5LK4JU53",
+    "label": "Snuffed By The Yakuza — Beyond Belief",
+    "checked": "2026-10-28"
+  },
+  "1bf8dfd9-f833-48a9-9d60-016219e836e4": {
+    "src": "assets/release-covers/1bf8dfd9-f833-48a9-9d60-016219e836e4.jpg",
+    "sourceUrl": "https://open.spotify.com/album/36meFM8rhWJC8tjACvp72E",
+    "label": "The Mist of Avalon — Here and After",
+    "checked": "2026-10-28"
+  },
+  "82089a77-b72d-4160-bd3f-d9d3667c39a1": {
+    "src": "assets/release-covers/82089a77-b72d-4160-bd3f-d9d3667c39a1.jpg",
+    "sourceUrl": "https://open.spotify.com/album/25djIMDbe1mBP3y0DhlvrZ",
+    "label": "The Mist of Avalon — Mist of Avalon",
+    "checked": "2026-10-28"
+  },
+  "68573dc1-791c-4d2b-aad3-2df39aa6e0d2": {
+    "src": "assets/release-covers/68573dc1-791c-4d2b-aad3-2df39aa6e0d2.jpg",
+    "sourceUrl": "https://open.spotify.com/album/3ZMdJR3FWqguzFf04IZozI",
+    "label": "Mother Superior — The Mothership Movement",
+    "checked": "2026-10-28"
+  },
+  "395ed22b-59bb-44d4-990d-9c69ac521546": {
+    "src": "assets/release-covers/395ed22b-59bb-44d4-990d-9c69ac521546.jpg",
+    "sourceUrl": "https://ablesweden.bandcamp.com/album/mainstream-daydream",
+    "label": "Able — Mainstream Daydream",
+    "checked": "2026-10-28"
+  },
+  "a777c404-e6d8-4dbf-af31-2cef2ad8b9d4": {
+    "src": "assets/release-covers/a777c404-e6d8-4dbf-af31-2cef2ad8b9d4.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/the-mothership-has-landed/660506876?uo=4",
+    "label": "Mother Superior — The Mothership Has Landed",
+    "checked": "2026-10-28"
+  },
+  "c7be003e-932b-4733-8c25-f42ac1d38fef": {
+    "src": "assets/release-covers/c7be003e-932b-4733-8c25-f42ac1d38fef.jpg",
+    "sourceUrl": "https://open.spotify.com/album/0gXQ08TXuSYD9DuRqBw1N7",
+    "label": "Mother Superior — The Mothership Has Landed",
+    "checked": "2026-10-28"
+  },
+  "4f9947a5-68ab-4348-935d-6745fb4ec570": {
+    "src": "assets/release-covers/4f9947a5-68ab-4348-935d-6745fb4ec570.jpg",
+    "sourceUrl": "https://www.fwoshm.com/index/R/1748-raw-swe/2941-now-were-cookin",
+    "label": "R.A.W. — Now We're Cookin'",
+    "checked": "2026-10-28"
+  },
+  "918ab7c9-7dd1-4937-a78a-69c773e1b7e4": {
+    "src": "assets/release-covers/4f9947a5-68ab-4348-935d-6745fb4ec570.jpg",
+    "sourceUrl": "https://www.fwoshm.com/index/R/1748-raw-swe/2941-now-were-cookin",
+    "label": "R.A.W. — Now We're Cookin'",
+    "checked": "2026-10-28"
+  },
+  "57544e30-c7ea-4adc-a6f6-dee81f39c12e": {
+    "src": "assets/release-covers/57544e30-c7ea-4adc-a6f6-dee81f39c12e.jpg",
+    "sourceUrl": "https://heavyharmonies.com/cgi-bin/glamcd.cgi?BandNum=2886&CDName=First",
+    "label": "R.A.W. — First",
+    "checked": "2026-10-28"
+  },
+  "29dfe71e-76f6-4c34-a79e-07ed789be6d2": {
+    "src": "assets/release-covers/29dfe71e-76f6-4c34-a79e-07ed789be6d2.png",
+    "sourceUrl": "https://oi-the-shop.com/en/OEstra-Aros-Tiundaland-LP-lim.-400-diff.-col./OTS-17304.2",
+    "label": "Östra Aros — Tiundaland",
     "checked": "2026-10-28"
   }
 };
