@@ -1902,5 +1902,11 @@ window.ARCHIVE_RELEASE_COVERS = {
     "sourceUrl": "https://www.watersliderecords.net/?pid=18022990",
     "label": "Public Vision — Really Fast Vol. 6",
     "checked": "2026-10-28"
+  },
+  "d37e7239-84fa-4371-b660-414434eedaaf": {
+    "src": "assets/release-covers/d37e7239-84fa-4371-b660-414434eedaaf.jpg",
+    "sourceUrl": "https://www.discogs.com/release/11972111-Malaise-Live-Collection-1993",
+    "label": "Malaise — Live Collection 1993",
+    "checked": "2026-10-28"
   }
 };
