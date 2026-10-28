@@ -1,4 +1,4 @@
-/* Verified release artwork; album identity and source recorded per release. */
+/* Verified release artwork; identity and source recorded per release. */
 window.ARCHIVE_RELEASE_COVERS = {
   "e2f1b77a-a469-4400-b29b-1d5881af4045": {
     "src": "assets/release-covers/e2f1b77a-a469-4400-b29b-1d5881af4045.svg",
@@ -1841,6 +1841,66 @@ window.ARCHIVE_RELEASE_COVERS = {
     "src": "assets/release-covers/ccc9b44b-a235-4559-bca7-8c7968ade517.png",
     "sourceUrl": "https://www.popfakta.se/sv/utgivning/e/4273c5d9-c5a6-4e04-9cb6-1fa7d4683e60/caterpillar-ghost",
     "label": "Caterpillar Ghost — Caterpillar Ghost",
+    "checked": "2026-10-28"
+  },
+  "813868d4-b708-49aa-a7a2-fb5c545fd2f2": {
+    "src": "assets/release-covers/813868d4-b708-49aa-a7a2-fb5c545fd2f2.jpg",
+    "sourceUrl": "https://www.majesticmountainrecords.com/products/four-altars-of-sin-4-way-split-with-kaiser-doomherre-hexjakt-and-ordos",
+    "label": "Ordos — Four Altars of Sin",
+    "checked": "2026-10-28"
+  },
+  "2b6233a0-1ddd-4cad-a146-fc9724c3f59b": {
+    "src": "assets/release-covers/2b6233a0-1ddd-4cad-a146-fc9724c3f59b.jpg",
+    "sourceUrl": "https://strahmusic.com/artist/always-war/",
+    "label": "Always War — The Vulture Chapters",
+    "checked": "2026-10-28"
+  },
+  "bc1a41f8-73da-4a95-92dd-da993367cdc9": {
+    "src": "assets/release-covers/bc1a41f8-73da-4a95-92dd-da993367cdc9.jpg",
+    "sourceUrl": "https://ffavs.wordpress.com/2017/01/24/vinylhornan-sportlov-2001-2016/",
+    "label": "Sportlov — *2001 ┼2016",
+    "checked": "2026-10-28"
+  },
+  "6c897406-80b2-4183-86a8-e3a2ad5e35fd": {
+    "src": "assets/release-covers/6c897406-80b2-4183-86a8-e3a2ad5e35fd.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/the-silverslut-2000-2002",
+    "label": "The Search — The Silverslut (2000–2002)",
+    "checked": "2026-10-28"
+  },
+  "d24d8186-13e9-4975-8b14-bb5d674b291b": {
+    "src": "assets/release-covers/d24d8186-13e9-4975-8b14-bb5d674b291b.png",
+    "sourceUrl": "https://www.yes24.com/Product/Goods/112298012",
+    "label": "The 21st Impact — By All Means Necessary – Second To None",
+    "checked": "2026-10-28"
+  },
+  "44c7e3f8-3690-40c2-93aa-43c4c434e2ed": {
+    "src": "assets/release-covers/44c7e3f8-3690-40c2-93aa-43c4c434e2ed.jpg",
+    "sourceUrl": "https://www.jpc.de/jpcng/poprock/detail/-/art/Various-Artists-Blood-From-The-Zeitgeist/hnum/1114491",
+    "label": "Undergång — Blood From the Zeitgeist",
+    "checked": "2026-10-28"
+  },
+  "8ed64410-8e97-4b11-99b1-17dd98a83be2": {
+    "src": "assets/release-covers/8ed64410-8e97-4b11-99b1-17dd98a83be2.jpg",
+    "sourceUrl": "https://collective-zine.co.uk/2007/06/13/jeniferever-the-next-autumn-soundtrack-split-cd-2003/",
+    "label": "Jeniferever — Jeniferever / The Next Autumn Soundtrack",
+    "checked": "2026-10-28"
+  },
+  "c202bd36-4260-4822-9696-b8789bcf69e2": {
+    "src": "assets/release-covers/c202bd36-4260-4822-9696-b8789bcf69e2.jpg",
+    "sourceUrl": "https://rockers.de/record/various-offside-cd/",
+    "label": "Public Vision — Offside",
+    "checked": "2026-10-28"
+  },
+  "7393f669-8d4b-423a-9012-2b16ac25d211": {
+    "src": "assets/release-covers/7393f669-8d4b-423a-9012-2b16ac25d211.jpg",
+    "sourceUrl": "https://www.fwoshm.com/index/V/38-va/3191-swedish-power",
+    "label": "Mellow Poetry / Fusion / Panama / Thy Steamroller / Zin 'N' Zin / Knock Out Kings / ShyLie / Dirty Lies / Trigger Happy / Bacchus / Mr Band / Crematorium — Swedish Power",
+    "checked": "2026-10-28"
+  },
+  "6de4e349-24b4-4ccd-8611-e060ac8c5728": {
+    "src": "assets/release-covers/6de4e349-24b4-4ccd-8611-e060ac8c5728.gif",
+    "sourceUrl": "https://www.watersliderecords.net/?pid=18022990",
+    "label": "Public Vision — Really Fast Vol. 6",
     "checked": "2026-10-28"
   }
 };
