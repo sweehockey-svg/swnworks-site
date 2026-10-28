@@ -1758,5 +1758,89 @@ window.ARCHIVE_RELEASE_COVERS = {
     "sourceUrl": "https://www.metal-archives.com/albums/Watain/Reaping_Death/267397",
     "label": "Watain — Reaping Death",
     "checked": "2026-10-28"
+  },
+  "652d8f46-60d8-458b-86f2-6bd1ba5e875c": {
+    "src": "assets/release-covers/652d8f46-60d8-458b-86f2-6bd1ba5e875c.jpg",
+    "sourceUrl": "https://strahmusic.com/artist/sanctrum/",
+    "label": "Sanctrum — Sanctrum",
+    "checked": "2026-10-28"
+  },
+  "a9d30bff-dacc-45bf-b0cd-e31227463564": {
+    "src": "assets/release-covers/a9d30bff-dacc-45bf-b0cd-e31227463564.jpg",
+    "sourceUrl": "https://strahmusic.com/artist/sanctrum/",
+    "label": "Sanctrum — Hold Your Ground",
+    "checked": "2026-10-28"
+  },
+  "acd37683-f515-445b-8ea8-474033ebc640": {
+    "src": "assets/release-covers/acd37683-f515-445b-8ea8-474033ebc640.jpg",
+    "sourceUrl": "https://strahmusic.com/artist/sanctrum/",
+    "label": "Sanctrum — From Ashes to Infinity",
+    "checked": "2026-10-28"
+  },
+  "ad881b43-d15b-44e1-941a-76c678370091": {
+    "src": "assets/release-covers/ad881b43-d15b-44e1-941a-76c678370091.jpg",
+    "sourceUrl": "https://strahmusic.com/artist/the-mist-of-avalon/",
+    "label": "The Mist of Avalon — The Mist of Avalon",
+    "checked": "2026-10-28"
+  },
+  "8ce013a9-54c4-4d9b-b5d5-a0a5e816e160": {
+    "src": "assets/release-covers/8ce013a9-54c4-4d9b-b5d5-a0a5e816e160.jpg",
+    "sourceUrl": "https://strahmusic.com/artist/the-mist-of-avalon/",
+    "label": "The Mist of Avalon — Demo 1997",
+    "checked": "2026-10-28"
+  },
+  "639a28ee-5a87-4af7-9928-01e9a34813b6": {
+    "src": "assets/release-covers/639a28ee-5a87-4af7-9928-01e9a34813b6.jpg",
+    "sourceUrl": "https://strahmusic.com/artist/in-solitude/",
+    "label": "In Solitude — In Solitude",
+    "checked": "2026-10-28"
+  },
+  "afe9632f-e32b-47fb-b844-6c81ce6ad7e0": {
+    "src": "assets/release-covers/afe9632f-e32b-47fb-b844-6c81ce6ad7e0.jpg",
+    "sourceUrl": "https://strahmusic.com/artist/in-solitude/",
+    "label": "In Solitude — Hidden Dangers",
+    "checked": "2026-10-28"
+  },
+  "483ae227-c21a-46d7-b362-3d8e45519656": {
+    "src": "assets/release-covers/483ae227-c21a-46d7-b362-3d8e45519656.jpg",
+    "sourceUrl": "https://strahmusic.com/artist/morteferum/",
+    "label": "Morteferum — Long Term Asphyxiation",
+    "checked": "2026-10-28"
+  },
+  "26e9ff72-b0b4-4753-a59c-a9eadf051d33": {
+    "src": "assets/release-covers/26e9ff72-b0b4-4753-a59c-a9eadf051d33.jpg",
+    "sourceUrl": "https://www.fwoshm.com/index/S/1089-spellbound-swe--uppsala/1633-demo-87-10-11",
+    "label": "Spellbound — Demo 87 10 11",
+    "checked": "2026-10-28"
+  },
+  "68afc288-058f-44a0-ac0e-1ba789cd1a20": {
+    "src": "assets/release-covers/68afc288-058f-44a0-ac0e-1ba789cd1a20.jpg",
+    "sourceUrl": "https://www.fwoshm.com/index/S/1089-spellbound-swe--uppsala/1635-demo-2002",
+    "label": "Spellbound — Spellbound",
+    "checked": "2026-10-28"
+  },
+  "84f7ca04-002c-46fe-a69e-6083666fe9e0": {
+    "src": "assets/release-covers/84f7ca04-002c-46fe-a69e-6083666fe9e0.jpg",
+    "sourceUrl": "https://obnoxiousyouth.bandcamp.com/album/obey-satan-demo",
+    "label": "Obnoxious Youth — Obey Satan — Demo",
+    "checked": "2026-10-28"
+  },
+  "cb48c055-4a0b-4eb5-89f9-5b82b8bd9c77": {
+    "src": "assets/release-covers/cb48c055-4a0b-4eb5-89f9-5b82b8bd9c77.jpg",
+    "sourceUrl": "https://www.metal-archives.com/albums/Katalysator/Mass_Genocide_Ritual/421970",
+    "label": "Katalysator — Mass Genocide Ritual",
+    "checked": "2026-10-28"
+  },
+  "59dd9997-c9e3-458a-ac9c-9a981a36e1b2": {
+    "src": "assets/release-covers/59dd9997-c9e3-458a-ac9c-9a981a36e1b2.jpg",
+    "sourceUrl": "https://www.popfakta.se/sv/utgivning/e/10862dd9-a9f3-491b-8216-d6cd483d5597/vibrating-music",
+    "label": "Caterpillar Ghost — Vibrating music",
+    "checked": "2026-10-28"
+  },
+  "ccc9b44b-a235-4559-bca7-8c7968ade517": {
+    "src": "assets/release-covers/ccc9b44b-a235-4559-bca7-8c7968ade517.png",
+    "sourceUrl": "https://www.popfakta.se/sv/utgivning/e/4273c5d9-c5a6-4e04-9cb6-1fa7d4683e60/caterpillar-ghost",
+    "label": "Caterpillar Ghost — Caterpillar Ghost",
+    "checked": "2026-10-28"
   }
 };
