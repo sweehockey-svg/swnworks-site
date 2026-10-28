@@ -958,6 +958,120 @@ window.ARCHIVE_RELEASE_COVERS = {
     "src": "assets/release-covers/be9f6619-db25-430d-b713-eb97c72a32cc.svg",
     "sourceUrl": "https://www.nuclearblast.com/pages/album/die-in-fire-live-in-hell",
     "label": "Watain — Die in Fire Live in Hell - Agony & Ecstasy over Stockholm"
+  },
+  "db23d24c-9bb5-4b1c-8dd7-c5e0ea01d5ca": {
+    "src": "assets/release-covers/db23d24c-9bb5-4b1c-8dd7-c5e0ea01d5ca.jpg",
+    "sourceUrl": "https://sarcasm-sweden.bandcamp.com/album/lifeforce-omnibound",
+    "label": "Sarcasm — Lifeforce Omnibound",
+    "checked": "2026-10-28"
+  },
+  "13e185b7-4af0-488a-94c7-edfea2a3fb36": {
+    "src": "assets/release-covers/db23d24c-9bb5-4b1c-8dd7-c5e0ea01d5ca.jpg",
+    "sourceUrl": "https://sarcasm-sweden.bandcamp.com/album/lifeforce-omnibound",
+    "label": "Sarcasm — Lifeforce Omnibound",
+    "checked": "2026-10-28"
+  },
+  "9a4082d9-bfde-42f2-87d7-16f72f8acece": {
+    "src": "assets/release-covers/9a4082d9-bfde-42f2-87d7-16f72f8acece.jpg",
+    "sourceUrl": "https://ordosofficial.bandcamp.com/album/fire",
+    "label": "Ordos — Fire",
+    "checked": "2026-10-28"
+  },
+  "f4017056-1a5a-4f98-ba64-e31ac7a4ad40": {
+    "src": "assets/release-covers/f4017056-1a5a-4f98-ba64-e31ac7a4ad40.jpg",
+    "sourceUrl": "https://obnoxiousyouth.bandcamp.com/album/burning-savage",
+    "label": "Obnoxious Youth — Burning Savage",
+    "checked": "2026-10-28"
+  },
+  "ac8c706a-dbcb-43aa-88fd-411172f12ea8": {
+    "src": "assets/release-covers/f4017056-1a5a-4f98-ba64-e31ac7a4ad40.jpg",
+    "sourceUrl": "https://obnoxiousyouth.bandcamp.com/album/burning-savage",
+    "label": "Obnoxious Youth — Burning Savage",
+    "checked": "2026-10-28"
+  },
+  "54b7cde1-fe5e-4671-b190-6819c11a0bcc": {
+    "src": "assets/release-covers/54b7cde1-fe5e-4671-b190-6819c11a0bcc.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/indulgence",
+    "label": "The Search — Indulgence",
+    "checked": "2026-10-28"
+  },
+  "d814381c-a73f-46b2-a169-4de0eb998f65": {
+    "src": "assets/release-covers/54b7cde1-fe5e-4671-b190-6819c11a0bcc.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/indulgence",
+    "label": "The Search — Indulgence",
+    "checked": "2026-10-28"
+  },
+  "adae136c-894d-4fa6-b607-afd4cd040d3e": {
+    "src": "assets/release-covers/adae136c-894d-4fa6-b607-afd4cd040d3e.jpg",
+    "sourceUrl": "https://hammerheart.bandcamp.com/album/mourninghoul",
+    "label": "Sarcasm — Mourninghoul",
+    "checked": "2026-10-28"
+  },
+  "ac125a76-9355-4cd8-986e-b0473c89d833": {
+    "src": "assets/release-covers/ac125a76-9355-4cd8-986e-b0473c89d833.jpg",
+    "sourceUrl": "https://swedishstream.bandcamp.com/album/tr-v-rld",
+    "label": "Å — Åtråvärld",
+    "checked": "2026-10-28"
+  },
+  "27c16d87-975d-4a2f-a7fb-5d7286de391b": {
+    "src": "assets/release-covers/27c16d87-975d-4a2f-a7fb-5d7286de391b.jpg",
+    "sourceUrl": "https://chaos-records.bandcamp.com/album/orbithon-wave",
+    "label": "Sentinel Sirens — Orbithon Wave",
+    "checked": "2026-10-28"
+  },
+  "307093bc-d460-4b38-b27f-d37ebf95f96c": {
+    "src": "assets/release-covers/307093bc-d460-4b38-b27f-d37ebf95f96c.jpg",
+    "sourceUrl": "https://chaos-records.bandcamp.com/album/the-locust-mantra",
+    "label": "Third Storm — The Locust Mantra",
+    "checked": "2026-10-28"
+  },
+  "78e9e148-0e25-4079-8e76-1b18573e564e": {
+    "src": "assets/release-covers/78e9e148-0e25-4079-8e76-1b18573e564e.jpg",
+    "sourceUrl": "https://thesearch.bandcamp.com/album/extras",
+    "label": "The Search — Extras",
+    "checked": "2026-10-28"
+  },
+  "e24fe161-d0b4-4d1f-8cfb-e560af7a8bad": {
+    "src": "assets/release-covers/e24fe161-d0b4-4d1f-8cfb-e560af7a8bad.jpg",
+    "sourceUrl": "https://sarcasm-sweden.bandcamp.com/album/stellar-stream-obscured",
+    "label": "Sarcasm — Stellar Stream Obscured",
+    "checked": "2026-10-28"
+  },
+  "ba756a66-f1f4-4a70-adf6-06f5eb4e360f": {
+    "src": "assets/release-covers/ba756a66-f1f4-4a70-adf6-06f5eb4e360f.jpg",
+    "sourceUrl": "https://music.apple.com/us/album/stormvarning/1612425803",
+    "label": "Östra Aros — Stormvarning",
+    "checked": "2026-10-28"
+  },
+  "a62cf3d3-0c1f-4d52-b2d2-37e4a99b8957": {
+    "src": "assets/release-covers/ba756a66-f1f4-4a70-adf6-06f5eb4e360f.jpg",
+    "sourceUrl": "https://backstreetbattalion.com/index.php?lang=en&page=recenze&s=2021",
+    "label": "Östra Aros — Stormvarning",
+    "checked": "2026-10-28",
+    "note": "2021 Pretty Shitty Town LP cover visually matched to high-resolution digital artwork. LP review reproduces same front cover and identifies PSTR053."
+  },
+  "3abb38e2-e82b-46ae-9ffb-c023964a501c": {
+    "src": "assets/release-covers/3abb38e2-e82b-46ae-9ffb-c023964a501c.jpg",
+    "sourceUrl": "https://reveal-svr.bandcamp.com/album/doppelherz",
+    "label": "Reveal! — Doppelherz",
+    "checked": "2026-10-28"
+  },
+  "547aec03-ace3-4a72-afcd-481a2761b097": {
+    "src": "assets/release-covers/3abb38e2-e82b-46ae-9ffb-c023964a501c.jpg",
+    "sourceUrl": "https://reveal-svr.bandcamp.com/album/doppelherz",
+    "label": "Reveal! — Doppelherz",
+    "checked": "2026-10-28"
+  },
+  "245f4efc-ff0c-46fc-adb7-17cfc7ab84e4": {
+    "src": "assets/release-covers/3abb38e2-e82b-46ae-9ffb-c023964a501c.jpg",
+    "sourceUrl": "https://reveal-svr.bandcamp.com/album/doppelherz",
+    "label": "Reveal! — Doppelherz",
+    "checked": "2026-10-28"
+  },
+  "6ef1fec1-f95e-42d4-96ad-7ab0691783fb": {
+    "src": "assets/release-covers/6ef1fec1-f95e-42d4-96ad-7ab0691783fb.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/by-gun-by-rope-by-knife/1516271894?uo=4",
+    "label": "Snuffed By The Yakuza — By Gun by Rope by Knife",
+    "checked": "2026-10-28"
   }
 };
-
