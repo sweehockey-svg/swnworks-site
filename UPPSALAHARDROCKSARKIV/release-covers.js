@@ -1572,5 +1572,191 @@ window.ARCHIVE_RELEASE_COVERS = {
     "sourceUrl": "https://www.metal-archives.com/albums/The_Mist_of_Avalon/The_Mist_of_Avalon_Limited/166127",
     "label": "The Mist of Avalon — The Mist of Avalon Limited",
     "checked": "2026-10-28"
+  },
+  "183a9792-3b5f-4ae3-8873-d721981a8652": {
+    "src": "assets/release-covers/183a9792-3b5f-4ae3-8873-d721981a8652.jpg",
+    "sourceUrl": "https://open.spotify.com/album/4613flEM5XziJKmGRK3jOr",
+    "label": "Nazghor — Baptized in Blood",
+    "checked": "2026-10-28"
+  },
+  "02959a92-990b-4603-a344-4c1d5945a8f3": {
+    "src": "assets/release-covers/02959a92-990b-4603-a344-4c1d5945a8f3.jpg",
+    "sourceUrl": "https://open.spotify.com/album/47n20VKbnBOOx7iVorVHmm",
+    "label": "Nazghor — Bathe in Ashes",
+    "checked": "2026-10-28"
+  },
+  "16c4b7a3-edcf-48c0-ac01-f5289c82cc57": {
+    "src": "assets/release-covers/16c4b7a3-edcf-48c0-ac01-f5289c82cc57.jpg",
+    "sourceUrl": "https://open.spotify.com/album/4kqtOl6rOw9aEzBeKIUI6a",
+    "label": "Östra Aros — Kollektiv reträtt",
+    "checked": "2026-10-28"
+  },
+  "34556c5a-4296-40c4-ba86-b67666f3bc81": {
+    "src": "assets/release-covers/34556c5a-4296-40c4-ba86-b67666f3bc81.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/perisher-single/1865874679?uo=4",
+    "label": "Circular Ruin — Perisher",
+    "checked": "2026-10-28"
+  },
+  "47dcee3d-56e7-43bd-a96a-8be11d7f0730": {
+    "src": "assets/release-covers/47dcee3d-56e7-43bd-a96a-8be11d7f0730.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/the-altering-altar-single/1865866257?uo=4",
+    "label": "Circular Ruin — The Altering Altar",
+    "checked": "2026-10-28"
+  },
+  "c41047c0-c78a-466e-af40-dd6bb3060891": {
+    "src": "assets/release-covers/c41047c0-c78a-466e-af40-dd6bb3060891.jpg",
+    "sourceUrl": "https://open.spotify.com/album/5ycK4c6zXNbUG1LIuO8mXR",
+    "label": "Nazghor — Cursed and Unblessed",
+    "checked": "2026-10-28"
+  },
+  "bfd884e7-d007-4ea2-bde3-4745806e394b": {
+    "src": "assets/release-covers/bfd884e7-d007-4ea2-bde3-4745806e394b.jpg",
+    "sourceUrl": "https://open.spotify.com/album/0aU9XCrJJRUrnysB5BfQ9d",
+    "label": "Imperial Domain — History Repeating",
+    "checked": "2026-10-28"
+  },
+  "5fddf230-0d19-43be-b7db-31848f571e5e": {
+    "src": "assets/release-covers/5fddf230-0d19-43be-b7db-31848f571e5e.jpg",
+    "sourceUrl": "https://open.spotify.com/album/1RLD0QNs5vvTYcfzdHcDGp",
+    "label": "Imperial Domain — Retribution",
+    "checked": "2026-10-28"
+  },
+  "c63477a0-13d2-4f74-a731-76d0566060d1": {
+    "src": "assets/release-covers/c63477a0-13d2-4f74-a731-76d0566060d1.jpg",
+    "sourceUrl": "https://open.spotify.com/album/5jJe01ocQn0NijiAKiXsdP",
+    "label": "Obnoxious Youth — Burning Savage",
+    "checked": "2026-10-28"
+  },
+  "fc1ca3b6-6e9b-4161-b6af-3aa0c27cb2da": {
+    "src": "assets/release-covers/fc1ca3b6-6e9b-4161-b6af-3aa0c27cb2da.jpg",
+    "sourceUrl": "https://open.spotify.com/album/5KqFXxLiZt6Yfcz6lpxkOC",
+    "label": "Nazghor — Esoteric Bloodline",
+    "checked": "2026-10-28"
+  },
+  "6cc31457-8ca4-4692-b2aa-e6447f7d7b55": {
+    "src": "assets/release-covers/6cc31457-8ca4-4692-b2aa-e6447f7d7b55.jpg",
+    "sourceUrl": "https://open.spotify.com/album/2TC1bhb2OT3TUrS9OuAax0",
+    "label": "Obnoxious Youth — Ethereal Termination",
+    "checked": "2026-10-28"
+  },
+  "4c1cf929-f22e-47a9-a69e-ea87affa8af7": {
+    "src": "assets/release-covers/4c1cf929-f22e-47a9-a69e-ea87affa8af7.jpg",
+    "sourceUrl": "https://open.spotify.com/album/1W522VvuyzPxggxO70SSg1",
+    "label": "Nazghor — Primordial Lineage",
+    "checked": "2026-10-28"
+  },
+  "a632cd52-a507-41c8-b11a-9f3bb809fce2": {
+    "src": "assets/release-covers/a632cd52-a507-41c8-b11a-9f3bb809fce2.jpg",
+    "sourceUrl": "https://open.spotify.com/album/4BiYXBX4aCSBUHcOMRAaXX",
+    "label": "Nazghor — Sons of Shadows",
+    "checked": "2026-10-28"
+  },
+  "b62125ef-b48f-4cf6-80e4-d02ea1d07c28": {
+    "src": "assets/release-covers/b62125ef-b48f-4cf6-80e4-d02ea1d07c28.jpg",
+    "sourceUrl": "https://open.spotify.com/album/7iPrKhg1qGiwyAl47UfGfi",
+    "label": "Watain — The Howling",
+    "checked": "2026-10-28"
+  },
+  "9e010d6b-32f9-4cb3-88b7-53ebfa504869": {
+    "src": "assets/release-covers/9e010d6b-32f9-4cb3-88b7-53ebfa504869.jpg",
+    "sourceUrl": "https://open.spotify.com/album/4Mbdu1XlqGkECLVoY9tIZp",
+    "label": "Nazghor — Massive Omen Paradox",
+    "checked": "2026-10-28"
+  },
+  "a5ad25a4-7d70-4451-9b7f-42acacfb3188": {
+    "src": "assets/release-covers/a5ad25a4-7d70-4451-9b7f-42acacfb3188.jpg",
+    "sourceUrl": "https://open.spotify.com/album/5BZA6RUg3yibcsqcnuzmi6",
+    "label": "Östra Aros — Blåsvarta Bröder",
+    "checked": "2026-10-28"
+  },
+  "7b201dda-90f0-4e17-ad24-3684eace3aae": {
+    "src": "assets/release-covers/7b201dda-90f0-4e17-ad24-3684eace3aae.jpg",
+    "sourceUrl": "https://open.spotify.com/album/26EkAIEQNb6NZ9vx5IKeo7",
+    "label": "Imperial Domain — True Face of War",
+    "checked": "2026-10-28"
+  },
+  "34915122-4af9-4c94-b5ad-f6796eaa635b": {
+    "src": "assets/release-covers/34915122-4af9-4c94-b5ad-f6796eaa635b.jpg",
+    "sourceUrl": "https://open.spotify.com/album/6K60bDiO25S3A3Bhz3lIr7",
+    "label": "Noctum — Until Then...Until the End",
+    "checked": "2026-10-28"
+  },
+  "3cf2f2a5-09b1-4d79-993b-27e792f32205": {
+    "src": "assets/release-covers/3cf2f2a5-09b1-4d79-993b-27e792f32205.jpg",
+    "sourceUrl": "https://electricassaultrecords.bandcamp.com/album/sultans-of-speed",
+    "label": "Gravmaskin — Sultans Of Speed",
+    "checked": "2026-10-28"
+  },
+  "02a9a13e-9c5b-442b-87fa-8cc5f9462a18": {
+    "src": "assets/release-covers/02a9a13e-9c5b-442b-87fa-8cc5f9462a18.jpg",
+    "sourceUrl": "https://www.metal-archives.com/albums/In_Solitude/Lavender_-_Jesus_I_Betong/385232",
+    "label": "In Solitude — Lavender / Jesus I Betong",
+    "checked": "2026-10-28"
+  },
+  "19209bac-1149-4a71-a63b-61a491e09573": {
+    "src": "assets/release-covers/19209bac-1149-4a71-a63b-61a491e09573.jpg",
+    "sourceUrl": "https://music.apple.com/se/album/leaving-vangelis-single/1185055982?uo=4",
+    "label": "The Horror The Horror — Leaving/Vangelis",
+    "checked": "2026-10-28"
+  },
+  "6adc6ace-2f44-4196-823f-161a1cd98eba": {
+    "src": "assets/release-covers/6adc6ace-2f44-4196-823f-161a1cd98eba.jpg",
+    "sourceUrl": "https://www.metal-archives.com/albums/Gus_of_Sweden/Major_Minority/1089937",
+    "label": "Gus of Sweden — Major Minority",
+    "checked": "2026-10-28"
+  },
+  "ff960dfa-2b07-408e-8dfe-22e40d0f9ecc": {
+    "src": "assets/release-covers/ff960dfa-2b07-408e-8dfe-22e40d0f9ecc.jpg",
+    "sourceUrl": "https://www.fwoshm.com/index/R/1748-raw-swe/2921-everybody--7-wonders",
+    "label": "R.A.W. — Everybody / 7 Wonders",
+    "checked": "2026-10-28"
+  },
+  "d0b9d06f-dcd6-47e7-b9ee-c9c07fb79061": {
+    "src": "assets/release-covers/d0b9d06f-dcd6-47e7-b9ee-c9c07fb79061.jpg",
+    "sourceUrl": "https://www.fwoshm.com/index/R/1748-raw-swe/2935-i-believe",
+    "label": "R.A.W. — I Believe",
+    "checked": "2026-10-28"
+  },
+  "d57b59c1-d400-4a35-9c45-e9299b2f8e8b": {
+    "src": "assets/release-covers/d57b59c1-d400-4a35-9c45-e9299b2f8e8b.jpg",
+    "sourceUrl": "https://www.fwoshm.com/index/R/1748-raw-swe/2953-first-time-love--believe",
+    "label": "R.A.W. — First Time Love / Believe",
+    "checked": "2026-10-28"
+  },
+  "35aeb1e9-56b5-41f7-a7ca-3a3fa465deb7": {
+    "src": "assets/release-covers/35aeb1e9-56b5-41f7-a7ca-3a3fa465deb7.jpg",
+    "sourceUrl": "https://www.fwoshm.com/index/S/1089-spellbound-swe--uppsala/1627-my-kinda-girl--gone-rockin",
+    "label": "Spellbound — My Kinda Girl",
+    "checked": "2026-10-28"
+  },
+  "1d3ab296-8b07-461d-8d03-5cfb9b500f13": {
+    "src": "assets/release-covers/1d3ab296-8b07-461d-8d03-5cfb9b500f13.jpg",
+    "sourceUrl": "https://www.fwoshm.com/index/S/1089-spellbound-swe--uppsala/1630-rockin-reckless--on-the-prowl",
+    "label": "Spellbound — Rockin' Reckless",
+    "checked": "2026-10-28"
+  },
+  "100b0cd4-5d9a-45ca-bfeb-243523db86da": {
+    "src": "assets/release-covers/100b0cd4-5d9a-45ca-bfeb-243523db86da.jpg",
+    "sourceUrl": "https://www.fwoshm.com/index/S/1089-spellbound-swe--uppsala/1628-burning-love--love-taker",
+    "label": "Spellbound — Burning Love",
+    "checked": "2026-10-28"
+  },
+  "e0f90a83-d8fb-4d48-8954-9aa671f315fe": {
+    "src": "assets/release-covers/e0f90a83-d8fb-4d48-8954-9aa671f315fe.jpg",
+    "sourceUrl": "https://www.metal-archives.com/albums/Reveal%21/Some_Marionettes%2C_Some_Kites_%28A_Few_Knives%29/971721",
+    "label": "Reveal! — Some Marionettes, Some Kites (A Few Knives)",
+    "checked": "2026-10-28"
+  },
+  "7b6be41f-2ddd-4923-a53c-c0d1e0d330d3": {
+    "src": "assets/release-covers/7b6be41f-2ddd-4923-a53c-c0d1e0d330d3.jpg",
+    "sourceUrl": "https://www.cryptofthewizard.com/products/reveal-opaque-what-pigs-get-7",
+    "label": "Reveal! — Opaque / What Pigs Get",
+    "checked": "2026-10-28"
+  },
+  "afac031f-bfe8-4689-bd08-748d76acdbdf": {
+    "src": "assets/release-covers/afac031f-bfe8-4689-bd08-748d76acdbdf.jpg",
+    "sourceUrl": "https://www.metal-archives.com/albums/Watain/Reaping_Death/267397",
+    "label": "Watain — Reaping Death",
+    "checked": "2026-10-28"
   }
 };
