@@ -1049,7 +1049,7 @@
   }
 
 
-  function releaseRow(r) {
+  function releaseRow(r, bandLabel) {
     const band = releaseBand(r.id);
     const credits = creditsForRelease(r.id).slice(0,4).map(x => `${personName(x.person_id)} — ${roleSv(x.role)}`);
     const cover = releaseMedia(r);
@@ -1057,7 +1057,7 @@
       <div class="release-cover-thumb">${cover ? `<img src="${escapeHtml(cover)}" alt="${escapeHtml(r.title)}" loading="lazy">` : '<span>UHA</span>'}</div>
       <div class="release-year">${r.release_year || '—'}</div>
       <div><div class="release-title">${escapeHtml(r.title)}</div><span class="release-kind">${escapeHtml([r.release_type, r.format].filter(Boolean).join(' · '))}</span></div>
-      <div class="release-band">${escapeHtml(band?.canonical_name || 'Band kartläggs')}</div>
+      <div class="release-band">${escapeHtml(typeof bandLabel === 'string' ? bandLabel : (band?.canonical_name || 'Band kartläggs'))}</div>
       <div class="release-credits">${escapeHtml(credits.join(' · ') || 'Krediter kartläggs')}${creditsForRelease(r.id).length > 4 ? ' …' : ''}</div>
     </a>`;
   }
@@ -1741,8 +1741,19 @@
   }
 
   function renderReleasesIndex() {
-    const types = [...new Set(state.releases.map(r=>r.release_type).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'sv'));
-    const decades = [...new Set(state.releases.filter(r=>r.release_year).map(r=>Math.floor(r.release_year/10)*10))].sort((a,b)=>a-b);
+    // Shared releases count when at least one credited band belongs to the
+    // archive's authoritative Uppsala scope; external-only/orphan rows do not.
+    const localBands = new Map(allBandRows().filter(isUppsalaBand).map(b => [b.id, b]));
+    const localBandNames = new Map();
+    state.releaseBands.forEach(link => {
+      const band = localBands.get(link.band_id);
+      if (!band) return;
+      if (!localBandNames.has(link.release_id)) localBandNames.set(link.release_id, new Set());
+      localBandNames.get(link.release_id).add(band.canonical_name);
+    });
+    const releases = state.releases.filter(r => localBandNames.has(r.id));
+    const types = [...new Set(releases.map(r=>r.release_type).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'sv'));
+    const decades = [...new Set(releases.filter(r=>r.release_year).map(r=>Math.floor(r.release_year/10)*10))].sort((a,b)=>a-b);
     app.innerHTML = `${pageHeader('DEMOER / KASSETTER / UTGÅVOR','Utgåvor','Utgåvorna är ofta de bästa hållpunkterna för årtal, lineups och hur scenen faktiskt såg ut vid en viss tidpunkt.')}
       <section class="section page-section first-section">
         <div class="index-toolbar"><label class="search-box"><span>Sök utgåva</span><input id="release-search" type="search" placeholder="Titel, band eller år…"></label><div class="index-count"><strong id="registry-count"></strong> utgåvor</div></div>
@@ -1755,10 +1766,10 @@
         <div class="release-stack" id="release-stack"></div>${registryFooter()}
       </section>`;
     const input=$('#release-search'), type=$('#release-type'), decade=$('#release-decade'), sort=$('#release-sort');
-    const bandNames=new Map(state.releases.map(r=>[r.id,releaseBand(r.id)?.canonical_name || '']));
+    const bandNames=new Map(releases.map(r=>[r.id,[...localBandNames.get(r.id)].sort((a,b)=>a.localeCompare(b,'sv')).join(' / ')]));
     const update=bindRegistry(()=> {
       const term=input.value.trim().toLocaleLowerCase('sv');
-      return state.releases.filter(r=>
+      return releases.filter(r=>
         `${r.title} ${bandNames.get(r.id)} ${r.release_year||''}`.toLocaleLowerCase('sv').includes(term) &&
         (!type.value || r.release_type===type.value) &&
         (!decade.value || (decade.value==='unknown' ? !r.release_year : r.release_year && Math.floor(r.release_year/10)*10===Number(decade.value)))
@@ -1769,7 +1780,7 @@
         const yearB=b.release_year || (sort.value==='newest' ? -1 : 9999);
         return (sort.value==='newest' ? yearB-yearA : yearA-yearB) || a.title.localeCompare(b.title,'sv');
       });
-    },rows=>rows.map(releaseRow).join(''),'release-stack',[[input,'input'],[type,'change'],[decade,'change'],[sort,'change']]);
+    },rows=>rows.map(r=>releaseRow(r, bandNames.get(r.id))).join(''),'release-stack',[[input,'input'],[type,'change'],[decade,'change'],[sort,'change']]);
     $('#registry-reset').addEventListener('click',()=> { input.value=''; type.value=''; decade.value=''; sort.value='oldest'; update(); });
   }
 
