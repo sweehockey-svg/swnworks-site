@@ -1209,3 +1209,23 @@ body.network-body-fullscreen { overflow:hidden; }
 
 .home-recent h2 { margin:10px 0 0; font-size:clamp(30px,3.4vw,46px); line-height:1.08; }
 
+
+/* Expand each category without lengthening the initial home view. */
+.recent-grid { align-items:start; }
+.recent-column { min-width:0; }
+.recent-column > .recent-card { min-height:110px; box-sizing:border-box; }
+.recent-history { border:1px solid var(--line-strong); border-top:0; }
+.recent-history summary { padding:13px 18px; color:var(--muted); font:700 13px var(--condensed); cursor:pointer; }
+.recent-history summary:hover { color:var(--acid); }
+.recent-history summary:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
+.recent-history[open] summary { border-bottom:1px solid var(--line); color:var(--acid); }
+.recent-history ol { margin:0; padding:0; max-height:360px; overflow-y:auto; scrollbar-color:#666 #141619; }
+.recent-history li { list-style:none; border-bottom:1px solid var(--line); }
+.recent-history li:last-child { border-bottom:0; }
+.recent-history li a { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 12px; padding:13px 18px; color:var(--paper); text-decoration:none; }
+.recent-history li a:hover { background:rgba(255,255,255,.045); }
+.recent-history li a:focus-visible { outline:2px solid var(--acid); outline-offset:-2px; }
+.recent-history li span { font:700 17px/1.25 var(--condensed); overflow-wrap:anywhere; }
+.recent-history li time { color:var(--muted); font:11px/1.6 var(--condensed); }
+.recent-history li small { grid-column:1/-1; color:var(--muted); font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
+

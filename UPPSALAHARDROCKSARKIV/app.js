@@ -958,7 +958,7 @@
   }
 
 
-  function recentArchiveEntries() {
+  function recentArchiveEntries(limit = 1) {
     const localIds = new Set(uppsalaBands().map(b => b.id));
     const localPeople = new Set(state.memberships.filter(m => localIds.has(m.band_id)).map(m => m.person_id));
     const localReleases = new Set(state.releaseBands.filter(r => localIds.has(r.band_id)).map(r => r.release_id));
@@ -975,18 +975,28 @@
     ].filter(e => Number.isFinite(e.timestamp))
       .sort((a, b) => b.timestamp - a.timestamp || a.name.localeCompare(b.name, 'sv') || a.id.localeCompare(b.id))
       ;
-    return ['Band', 'Person', 'Utgåva'].map(type => entries.find(e => e.type === type)).filter(Boolean);
+    return ['Band', 'Person', 'Utgåva'].flatMap(type => entries.filter(e => e.type === type).slice(0, limit));
   }
 
+
   function recentArchiveSection() {
-    const entries = recentArchiveEntries();
+    const all = recentArchiveEntries(20);
+    const entries = ['Band', 'Person', 'Utgåva'].map(type => all.find(e => e.type === type)).filter(Boolean);
     if (!entries.length) return '';
     const dates = new Intl.DateTimeFormat('sv-SE', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Stockholm' });
+    const labels = {Band:'bandet', Person:'personen', 'Utgåva':'utgåvan'};
+    const groups = {Band:'banden', Person:'personerna', 'Utgåva':'utgåvorna'};
+    const history = type => {
+      const items = all.filter(e => e.type === type);
+      return '<details class="recent-history"><summary aria-label="Visa de ' + items.length + ' senaste ' + groups[type] + '">Visa de ' + items.length + ' senaste</summary>'
+        + '<ol aria-label="Senast tillagda ' + groups[type] + '">' + items.map(e => '<li><a href="' + e.href + '"><span>' + escapeHtml(e.name) + '</span>'
+          + '<time datetime="' + escapeHtml(e.createdAt) + '">' + dates.format(e.timestamp) + '</time><small>' + escapeHtml(e.detail) + '</small></a></li>').join('') + '</ol></details>';
+    };
     return '<section class="section home-recent" aria-labelledby="home-recent-title">'
       + '<div class="section-head compact-head"><div><div class="section-kicker">SENAST TILLAGT</div><h2 id="home-recent-title">Nytt i arkivet</h2></div><p>Band, personer och utgåvor som fått en plats i arkivet.</p></div>'
-      + '<div class="recent-grid">' + entries.map(e => '<a class="recent-card" href="' + e.href + '">'
+      + '<div class="recent-grid">' + entries.map(e => '<div class="recent-column"><a class="recent-card" href="' + e.href + '">'
         + '<div class="recent-art">' + (e.image ? '<img src="' + escapeHtml(e.image) + '" alt="" loading="lazy">' : '<span aria-hidden="true">' + e.type.slice(0,1) + '</span>') + '</div>'
-        + '<div class="recent-copy"><div class="recent-meta"><span>Senaste ' + ({Band:'bandet',Person:'personen','Utgåva':'utgåvan'}[e.type]) + '</span><time datetime="' + escapeHtml(e.createdAt) + '">' + dates.format(e.timestamp) + '</time></div><h3>' + escapeHtml(e.name) + '</h3><p>' + escapeHtml(e.detail) + '</p></div><span class="recent-arrow" aria-hidden="true">↗</span></a>').join('')
+        + '<div class="recent-copy"><div class="recent-meta"><span>Senaste ' + labels[e.type] + '</span><time datetime="' + escapeHtml(e.createdAt) + '">' + dates.format(e.timestamp) + '</time></div><h3>' + escapeHtml(e.name) + '</h3><p>' + escapeHtml(e.detail) + '</p></div><span class="recent-arrow" aria-hidden="true">↗</span></a>' + history(e.type) + '</div>').join('')
       + '</div></section>';
   }
 
@@ -2566,5 +2576,6 @@
   if (routePath() === '/kontakt') renderRoute();
   load();
 })();
+
 
 
