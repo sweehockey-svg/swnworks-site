@@ -958,7 +958,7 @@
   }
 
 
-  function recentArchiveEntries(limit = 6) {
+  function recentArchiveEntries() {
     const localIds = new Set(uppsalaBands().map(b => b.id));
     const localPeople = new Set(state.memberships.filter(m => localIds.has(m.band_id)).map(m => m.person_id));
     const localReleases = new Set(state.releaseBands.filter(r => localIds.has(r.band_id)).map(r => r.release_id));
@@ -966,7 +966,7 @@
       id: row.id, name: row.canonical_name || row.title, type, href, detail, image,
       createdAt: row.created_at, timestamp: Date.parse(row.created_at)
     });
-    return [
+    const entries = [
       ...uppsalaBands().map(b => entry(b, 'Band', bandHref(b), (b.genres || []).join(' / '), bandMedia(b))),
       ...state.people.filter(p => localPeople.has(p.id)).map(p => entry(p, 'Person', personHref(p),
         [...new Set(membershipsForPerson(p.id).filter(m => localIds.has(m.band_id)).map(m => bandName(m.band_id)))].join(' · '), personMedia(p))),
@@ -974,7 +974,8 @@
         [releaseBand(r.id)?.canonical_name, r.release_year].filter(Boolean).join(' · '), releaseMedia(r)))
     ].filter(e => Number.isFinite(e.timestamp))
       .sort((a, b) => b.timestamp - a.timestamp || a.name.localeCompare(b.name, 'sv') || a.id.localeCompare(b.id))
-      .slice(0, limit);
+      ;
+    return ['Band', 'Person', 'Utgåva'].map(type => entries.find(e => e.type === type)).filter(Boolean);
   }
 
   function recentArchiveSection() {
@@ -985,7 +986,7 @@
       + '<div class="section-head compact-head"><div><div class="section-kicker">SENAST TILLAGT</div><h2 id="home-recent-title">Nytt i arkivet</h2></div><p>Band, personer och utgåvor som fått en plats i arkivet.</p></div>'
       + '<div class="recent-grid">' + entries.map(e => '<a class="recent-card" href="' + e.href + '">'
         + '<div class="recent-art">' + (e.image ? '<img src="' + escapeHtml(e.image) + '" alt="" loading="lazy">' : '<span aria-hidden="true">' + e.type.slice(0,1) + '</span>') + '</div>'
-        + '<div class="recent-copy"><div class="recent-meta"><span>' + e.type + '</span><time datetime="' + escapeHtml(e.createdAt) + '">' + dates.format(e.timestamp) + '</time></div><h3>' + escapeHtml(e.name) + '</h3><p>' + escapeHtml(e.detail) + '</p></div><span class="recent-arrow" aria-hidden="true">↗</span></a>').join('')
+        + '<div class="recent-copy"><div class="recent-meta"><span>Senaste ' + ({Band:'bandet',Person:'personen','Utgåva':'utgåvan'}[e.type]) + '</span><time datetime="' + escapeHtml(e.createdAt) + '">' + dates.format(e.timestamp) + '</time></div><h3>' + escapeHtml(e.name) + '</h3><p>' + escapeHtml(e.detail) + '</p></div><span class="recent-arrow" aria-hidden="true">↗</span></a>').join('')
       + '</div></section>';
   }
 
@@ -2565,4 +2566,5 @@
   if (routePath() === '/kontakt') renderRoute();
   load();
 })();
+
 
