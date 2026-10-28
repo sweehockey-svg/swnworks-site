@@ -1709,10 +1709,25 @@
     return null;
   }
 
+  function groupedCreditsForPerson(id) {
+    const releases = releasesById();
+    const groups = new Map();
+    state.releaseMembers.filter(credit => credit.person_id === id).forEach(credit => {
+      const release = releases.get(credit.release_id);
+      if (!release) return;
+      if (!groups.has(release.id)) groups.set(release.id, { release, credits: [] });
+      groups.get(release.id).credits.push(credit);
+    });
+    return [...groups.values()].map(group => ({
+      ...group,
+      roles: [...new Set(group.credits.map(credit => roleSv(credit.role || '')).filter(Boolean))].join(' · ')
+    })).sort((a,b) => (a.release.release_year || 9999) - (b.release.release_year || 9999));
+  }
+
   function renderPersonDetail(p) {
     const mems = membershipsForPerson(p.id).sort((a,b) => (a.joined_year || 9999) - (b.joined_year || 9999));
     const bandGroups = groupedMembershipsForPerson(p.id);
-    const credits = state.releaseMembers.filter(x => x.person_id === p.id).map(x => ({...x, release: releasesById().get(x.release_id)})).filter(x => x.release).sort((a,b) => (a.release.release_year || 9999) - (b.release.release_year || 9999));
+    const credits = groupedCreditsForPerson(p.id);
     const claims = claimsForPerson(p.id);
     const sources = sourcesForClaims(claims);
     const gallery = personGallery(p);
@@ -1732,7 +1747,7 @@
           <section class="content-section"><div class="content-head"><span>01</span><h2>Band</h2></div><div class="credit-list">${bandGroups.length ? bandGroups.map(group => `<a href="${bandHref(group.band)}"><strong>${escapeHtml(group.band.canonical_name)}</strong><span>${escapeHtml(group.roles)}</span><em>${escapeHtml(group.periods)}</em></a>`).join('') : '<div class="empty-state">Bandkopplingar kartläggs.</div>'}</div></section>
           ${family.length?`<section class="content-section family-section"><div class="content-head"><span>♥</span><h2>Dokumenterade släktkopplingar</h2></div><p class="section-intro">Bara offentligt godkända och källbelagda familjerelationer. De påverkar inte beräkningen av musikaliska steg.</p><div class="colleague-grid">${family.map(x=>`<div class="colleague-item"><a href="${personHref(x.relative)}"><strong>${escapeHtml(x.relative.canonical_name)}</strong></a><span>${x.relation_type==='sibling' ? (/tvilling/i.test(x.note||'')?'Tvillingbror':'Syskon') :x.relation_type==='parent_child'?'Förälder / barn':x.relation_type==='spouse_partner'?'Gift / partner':x.relation_type==='sibling_in_law'?'Svåger / svägerska':'Familjerelation'}</span>${x.source?`<span>Källa: ${escapeHtml(x.source.title)}</span>`:''}</div>`).join('')}</div></section>`:''}
           <section class="content-section colleague-section"><div class="content-head"><span>↔</span><h2>Har varit med i samma band som</h2></div><p class="section-intro">Dokumenterat medlemskap i samma band. Det innebär inte nödvändigtvis att de spelade samtidigt.</p><div class="colleague-grid">${colleagues.length?colleagues.map(x=>`<div class="colleague-item"><a href="${personHref(x.person)}"><strong>${escapeHtml(x.person.canonical_name)}</strong></a><span>${x.bands.map(b=>`<a href="${bandHref(b)}">${escapeHtml(b.canonical_name)}</a>`).join(', ')}</span></div>`).join(''):'<div class="empty-state">Inga gemensamma bandmedlemskap dokumenterade ännu.</div>'}</div><a class="network-profile-link" href="#/natverket">Utforska kopplingar i Nätverket ↗</a></section>
-          <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvekrediter</h2></div><div class="credit-list">${credits.length ? credits.map(x => `<a href="${releaseHref(x.release)}"><div class="credit-release"><strong>${escapeHtml(x.release.title)}</strong><small class="credit-band">${escapeHtml([...new Set(state.releaseBands.filter(rb => rb.release_id === x.release.id).map(rb => rb.credited_as || bandName(rb.band_id)).filter(Boolean))].join(' / '))}</small></div><span>${escapeHtml(roleSv(x.role || ''))}</span><em>${x.release.release_year || '—'}</em></a>`).join('') : '<div class="empty-state">Inga releasecredits registrerade ännu.</div>'}</div></section>
+          <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvekrediter</h2></div><div class="credit-list">${credits.length ? credits.map(x => `<a href="${releaseHref(x.release)}"><div class="credit-release"><strong>${escapeHtml(x.release.title)}</strong><small class="credit-band">${escapeHtml([...new Set(state.releaseBands.filter(rb => rb.release_id === x.release.id).map(rb => rb.credited_as || bandName(rb.band_id)).filter(Boolean))].join(' / '))}</small></div><span>${escapeHtml(x.roles)}</span><em>${x.release.release_year || '—'}</em></a>`).join('') : '<div class="empty-state">Inga releasecredits registrerade ännu.</div>'}</div></section>
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Relaterade bilder</h2></div><p class="section-intro">Gruppbilder och pressmaterial där personen är säkert knuten till sammanhanget. De används inte som individuella porträtt om bildidentifieringen inte är entydig.</p>${archiveGallery(gallery)}</section>` : ''}
           <section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Källäge</h2></div>${claimList(claims)}</section>
           ${sources.length ? `<section class="content-section"><div class="content-head"><span>${sourceNo}</span><h2>Källor</h2></div>${sourceList(sources)}</section>` : ''}
