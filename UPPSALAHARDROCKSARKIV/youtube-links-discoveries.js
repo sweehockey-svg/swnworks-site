@@ -361,3 +361,224 @@ window.ARCHIVE_YOUTUBE.push(...[
     "sourceNote": "Bandets egen livevideo från Brother Tuck, Stockholm 4 mars 2023; originalspåret på Horrorscope 2022."
   }
 ]);
+
+// Skithuvve: Uppsala punkrock, five members, 2023–2026. Artist original videos separated from Record Union Topic audio and fan-filmed concerts; 2026-10-29.
+window.ARCHIVE_YOUTUBE = window.ARCHIVE_YOUTUBE || [];
+window.ARCHIVE_YOUTUBE.push(...[
+  {
+    "band": "skithuvve",
+    "release": "708c7b4f-87eb-4b8a-a26e-0ae7ac484c87",
+    "title": "Skithuvve",
+    "id": "JdXyZRaoRzw",
+    "channel": "Skithuvve",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=JdXyZRaoRzw",
+    "sourceNote": "Bandets egen officiella musikvideo till Skithuvve; filmad vid restaurang Palermo."
+  },
+  {
+    "band": "skithuvve",
+    "release": "ce011d93-f848-4c84-a827-216883adb75b",
+    "title": "Gröt är också middag",
+    "id": "_8xnjmyxtSE",
+    "channel": "Skithuvve",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=_8xnjmyxtSE",
+    "sourceNote": "Bandets egen officiella musikvideo till den separata 2024-singeln, som också ingår på albumet Bryter ihop för idag."
+  },
+  {
+    "band": "skithuvve",
+    "release": "2cb060b6-7d14-4e81-8903-ad5d35522d31",
+    "title": "Gröt är också middag",
+    "id": "_8xnjmyxtSE",
+    "channel": "Skithuvve",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=_8xnjmyxtSE",
+    "sourceNote": "Samma officiella musikvideo för spår 1 på Bryter ihop för idag (2024)."
+  },
+  {
+    "band": "skithuvve",
+    "release": "2cb060b6-7d14-4e81-8903-ad5d35522d31",
+    "title": "Kroglokal",
+    "id": "7Zwn1SAZX5Y",
+    "channel": "Skithuvve",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=7Zwn1SAZX5Y",
+    "sourceNote": "Bandets egna videoklipp med Jenka Jenkins från Close-Ups punkbåt, låten från Bryter ihop för idag."
+  },
+  {
+    "band": "skithuvve",
+    "release": "2cb060b6-7d14-4e81-8903-ad5d35522d31",
+    "title": "Kroglokal",
+    "id": "MutrDDrn978",
+    "channel": "Skithuvve - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=MutrDDrn978",
+    "sourceNote": "Record Union officiella autogenererade audio för Kroglokal 2024, inte egen musikvideo."
+  },
+  {
+    "band": "skithuvve",
+    "release": "2cb060b6-7d14-4e81-8903-ad5d35522d31",
+    "title": "Gröt är också middag",
+    "id": "WextDf6d6Zc",
+    "channel": "Skithuvve - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=WextDf6d6Zc",
+    "sourceNote": "Record Union officiella autogenererade studioaudio på 2024 års album."
+  },
+  {
+    "band": "skithuvve",
+    "release": "b46166aa-fbcb-4c4c-8441-48c78fe34ad4",
+    "title": "Min slatt",
+    "id": "m1fMvg3Vi5E",
+    "channel": "Skithuvve - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=m1fMvg3Vi5E",
+    "sourceNote": "Record Union officiella autogenererade audio på Möped (2025)."
+  },
+  {
+    "band": "skithuvve",
+    "release": "b46166aa-fbcb-4c4c-8441-48c78fe34ad4",
+    "title": "Fack",
+    "id": "Taz7llRaI7Q",
+    "channel": "Skithuvve - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=Taz7llRaI7Q",
+    "sourceNote": "Record Union officiella autogenererade studioaudio på Möped."
+  },
+  {
+    "band": "skithuvve",
+    "release": "708c7b4f-87eb-4b8a-a26e-0ae7ac484c87",
+    "title": "Dumma dig",
+    "id": "idVGbN8CmT4",
+    "channel": "Skithuvve - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=idVGbN8CmT4",
+    "sourceNote": "Record Union officiella autogenererade studioaudio för 2023 albumspår Dumma dig."
+  },
+  {
+    "band": "skithuvve",
+    "release": "708c7b4f-87eb-4b8a-a26e-0ae7ac484c87",
+    "title": "Ändå blev det bråk",
+    "id": "S2qUkPSMn-g",
+    "channel": "Skithuvve - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=S2qUkPSMn-g",
+    "sourceNote": "Record Union officiella studioaudio för 2023 albumspår Ändå blev det bråk."
+  },
+  {
+    "band": "skithuvve",
+    "release": "e2980c3d-3e4f-44ed-9d86-4bc665a3ba4e",
+    "title": "Du är så härlig (Live)",
+    "id": "Ie2L2q40Qx0",
+    "channel": "Skithuvve - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=Ie2L2q40Qx0",
+    "sourceNote": "Autogenererat officiellt liveaudio på albumet Live på kroglokal (2026)."
+  },
+  {
+    "band": "skithuvve",
+    "release": "e2980c3d-3e4f-44ed-9d86-4bc665a3ba4e",
+    "title": "Skatans Tinderprofil (Live)",
+    "id": "zEuXISsWCpg",
+    "channel": "Skithuvve - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=zEuXISsWCpg",
+    "sourceNote": "Autogenererat officiellt liveaudio på albumet Live på kroglokal (2026)."
+  },
+  {
+    "band": "skithuvve",
+    "release": "e2980c3d-3e4f-44ed-9d86-4bc665a3ba4e",
+    "title": "Ingen aning (Live)",
+    "id": "rc6C9k2Okys",
+    "channel": "Skithuvve - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=rc6C9k2Okys",
+    "sourceNote": "Autogenererat officiellt liveaudio från 2026 års album, inte första 2023-singeln."
+  },
+  {
+    "band": "skithuvve",
+    "release": "e2980c3d-3e4f-44ed-9d86-4bc665a3ba4e",
+    "title": "Inte för att vi bryr oss (Live)",
+    "id": "you7eqz_GOo",
+    "channel": "Skithuvve - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=you7eqz_GOo",
+    "sourceNote": "Autogenererat officiellt liveaudio från 2026 års album."
+  },
+  {
+    "band": "skithuvve",
+    "release": "e2980c3d-3e4f-44ed-9d86-4bc665a3ba4e",
+    "title": "Skammen promenad (Live)",
+    "id": "eRe1yachI0s",
+    "channel": "Skithuvve - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=eRe1yachI0s",
+    "sourceNote": "Autogenererat officiellt 2026 liveaudio; Apple Music stavar livespåret Skammen promenad, studioalbumet 2024 Skammens promenad."
+  },
+  {
+    "band": "skithuvve",
+    "title": "Skithuvve – full konsert Örebro Punkfest (12 oktober 2024)",
+    "id": "1kfLKAKHSuU",
+    "channel": "Voidofhorror",
+    "kind": "live",
+    "checked": "2026-10-29",
+    "views": null,
+    "year": 2024,
+    "sourceUrl": "https://www.youtube.com/watch?v=1kfLKAKHSuU",
+    "sourceNote": "Publikfilmad hel konsert från Örebro punkfest 12 okt 2024, inte bandets officiella studioaudio."
+  },
+  {
+    "band": "skithuvve",
+    "title": "Upp till camping – live på Punken är vår (26 april 2025)",
+    "id": "cTTH_KIeAHU",
+    "channel": "77micke77",
+    "kind": "live",
+    "checked": "2026-10-29",
+    "views": null,
+    "year": 2025,
+    "sourceUrl": "https://www.youtube.com/watch?v=cTTH_KIeAHU",
+    "sourceNote": "Konsertinspelning från Pipeline Sundsvall 26 april 2025; separerad från 2023 års studioutgåva."
+  },
+  {
+    "band": "skithuvve",
+    "title": "Kroglokal – live på Kafé 44 (21 november 2025)",
+    "id": "ognqYqFnJaM",
+    "channel": "allanpreussen",
+    "kind": "live",
+    "checked": "2026-10-29",
+    "views": null,
+    "year": 2025,
+    "sourceUrl": "https://www.youtube.com/watch?v=ognqYqFnJaM",
+    "sourceNote": "Publikfilmat Kroglokal, videons titel anger 21 november 2025, men extern konsertlista 20 november; datum behöver korsverifieras."
+  }
+]);
