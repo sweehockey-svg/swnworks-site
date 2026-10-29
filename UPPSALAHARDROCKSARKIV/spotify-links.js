@@ -106,6 +106,7 @@ window.ARCHIVE_SPOTIFY = {
     "poeter-blir-dom": "04BjAh3LlAXmBrmR43kQuj",
     "pansar": "09dl53obZCL9eKNVfrGBCs",
     "digging-graves": "4aXcWMuX0QqTH7qlLe2HJK",
+    "grasbrand": "4vH2et3R4YosPIlEhW0pEl",
     "quagmire": "1P8VH7cchmm1tMXlA7nAZX",
     "reveal": "2dkiROdMEKXaAk4eXHsS6T",
     "sanctrum": "0GVqqZ3Zq6e8f6ObVrJxnr",
@@ -140,6 +141,12 @@ window.ARCHIVE_SPOTIFY = {
     "yersinia": "203FoNMgybnorIBb8KAJoW"
   },
   "releases": {
+    "28887779-6247-4e06-9720-10f17ac75061": {"id": "62VwT7kEpAZxAqfDuIT7Wk", "note": "Hemgång (2021), 1 spår, Gräsbrands originalsingel."},
+    "ab599b42-63b9-4e9c-a3b3-877ad1806c38": {"id": "6bG2X3fZFNJ4a2dgE7FxKo", "note": "Idiot (2021), 1 spår, Gräsbrands originalsingel."},
+    "fc175eda-7d66-442a-a8e1-e5f3fdf3f139": {"id": "1XSgSq4JKJp7MaP7yGxVqh", "note": "Slasher Basher (2022), separat originalsingel."},
+    "1b2c0500-8f1b-4c06-bfc3-8ed075997ece": {"id": "6gtdUpzu6cHGwIVLm1SA70", "note": "Horrorscope (2022), EP med 4 spår."},
+    "af306c80-28a2-45c8-a5fe-f673cf8eb00b": {"id": "0BD40kY2WCgw9Kab20LZsp", "note": "Turboculosis (2024), originalalbum 9 spår."},
+    "c21a1c24-8c15-4a04-8809-3884223d1f2d": {"id": "35AKwe7ZKjemUuyU2alZAj", "note": "Rad Warriors (2026), originalsingel 3:59."},
     "0429301d-4665-4726-a9af-b02cea9e4ba2": {"id": "3GbivRJd382MH80WmpP1G8", "note": "Uppsala Digging Graves originalalbum (7 spår), utgivet 25 april 2025. Spotify-länken hämtad direkt från bandets officiella webbplats."},
     "3a3778aa-30e7-4ce4-872d-645669c748c4": {"id": "02yk5HnMxVMNMCdNtY0f7C", "note": "Pansar – Svart Tegel, singel från 2020; speltid 4:17 verifierad på Spotify och Apple Music."},
     "ebdb2383-e692-4955-b7e3-670e26ecfc36": {"id": "27HuYWIQWxkGoTWBiHAbP0", "note": "Originalalbum 2020, 7 spår; Spotify-länk verifierad via artistens distributör DistroKid HyperFollow."},
