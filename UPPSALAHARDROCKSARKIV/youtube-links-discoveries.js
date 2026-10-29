@@ -582,3 +582,68 @@ window.ARCHIVE_YOUTUBE.push(...[
     "sourceNote": "Publikfilmat Kroglokal, videons titel anger 21 november 2025, men extern konsertlista 20 november; datum behöver korsverifieras."
   }
 ]);
+
+// High Tech Junkies (Björklinge / Uppsala): all five 1992 demo tape tracks, verified against archival YouTube upload and cassette inlay on 2026-10-29.
+window.ARCHIVE_YOUTUBE = window.ARCHIVE_YOUTUBE || [];
+window.ARCHIVE_YOUTUBE.push(...[
+  {
+    "band": "high-tech-junkies",
+    "release": "03d4b2a0-facb-4cee-a554-2c1b5d422518",
+    "title": "Cat Butt",
+    "id": "xE4m9GbWtPA",
+    "channel": "MrZaine",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=xE4m9GbWtPA",
+    "sourceNote": "Spår 1 från High Tech Junkies självutgivna demokassett inspelad 25–26 januari 1992. MrZaine är extern arkivuppladdare; originalomslaget skriver Cat Butt (inte Catbutt). Uploader uppger från [1992] High Tech Junkies Demo."
+  },
+  {
+    "band": "high-tech-junkies",
+    "release": "03d4b2a0-facb-4cee-a554-2c1b5d422518",
+    "title": "Naked Surfers From Hell",
+    "id": "peIohDSNaxg",
+    "channel": "MrZaine",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=peIohDSNaxg",
+    "sourceNote": "Spår 2 från High Tech Junkies självutgivna demokassett 1992; individuellt verifierad YouTube-uppladdning från MrZaine, inte bandets egna officiella YouTube-kanal."
+  },
+  {
+    "band": "high-tech-junkies",
+    "release": "03d4b2a0-facb-4cee-a554-2c1b5d422518",
+    "title": "Fade Away",
+    "id": "WMb6avWgvdg",
+    "channel": "MrZaine",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=WMb6avWgvdg",
+    "sourceNote": "Spår 3 från High Tech Junkies självutgivna demokassett 1992. Tryckt kassettinlay och MrZaines videotitel visar Fade Away i två ord, korrigerat från den sekundära katalogens Fadeaway."
+  },
+  {
+    "band": "high-tech-junkies",
+    "release": "03d4b2a0-facb-4cee-a554-2c1b5d422518",
+    "title": "She Jerks My Skin",
+    "id": "NkSi4hJmegI",
+    "channel": "MrZaine",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=NkSi4hJmegI",
+    "sourceNote": "Spår 4 från 1992 års demokassett, individuellt verifierad extern YouTube-arkivuppladdning via MrZaine."
+  },
+  {
+    "band": "high-tech-junkies",
+    "release": "03d4b2a0-facb-4cee-a554-2c1b5d422518",
+    "title": "A Big Hurt",
+    "id": "llIlUQc5ONU",
+    "channel": "MrZaine",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=llIlUQc5ONU",
+    "sourceNote": "Spår 5 från 1992 års demokassett; High Tech Junkies tolkar David Bowies A Big Hurt. YouTube-uppladdning MrZaine, videon daterad 23 november 2010, inte ursprunglig 1992 publiceringsdag."
+  }
+]);
