@@ -765,3 +765,117 @@ window.ARCHIVE_YOUTUBE.push(...[
     "sourceNote": "Musikvideo till låt på This City (2004), uppladdning märkt Official Video UPSCALED, inte verifierad som bandets egna originaluppladdning."
   }
 ]);
+
+
+// Usurpress (Uppsala): official Agonia albums, videos, track streams and Doomentia audio; verified 2026-10-29.
+window.ARCHIVE_YOUTUBE = window.ARCHIVE_YOUTUBE || [];
+window.ARCHIVE_YOUTUBE.push(...[
+  {
+    "band": "usurpress",
+    "channel": "Agonia Records",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=SF03vIvNVDc",
+    "release": "f6b0db50-18e7-4ca9-9778-a8280b15d393",
+    "title": "The Regal Tribe (2016) – officiell albumström",
+    "id": "SF03vIvNVDc",
+    "kind": "album",
+    "sourceNote": "Agonia Records officiella kompletta albumström med tio låtar för The Regal Tribe, inte ett separat vinylpressningsbevis."
+  },
+  {
+    "band": "usurpress",
+    "channel": "Agonia Records",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=aP2IHYvZ91o",
+    "release": "a13e543d-7111-413d-b2f2-765b2c3a44eb",
+    "title": "Interregnum (2018) – officiell albumström",
+    "id": "aP2IHYvZ91o",
+    "kind": "album",
+    "sourceNote": "Agonia Records officiella fullängdsström av Interregnum (2018), sju låtar."
+  },
+  {
+    "band": "usurpress",
+    "channel": "Agonia Records",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=_k9voIU84Ck",
+    "release": "a13e543d-7111-413d-b2f2-765b2c3a44eb",
+    "title": "Interregnum (2018) – officiell musikvideo",
+    "id": "_k9voIU84Ck",
+    "kind": "video",
+    "sourceNote": "Agonia Records originalvideo till 2018 års titelspår Interregnum."
+  },
+  {
+    "band": "usurpress",
+    "channel": "Agonia Records",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=2c_-n1FS0bU",
+    "release": "f6b0db50-18e7-4ca9-9778-a8280b15d393",
+    "title": "Across The Dying Plains – officiell textvideo",
+    "id": "2c_-n1FS0bU",
+    "kind": "video",
+    "sourceNote": "Agonia Records original lyric video till en låt från The Regal Tribe 2016."
+  },
+  {
+    "band": "usurpress",
+    "channel": "Agonia Records",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=9VkB6mTRBdo",
+    "release": "f6b0db50-18e7-4ca9-9778-a8280b15d393",
+    "title": "Beneath The Starless Skies – officiell låtström",
+    "id": "9VkB6mTRBdo",
+    "kind": "track",
+    "sourceNote": "Agonia Records original uppladdning från The Regal Tribe 2016."
+  },
+  {
+    "band": "usurpress",
+    "channel": "Agonia Records",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=WS_uq6vz3Yk",
+    "release": "f6b0db50-18e7-4ca9-9778-a8280b15d393",
+    "title": "Throwing The Gift Away – officiell låtström",
+    "id": "WS_uq6vz3Yk",
+    "kind": "track",
+    "sourceNote": "Agonia Records original uppladdning från The Regal Tribe 2016."
+  },
+  {
+    "band": "usurpress",
+    "channel": "Agonia Records",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=o3gpEJnymJU",
+    "release": "279848c7-fe51-4265-948d-59eb84a5b315",
+    "title": "The Iron Gates Will Melt – officiell låtström",
+    "id": "o3gpEJnymJU",
+    "kind": "track",
+    "sourceNote": "Agonia Records officiella låtström från Interregnum-eran, 2018. Låten har även egen digital singelpost."
+  },
+  {
+    "band": "usurpress",
+    "channel": "Agonia Records",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=dattciGRC7E",
+    "release": "a13e543d-7111-413d-b2f2-765b2c3a44eb",
+    "title": "Dokumentär om Interregnum (2018)",
+    "id": "dattciGRC7E",
+    "kind": "other",
+    "sourceNote": "Agonia Records dokumentärfilm om albumet Interregnum, gjord av Jimmy Johansson. Inte en musikalisk låt eller en albumspelare."
+  },
+  {
+    "band": "usurpress",
+    "channel": "Doomentia Records / YouTube",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=ikv_XA-AJQs",
+    "release": "ddcfeb29-baa8-4e6c-a500-c79f73eadf8f",
+    "title": "Fire in the Minds of Men – Doomentia originalaudio (2014)",
+    "id": "ikv_XA-AJQs",
+    "kind": "track",
+    "sourceNote": "Autogenererad distributörsljuduppladdning från Doomentia Records, metadata ℗ 2014. Inspelad för Ordained och skiljd från fysisk 2015 LP-pressning."
+  }
+]);
