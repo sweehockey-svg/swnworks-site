@@ -647,3 +647,32 @@ window.ARCHIVE_YOUTUBE.push(...[
     "sourceNote": "Spår 5 från 1992 års demokassett; High Tech Junkies tolkar David Bowies A Big Hurt. YouTube-uppladdning MrZaine, videon daterad 23 november 2010, inte ursprunglig 1992 publiceringsdag."
   }
 ]);
+
+// NojsBojs (Uppsala): original 1996 seven-inch full archival audio and official F.O.A.D. Records Nojs-år 2026 preview; verified 2026-10-29.
+window.ARCHIVE_YOUTUBE = window.ARCHIVE_YOUTUBE || [];
+window.ARCHIVE_YOUTUBE.push(...[
+  {
+    "band": "nojsbojs",
+    "release": "b44f91ca-86e5-4168-a634-000735be70a8",
+    "title": "Propaganda Frisyrer Rock'n'Roll Kommersialism – hela 1996 års sjutummare",
+    "id": "HMYsRC3Y5ho",
+    "channel": "Arkivuppladdning (ej verifierad kanal)",
+    "kind": "album",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=HMYsRC3Y5ho",
+    "sourceNote": "Hela den ursprungliga 15-spåriga Panx PP036 sjutummaren i en YouTube-video med tidsstämplar. Videoägaren stavar titelordet Frisyer fel; katalogens ursprungliga titel är Frisyrer. De fysiska A1–A8 och B1–B7 är verifierade mot Discogs 1496952. Inte bandets egna nyuppladdning."
+  },
+  {
+    "band": "nojsbojs",
+    "release": "33b21727-ee54-4169-9ce2-58c24d9278dc",
+    "title": "Nojs-år – F.O.A.D. Records skivpresentation (2026)",
+    "id": "fGrzNhjj4xI",
+    "channel": "F.O.A.D. Records",
+    "kind": "other",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=fGrzNhjj4xI",
+    "sourceNote": "Skivbolagets officiella presentationsvideo för LP+CD Nojs-år (2026). Det är en utgåvepresentation/trailer, inte 87 låtar i sin helhet. Original LP/CD spårordning finns i Discogs 38559474 och 38390043."
+  }
+]);
