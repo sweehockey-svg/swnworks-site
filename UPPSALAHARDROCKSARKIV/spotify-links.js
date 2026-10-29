@@ -1,3 +1,4 @@
+// Pansar 2026-10-29: Spotifyartist 09dl53obZCL9eKNVfrGBCs verifierad via bandets egen Instagram. Album Hat & Kärlek (2020, 7 låtar) Spotify-ID 27HuYWIQWxkGoTWBiHAbP0 direkt länkat av distributören DistroKid HyperFollow. Övriga singlar ännu inte mappade för att undvika felkoppling.
 // Z checked 2026-10-24: Zin 'N' Zin (Uppsala, Swedish Power 1991 track 6 'You Make Me Hot') and Zionide (Uppsala, Promotape 1994/Newsflash 1995).
 // No original Spotify album, song or artist identity confirmed for either. Other Zin, Zion, Zionide, and 'Swedish Power Metal' results are unrelated; do NOT invent links to shared VA compilation or 1995 CD.
 // Y checked 2026-10-24: Uppsala hardcore/metalcore Yersinia added: six band-authorised 2008–2015 original releases, 34 original tracks, distinct from Polish/German homonyms.
@@ -102,6 +103,7 @@ window.ARCHIVE_SPOTIFY = {
     "on-trial": "4nvfNTnpTR4q1Zjs6WkuLz",
     "one-hour-hell": "4imhqIhUhfk21DK1EgRBjj",
     "poeter-blir-dom": "04BjAh3LlAXmBrmR43kQuj",
+    "pansar": "09dl53obZCL9eKNVfrGBCs",
     "quagmire": "1P8VH7cchmm1tMXlA7nAZX",
     "reveal": "2dkiROdMEKXaAk4eXHsS6T",
     "sanctrum": "0GVqqZ3Zq6e8f6ObVrJxnr",
@@ -136,6 +138,7 @@ window.ARCHIVE_SPOTIFY = {
     "yersinia": "203FoNMgybnorIBb8KAJoW"
   },
   "releases": {
+    "ebdb2383-e692-4955-b7e3-670e26ecfc36": {"id": "27HuYWIQWxkGoTWBiHAbP0", "note": "Originalalbum 2020, 7 spår; Spotify-länk verifierad via artistens distributör DistroKid HyperFollow."},
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
       "id": "6kMHVJUvgIRjCXmbniHEMT",
       "note": ""
