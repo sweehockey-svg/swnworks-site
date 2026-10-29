@@ -95,3 +95,141 @@ window.ARCHIVE_YOUTUBE.push(...[
     sourceNote: 'Samma singelvideo är verifierad för låten En Sista Dans (spår 3) på 2020 års album Hat & Kärlek; videokatalogen deduplicerar samma YouTube-ID.'
   }
 ]);
+
+// Digging Graves (Uppsala): verified own music videos and Candyrock auto-distributed audio, 2026-10-29.
+// No direct Dying World YouTube URL confirmed; do not invent one. Alt Digging Graves from Japan/2008 excluded.
+window.ARCHIVE_YOUTUBE = window.ARCHIVE_YOUTUBE || [];
+window.ARCHIVE_YOUTUBE.push(...[
+  {
+    "band": "digging-graves",
+    "release": "0429301d-4665-4726-a9af-b02cea9e4ba2",
+    "title": "Disarm",
+    "id": "B4fyHjqxFlc",
+    "channel": "Digging Graves",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=B4fyHjqxFlc",
+    "sourceNote": "Musikvideon heter Disarm i YouTube-titeln; uppladdarens beskrivning är återanvänd från Timebomb och får inte användas som spårtitel."
+  },
+  {
+    "band": "digging-graves",
+    "release": "0429301d-4665-4726-a9af-b02cea9e4ba2",
+    "title": "Timebomb",
+    "id": "WSUzMlklYMo",
+    "channel": "Digging Graves",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=WSUzMlklYMo",
+    "sourceNote": "Egenproducerad officiell musikvideo, med både musik och video angivna som Digging Graves i uppladdarens beskrivning."
+  },
+  {
+    "band": "digging-graves",
+    "release": "0429301d-4665-4726-a9af-b02cea9e4ba2",
+    "title": "Fucking Punk Song",
+    "id": "mK9vJgiLRK8",
+    "channel": "Digging Graves - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=mK9vJgiLRK8",
+    "sourceNote": "Automatiskt distribuerat officiellt audio-spår från 2025 års album via Candyrock, inte separat filmad musikvideo."
+  },
+  {
+    "band": "digging-graves",
+    "release": "0429301d-4665-4726-a9af-b02cea9e4ba2",
+    "title": "Here Comes the Antichrist",
+    "id": "uqpZZAdJ7bk",
+    "channel": "Digging Graves - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=uqpZZAdJ7bk",
+    "sourceNote": "Automatiskt distribuerat officiellt audio-spår från 2025 års album via Candyrock."
+  },
+  {
+    "band": "digging-graves",
+    "release": "0429301d-4665-4726-a9af-b02cea9e4ba2",
+    "title": "The Devils Hand",
+    "id": "pSkxuSgoG9c",
+    "channel": "Digging Graves - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=pSkxuSgoG9c",
+    "sourceNote": "Automatiskt distribuerat officiellt audio-spår från 2025 års album via Candyrock."
+  },
+  {
+    "band": "digging-graves",
+    "release": "0429301d-4665-4726-a9af-b02cea9e4ba2",
+    "title": "Undertow Radio",
+    "id": "CBB2BU2FEjc",
+    "channel": "Digging Graves - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=CBB2BU2FEjc",
+    "sourceNote": "Automatiskt distribuerat officiellt audio-spår från 2025 års album via Candyrock."
+  },
+  {
+    "band": "digging-graves",
+    "release": "c14f6f60-2508-4ad6-babf-a4a1c5b85141",
+    "title": "Timebomb",
+    "id": "WSUzMlklYMo",
+    "channel": "Digging Graves",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=WSUzMlklYMo",
+    "sourceNote": "Samma originalvideo knyts också till tidigare Timebomb-singel från 7 mars 2025."
+  },
+  {
+    "band": "digging-graves",
+    "release": "c14f6f60-2508-4ad6-babf-a4a1c5b85141",
+    "title": "Disarm",
+    "id": "B4fyHjqxFlc",
+    "channel": "Digging Graves",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=B4fyHjqxFlc",
+    "sourceNote": "Singelpaketets andra spår enligt YouTube Music 2025; originalvideo i titel."
+  },
+  {
+    "band": "digging-graves",
+    "release": "773c35e8-f2e5-4fe9-ba34-ac951b603a8c",
+    "title": "Undertow Radio",
+    "id": "CBB2BU2FEjc",
+    "channel": "Digging Graves - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=CBB2BU2FEjc",
+    "sourceNote": "Samma officiella audio gäller 3-spårssingeln från 28 mars 2025."
+  },
+  {
+    "band": "digging-graves",
+    "release": "773c35e8-f2e5-4fe9-ba34-ac951b603a8c",
+    "title": "Timebomb",
+    "id": "WSUzMlklYMo",
+    "channel": "Digging Graves",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=WSUzMlklYMo",
+    "sourceNote": "För singelpaketets spår 2 gäller samma officiella originalvideo."
+  },
+  {
+    "band": "digging-graves",
+    "release": "773c35e8-f2e5-4fe9-ba34-ac951b603a8c",
+    "title": "Disarm",
+    "id": "B4fyHjqxFlc",
+    "channel": "Digging Graves",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=B4fyHjqxFlc",
+    "sourceNote": "För singelpaketets spår 3 gäller samma originalmusikvideo."
+  }
+]);
