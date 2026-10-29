@@ -57,7 +57,25 @@ input:focus,select:focus,textarea:focus{outline:2px solid #1676bd!important}
 .set-pair label{min-width:0;font-size:11px;overflow-wrap:anywhere}.set-pair input{margin-top:5px;width:100%}
 .match.editmatch button{grid-column:2;grid-row:1}
 @media(max-width:760px){.set-inputs{grid-template-columns:1fr}.match.editmatch button{grid-column:2;grid-row:1}.set-pair label{font-size:12px}}
-</style></head><body><div class="wrap"><header class="top"><a class="brand" href="/">SWNWORKS <span class="accent">/ PINGIS</span></a><span class="pill">SKOLTURNERING</span></header><section class="hero"><span class="tag">PINGISTURNERING · LIVE RESULTAT</span><h1 id="title">Skolans <span class="accent">pingisturnering</span></h1><p>Är du redo att spela? Följ matcherna, heja på dina favoriter och se vem som tar hem segern!</p><p class="mini">Bäst av 3 set · Varje set till 11 poäng · Vinst med minst 2 poäng</p></section><div id="notice" role="status" class="hidden"></div><div class="grid stats"><div class="stat"><b id="nplayers">0</b><small>Deltagare</small></div><div class="stat"><b id="ngames">0</b><small>Spelade matcher</small></div><div class="stat"><b id="nremaining">0</b><small>Matcher kvar</small></div></div><nav class="tabs" id="tabs"><button data-tab="overview" class="active">Översikt</button><button data-tab="matches">Matcher</button><button data-tab="standings">Tabell</button><button data-tab="playoffs">Slutspel</button><button data-tab="admin" id="admin-tab" class="hidden">Administration</button></nav><main id="content"></main><footer class="footer">PINGISTURNERING · POWERED BY SWNWORKS</footer></div>
+/* Decorative paddles follow the school poster, with visible wooden handles. */
+.hero:after,.hero:before{content:none}
+.hero-rackets{position:absolute;right:20px;top:20px;width:170px;height:200px;pointer-events:none}
+.hero h1{max-width:calc(100% - 180px)}
+@media(max-width:760px){.hero-rackets{right:10px;top:15px;width:76px;height:100px}.hero .tag{max-width:calc(100% - 70px);font-size:10px;letter-spacing:.06em}.hero h1{max-width:calc(100% - 65px);padding-right:0}}
+</style></head><body><div class="wrap"><header class="top"><a class="brand" href="/">SWNWORKS <span class="accent">/ PINGIS</span></a><span class="pill">SKOLTURNERING</span></header><section class="hero"><svg class="hero-rackets" viewBox="0 0 200 230" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+<g fill="none" stroke="#ffcf28" stroke-width="5" stroke-linecap="round"><path d="M16 65l-10-7M12 89H3M25 113l-13 9M163 23l8-16M179 43l15-12"/></g>
+<g transform="rotate(-29 142 124)" stroke="#142c40" stroke-width="3" stroke-linejoin="round">
+<path d="M127 158Q132 170 128 184L126 218Q142 224 157 218L153 184Q150 170 156 158Z" fill="#e7b566"/>
+<path d="M136 178l-1 37M148 177l2 38" fill="none" stroke="#b47b32" stroke-width="2"/>
+<ellipse cx="142" cy="108" rx="52" ry="60" fill="#203640"/><path d="M101 130Q141 177 182 130" fill="none" stroke="#091f32" stroke-width="2"/>
+</g>
+<g transform="rotate(-13 77 95)" stroke="#142c40" stroke-width="3" stroke-linejoin="round">
+<path d="M60 139Q67 155 64 170L61 210Q76 215 92 210L88 170Q85 155 92 139Z" fill="#edbd74"/>
+<path d="M69 163l-1 43M81 164l3 42" fill="none" stroke="#bc8745" stroke-width="2"/>
+<ellipse cx="77" cy="83" rx="59" ry="66" fill="#e53935"/><ellipse cx="77" cy="83" rx="55" ry="62" fill="none" stroke="#ff7060" stroke-width="1.5"/>
+</g>
+<circle cx="123" cy="168" r="21" fill="#dce2e5" stroke="#142c40" stroke-width="3"/><circle cx="119" cy="163" r="17" fill="#fff"/>
+</svg><span class="tag">PINGISTURNERING · LIVE RESULTAT</span><h1 id="title">Skolans <span class="accent">pingisturnering</span></h1><p>Är du redo att spela? Följ matcherna, heja på dina favoriter och se vem som tar hem segern!</p><p class="mini">Bäst av 3 set · Varje set till 11 poäng · Vinst med minst 2 poäng</p></section><div id="notice" role="status" class="hidden"></div><div class="grid stats"><div class="stat"><b id="nplayers">0</b><small>Deltagare</small></div><div class="stat"><b id="ngames">0</b><small>Spelade matcher</small></div><div class="stat"><b id="nremaining">0</b><small>Matcher kvar</small></div></div><nav class="tabs" id="tabs"><button data-tab="overview" class="active">Översikt</button><button data-tab="matches">Matcher</button><button data-tab="standings">Tabell</button><button data-tab="playoffs">Slutspel</button><button data-tab="admin" id="admin-tab" class="hidden">Administration</button></nav><main id="content"></main><footer class="footer">PINGISTURNERING · POWERED BY SWNWORKS</footer></div>
 <script>
 (()=>{'use strict';
 const URL_BASE='https://pqaymcvlwsruxvekvvtl.supabase.co/rest/v1/', KEY='sb_publishable_XARUftv6YJUELo4jc8NIsA_mee9YHJV', ID='skolpingis';
