@@ -1488,7 +1488,18 @@
       .map((team)=>'<option value="'+esc(team.id)+'">'+esc(team.canonical_name)+'</option>')
       .join("");
 
-    const rows=state.accessAdminItems.map((item)=>{
+    const people=new Map();
+    for(const item of state.accessAdminItems){
+      const email=String(item.email||"").trim().toLowerCase();
+      const key=email||item.id;
+      if(!people.has(key)) people.set(key,{email,name:item.display_name||email,items:[]});
+      const person=people.get(key);
+      if(item.display_name) person.name=item.display_name;
+      person.items.push(item);
+    }
+    const rows=[...people.values()].map((person)=>{
+      const self=person.items.some(item=>item.id===globalAdminAccess()?.id);
+      const grants=person.items.map((item)=>{
       const self=item.id===globalAdminAccess()?.id;
       const itemScope=item.role==="admin"?"admin":item.team_id?"team":"league";
       const scopeLabel=item.role==="admin"
@@ -1500,11 +1511,16 @@
         ? (self?"":'<button type="button" class="danger" data-access-deactivate="'+esc(item.id)+'">STÄNG AV</button>')
         : '<button type="button" data-access-reactivate="'+esc(item.id)+'" data-access-email="'+esc(item.email)+'" data-access-scope="'+esc(itemScope)+'" data-access-team="'+esc(item.team_id||"")+'" data-access-league="'+esc(item.league_key||"")+'" data-access-name="'+esc(item.display_name||"")+'">ÅTERAKTIVERA</button>';
       return '<div class="access-row '+(item.active?"active":"inactive")+'">' +
-        '<div><strong>'+esc(item.display_name||item.email)+'</strong><small>'+esc(item.email)+'</small></div>' +
-        '<span>'+esc(scopeLabel)+'</span>' +
+        '<span>'+esc(scopeLabel)+(item.team_id?' · '+esc(item.league_key||league.accessKey):'')+'</span>' +
         '<em>'+(item.active?"AKTIV":"AVSTÄNGD")+'</em>' +
         '<div>'+action+'</div>' +
       '</div>';
+      }).join("");
+      return '<article class="access-person"><header><div><strong>'+esc(person.name)+'</strong><small>'+esc(person.email)+'</small></div>'+
+        (!self&&person.items.filter(item=>item.active).length>1?'<button type="button" class="danger" data-access-deactivate-all="'+esc(person.email)+'">STÄNG AV ALLA</button>':'')+'</header>'+
+        '<div class="access-person-grants">'+grants+'</div>'+
+        '<div class="access-person-add"><label>Liga <select data-access-person-league>'+['hockeyettan','hockeytvaan','suomi-sarja'].map(key=>'<option value="'+key+'" '+(key===league.accessKey?'selected':'')+'>'+({hockeyettan:'Hockeyettan',hockeytvaan:'Hockeytvåan','suomi-sarja':'Suomi-sarja'}[key])+'</option>').join('')+'</select></label>'+
+        '<button type="button" data-access-add-team="'+esc(person.email)+'" data-access-name="'+esc(person.name)+'">+ LÄGG TILL LAG</button></div></article>';
     }).join("");
 
     return '<section class="access-admin">' +
@@ -1581,6 +1597,7 @@
   }
 
   function restoreAccessFormDraft(payload) {
+    state.accessAdminDraft=payload;
     const values={accessEmail:payload.email,accessName:payload.display_name,accessScope:payload.scope,accessTeam:payload.team_id};
     for(const [id,value] of Object.entries(values)){
       const field=document.getElementById(id);
@@ -1590,6 +1607,41 @@
   }
 
   function bindAccountUi() {
+    if(state.accessAdminDraft) restoreAccessFormDraft(state.accessAdminDraft);
+    // Cross-league additions retain identity only, never an administrator role.
+    try{
+      const draft=JSON.parse(sessionStorage.getItem('cockpit-access-add-team')||'null');
+      if(isAccessAdmin()&&draft?.league_key===league.accessKey&&document.getElementById('accessForm')){
+        sessionStorage.removeItem('cockpit-access-add-team');
+        restoreAccessFormDraft({email:draft.email,display_name:draft.display_name,scope:'team'});
+      }
+    }catch{}
+    drawerBody.querySelectorAll('[data-access-add-team]').forEach(button=>button.addEventListener('click',()=>{
+      if(state.accessAdminBusy||!isAccessAdmin()) return;
+      const key=button.closest('.access-person').querySelector('[data-access-person-league]').value;
+      const draft={email:button.dataset.accessAddTeam,display_name:button.dataset.accessName,league_key:key,scope:'team'};
+      if(key!==league.accessKey){
+        try{sessionStorage.setItem('cockpit-access-add-team',JSON.stringify(draft));}
+        catch{state.accessAdminError='Kunde inte föra över formuläret till vald liga.';renderDrawer('account');return;}
+        window.location.assign(new URL('../'+key+'/',window.location.href).href);
+        return;
+      }
+      restoreAccessFormDraft(draft);
+      document.getElementById('accessForm')?.scrollIntoView({block:'nearest'});
+      document.getElementById('accessTeam')?.focus();
+    }));
+    drawerBody.querySelectorAll('[data-access-deactivate-all]').forEach(button=>button.addEventListener('click',async()=>{
+      if(state.accessAdminBusy||!isAccessAdmin()) return;
+      const email=button.dataset.accessDeactivateAll;
+      const items=state.accessAdminItems.filter(item=>String(item.email||'').trim().toLowerCase()===email&&item.active);
+      if(items.some(item=>item.id===globalAdminAccess()?.id)||!window.confirm('Stäng av all åtkomst för '+email+' ('+items.length+' behörigheter)?')) return;
+      state.accessAdminBusy=true;state.accessAdminError='';renderDrawer('account');
+      let failures=0;
+      for(const item of items){const result=await invokeAccessAdmin({action:'deactivate',id:item.id});if(!result?.ok)failures++;}
+      state.accessAdminBusy=false;
+      if(failures)state.accessAdminError=failures+' behörigheter kunde inte stängas av. Kontrollera listan och försök igen.';
+      await refreshAccessAdminList();renderDrawer('account');
+    }));
     const form=document.getElementById("accountForm");
     if(form){
       form.addEventListener("submit",async(event)=>{
@@ -1660,6 +1712,10 @@
           league_key:scope==="admin"?null:league.accessKey,
           team_id:scope==="team"?document.getElementById("accessTeam")?.value:null
         };
+        if(scope==='team'&&state.accessAdminItems.some(item=>item.active&&String(item.email||'').trim().toLowerCase()===email.toLowerCase()&&item.team_id===payload.team_id&&item.league_key===payload.league_key)){
+          state.accessAdminError='Personen har redan aktiv åtkomst till det laget.';
+          renderDrawer('account');restoreAccessFormDraft(payload);return;
+        }
         state.accessAdminBusy=true;
         state.accessAdminError="";
         renderDrawer("account");
@@ -1672,6 +1728,7 @@
           restoreAccessFormDraft(payload);
           return;
         }
+        state.accessAdminDraft=null;
         await refreshAccessAdminList();
         renderDrawer("account");
       });
@@ -1679,6 +1736,7 @@
 
     drawerBody.querySelectorAll("[data-access-deactivate]").forEach((button)=>{
       button.addEventListener("click",async()=>{
+        if(state.accessAdminBusy||!isAccessAdmin()) return;
         state.accessAdminBusy=true;
         state.accessAdminError="";
         renderDrawer("account");
@@ -1695,6 +1753,7 @@
 
     drawerBody.querySelectorAll("[data-access-reactivate]").forEach((button)=>{
       button.addEventListener("click",async()=>{
+        if(state.accessAdminBusy||!isAccessAdmin()) return;
         state.accessAdminBusy=true;
         state.accessAdminError="";
         renderDrawer("account");
@@ -5106,6 +5165,7 @@
     renderLeagueHome();
     try{
       await initAuth();
+      try{if(isAccessAdmin()&&sessionStorage.getItem('cockpit-access-add-team'))renderDrawer('account');}catch{}
     }catch(error){
       console.error("Auth init failed",error);
       state.authMessage="Inloggningen kunde inte starta.";
