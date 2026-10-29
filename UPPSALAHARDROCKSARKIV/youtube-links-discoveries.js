@@ -75,3 +75,23 @@ window.ARCHIVE_YOUTUBE.push(...[
     "sourceUrl": "https://www.metal-archives.com/bands/Reptile/3540274040"
   }
 ]);
+
+// Pansar (Uppsala): skivbolagets officiella singelvideo 2019.
+// Samma inspelningstitel på 2019 års singel och 2020 års album.
+window.ARCHIVE_YOUTUBE = window.ARCHIVE_YOUTUBE || [];
+window.ARCHIVE_YOUTUBE.push(...[
+  {
+    band: 'pansar', release: '7f7f8d5e-78df-4d1c-96e7-5e332a03c09c',
+    title: 'En Sista Dans', id: 'k64DCG7R4NM', channel: 'Bombshelter Music Productions UA',
+    kind: 'track', checked: '2026-10-29', views: null,
+    sourceUrl: 'https://www.youtube.com/watch?v=k64DCG7R4NM',
+    sourceNote: 'Officiell video publicerad 25 maj 2019; beskriven som singel nr 2 till det kommande albumet Hat & Kärlek. Video redigerad och klippt av Hannu Leppänen.'
+  },
+  {
+    band: 'pansar', release: 'ebdb2383-e692-4955-b7e3-670e26ecfc36',
+    title: 'En Sista Dans', id: 'k64DCG7R4NM', channel: 'Bombshelter Music Productions UA',
+    kind: 'track', checked: '2026-10-29', views: null,
+    sourceUrl: 'https://www.youtube.com/watch?v=k64DCG7R4NM',
+    sourceNote: 'Samma singelvideo är verifierad för låten En Sista Dans (spår 3) på 2020 års album Hat & Kärlek; videokatalogen deduplicerar samma YouTube-ID.'
+  }
+]);
