@@ -1,3 +1,4 @@
+// Skithuvve Uppsala: verified Spotify artist and 8 original-release IDs, 2026-10-29. Standalone Gröt är också middag on Bandcamp does not have a verified Spotify single ID, so intentionally omitted.
 // Digging Graves 2026-10-29: bandets officiella https://www.digginggraves.com/ länkar album-ID 3GbivRJd382MH80WmpP1G8, artist ID 4aXcWMuX0QqTH7qlLe2HJK styrks av officiella musikvideors Spotifylänk och artistens musikbio. Andra namnlika Digging Graves (japanskt band/2008) är inte samma grupp.
 // Pansar 2026-10-29: Spotifyartist 09dl53obZCL9eKNVfrGBCs verifierad via bandets egen Instagram. Album Hat & Kärlek (2020, 7 låtar) Spotify-ID 27HuYWIQWxkGoTWBiHAbP0 direkt länkat av distributören DistroKid HyperFollow. Övriga singlar ännu inte mappade för att undvika felkoppling.
 // Z checked 2026-10-24: Zin 'N' Zin (Uppsala, Swedish Power 1991 track 6 'You Make Me Hot') and Zionide (Uppsala, Promotape 1994/Newsflash 1995).
@@ -107,6 +108,7 @@ window.ARCHIVE_SPOTIFY = {
     "pansar": "09dl53obZCL9eKNVfrGBCs",
     "digging-graves": "4aXcWMuX0QqTH7qlLe2HJK",
     "grasbrand": "4vH2et3R4YosPIlEhW0pEl",
+    "skithuvve": "74aaVl8iprrvSfvYUsyHIB",
     "quagmire": "1P8VH7cchmm1tMXlA7nAZX",
     "reveal": "2dkiROdMEKXaAk4eXHsS6T",
     "sanctrum": "0GVqqZ3Zq6e8f6ObVrJxnr",
@@ -141,6 +143,14 @@ window.ARCHIVE_SPOTIFY = {
     "yersinia": "203FoNMgybnorIBb8KAJoW"
   },
   "releases": {
+    "4b0f5768-d050-4fe2-bf5e-197772347bc4": {"id": "5jPeWWIr1BTmrbvRIqFhVX", "note": "Ingen aning, 2023 single, Spotify digital version; first Bandcamp issue 2023."},
+    "adce2002-454b-4a3c-9032-51d15138cc09": {"id": "4mNbl0NqzBR5wDrv2TQpOh", "note": "Upp till camping, standalone 2023 single."},
+    "2bac9e7c-a9af-47a3-b58d-266b383a5025": {"id": "1eAReSmV4Rz20zLiJTehUj", "note": "Visa pattarnas Taxi taxi 2023 single (Spotify feat. Ammy Olofsson; Bandcamp refers to Bulten)."},
+    "708c7b4f-87eb-4b8a-a26e-0ae7ac484c87": {"id": "2Weu74qRIL9LPmgQes2j5p", "note": "Skithuvve self titled 2023, 7 tracks."},
+    "2cb060b6-7d14-4e81-8903-ad5d35522d31": {"id": "5MWVgUzeKPg3dcY8u1t8o7", "note": "Bryter ihop för idag 2024, 7 tracks."},
+    "b46166aa-fbcb-4c4c-8441-48c78fe34ad4": {"id": "3h19mKT1rp4qweB8v5p4VH", "note": "Möped EP 2025, 5 tracks."},
+    "e9d94a6c-e3af-48b0-927e-04cab8610e08": {"id": "11oYj3juKIFvITk6s8NcF4", "note": "Första sämsta ställe EP 2026, 4 tracks."},
+    "e2980c3d-3e4f-44ed-9d86-4bc665a3ba4e": {"id": "0Q9jjojRzufb3b7mV5yZja", "note": "Live på kroglokal 2026, 15 tracks, Jenka Jenkins."},
     "28887779-6247-4e06-9720-10f17ac75061": {"id": "62VwT7kEpAZxAqfDuIT7Wk", "note": "Hemgång (2021), 1 spår, Gräsbrands originalsingel."},
     "ab599b42-63b9-4e9c-a3b3-877ad1806c38": {"id": "6bG2X3fZFNJ4a2dgE7FxKo", "note": "Idiot (2021), 1 spår, Gräsbrands originalsingel."},
     "fc175eda-7d66-442a-a8e1-e5f3fdf3f139": {"id": "1XSgSq4JKJp7MaP7yGxVqh", "note": "Slasher Basher (2022), separat originalsingel."},
