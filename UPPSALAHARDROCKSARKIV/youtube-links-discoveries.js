@@ -879,3 +879,81 @@ window.ARCHIVE_YOUTUBE.push(...[
     "sourceNote": "Autogenererad distributörsljuduppladdning från Doomentia Records, metadata ℗ 2014. Inspelad för Ordained och skiljd från fysisk 2015 LP-pressning."
   }
 ]);
+
+
+// Obnoxious Youth (Uppsala): verified official Critical Mass Recordings and Svart Records audio/video streams, 2017–2024, checked 2026-10-29.
+window.ARCHIVE_YOUTUBE = window.ARCHIVE_YOUTUBE || [];
+window.ARCHIVE_YOUTUBE.push(...[
+  {
+    "band": "obnoxious-youth",
+    "release": "c63477a0-13d2-4f74-a731-76d0566060d1",
+    "title": "Burning Savage – officiell musikvideo (2024)",
+    "id": "lEk1T-Ik-xw",
+    "channel": "Svart Records",
+    "kind": "video",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=lEk1T-Ik-xw",
+    "sourceNote": "Svart Records officiella musikvideo från 2024-06-14, kopplad till 2024 första singeln Burning Savage, album 2024-10-18 är separat."
+  },
+  {
+    "band": "obnoxious-youth",
+    "release": "6cc31457-8ca4-4692-b2aa-e6447f7d7b55",
+    "title": "Ethereal Termination – officiell musikvideo (2024)",
+    "id": "jr_z3BMzctg",
+    "channel": "Svart Records",
+    "kind": "video",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=jr_z3BMzctg",
+    "sourceNote": "Svart Records officiella andra singel-musikvideo publicerad 2024-09-06, album 2024-10-18 är separat."
+  },
+  {
+    "band": "obnoxious-youth",
+    "release": "68454020-538f-4e20-af56-11e23169cb3e",
+    "title": "Disturbing The Graves – officiell albumström (2017)",
+    "id": "j1V1y0z35X8",
+    "channel": "Critical Mass Recordings",
+    "kind": "album",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=j1V1y0z35X8",
+    "sourceNote": "Critical Mass Recordings officiella kompletta 12-låtarsalbum från 2017, INTE 17-spåriga 2017 japanska CD:n eller fysisk 2018 silveråterpressning."
+  },
+  {
+    "band": "obnoxious-youth",
+    "release": "16ab7378-eba0-465f-b2c5-099124ef63e9",
+    "title": "Mouths Sewn Shut – komplett officiell EP (2020)",
+    "id": "wGlWgzm_rJg",
+    "channel": "Svart Records",
+    "kind": "album",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=wGlWgzm_rJg",
+    "sourceNote": "Svart Records officiella kompletta sexspårs-EP. Digital albumspost 2020-05-15, mini-LP SVART233 med sex originalpositioner som separat fysisk utgåva."
+  },
+  {
+    "band": "obnoxious-youth",
+    "release": "16ab7378-eba0-465f-b2c5-099124ef63e9",
+    "title": "Mouths Sewn Shut – officiellt låtklipp (2020)",
+    "id": "SYH8Wkz0Ndc",
+    "channel": "Svart Records",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=SYH8Wkz0Ndc",
+    "sourceNote": "Svart Records officiella titelspår från 2020 års EP, ingen ny fysisk singel."
+  },
+  {
+    "band": "obnoxious-youth",
+    "release": "68454020-538f-4e20-af56-11e23169cb3e",
+    "title": "Retroactive Abortion – officiell musikvideo (2017)",
+    "id": "MwEbHAGxQMU",
+    "channel": "Critical Mass Recordings",
+    "kind": "video",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=MwEbHAGxQMU",
+    "sourceNote": "Originalmusikvideo från 2017 inför Disturbing the Graves utgiven 2017-05-12, inte ny skivutgåva."
+  }
+]);
