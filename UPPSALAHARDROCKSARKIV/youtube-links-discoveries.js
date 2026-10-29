@@ -233,3 +233,131 @@ window.ARCHIVE_YOUTUBE.push(...[
     "sourceNote": "För singelpaketets spår 3 gäller samma originalmusikvideo."
   }
 ]);
+
+// Gräsbrand (Uppsala, formed 2018). Verified Spotify artist 4vH2et3R4YosPIlEhW0pEl.
+// Official band-authored clips, distributed label audio and explicitly labelled external full-release mirrors.
+// Live clips have recording years and no release UUID: album release-year must not masquerade as concert date.
+window.ARCHIVE_YOUTUBE = window.ARCHIVE_YOUTUBE || [];
+window.ARCHIVE_YOUTUBE.push(...[
+  {
+    "band": "grasbrand",
+    "release": "af306c80-28a2-45c8-a5fe-f673cf8eb00b",
+    "title": "Turboculosis",
+    "id": "Q0nxWgMoyVo",
+    "channel": "Gräsbrand",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "featured": true,
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=Q0nxWgMoyVo",
+    "sourceNote": "Bandets egen musikvideo/albumspår: första låten från debutalbumet Turboculosis (2024)."
+  },
+  {
+    "band": "grasbrand",
+    "release": "c21a1c24-8c15-4a04-8809-3884223d1f2d",
+    "title": "Rad Warriors",
+    "id": "uAIAhmhnpF8",
+    "channel": "Gräsbrand - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=uAIAhmhnpF8",
+    "sourceNote": "Officiellt utgivet låtljud via Symphonic Distribution och Loud Legacy Records, släppt 11 september 2026. Inte separat filmad musikvideo."
+  },
+  {
+    "band": "grasbrand",
+    "release": "af306c80-28a2-45c8-a5fe-f673cf8eb00b",
+    "title": "TV Screens & Mundane Thrills",
+    "id": "pyBxBe-IQzY",
+    "channel": "Gräsbrand - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=pyBxBe-IQzY",
+    "sourceNote": "Officiellt utgivet albumljud via Symphonic Distribution, Turboculosis 2024."
+  },
+  {
+    "band": "grasbrand",
+    "release": "af306c80-28a2-45c8-a5fe-f673cf8eb00b",
+    "title": "Space Eater",
+    "id": "jLJsucSAU8I",
+    "channel": "Gräsbrand - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=jLJsucSAU8I",
+    "sourceNote": "Officiellt utgivet albumljud via Symphonic Distribution, Turboculosis 2024."
+  },
+  {
+    "band": "grasbrand",
+    "release": "af306c80-28a2-45c8-a5fe-f673cf8eb00b",
+    "title": "Mountain",
+    "id": "hR1rs53u88A",
+    "channel": "Gräsbrand - Topic",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=hR1rs53u88A",
+    "sourceNote": "Officiellt utgivet albumljud via Symphonic Distribution, Turboculosis 2024."
+  },
+  {
+    "band": "grasbrand",
+    "release": "af306c80-28a2-45c8-a5fe-f673cf8eb00b",
+    "title": "Turboculosis (hela albumet)",
+    "id": "IUr3UPRhvgs",
+    "channel": "JunkieBusiness",
+    "kind": "album",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=IUr3UPRhvgs",
+    "sourceNote": "Fansida som streamar hela Gräsbrands Turboculosis (2024) med tydlig originalspårlista och uppgift om Loud Legacy Records; inte bandets officiella musikvideo."
+  },
+  {
+    "band": "grasbrand",
+    "release": "1b2c0500-8f1b-4c06-bfc3-8ed075997ece",
+    "title": "Horrorscope (hela EP:n)",
+    "id": "CQA0k6g4WRM",
+    "channel": "Rockfreaks",
+    "kind": "album",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=CQA0k6g4WRM",
+    "sourceNote": "Extern uppladdning av Gräsbrands 4-spårs-EP Horrorscope (2022); kanalens egen beskrivning anger promovideo och Uppsala, ej officiell skivbolagskanal."
+  },
+  {
+    "band": "grasbrand",
+    "title": "Gräsbrand live på Williams Pub, Uppsala (25 maj 2024)",
+    "id": "wyYZy5IZNDw",
+    "channel": "Gräsbrand",
+    "kind": "live",
+    "checked": "2026-10-29",
+    "year": 2024,
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=wyYZy5IZNDw",
+    "sourceNote": "Bandets egen hela livefilm från releasespelningen i Uppsala 25 maj 2024. Inte ett officiellt studioalbum."
+  },
+  {
+    "band": "grasbrand",
+    "title": "Space Eater live på Kaliber Room i Uppsala (maj 2026)",
+    "id": "BjRzeKvft-o",
+    "channel": "Gräsbrand",
+    "kind": "live",
+    "checked": "2026-10-29",
+    "year": 2026,
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=BjRzeKvft-o",
+    "sourceNote": "Bandets egen livevideo filmad av Matti Arvinder på Kaliber Room, Uppsala maj 2026."
+  },
+  {
+    "band": "grasbrand",
+    "title": "G.C.F.F. live på Brother Tuck (4 mars 2023)",
+    "id": "5p4kMAEIeMI",
+    "channel": "Gräsbrand",
+    "kind": "live",
+    "checked": "2026-10-29",
+    "year": 2023,
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=5p4kMAEIeMI",
+    "sourceNote": "Bandets egen livevideo från Brother Tuck, Stockholm 4 mars 2023; originalspåret på Horrorscope 2022."
+  }
+]);
