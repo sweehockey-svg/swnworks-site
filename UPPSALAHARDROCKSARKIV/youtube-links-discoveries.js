@@ -957,3 +957,20 @@ window.ARCHIVE_YOUTUBE.push(...[
     "sourceNote": "Originalmusikvideo från 2017 inför Disturbing the Graves utgiven 2017-05-12, inte ny skivutgåva."
   }
 ]);
+
+
+// Obnoxious Youth full live performance The Abyss (Göteborg), 2022-04-03, source-verified 2026-10-29.
+window.ARCHIVE_YOUTUBE = window.ARCHIVE_YOUTUBE || [];
+window.ARCHIVE_YOUTUBE.push(...[
+  {
+    "band": "obnoxious-youth",
+    "title": "Obnoxious Youth – full konsert The Abyss, Göteborg 3 april 2022",
+    "id": "fM3LmsceTMY",
+    "channel": "Extern konsertfilmare",
+    "kind": "live",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=fM3LmsceTMY",
+    "sourceNote": "Historisk full-set livevideo från The Abyss, Göteborg, 2022-04-03. Lokal och datum verifierade mot klippets publicerade titel; klippets ursprungliga filmare och rättigheter ej bekräftade."
+  }
+]);
