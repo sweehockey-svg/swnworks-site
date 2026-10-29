@@ -138,6 +138,7 @@ window.ARCHIVE_SPOTIFY = {
     "yersinia": "203FoNMgybnorIBb8KAJoW"
   },
   "releases": {
+    "3a3778aa-30e7-4ce4-872d-645669c748c4": {"id": "02yk5HnMxVMNMCdNtY0f7C", "note": "Pansar – Svart Tegel, singel från 2020; speltid 4:17 verifierad på Spotify och Apple Music."},
     "ebdb2383-e692-4955-b7e3-670e26ecfc36": {"id": "27HuYWIQWxkGoTWBiHAbP0", "note": "Originalalbum 2020, 7 spår; Spotify-länk verifierad via artistens distributör DistroKid HyperFollow."},
     "fce1f6ae-7bde-4385-a08c-f1d6d8930ae9": {
       "id": "6kMHVJUvgIRjCXmbniHEMT",
