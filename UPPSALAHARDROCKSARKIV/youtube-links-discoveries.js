@@ -676,3 +676,92 @@ window.ARCHIVE_YOUTUBE.push(...[
     "sourceNote": "Skivbolagets officiella presentationsvideo för LP+CD Nojs-år (2026). Det är en utgåvepresentation/trailer, inte 87 låtar i sin helhet. Original LP/CD spårordning finns i Discogs 38559474 och 38390043."
   }
 ]);
+
+// Stained Red (Uppsala, 1998–2006): seven verified historical archival uploads, carefully mapped to original physical editions. 2026-10-29.
+window.ARCHIVE_YOUTUBE = window.ARCHIVE_YOUTUBE || [];
+window.ARCHIVE_YOUTUBE.push(...[
+  {
+    "band": "stained-red",
+    "release": "890ada6e-90a6-41f8-8493-2e74d7e90b8f",
+    "title": "Stained Red II: The Sequel – CD-versionen (1999)",
+    "id": "ush5j29CsxU",
+    "channel": "Lost and Found Tapes",
+    "kind": "album",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=ush5j29CsxU",
+    "sourceNote": "Trots YouTubes titel 1998 är detta en FLAC-CD-överföring med fem spår inklusive I Am. Originalkassetten 1998 har fyra spår; matchar CD/CD-ROM 1999. Extern arkivuppladdning."
+  },
+  {
+    "band": "stained-red",
+    "release": "d5e8e514-e0be-4755-a287-7c7883d779e8",
+    "title": "Tredje demon (1999) – arkiverad hela EP:n",
+    "id": "KU1g29vR-KE",
+    "channel": "Lost and Found Tapes",
+    "kind": "album",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=KU1g29vR-KE",
+    "sourceNote": "Historisk svensk Stained Red från Uppsala, åtta spår. Full arkivuppladdning, ingen bandverifierad originalkanal."
+  },
+  {
+    "band": "stained-red",
+    "release": "bebd1d4b-b19d-43d2-b1c9-c23f888ab1e4",
+    "title": "Four The Sake Of Riddling (1999/2000) – arkiverad EP",
+    "id": "oSsZW3A1rQg",
+    "channel": "Lost and Found Tapes",
+    "kind": "album",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=oSsZW3A1rQg",
+    "sourceNote": "Uppladdaren daterar EP:n 1999 medan katalogiserad original-CDr anges som 2000, inspelningarna dec 1999–jan 2000. Fysisk och digital upplaga kan skilja sig."
+  },
+  {
+    "band": "stained-red",
+    "release": "f8ae11c6-1f93-4012-828d-5b290b842843",
+    "title": "Mean Folks (2000) – fem låtar i en video",
+    "id": "64QjzdCAi0U",
+    "channel": "Lost and Found Tapes",
+    "kind": "album",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=64QjzdCAi0U",
+    "sourceNote": "Videon har fem ordinarie låtar. Ursprunglig fysisk CDr listar även ett dolt sjätte spår Peekaboo Remix. Videon är inte komplett relativt denna originalpressning."
+  },
+  {
+    "band": "stained-red",
+    "release": "3aea6c4d-6521-497d-a309-71de87d8c014",
+    "title": "New (2001) – arkivvideo med extra remix",
+    "id": "G4DuN6xNZtE",
+    "channel": "Lost and Found Tapes",
+    "kind": "album",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=G4DuN6xNZtE",
+    "sourceNote": "Uppladdningen innehåller standard-CD:s fem låtar Blow, Icon, Kid B, The Way I See It, A Lie-to-be samt extra Peekaboo Remix; förväxla inte med separat CDr SR006 i annan sekvens."
+  },
+  {
+    "band": "stained-red",
+    "release": "d7355d12-58d5-43e0-afd0-aef2aae5fa83",
+    "title": "What Are We Building? (2006) – arkiverad sexlåtarsversion",
+    "id": "zPkFJpErRbY",
+    "channel": "Lost and Found Tapes",
+    "kind": "album",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=zPkFJpErRbY",
+    "sourceNote": "Digital videoupplaga använder ordningen Constant Replay, Who We Are, Kill For A Lullaby, The List, Devil In My Bones, Say What, skild från tryckt CD-inlaga. Ändra inte original-CD-låtordningen."
+  },
+  {
+    "band": "stained-red",
+    "release": "7bcbbc0a-0633-4595-b15d-9ba52937f79a",
+    "title": "It Won't Stop Bleeding – musikvideo (uppskalad)",
+    "id": "D8g9rlUGouE",
+    "channel": "Extern arkivuppladdare",
+    "kind": "video",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=D8g9rlUGouE",
+    "sourceNote": "Musikvideo till låt på This City (2004), uppladdning märkt Official Video UPSCALED, inte verifierad som bandets egna originaluppladdning."
+  }
+]);
