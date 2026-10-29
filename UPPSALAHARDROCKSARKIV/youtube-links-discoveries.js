@@ -974,3 +974,176 @@ window.ARCHIVE_YOUTUBE.push(...[
     "sourceNote": "Historisk full-set livevideo från The Abyss, Göteborg, 2022-04-03. Lokal och datum verifierade mot klippets publicerade titel; klippets ursprungliga filmare och rättigheter ej bekräftade."
   }
 ]);
+
+// Desecrate (Uppsala): all 13 original official 2026 Second Death YouTube song videos, plus separate surviving 1989 demo audio. Sources verified 2026-10-29.
+window.ARCHIVE_YOUTUBE = window.ARCHIVE_YOUTUBE || [];
+window.ARCHIVE_YOUTUBE.push(...[
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "Second Death",
+    "id": "YQh2fxHcqMw",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=YQh2fxHcqMw",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 1 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "World Pollution",
+    "id": "wwk3LB6exXs",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=wwk3LB6exXs",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 2 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "Disorder",
+    "id": "LyecA4n-8IU",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=LyecA4n-8IU",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 3 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "Scooby Dooaaauöö",
+    "id": "L6nJfdChBJ4",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=L6nJfdChBJ4",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 4 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "Undivided Attention",
+    "id": "2QLlYfT90WU",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=2QLlYfT90WU",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 5 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "Injustice Of Society",
+    "id": "HtWU9cc8oME",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=HtWU9cc8oME",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 6 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "Lightened Souls",
+    "id": "Q59MuLwffk8",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=Q59MuLwffk8",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 7 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "Possessor Of Life",
+    "id": "7PmgIKtEGP8",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=7PmgIKtEGP8",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 8 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "Schedule",
+    "id": "jdIU_so56Vc",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=jdIU_so56Vc",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 9 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "F**k Trump",
+    "id": "r-jw_L4c1Pw",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=r-jw_L4c1Pw",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 10 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "Desecration",
+    "id": "-dneYPiD6AA",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=-dneYPiD6AA",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 11 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "Minds Of Iustitia",
+    "id": "R8lnTVjRehE",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=R8lnTVjRehE",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 12 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "07a83577-126b-4cc9-80ab-20da59ef9100",
+    "title": "Bang Your Head",
+    "id": "L4ooPel7VY4",
+    "channel": "SwahnSong Productions",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=L4ooPel7VY4",
+    "sourceNote": "Desecrate Uppsala – Second Death (2026), officiell originallåt 13 av 13, individuellt verifierad från videons titel och uppladdarbeskrivning. Ej den historiska demoinspelningen 1988–1989. Låtskrivarkrediter finns i Supabase."
+  },
+  {
+    "band": "desecrate",
+    "release": "59f39fc9-4281-4221-8ff9-51ebe57b861d",
+    "title": "Undivided Etension (Lonely Disgrace demo 1989) – arkivljud",
+    "id": "Y-WWtlSWbAA",
+    "channel": "Extern historisk uppladdare",
+    "kind": "track",
+    "checked": "2026-10-29",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=Y-WWtlSWbAA",
+    "sourceNote": "Original 1989 års Desecrate/Uppsala Lonely Disgrace demo låt 2. Uploader beskriver Band: Desecrate, Song: Undivided Etension, Year 1989. Ej samma som den nyproducerade 2026-tolkningen Undivided Attention."
+  }
+]);
