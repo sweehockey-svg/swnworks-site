@@ -1250,6 +1250,119 @@
   }
 
 
+  // Supabase är primär källa för externa YouTube-länkar. Den äldre kuraterade
+  // listan används som fallback för klipp som ännu inte har importerats.
+  // Inget YouTube-innehåll hämtas förrän besökaren väljer att spela en video.
+  function archiveYoutubeEntries() {
+    const curated = (window.ARCHIVE_YOUTUBE || []).filter(item => /^[A-Za-z0-9_-]{11}$/.test(item?.id || ''));
+    const curatedById = new Map(curated.map(item => [item.id, item]));
+    const releases = releasesById();
+    const bands = bandsById();
+    const releaseBands = new Map(state.releaseBands.map(link => [link.release_id, link.band_id]));
+    const mediaLinksById = new Map();
+    state.mediaLinks.forEach(link => {
+      if (link.entity_type !== 'band' && link.entity_type !== 'release') return;
+      if (!mediaLinksById.has(link.media_id)) mediaLinksById.set(link.media_id, []);
+      mediaLinksById.get(link.media_id).push(link);
+    });
+
+    const parseYouTube = value => {
+      try {
+        const url = new URL(String(value || ''));
+        if (url.protocol !== 'https:' || !['www.youtube.com', 'youtube.com', 'youtu.be', 'm.youtube.com'].includes(url.hostname)) return null;
+        if (url.pathname === '/playlist' && /^[A-Za-z0-9_-]{12,64}$/.test(url.searchParams.get('list') || '')) {
+          return { playlistId:url.searchParams.get('list') };
+        }
+        const id = url.hostname === 'youtu.be' ? url.pathname.slice(1) : url.pathname === '/watch' ? url.searchParams.get('v') : null;
+        return /^[A-Za-z0-9_-]{11}$/.test(id || '') ? { id } : null;
+      } catch (_) { return null; }
+    };
+
+    // Spellistor är metadata för en utgåva, inte ett extra låtklipp.
+    const playlistsByRelease = new Map(), playlistsByBand = new Map();
+    for (const media of state.mediaItems) {
+      if (media.media_type !== 'video') continue;
+      const parsed = parseYouTube(media.original_url);
+      if (!parsed?.playlistId) continue;
+      for (const link of mediaLinksById.get(media.id) || []) {
+        if (link.entity_type === 'release') playlistsByRelease.set(link.entity_id, parsed.playlistId);
+        if (link.entity_type === 'band' && !playlistsByBand.has(link.entity_id)) playlistsByBand.set(link.entity_id, parsed.playlistId);
+      }
+    }
+
+    const extractTitle = (mediaTitle, band, release) => {
+      let title = String(mediaTitle || '').trim();
+      const bandName = band?.canonical_name || '';
+      // Ta bara bort prefix när det exakt motsvarar det kopplade bandet.
+      if (bandName && title.toLocaleLowerCase('sv').startsWith(bandName.toLocaleLowerCase('sv') + ' – ')) {
+        title = title.slice(bandName.length + 3);
+      } else if (bandName && title.toLocaleLowerCase('sv').startsWith(bandName.toLocaleLowerCase('sv') + ' - ')) {
+        title = title.slice(bandName.length + 3);
+      }
+      const numbered = title.match(/(?:^|[–-])\s*\d{1,2}\.\s+(.+)$/);
+      if (numbered) title = numbered[1];
+      if (release && title.includes(' | ')) title = title.split(' | ')[0];
+      if (release && /\([^()]*\d{4}[^()]*\)$/.test(title)) title = title.replace(/\s*\([^()]*\d{4}[^()]*\)$/, '');
+      return title.trim() || String(mediaTitle || 'Arkivklipp');
+    };
+    const classify = links => {
+      const labels = links.map(link => link.relation || '').join(' ').toLowerCase();
+      if (/\b(interview|documentary)\b/.test(labels)) return 'interview';
+      if (/\b(live|concert|historical_live_video)\b/.test(labels)) return 'live';
+      if (/\b(album_stream|full_recording|album|full_release)\b/.test(labels)) return 'album';
+      return 'track';
+    };
+
+    const entries = new Map();
+    for (const media of state.mediaItems) {
+      if (media.media_type !== 'video') continue;
+      const parsed = parseYouTube(media.original_url);
+      if (!parsed?.id) continue;
+      const links = mediaLinksById.get(media.id) || [];
+      if (!links.length) continue;
+      const releaseIds = [...new Set(links.filter(link => link.entity_type === 'release').map(link => link.entity_id))].filter(id => releases.has(id));
+      const bandIds = [...new Set(links.filter(link => link.entity_type === 'band').map(link => link.entity_id))].filter(id => bands.has(id));
+      const curatedInfo = curatedById.get(parsed.id);
+      const records = releaseIds.length
+        ? releaseIds.map(releaseId => ({ releaseId, bandId:releaseBands.get(releaseId) || bandIds[0] || null }))
+        : bandIds.map(bandId => ({ releaseId:null, bandId }));
+      for (const record of records) {
+        const band = bands.get(record.bandId);
+        const release = releases.get(record.releaseId);
+        const entry = {
+          id:parsed.id,
+          band:band ? slugify(band.canonical_name) : '',
+          release:record.releaseId || null,
+          title:extractTitle(media.title, band, release),
+          channel:'',
+          kind:classify(links),
+          checked:'',
+          views:null,
+          sourceUrl:'https://www.youtube.com/watch?v=' + parsed.id,
+          playlistId:playlistsByRelease.get(record.releaseId) || playlistsByBand.get(record.bandId) || ''
+        };
+        // Behåll kuraterad presentation, men inte gamla felaktiga band-/utgåvekopplingar.
+        if (curatedInfo) {
+          entry.title = curatedInfo.title || entry.title;
+          entry.channel = curatedInfo.channel || '';
+          entry.kind = curatedInfo.kind || entry.kind;
+          entry.checked = curatedInfo.checked || '';
+          entry.views = curatedInfo.views ?? null;
+          entry.featured = curatedInfo.featured === true;
+          entry.trackTitles = curatedInfo.trackTitles || [];
+          entry.playlistId = entry.playlistId || curatedInfo.playlistId || '';
+        }
+        entries.set(parsed.id + ':' + (record.releaseId || ''), entry);
+      }
+    }
+    // Äldre verifierade klipp utan Supabase-post går inte förlorade.
+    for (const item of curated) {
+      const key = item.id + ':' + (item.release || '');
+      if (!entries.has(key)) entries.set(key, item);
+    }
+    return [...entries.values()];
+  }
+
   // Videoarkivet återanvänder de källkontrollerade YouTube-kopplingarna.
   // Årtionden baseras på utgåvans år, aldrig YouTubes uppladdningsdatum.
   function archiveVideoCatalog() {
@@ -1258,7 +1371,7 @@
     const releases = releasesById();
     const releaseBandIds = new Map(state.releaseBands.map(rb => [rb.release_id, rb.band_id]));
     const unique = new Map();
-    (window.ARCHIVE_YOUTUBE || []).forEach(item => {
+    archiveYoutubeEntries().forEach(item => {
       if (!/^[A-Za-z0-9_-]{11}$/.test(item?.id || '')) return;
       const release = releases.get(item.release) || null;
       const band = bands.get(item.band) || bandIds.get(releaseBandIds.get(item.release)) || null;
@@ -1582,7 +1695,7 @@
   }
 
   function youtubeItems(band, releaseId) {
-    const items = (window.ARCHIVE_YOUTUBE || []).filter(item => /^[A-Za-z0-9_-]{11}$/.test(item.id)
+    const items = archiveYoutubeEntries().filter(item => /^[A-Za-z0-9_-]{11}$/.test(item.id)
       && (releaseId ? item.release === releaseId : item.band === slugify(band?.canonical_name || '') && !item.multipleArtists));
     return [...new Map(items.map(item=>[item.id,item])).values()];
   }
