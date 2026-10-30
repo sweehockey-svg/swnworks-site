@@ -1250,3 +1250,12 @@ body.network-body-fullscreen { overflow:hidden; }
 .youtube-video-links a:hover,.youtube-video-links a:focus-visible { border-color:var(--acid); color:var(--acid); }
 .youtube-video-links a span:first-child { color:var(--acid); }
 .youtube-video-links a span:last-child { margin-left:auto; }
+
+/* Secondary track information is available on demand, including by keyboard. */
+.release-track-info { margin-top:3px; min-width:0; }
+.release-track-info > summary { width:fit-content; min-height:32px; padding:5px 2px; color:var(--muted); font:500 12px/1.7 var(--sans); cursor:pointer; }
+.release-track-info > summary::marker { color:var(--acid); }
+.release-track-info > summary:hover, .release-track-info[open] > summary { color:var(--acid); }
+.release-track-info > summary:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
+.release-track-info-body { display:grid; gap:8px; padding:6px 0 8px; overflow-wrap:anywhere; }
+.release-track-info-body .release-track-note { white-space:pre-line; }
