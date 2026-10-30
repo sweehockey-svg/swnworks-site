@@ -1100,13 +1100,13 @@
   function personRegistryName(p) {
     const original = String(p.canonical_name || '').trim();
     const match = original.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
-    if (!match) return original;
+    if (!match || !isUppsalaPerson(p)) return original;
     const base = match[1].trim();
     const key = value => String(value || '').toLocaleLowerCase('sv').replace(/[^\p{L}\p{N}]/gu, '');
     const qualifier = key(match[2]);
     const isBand = qualifier && membershipsForPerson(p.id).some(m => key(bandName(m.band_id)) === qualifier);
     if (!base || !isBand) return original;
-    const collision = state.people.some(other => String(other.id) !== String(p.id) &&
+    const collision = state.people.some(other => String(other.id) !== String(p.id) && isUppsalaPerson(other) &&
       key(String(other.canonical_name || '').replace(/\s*\([^()]*\)\s*$/, '').trim()) === key(base));
     return collision ? original : base;
   }
