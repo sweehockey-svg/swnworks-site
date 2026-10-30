@@ -754,6 +754,83 @@
     "sources": [
       "https://www.metal-archives.com/artists/Patrick_W._Engel/9482"
     ]
+  },
+  {
+    "id": "4f454062-4873-4141-9f1a-92260b0a2d10",
+    "aliases": [
+      "Blasphemer"
+    ],
+    "bandNames": {
+      "47b5d5ba-6086-4f36-b997-cf896b9a3194": "Blasphemer"
+    },
+    "sources": [
+      "https://thegallery.gr/en/rune-blasphemer-eriksen-following-the-darkest-path-eng/"
+    ]
+  },
+  {
+    "id": "051e287e-43e6-4a31-973f-28411f782855",
+    "aliases": [
+      "BJOERK",
+      "Kahn Ibbal"
+    ],
+    "bandNames": {
+      "3dd83d44-1db9-47a8-b5ec-930f4c41b142": "BJOERK",
+      "0433db7e-4ffb-4728-9545-8cafc7cbd20e": "Kahn Ibbal"
+    },
+    "sources": [
+      "https://www.metal-archives.com/artists/Kahn_Ibbal/240904"
+    ]
+  },
+  {
+    "id": "515f0d06-831a-4f7c-957f-d07ef768eeeb",
+    "aliases": [
+      "Barefoot Baby Brown",
+      "AEBERG"
+    ],
+    "bandNames": {
+      "4a5ce117-ba3e-4fa0-8271-2d786c5d6db2": "Barefoot Baby Brown",
+      "002a445e-2d55-461c-bd3b-ec1f5dc67238": "Barefoot Baby Brown",
+      "3dd83d44-1db9-47a8-b5ec-930f4c41b142": "AEBERG"
+    },
+    "sources": [
+      "https://www.metal-archives.com/artists/Magnus_%C3%85berg/247488"
+    ]
+  },
+  {
+    "id": "9cd7b16a-b943-4ef4-aa01-42cc1ff0c567",
+    "aliases": [
+      "Bulten"
+    ],
+    "bandNames": {},
+    "sources": [
+      "https://agnespunkblogg.wordpress.com/2024/01/31/tjej-specel-del-1/"
+    ]
+  },
+  {
+    "id": "7e15c9bd-d0ed-42a7-9731-38ee5960b377",
+    "aliases": [
+      "Brillan",
+      "Stefan Brillan Pettersson"
+    ],
+    "bandNames": {
+      "e6865303-adab-4fb3-baab-353af854952d": "Brillan"
+    },
+    "sources": [
+      "https://www.musikon.se/skivor.php?id=3244372"
+    ]
+  },
+  {
+    "id": "5f4171a7-b46c-4826-ab58-07c4c3e87d28",
+    "aliases": [
+      "Bobo",
+      "Bobo Holmquist"
+    ],
+    "bandNames": {
+      "f1341fe3-7f89-450d-8d38-1eb13d4f84f5": "Bobo Holmquist"
+    },
+    "sources": [
+      "https://www.fwoshm.com/index/M/1647-mellow-poetry-swe"
+    ]
   }
 ];
   const verifiedIdentity = p => VERIFIED_PERSON_IDENTITIES.find(x => x.id === p?.id);
