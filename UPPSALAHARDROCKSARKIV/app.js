@@ -1597,6 +1597,8 @@
   function youtubeSection(band, releaseId) {
     const items = youtubeItems(band,releaseId);
     if (!items.length) return '';
+    const playlistId = items.find(item => /^[A-Za-z0-9_-]{12,64}$/.test(item.playlistId || ''))?.playlistId || '';
+    const playlistLink = playlistId ? '<p class="youtube-caption"><a href="https://www.youtube.com/playlist?list=' + playlistId + '" target="_blank" rel="noopener noreferrer">Öppna albumets spellista på YouTube ↗</a></p>' : '';
     const songs = items.filter(item=>item.kind === 'track');
     const ranked = songs.filter(item=>Number.isFinite(item.views)).sort((a,b)=>b.views-a.views);
     const featured = items.find(item => item.featured === true) || ranked[0] || songs[0] || items.find(item => item.kind === 'album') || items.find(item => item.kind === 'medley');
@@ -1608,6 +1610,7 @@
       + '<p class="youtube-caption">' + (featured.kind === 'track' ? 'Verifierat låtklipp ur arkivet.' : featured.kind === 'medley' ? 'Verifierat klipp med flera låtar.' : 'Verifierad inspelning av utgåvan.')
       + (featured.views != null ? ' Cirka ' + featured.views.toLocaleString('sv-SE') + ' visningar, kontrollerat ' + featured.checked + '.' : '')
       + (featured.channel ? ' Kanal: ' + escapeHtml(featured.channel) + '.' : '') + '</p>' : '')
+      + playlistLink
       + '</section>';
   }
 
