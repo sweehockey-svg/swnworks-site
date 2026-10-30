@@ -1717,17 +1717,38 @@
       + '" target="_blank" rel="noopener noreferrer" aria-label="' + escapeHtml(title + ' på YouTube (öppnas i ny flik)') + '">YouTube ↗</a>' : '';
   }
 
+  // Slumpa en låt jämnt över de registrerade klippen. Undvik upprepning vid byte.
+  function pickRandomYoutubeSong(songs, previousId = '') {
+    const choices = songs.length > 1 ? songs.filter(item => item.id !== previousId) : songs;
+    if (!choices.length) return null;
+    return choices[Math.floor(Math.random() * choices.length)];
+  }
+
+  function youtubePreviewMarkup(featured) {
+    return '<div class="youtube-preview" data-youtube-id="' + featured.id
+      + '"><button type="button" class="youtube-play" aria-label="'
+      + escapeHtml('Spela ' + featured.title) + '"><span aria-hidden="true">▶</span><strong>'
+      + escapeHtml(featured.title)
+      + '</strong><span>Klicka för att ladda videon</span><img class="youtube-thumbnail" src="https://i.ytimg.com/vi/'
+      + featured.id + '/hqdefault.jpg" alt="" loading="lazy" referrerpolicy="no-referrer"></button></div>'
+      + '<p class="youtube-caption">' + (featured.kind === 'track'
+        ? 'Slumpmässigt låtklipp ur arkivet.'
+        : featured.kind === 'medley' ? 'Verifierat klipp med flera låtar.' : 'Verifierad inspelning av utgåvan.')
+      + (featured.channel ? ' Kanal: ' + escapeHtml(featured.channel) + '.' : '') + '</p>';
+  }
+
   function youtubeSection(band, releaseId) {
-    const items = youtubeItems(band,releaseId);
+    const items = youtubeItems(band, releaseId);
     if (!items.length) return '';
     const playlistId = items.find(item => /^[A-Za-z0-9_-]{12,64}$/.test(item.playlistId || ''))?.playlistId || '';
     const playlistLink = playlistId ? '<p class="youtube-caption"><a href="https://www.youtube.com/playlist?list=' + playlistId + '" target="_blank" rel="noopener noreferrer">Öppna albumets spellista på YouTube ↗</a></p>' : '';
-    const songs = items.filter(item=>item.kind === 'track');
-    const ranked = songs.filter(item=>Number.isFinite(item.views)).sort((a,b)=>b.views-a.views);
-    const featured = items.find(item => item.featured === true) || ranked[0] || songs[0] || items.find(item => item.kind === 'album') || items.find(item => item.kind === 'medley');
-    if (!featured) return '';
-    // Visa alla verifierade låtklipp, inte bara det som får stor förhandsvisning.
-    // Ordningen i den kuraterade listan följer albumets spårlista.
+    const songs = items.filter(item => item.kind === 'track');
+    const featured = pickRandomYoutubeSong(songs)
+      || items.find(item => item.featured === true)
+      || items.find(item => item.kind === 'album')
+      || items.find(item => item.kind === 'medley')
+      || items[0];
+    // Även om förhandsvisningen slumpas är hela videolistan och albumspellistan kvar.
     const videoLinks = songs.length > 1
       ? '<div class="youtube-video-links"><h3>Videor från utgåvan (' + songs.length + ')</h3><ul>'
         + songs.map(item => '<li><a href="https://www.youtube.com/watch?v=' + item.id
@@ -1735,33 +1756,49 @@
           + escapeHtml(item.title) + ' <span aria-hidden="true">↗</span></a></li>').join('')
         + '</ul></div>'
       : '';
-    return '<section class="content-section youtube-section"><h2>Lyssna på YouTube</h2>'
-      + (featured ? '<div class="youtube-preview" data-youtube-id="' + featured.id + '"><button type="button" class="youtube-play" aria-label="'
-      + escapeHtml('Spela ' + featured.title) + '"><span aria-hidden="true">▶</span><strong>' + escapeHtml(featured.title)
-      + '</strong><span>Klicka för att ladda videon</span><img class="youtube-thumbnail" src="https://i.ytimg.com/vi/' + featured.id + '/hqdefault.jpg" alt="" loading="lazy" referrerpolicy="no-referrer"></button></div>'
-      + '<p class="youtube-caption">' + (featured.kind === 'track' ? 'Verifierat låtklipp ur arkivet.' : featured.kind === 'medley' ? 'Verifierat klipp med flera låtar.' : 'Verifierad inspelning av utgåvan.')
-      + (featured.views != null ? ' Cirka ' + featured.views.toLocaleString('sv-SE') + ' visningar, kontrollerat ' + featured.checked + '.' : '')
-      + (featured.channel ? ' Kanal: ' + escapeHtml(featured.channel) + '.' : '') + '</p>' : '')
-      + videoLinks
-      + playlistLink
-      + '</section>';
+    return '<section class="content-section youtube-section" data-youtube-band="' + escapeHtml(slugify(band?.canonical_name || ''))
+      + '" data-youtube-release="' + escapeHtml(releaseId || '') + '"><h2>Lyssna på YouTube</h2>'
+      + '<div class="youtube-featured" aria-live="polite">' + youtubePreviewMarkup(featured) + '</div>'
+      + (songs.length > 1
+        ? '<div class="youtube-random-controls"><button type="button" class="youtube-shuffle" aria-label="Slumpa en annan låt">↻ Slumpa en annan låt</button><span>Visar en slumpmässig låt</span></div>'
+        : '')
+      + videoLinks + playlistLink + '</section>';
   }
 
   function bindYoutubePreviews() {
-    $$('.youtube-preview button').forEach(button=>{
+    $$('.youtube-preview button').forEach(button => {
       if (button.dataset.youtubeBound) return;
       button.dataset.youtubeBound = '1';
-      button.addEventListener('click',()=>{
-      const holder = button.parentElement;
-      const id = holder.dataset.youtubeId;
-      if (!/^[A-Za-z0-9_-]{11}$/.test(id)) return;
-      const frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
-      frame.title = button.getAttribute('aria-label');
-      frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
-      frame.allowFullscreen = true;
-      frame.referrerPolicy = 'strict-origin-when-cross-origin';
-      holder.replaceChildren(frame);
+      button.addEventListener('click', () => {
+        const holder = button.parentElement;
+        const id = holder.dataset.youtubeId;
+        if (!/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+        const frame = document.createElement('iframe');
+        frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+        frame.title = button.getAttribute('aria-label');
+        frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        frame.allowFullscreen = true;
+        frame.referrerPolicy = 'strict-origin-when-cross-origin';
+        holder.replaceChildren(frame);
+      });
+    });
+    $$('.youtube-shuffle').forEach(button => {
+      if (button.dataset.youtubeBound) return;
+      button.dataset.youtubeBound = '1';
+      button.addEventListener('click', () => {
+        const section = button.closest('.youtube-section');
+        if (!section) return;
+        const releaseId = section.dataset.youtubeRelease;
+        const band = !releaseId ? allBandRows().find(b => slugify(b.canonical_name) === section.dataset.youtubeBand) : null;
+        const songs = youtubeItems(band, releaseId || undefined).filter(item => item.kind === 'track');
+        const slot = section.querySelector('.youtube-featured');
+        if (!slot || songs.length < 2) return;
+        const currentId = slot.querySelector('.youtube-preview')?.dataset.youtubeId || '';
+        const next = pickRandomYoutubeSong(songs, currentId);
+        if (!next) return;
+        // Ersätt även en pågående iframe så att den förra videon slutar spela.
+        slot.innerHTML = youtubePreviewMarkup(next);
+        bindYoutubePreviews();
       });
     });
   }
