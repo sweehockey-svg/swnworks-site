@@ -423,6 +423,7 @@
     let output = exact ? applyCase(key,exact) : key;
     if (!exact) {
       const rules = [
+        [/^\+(\d+) fler band →$/, '+$1 more bands →'],
         [/^Mer info om (.+)$/, 'More info about $1'],
         [/^(\d[\d\s,.]*) träffar: (\d+) band, (\d+) personer, (\d+) utgåvor\.$/, '$1 results: $2 bands, $3 people, $4 releases.'],
         [/^Visar (\d+) av (\d+) träffar$/, 'Showing $1 of $2 results'],
