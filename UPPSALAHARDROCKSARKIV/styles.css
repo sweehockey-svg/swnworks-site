@@ -1274,3 +1274,42 @@ body.network-body-fullscreen { overflow:hidden; }
   .release-track-toggle, .release-track-actions .youtube-track-link { font-size:11px; }
 }
 @media(prefers-reduced-motion:reduce) { .release-track-toggle::before { transition:none; } }
+
+/* Slumpmässig låt i förhandsvisningen på band- och utgåvesidor. */
+.youtube-random-controls {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  margin:12px 0 20px;
+}
+.youtube-random-controls > span {
+  font-size:12px;
+  color:var(--muted);
+}
+.youtube-shuffle {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:10px 15px;
+  color:var(--acid);
+  background:transparent;
+  border:1px solid var(--acid);
+  border-radius:3px;
+  font:600 13px var(--condensed);
+  letter-spacing:.04em;
+  cursor:pointer;
+  transition:background .15s,color .15s;
+}
+.youtube-shuffle:hover {
+  background:var(--acid);
+  color:#0b0d10;
+}
+.youtube-shuffle:focus-visible {
+  outline:2px solid var(--acid);
+  outline-offset:3px;
+}
+@media(max-width:480px) {
+  .youtube-shuffle { width:100%; }
+}
