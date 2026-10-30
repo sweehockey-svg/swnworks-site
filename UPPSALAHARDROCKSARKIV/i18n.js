@@ -376,7 +376,12 @@
   "Tack! Ditt meddelande har skickats till arkivet.": "Thank you! Your message has been sent to the archive.",
   "extern källa": "external source",
   "Låtlista:": "Tracklist:",
-  "Vi söker:": "We are looking for:"
+  "Vi söker:": "We are looking for:",
+  "Filtrera och sortera band": "Filter and sort bands",
+  "Förälder / barn": "Parent / child",
+  "Svåger / svägerska": "Brother-in-law / sister-in-law",
+  "Syskon": "Siblings",
+  "Partner": "Partner"
 };
   const lookup = new Map(Object.entries(dictionary).map(([sv,en]) => [sv.toLocaleLowerCase('sv'),en]));
   const storageKey = 'uha-language';
@@ -384,7 +389,7 @@
   try { if (localStorage.getItem(storageKey) === 'en') language = 'en'; } catch {}
   const textRecords = new WeakMap(), attributeRecords = new WeakMap();
   const attributes = ['placeholder','aria-label','title'];
-  const protectedText = 'script,style,textarea,code,pre,[translate="no"],[contenteditable="true"],.brand,.source-title,.source-publisher,svg text,.degrees-chain-node,.band-title,.release-title,.release-band,.person-bands,.person-card h3,.credit-list strong,.colleague-grid strong,.gap-card h3,.timeline-content h3,.video-card-copy strong,.video-card-band,.youtube-play strong,.release-track-main > strong,.breadcrumbs > span:last-child';
+  const protectedText = 'script,style,textarea,code,pre,[translate="no"],[contenteditable="true"],.brand,.source-title,.source-publisher,svg text,.degrees-chain-node,.band-title,.release-title,.release-band,.person-bands,.person-card h3,.credit-list strong,.colleague-grid strong,.gap-card h3,.recent-copy h3,.recent-history li span,.timeline-content h3,.video-card-copy strong,.video-card-band,.youtube-play strong,.release-track-main > strong,.breadcrumbs > span:last-child';
   const roleText = '.credit-list span,.release-credits,.release-track-credit,.timeline-credits p';
   const roles = {
     'medlem (roll ej fastställd)':'member (role unresolved)','medverkande (roll ej angiven)':'performer (unspecified)',
@@ -407,6 +412,9 @@
   function english(source, element) {
     const trimmed = source.trim(), key = trimmed.replace(/\s+/g,' ');
     if (!key) return source;
+    const time=element?.closest('time[datetime]');
+    if (time) { const date=new Date(time.getAttribute('datetime')); if (!Number.isNaN(date.getTime())) return new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'Europe/Stockholm'}).format(date); }
+    if (key==='Uppsala-band' && element?.closest('.aside-facts')) return 'Uppsala band';
     const exact = lookup.get(key.toLocaleLowerCase('sv'));
     let output = exact ? applyCase(key,exact) : key;
     if (!exact) {
@@ -442,7 +450,14 @@
         [/^Öppna (.+)$/, 'Open $1'],
         [/^Spela (.+)$/, 'Play $1'],
         [/^Visa (.+) med (.+)$/, 'Show $1 by $2'],
-        [/^Visa de (\d+) senaste(.*)$/, 'Show the $1 latest$2'],
+        [/^Visa de (\d+) senaste (banden|personerna|utgåvorna)$/, (_,count,type)=>'Show the '+count+' latest '+({banden:'bands',personerna:'people',utgåvorna:'releases'})[type]],
+        [/^Visa de (\d+) senaste$/, 'Show the $1 latest'],
+        [/^Senast tillagda (banden|personerna|utgåvorna)$/, (_,type)=>'Recently added '+({banden:'bands',personerna:'people',utgåvorna:'releases'})[type]],
+        [/^Extern bildkälla: (.+)$/, 'External image source: $1'],
+        [/^Källa: (.+)$/, 'Source: $1'],
+        [/^Spotify-utgåva (\d{4})$/, 'Spotify release $1'],
+        [/^Visar alla (\d+) dokumenterade Uppsalaband och deras kända bandkopplingar\. Klicka på ett band för att utforska dess medlemmar\.$/, 'Showing all $1 documented Uppsala bands and their known band connections. Click a band to explore its members.'],
+        [/^Visar (\d+) band och (\d+) personer\. Kopplingarna bygger på arkivets dokumenterade uppgifter\.$/, 'Showing $1 bands and $2 people. Connections are based on the archive’s documented records.'],
         [/^Senaste bandet$/, 'Latest band'],
         [/^Senaste personen$/, 'Latest person'],
         [/^Senaste utgåvan$/, 'Latest release'],
@@ -515,7 +530,7 @@
     const note=document.querySelector('.language-content-note');
     if (note) note.hidden=language!=='en';
     const titleHeading=document.querySelector('.page-hero h1,.hero h1');
-    if (titleHeading) document.title=titleHeading.textContent.trim().replace(/\s+/g,' ')+' – Uppsala Hårdrocksarkiv';
+    if (titleHeading) document.title=Array.from(titleHeading.childNodes).map(child=>child.nodeName==='BR'?' ':child.textContent).join('').trim().replace(/\s+/g,' ')+' – Uppsala Hårdrocksarkiv';
     observer.observe(document.body,observeOptions);
   }
   function schedule() {
