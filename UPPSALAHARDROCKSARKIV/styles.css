@@ -1241,3 +1241,12 @@ body.network-body-fullscreen { overflow:hidden; }
   .header-actions { gap:8px; }
   .language-switch button { min-width:32px; padding:5px 6px; }
 }
+
+/* Individuella YouTube-klipp på band- och utgåvesidor. */
+.youtube-video-links { margin:18px 0 12px; }
+.youtube-video-links h3 { margin:0 0 10px; font:600 17px var(--condensed); text-transform:uppercase; letter-spacing:.04em; }
+.youtube-video-links ul { list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:8px; }
+.youtube-video-links a { display:flex; align-items:center; gap:9px; min-height:43px; padding:10px 12px; border:1px solid var(--line-strong); text-decoration:none; color:var(--text); font-size:13px; transition:border-color .15s,color .15s; }
+.youtube-video-links a:hover,.youtube-video-links a:focus-visible { border-color:var(--acid); color:var(--acid); }
+.youtube-video-links a span:first-child { color:var(--acid); }
+.youtube-video-links a span:last-child { margin-left:auto; }
