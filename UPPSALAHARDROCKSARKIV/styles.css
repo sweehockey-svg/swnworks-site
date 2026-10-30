@@ -1525,3 +1525,21 @@ body.network-body-fullscreen { overflow:hidden; }
 .person-aliases { max-width:1376px; margin:0 auto; padding:0 0 24px; color:var(--muted); font:400 14px/1.6 var(--sans); }
 .person-aliases > span:last-child { color:var(--paper); }
 @media(max-width:1480px) { .person-aliases { margin-left:4vw; margin-right:4vw; } }
+
+/* Separat granskning av personers personliga Uppsalaanknytning. */
+.person-scope-switch { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+.person-scope-switch button {
+  padding:12px 16px; min-height:44px; border:1px solid var(--line-strong);
+  background:transparent; color:var(--muted); cursor:pointer;
+  font:600 13px var(--condensed); letter-spacing:.03em;
+}
+.person-scope-switch button[aria-pressed="true"] {
+  background:var(--acid); border-color:var(--acid); color:#080a0d;
+}
+.person-scope-switch button:hover:not([aria-pressed="true"]),
+.person-scope-switch button:focus-visible { border-color:var(--acid); color:var(--text); }
+.person-scope-note { color:var(--muted); max-width:850px; margin:0 0 24px; line-height:1.6; }
+@media(max-width:550px) {
+  .person-scope-switch { display:grid; grid-template-columns:1fr; }
+  .person-scope-switch button { text-align:center; }
+}
