@@ -1097,13 +1097,27 @@
     return p.birth_year ? `${p.birth_year}–${year}` : String(year);
   }
 
+  function personRegistryName(p) {
+    const original = String(p.canonical_name || '').trim();
+    const match = original.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
+    if (!match) return original;
+    const base = match[1].trim();
+    const key = value => String(value || '').toLocaleLowerCase('sv').replace(/[^\p{L}\p{N}]/gu, '');
+    const qualifier = key(match[2]);
+    const isBand = qualifier && membershipsForPerson(p.id).some(m => key(bandName(m.band_id)) === qualifier);
+    if (!base || !isBand) return original;
+    const collision = state.people.some(other => String(other.id) !== String(p.id) &&
+      key(String(other.canonical_name || '').replace(/\s*\([^()]*\)\s*$/, '').trim()) === key(base));
+    return collision ? original : base;
+  }
+
   function personCard(p, i = 0) {
     const mems = membershipsForPerson(p.id);
     const names = [...new Set(mems.map(m => bandName(m.band_id)))];
     const media = personMedia(p);
     return `<a class="person-card${media ? ' has-portrait' : ''}" href="${personHref(p)}">
-      ${media ? `<div class="person-card-portrait"><img src="${media}" alt="${escapeHtml(p.canonical_name)}" loading="lazy"></div>` : ''}
-      <div class="person-card-copy"><div class="person-number">${String(i+1).padStart(2,'0')}</div><h3>${escapeHtml(p.canonical_name)}${isDeceased(p) ? '<span class="person-deceased-mark" aria-label="Avliden" title="Avliden">†</span>' : ''}</h3><div class="person-bands">${escapeHtml(names.slice(0,3).join(' · ') || 'Koppling kartläggs')}</div>${names.length > 3 ? `<span class="person-band-more">+${names.length - 3} fler band →</span>` : ''}</div>
+      ${media ? `<div class="person-card-portrait"><img src="${media}" alt="${escapeHtml(personRegistryName(p))}" loading="lazy"></div>` : ''}
+      <div class="person-card-copy"><div class="person-number">${String(i+1).padStart(2,'0')}</div><h3>${escapeHtml(personRegistryName(p))}${isDeceased(p) ? '<span class="person-deceased-mark" aria-label="Avliden" title="Avliden">†</span>' : ''}</h3><div class="person-bands">${escapeHtml(names.slice(0,3).join(' · ') || 'Koppling kartläggs')}</div>${names.length > 3 ? `<span class="person-band-more">+${names.length - 3} fler band →</span>` : ''}</div>
     </a>`;
   }
 
