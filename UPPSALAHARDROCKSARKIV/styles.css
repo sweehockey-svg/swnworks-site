@@ -1423,3 +1423,21 @@ body.network-body-fullscreen { overflow:hidden; }
   .people-grid .person-card-copy { padding:16px; }
   .people-grid .person-card.has-portrait { grid-template-columns:68px minmax(0,1fr); }
 }
+
+/* Long careers use a short preview, and portraits keep their own proportions. */
+.people-grid .person-card.has-portrait { grid-template-columns:86px minmax(0,1fr); }
+.people-grid .person-card-portrait {
+  align-self:start;
+  width:72px;
+  height:88px;
+  min-height:0;
+  margin:16px 0 16px 14px;
+  border:1px solid var(--line);
+  background:#070809;
+}
+.people-grid .person-card-portrait img { object-fit:contain; object-position:center; }
+.people-grid .person-band-more { grid-column:2; color:var(--acid); font:500 12px/1.5 var(--condensed); }
+@media(max-width:480px) {
+  .people-grid .person-card.has-portrait { grid-template-columns:78px minmax(0,1fr); }
+  .people-grid .person-card-portrait { width:64px; height:80px; }
+}
