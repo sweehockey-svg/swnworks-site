@@ -1034,22 +1034,44 @@
       ? state.bands
       : state.bands.filter(isUppsalaBand);
   }
-  // Uppsalapersoner kräver ett dokumenterat, separat granskat personligt
-  // orts-/scensamband. En utgåvekredit eller ett medlemskap räcker inte.
-  // Övriga bandmedlemmar finns tillgängliga för fortsatt forskning på en
-  // separat flik. Personer som bett om att inte listas är alltid uteslutna.
+  // Personregistret är för MUSIKEN: musiker, låtskrivare, producenter
+  // och ljudtekniker (inkl. inspelning, mixning och mastering). Foto,
+  // omslag, grafik, layout och management behåller sina utgåvekrediter
+  // men skapar aldrig ensamma en post i personregistret.
+  // En person som gjort BÅDE musik och foto behåller sin musikroll.
+  function musicOrProductionRole(role) {
+    const value = String(role || '').toLocaleLowerCase('sv');
+    if (!value.trim()) return false;
+    return /(?:\b(?:vocal|vocals|singing|singer|guitar|guitars|bass|drums?|percussion|keyboard|keyboards|synth|synths|synthesizers?|piano|organ|violin|cello|saxophone|flute|harmonica|sitar|theremin|trumpet|harp|mandolin|accordion|cittern|nyckelharpa|instrument|instruments|musician|music|songwriter|songwriting|composer|composition|lyric|lyrics|producer|production|co-producer|programming|engineer|engineering|recording|mixing|mastering|arranger|arrangement|band\s+member|member)\b|sång|trumm|gitarr|basist|komposit|låtskriv|musik|producent|ljudteknik|inspelning|mixning|mastring|bandmedlem)/i.test(value);
+  }
+  function musicOrProductionMember(m) {
+    return musicOrProductionRole(m.role) || (m.instruments || []).some(musicOrProductionRole);
+  }
+  function musicalArchivePersonIds() {
+    const eligible = new Set();
+    state.memberships.filter(musicOrProductionMember).forEach(m => eligible.add(String(m.person_id)));
+    state.releaseMembers.filter(m => musicOrProductionRole(m.role)
+      || (m.instruments || []).some(musicOrProductionRole)).forEach(m => eligible.add(String(m.person_id)));
+    return eligible;
+  }
+  // Personlig Uppsalaanknytning verifieras separat. Inget medlemskap
+  // och ingen skivkredit innebär automatiskt en lokal person.
   function uppsalaPersonIds() {
-    return new Set(state.people.filter(p => p.local_registry_status === 'verified').map(p => String(p.id)));
+    const musical = musicalArchivePersonIds();
+    return new Set(state.people.filter(p => p.local_registry_status === 'verified'
+      && musical.has(String(p.id))).map(p => String(p.id)));
   }
   function isUppsalaPerson(p) {
-    return Boolean(p && p.local_registry_status === 'verified');
+    return Boolean(p && uppsalaPersonIds().has(String(p.id)));
   }
   function uppsalaPeople() {
-    return state.people.filter(isUppsalaPerson);
+    const ids = uppsalaPersonIds();
+    return state.people.filter(p => ids.has(String(p.id)));
   }
   function unreviewedBandPeople() {
     const localBandIds = new Set(uppsalaBands().map(b => String(b.id)));
-    const members = new Set(state.memberships.filter(m => localBandIds.has(String(m.band_id))).map(m => String(m.person_id)));
+    const members = new Set(state.memberships.filter(m => localBandIds.has(String(m.band_id))
+      && musicOrProductionMember(m)).map(m => String(m.person_id)));
     return state.people.filter(p => members.has(String(p.id)) &&
       (p.local_registry_status === 'review' || !p.local_registry_status));
   }
@@ -2221,13 +2243,13 @@
     let order = 'surname';
     let selected = '';
     const initial = p => personIndexName(p, order).charAt(0).toLocaleUpperCase('sv');
-    app.innerHTML = `${pageHeader('PERSONER MED UPPSALAANKNYTNING','Personer','Egen dokumenterad Uppsalaanknytning granskas separat från medlemskap och skivkrediter. Relaterade medverkande finns fortfarande på band- och utgåvesidorna.')}
+    app.innerHTML = `${pageHeader('PERSONER MED UPPSALAANKNYTNING','Personer','Musiker, låtskrivare, producenter och ljudtekniker med dokumenterad Uppsalaanknytning. Foto- och omslagskrediter finns kvar på utgåvorna men gör ingen till Uppsalaperson.')}
       <section class="section page-section first-section">
         <div class="person-scope-switch" role="group" aria-label="Välj personkategori">
           <button type="button" data-person-scope="verified" aria-pressed="true">Bekräftad Uppsalaanknytning (${verifiedPeople.length})</button>
           <button type="button" data-person-scope="review" aria-pressed="false">Bandmedlemmar att granska (${unreviewedPeople.length})</button>
         </div>
-        <p class="person-scope-note" id="person-scope-note">Här visas bara personer med separat belagd anknytning till Uppsalas musikscen. En skivkredit eller ett bandmedlemskap räcker inte som bevis.</p>
+        <p class="person-scope-note" id="person-scope-note">Här visas musiker, låtskrivare och produktionspersonal med separat belagd Uppsalaanknytning. Foto, omslag och formgivning räcker inte för att listas.</p>
         <div class="index-toolbar"><label class="search-box"><span>Sök person</span><input id="people-search" type="search" placeholder="Namn eller band…"></label><div class="index-count"><strong id="registry-count"></strong> personer</div></div>
         <label class="people-sort"><span>Sortera på</span><select id="people-sort"><option value="surname">Efternamn</option><option value="firstname">Förnamn</option></select></label>
         <div class="registry-letters" id="people-letters" role="group"></div>
@@ -2269,7 +2291,7 @@
         people = scope === 'verified' ? verifiedPeople : unreviewedPeople;
         $$('.person-scope-switch button[data-person-scope]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.personScope === scope)));
         $('#person-scope-note').textContent = scope === 'verified'
-          ? 'Här visas bara personer med separat belagd anknytning till Uppsalas musikscen. En skivkredit eller ett bandmedlemskap räcker inte som bevis.'
+          ? 'Här visas musiker, låtskrivare och produktionspersonal med separat belagd Uppsalaanknytning. Foto, omslag och formgivning räcker inte för att listas.'
           : 'Här finns personer med dokumenterat medlemskap i Uppsalaband vars personliga Uppsalaanknytning ännu inte granskats. De är inte automatiskt klassade som Uppsalapersoner.';
         selected='';
         input.value='';
