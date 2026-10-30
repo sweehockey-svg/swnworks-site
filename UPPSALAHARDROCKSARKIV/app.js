@@ -1703,7 +1703,11 @@
   function youtubeItems(band, releaseId) {
     const items = archiveYoutubeEntries().filter(item => /^[A-Za-z0-9_-]{11}$/.test(item.id)
       && (releaseId ? item.release === releaseId : item.band === slugify(band?.canonical_name || '') && !item.multipleArtists));
-    return [...new Map(items.map(item=>[item.id,item])).values()];
+    const curatedOrder = new Map((window.ARCHIVE_YOUTUBE || []).map((item, index) => [item.id, index]));
+    return [...new Map(items.map(item=>[item.id,item])).values()].sort((a,b) =>
+      (curatedOrder.get(a.id) ?? Infinity) - (curatedOrder.get(b.id) ?? Infinity)
+      || String(a.title || '').localeCompare(String(b.title || ''), 'sv')
+    );
   }
 
   function youtubeTrackLink(releaseId, title) {
