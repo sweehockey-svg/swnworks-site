@@ -3,6 +3,11 @@
   // Swedish remains the source language. Translations never change archive
   // records, form values, routes, names or original source titles.
   const dictionary = {
+  "Sortera på": "Sort by",
+  "Efternamn": "Surname",
+  "Förnamn": "First name",
+  "Första bokstaven i efternamnet": "First letter of surname",
+  "Första bokstaven i förnamnet": "First letter of first name",
   "Gemensamma band": "Shared bands",
   "Band": "Bands",
   "Personer": "People",
