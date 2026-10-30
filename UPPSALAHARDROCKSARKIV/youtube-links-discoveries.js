@@ -1157,5 +1157,17 @@ window.ARCHIVE_YOUTUBE.push(...[
     "views": null,
     "sourceUrl": "https://www.youtube.com/watch?v=DZhvvcZkeEU",
     "sourceNote": "Equinox från Uppsala, originalkassett Zzzzzzyzzzzzz (1988), spår A2 Don't Scream. YouTube-titel och beskrivningen Sweden, 198x, DESECRATE members verifierade 2026-10-30. Mediereferens och band-/utgåvekoppling verifierade i Supabase."
+  },
+  {
+    "band": "ministration",
+    "release": "fa7336da-05f0-424a-9dd8-73319d45a0d6",
+    "title": "End of the Line",
+    "id": "n1oFvLCa_yE",
+    "channel": "",
+    "kind": "track",
+    "checked": "2026-10-30",
+    "views": null,
+    "sourceUrl": "https://www.youtube.com/watch?v=n1oFvLCa_yE",
+    "sourceNote": "Ministration, första spåret på The Memoirs of Mary Warner (2026); videons titel och albumanknytning är verifierade på YouTube. Albumets spellista: https://www.youtube.com/playlist?list=PLNjvru2oeyu4. Originalmusik, originaltexter, sång, programmering och produktion av John Swahn, med Metal Cowboy-texten av MetalEd; samplat tal i några spår tillhör externa källor."
   }
 ]);
