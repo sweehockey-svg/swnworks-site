@@ -1042,7 +1042,7 @@
   function musicOrProductionRole(role) {
     const value = String(role || '').toLocaleLowerCase('sv');
     if (!value.trim()) return false;
-    return /(?:\b(?:vocal|vocals|singing|singer|guitar|guitars|bass|drums?|percussion|keyboard|keyboards|synth|synths|synthesizers?|piano|organ|violin|cello|saxophone|flute|harmonica|sitar|theremin|trumpet|harp|mandolin|accordion|cittern|nyckelharpa|instrument|instruments|musician|music|songwriter|songwriting|composer|composition|lyric|lyrics|producer|production|co-producer|programming|engineer|engineering|recording|mixing|mastering|arranger|arrangement|band\s+member|member)\b|sång|trumm|gitarr|basist|komposit|låtskriv|musik|producent|ljudteknik|inspelning|mixning|mastring|bandmedlem)/i.test(value);
+    return /(?:\b(?:vocal|vocals|singing|singer|guitar|guitars|bass|drums?|percussion|keyboard|keyboards|synth|synths|synthesizers?|piano|organ|violin|cello|saxophone|flute|harmonica|sitar|theremin|trumpet|harp|mandolin|accordion|cittern|nyckelharpa|instrument|instruments|musician|music|songwriter|songwriting|composer|composition|lyric|lyrics|producer|production|co-producer|programming|engineer|engineered|engineering|recording|recorded|mixing|mixed|mastering|mastered|produced|arranger|arrangement|band\s+member|member)\b|sång|trumm|gitarr|basist|komposit|låtskriv|musik|producent|ljudteknik|inspelning|mixning|mastring|bandmedlem)/i.test(value);
   }
   function musicOrProductionMember(m) {
     return musicOrProductionRole(m.role) || (m.instruments || []).some(musicOrProductionRole);
