@@ -865,8 +865,8 @@
   }
   function findRelease(slug) { return state.releases.find(x => slugify(`${x.title}-${x.release_year || ''}`) === slug); }
 
-  function pageHeader(kicker, title, lead = '', meta = '') {
-    return `<header class="page-hero">
+  function pageHeader(kicker, title, lead = '', meta = '', extraClass = '') {
+    return `<header class="page-hero${extraClass ? ' ' + escapeHtml(extraClass) : ''}">
       <div class="page-hero-inner">
         <div class="section-kicker">${escapeHtml(kicker)}</div>
         <h1>${title}</h1>
@@ -1109,15 +1109,16 @@
 
 
   function releaseRow(r, bandLabel) {
+    const compact = bandLabel?.compact === true;
     const band = releaseBand(r.id);
     const credits = creditsForRelease(r.id).slice(0,4).map(x => `${personName(x.person_id)} — ${roleSv(x.role)}`);
     const cover = releaseMedia(r);
-    return `<a class="release-row${cover ? ' has-cover' : ''}" href="${releaseHref(r)}">
+    return `<a class="release-row${cover ? ' has-cover' : ''}${compact ? ' release-row-compact' : ''}" href="${releaseHref(r)}">
       <div class="release-cover-thumb">${cover ? `<img src="${escapeHtml(cover)}" alt="${escapeHtml(r.title)}" loading="lazy">` : '<span>UHA</span>'}</div>
       <div class="release-year">${r.release_year || '—'}</div>
       <div><div class="release-title">${escapeHtml(r.title)}</div><span class="release-kind">${escapeHtml([r.release_type, r.format].filter(Boolean).join(' · '))}</span></div>
-      <div class="release-band">${escapeHtml(typeof bandLabel === 'string' ? bandLabel : (band?.canonical_name || 'Band kartläggs'))}</div>
-      <div class="release-credits">${escapeHtml(credits.join(' · ') || 'Krediter kartläggs')}${creditsForRelease(r.id).length > 4 ? ' …' : ''}</div>
+      ${compact ? '' : `<div class="release-band">${escapeHtml(typeof bandLabel === 'string' ? bandLabel : (band?.canonical_name || 'Band kartläggs'))}</div>`}
+      ${compact ? '' : `<div class="release-credits">${escapeHtml(credits.join(' · ') || 'Krediter kartläggs')}${creditsForRelease(r.id).length > 4 ? ' …' : ''}</div>`}
     </a>`;
   }
 
@@ -1819,21 +1820,21 @@
       : `Ett relaterat band i person- och meritnätverket. ${b.canonical_name} klassas inte som ett Uppsala-band, men finns med för att visa dokumenterade bandhistoriker och kopplingar.`;
     const scopeLabel = uppsalaBand ? 'Uppsala-band' : (b.archive_scope === 'external' ? 'Relaterat band' : 'Oklassificerat');
     const meta = [b.formed_year ? `Bildat ${b.formed_year}` : 'Bildningsår söks', bandPlace, ...(b.genres || [])].map(x => `<span>${escapeHtml(x)}</span>`).join('');
-    app.innerHTML = `${breadcrumbs([{label:'Band',href:'#/band'},{label:b.canonical_name}])}${pageHeader(bandKicker,escapeHtml(b.canonical_name),'',meta)}
-      <section class="section detail-layout first-section">
+    app.innerHTML = `${breadcrumbs([{label:'Band',href:'#/band'},{label:b.canonical_name}])}${pageHeader(bandKicker,escapeHtml(b.canonical_name),'',meta,'band-page-hero')}
+      <section class="section detail-layout first-section band-detail-layout">
         <aside class="detail-aside">${bandMedia(b) ? `<figure class="detail-media"><img src="${bandMedia(b)}" alt="${escapeHtml(b.canonical_name)}"></figure>${externalMediaCredit(bandMedia(b))}` : ''}${spotifyLink(b)}<div class="aside-label">Översikt</div><p>${escapeHtml(archiveTextSv(b.description || defaultDescription))}</p><div class="aside-facts"><div><span>Status</span><strong>${b.status === 'active' ? 'Aktivt' : b.status === 'inactive' ? 'Inaktivt' : 'Okänt'}</strong></div><div><span>Arkivklass</span><strong>${scopeLabel}</strong></div><div><span>Medlemmar i arkivet</span><strong>${memberGroups.length}</strong></div><div><span>Utgåvor i arkivet</span><strong>${rels.length}</strong></div></div></aside>
         <div class="detail-main">
-          <section class="band-tip-panel"><div class="section-kicker">HJÄLP ARKIVET VÄXA</div><h2>Vet du mer om detta band?</h2>
-            <p>${bandGaps(b).length ? 'Vi söker: ' + bandGaps(b).map(escapeHtml).join(', ') + '.' : 'Har du en rättelse, ett minne eller material som kompletterar bandets historia?'}</p>
-            <a class="button button-primary" href="${bandTipHref(b)}">Tipsa om ${escapeHtml(b.canonical_name)}</a>
-          </section>
           <section class="content-section"><div class="content-head"><span>01</span><h2>Medlemmar</h2></div><div class="credit-list">${memberGroups.length ? memberGroups.map(group => { const p=peopleById().get(group.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(p.canonical_name)}</strong><span>${escapeHtml(group.roles || 'Roll kartläggs')}</span><em>${escapeHtml(group.periods || 'Årtal söks')}</em></a>`; }).join('') : '<div class="empty-state">Lineup kartläggs.</div>'}</div></section>
-          <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${rels.length ? rels.map(releaseRow).join('') : '<div class="empty-state">Inga utgåvor registrerade ännu.</div>'}</div></section>
+          <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${rels.length ? rels.map(r => releaseRow(r, {compact:true})).join('') : '<div class="empty-state">Inga utgåvor registrerade ännu.</div>'}</div></section>
           ${youtubeSection(b)}
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Bildarkiv</h2></div>${archiveGallery(gallery)}</section>` : ''}
           ${links.length ? `<section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Kopplingar</h2></div><div class="relation-grid">${links.map(r => { const otherId = r.from_band_id === b.id ? r.to_band_id : r.from_band_id; const other = bandsById().get(otherId); return `<a href="${bandHref(other)}"><span>${escapeHtml(relationSv(r.relation_type))}</span><strong>${escapeHtml(other.canonical_name)}</strong><em>${r.from_year || ''}</em></a>`; }).join('')}</div></section>` : ''}
           <section class="content-section"><div class="content-head"><span>${String(3 + (gallery.length ? 1 : 0) + (links.length ? 1 : 0)).padStart(2,'0')}</span><h2>Källäge</h2></div>${claimList(claims)}</section>
           ${sources.length ? `<section class="content-section"><div class="content-head"><span>${String(4 + (gallery.length ? 1 : 0) + (links.length ? 1 : 0)).padStart(2,'0')}</span><h2>Källor</h2></div>${sourceList(sources)}</section>` : ''}
+          <section class="band-tip-panel"><div class="section-kicker">HJÄLP ARKIVET VÄXA</div><h2>Vet du mer om detta band?</h2>
+            <p>${bandGaps(b).length ? 'Vi söker: ' + bandGaps(b).map(escapeHtml).join(', ') + '.' : 'Har du en rättelse, ett minne eller material som kompletterar bandets historia?'}</p>
+            <a class="button button-primary" href="${bandTipHref(b)}">Tipsa om ${escapeHtml(b.canonical_name)}</a>
+          </section>
         </div>
       </section>`;
   }
