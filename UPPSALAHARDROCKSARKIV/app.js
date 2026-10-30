@@ -810,13 +810,16 @@
     "id": "7e15c9bd-d0ed-42a7-9731-38ee5960b377",
     "aliases": [
       "Brillan",
-      "Stefan Brillan Pettersson"
+      "Stefan Brillan Pettersson",
+      "Count Wassberg"
     ],
     "bandNames": {
-      "e6865303-adab-4fb3-baab-353af854952d": "Brillan"
+      "e6865303-adab-4fb3-baab-353af854952d": "Brillan",
+      "8272a262-847f-425b-8441-b33fc825e003": "Count Wassberg"
     },
     "sources": [
-      "https://www.musikon.se/skivor.php?id=3244372"
+      "https://www.musikon.se/skivor.php?id=3244372",
+      "https://www.metal-archives.com/artists/Stefan_Pettersson/31445"
     ]
   },
   {
@@ -830,6 +833,158 @@
     },
     "sources": [
       "https://www.fwoshm.com/index/M/1647-mellow-poetry-swe"
+    ]
+  },
+  {
+    "id": "c3f06025-5547-40c1-bf38-2da51ee35872",
+    "aliases": [
+      "Cain",
+      "Cain (Painfield)",
+      "Cain from Painfield"
+    ],
+    "bandNames": {},
+    "sources": [
+      "https://joyzine.se/?p=5091"
+    ]
+  },
+  {
+    "id": "9042f90e-e1c7-49ee-adae-2bae3a8105c3",
+    "aliases": [
+      "Crack",
+      "Tok Ghost",
+      "Ghost"
+    ],
+    "bandNames": {
+      "7e6052dd-3333-4215-8d84-ff3d2169acf8": "Crack"
+    },
+    "sources": [
+      "https://www.metal-archives.com/artists/Tok_Ghost/21459"
+    ]
+  },
+  {
+    "id": "87463051-6100-438c-b662-d9e938e7c34d",
+    "aliases": [
+      "Crowlech"
+    ],
+    "bandNames": {
+      "5d451fcc-9a94-40e6-81f6-5ff9f99d3336": "Crowlech"
+    },
+    "sources": [
+      "https://www.metal-archives.com/artists/Johan_Pettersson/554027"
+    ]
+  },
+  {
+    "id": "3840c7fc-8d4c-476a-b318-f21829c2e121",
+    "aliases": [
+      "Cuntripper"
+    ],
+    "bandNames": {
+      "c62f199b-dbd6-498e-a08d-3170678abf3b": "Cuntripper"
+    },
+    "sources": [
+      "https://www.metal-archives.com/artists/Erik_Danielsson/1053"
+    ]
+  },
+  {
+    "id": "c82da2bb-737d-4b0d-93f6-de35923a3528",
+    "aliases": [
+      "Coffin"
+    ],
+    "bandNames": {
+      "76a9cbff-2c89-4e16-9e00-d7fe3e0d2626": "Coffin"
+    },
+    "sources": [
+      "https://www.metal-archives.com/artists/Affe_Piran/96114"
+    ]
+  },
+  {
+    "id": "44944b0f-3351-4bfa-a732-f0ef63b4ca8b",
+    "aliases": [
+      "Cadaver"
+    ],
+    "bandNames": {
+      "76a9cbff-2c89-4e16-9e00-d7fe3e0d2626": "Cadaver"
+    },
+    "sources": [
+      "https://www.metal-archives.com/artists/John_Finne/1904"
+    ]
+  },
+  {
+    "id": "7c49d2e4-0758-41d8-a404-7819526d4acd",
+    "aliases": [
+      "Cult"
+    ],
+    "bandNames": {
+      "76a9cbff-2c89-4e16-9e00-d7fe3e0d2626": "Cult"
+    },
+    "sources": [
+      "https://svartrecords.com/en/product/obnoxious-youth-burning-savage/12599"
+    ]
+  },
+  {
+    "id": "05ff7fa0-cf6d-4383-bd71-bcc988af0b15",
+    "aliases": [
+      "Cosmarul"
+    ],
+    "bandNames": {
+      "5d451fcc-9a94-40e6-81f6-5ff9f99d3336": "Cosmarul"
+    },
+    "sources": [
+      "https://www.metal-archives.com/artists/Oskar_Norman_Calais/311125"
+    ]
+  },
+  {
+    "id": "4fb4e2c7-b6ad-4a2f-ac5c-227cacfc3588",
+    "aliases": [
+      "C. Blom",
+      "Crippe Blom",
+      "Jägermeister"
+    ],
+    "bandNames": {
+      "f20cda0e-2584-427d-9686-7b5c7649b028": "C. Blom",
+      "c62f199b-dbd6-498e-a08d-3170678abf3b": "Jägermeister"
+    },
+    "sources": [
+      "https://www.metal-archives.com/artists/C._Blom/46168"
+    ]
+  },
+  {
+    "id": "4fc3a38d-d424-48c9-ab37-1405ce608d5d",
+    "aliases": [
+      "Christian Gustafsson",
+      "Crippe Gustafsson",
+      "Chris Unrepentant"
+    ],
+    "bandNames": {
+      "f1a55095-a9ea-42ce-a33d-31d6c2c15032": "Crippe Gustafsson",
+      "f27913ad-0f95-4f9f-9dd4-702b2028df21": "Crippe Gustafsson"
+    },
+    "sources": [
+      "https://www.metal-archives.com/artists/Crippe_Gustafsson/175856"
+    ]
+  },
+  {
+    "id": "790d3bad-8e95-40e7-bbfd-aa492fc04871",
+    "aliases": [
+      "C.C."
+    ],
+    "bandNames": {
+      "e6f0ecea-3c74-4f8d-8ce9-1229b8f6f3dd": "C.C."
+    },
+    "sources": [
+      "https://www.spirit-of-metal.com/en/band/44_Caliber"
+    ]
+  },
+  {
+    "id": "2a94fb49-c7e6-484d-a2d5-d4afee1db238",
+    "aliases": [
+      "Chrille"
+    ],
+    "bandNames": {
+      "e6f0ecea-3c74-4f8d-8ce9-1229b8f6f3dd": "Chrille"
+    },
+    "sources": [
+      "https://www.spirit-of-metal.com/en/band/44_Caliber"
     ]
   }
 ];
