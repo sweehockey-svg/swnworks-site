@@ -393,7 +393,7 @@
   try { if (localStorage.getItem(storageKey) === 'en') language = 'en'; } catch {}
   const textRecords = new WeakMap(), attributeRecords = new WeakMap();
   const attributes = ['placeholder','aria-label','title'];
-  const protectedText = 'script,style,textarea,code,pre,[translate="no"],[contenteditable="true"],.brand,.source-title,.source-publisher,svg text,.degrees-chain-node,.band-title,.release-title,.release-band,.person-bands,.person-card h3,.credit-list strong,.colleague-grid strong,.gap-card h3,.recent-copy h3,.recent-history li span,.timeline-content h3,.video-card-copy strong,.video-card-band,.youtube-play strong,.release-track-main > strong,.breadcrumbs > span:last-child';
+  const protectedText = 'script,style,textarea,code,pre,[translate="no"],[contenteditable="true"],.brand,.source-title,.source-publisher,svg text,.degrees-chain-node,.band-title,.release-title,.release-band,.person-bands,.person-card h3,.credit-list strong,.colleague-grid strong,.gap-card h3,.recent-copy h3,.recent-history li span,.timeline-content h3,.video-card-copy strong,.video-card-band,.youtube-play strong,.release-track-main > strong,.release-track-header > strong,.breadcrumbs > span:last-child';
   const roleText = '.credit-list span,.release-credits,.release-track-credit,.timeline-credits p';
   const roles = {
     'medlem (roll ej fastställd)':'member (role unresolved)','medverkande (roll ej angiven)':'performer (unspecified)',
