@@ -1253,7 +1253,11 @@
   // Supabase är primär källa för externa YouTube-länkar. Den äldre kuraterade
   // listan används som fallback för klipp som ännu inte har importerats.
   // Inget YouTube-innehåll hämtas förrän besökaren väljer att spela en video.
+  let youtubeEntriesCache = null;
   function archiveYoutubeEntries() {
+    if (youtubeEntriesCache && youtubeEntriesCache.mediaItems === state.mediaItems
+      && youtubeEntriesCache.mediaLinks === state.mediaLinks
+      && youtubeEntriesCache.releaseBands === state.releaseBands) return youtubeEntriesCache.entries;
     const curated = (window.ARCHIVE_YOUTUBE || []).filter(item => /^[A-Za-z0-9_-]{11}$/.test(item?.id || ''));
     const curatedById = new Map(curated.map(item => [item.id, item]));
     const releases = releasesById();
@@ -1360,7 +1364,9 @@
       const key = item.id + ':' + (item.release || '');
       if (!entries.has(key)) entries.set(key, item);
     }
-    return [...entries.values()];
+    const result = [...entries.values()];
+    youtubeEntriesCache = { mediaItems:state.mediaItems, mediaLinks:state.mediaLinks, releaseBands:state.releaseBands, entries:result };
+    return result;
   }
 
   // Videoarkivet återanvänder de källkontrollerade YouTube-kopplingarna.
