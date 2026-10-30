@@ -1251,11 +1251,26 @@ body.network-body-fullscreen { overflow:hidden; }
 .youtube-video-links a span:first-child { color:var(--acid); }
 .youtube-video-links a span:last-child { margin-left:auto; }
 
-/* Secondary track information is available on demand, including by keyboard. */
-.release-track-info { margin-top:3px; min-width:0; }
-.release-track-info > summary { width:fit-content; min-height:32px; padding:5px 2px; color:var(--muted); font:500 12px/1.7 var(--sans); cursor:pointer; }
-.release-track-info > summary::marker { color:var(--acid); }
-.release-track-info > summary:hover, .release-track-info[open] > summary { color:var(--acid); }
-.release-track-info > summary:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
-.release-track-info-body { display:grid; gap:8px; padding:6px 0 8px; overflow-wrap:anywhere; }
+
+/* A compact track row with its information panel underneath. */
+.release-track { grid-template-columns:54px minmax(0,1fr) auto; }
+.release-track-number, .release-track-duration { padding-top:7px; }
+.release-track-header { display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:32px; min-width:0; }
+.release-track-header > strong { flex:1; min-width:0; overflow-wrap:anywhere; }
+.release-track-actions { display:flex; align-items:center; gap:16px; flex-shrink:0; }
+.release-track-actions .youtube-track-link { margin:0; white-space:nowrap; }
+.release-track-toggle { display:inline-flex; align-items:center; gap:6px; min-height:32px; padding:5px 2px; border:0; background:transparent; color:var(--muted); font:500 12px/1.7 var(--sans); white-space:nowrap; cursor:pointer; }
+.release-track-toggle::before { content:"▸"; display:inline-block; color:var(--acid); transition:transform .15s ease; }
+.release-track-toggle[aria-expanded="true"]::before { transform:rotate(90deg); }
+.release-track-toggle:hover, .release-track-toggle[aria-expanded="true"] { color:var(--acid); }
+.release-track-toggle:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
+.release-track-info-body { display:grid; gap:8px; padding:8px 0 6px; overflow-wrap:anywhere; }
+.release-track-info-body[hidden] { display:none; }
 .release-track-info-body .release-track-note { white-space:pre-line; }
+@media(max-width:560px) {
+  .release-track { grid-template-columns:32px minmax(0,1fr) auto; }
+  .release-track-header { gap:8px; }
+  .release-track-actions { gap:10px; }
+  .release-track-toggle, .release-track-actions .youtube-track-link { font-size:11px; }
+}
+@media(prefers-reduced-motion:reduce) { .release-track-toggle::before { transition:none; } }
