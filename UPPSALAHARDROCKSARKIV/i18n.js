@@ -3,6 +3,7 @@
   // Swedish remains the source language. Translations never change archive
   // records, form values, routes, names or original source titles.
   const dictionary = {
+  "Gemensamma band": "Shared bands",
   "Band": "Bands",
   "Personer": "People",
   "Person": "Person",
@@ -423,6 +424,7 @@
     let output = exact ? applyCase(key,exact) : key;
     if (!exact) {
       const rules = [
+        [/^Visa musiker med gemensamma band \((\d+)\)$/, 'Show musicians with shared bands ($1)'],
         [/^\+(\d+) fler band →$/, '+$1 more bands →'],
         [/^Mer info om (.+)$/, 'More info about $1'],
         [/^(\d[\d\s,.]*) träffar: (\d+) band, (\d+) personer, (\d+) utgåvor\.$/, '$1 results: $2 bands, $3 people, $4 releases.'],
