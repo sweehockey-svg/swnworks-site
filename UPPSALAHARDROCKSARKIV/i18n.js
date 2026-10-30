@@ -1,0 +1,534 @@
+(() => {
+  'use strict';
+  // Swedish remains the source language. Translations never change archive
+  // records, form values, routes, names or original source titles.
+  const dictionary = {
+  "Band": "Bands",
+  "Personer": "People",
+  "Person": "Person",
+  "Utgåvor": "Releases",
+  "Utgåva": "Release",
+  "Utforska": "Explore",
+  "Om arkivet": "About the archive",
+  "Bakgrund": "Background",
+  "Källor": "Sources",
+  "Kontakt": "Contact",
+  "Sök": "Search",
+  "Meny": "Menu",
+  "Tidslinjen": "Timeline",
+  "Nätverket": "Connections",
+  "Videor": "Videos",
+  "Huvudmeny": "Main navigation",
+  "Brödsmulor": "Breadcrumbs",
+  "Uppsala Hårdrocksarkiv – startsida": "Uppsala Hårdrocksarkiv – home",
+  "Hämtar arkivet…": "Loading the archive…",
+  "Ett pågående kartläggningsprojekt. Fakta kompletteras och korrigeras när bättre källor hittas.": "An ongoing archive project. Information is expanded and corrected as better sources are found.",
+  "Tipsa arkivet / Kontakt": "Contribute / Contact",
+  "Följ Uppsala Hårdrocksarkiv": "Follow Uppsala Hårdrocksarkiv",
+  "YouTube (öppnas i ny flik)": "YouTube (opens in a new tab)",
+  "Instagram (öppnas i ny flik)": "Instagram (opens in a new tab)",
+  "Besök vår YouTube-kanal": "Visit our YouTube channel",
+  "ETT LEVANDE ARKIV ÖVER EN SCEN": "A LIVING ARCHIVE OF A MUSIC SCENE",
+  "Där banden": "Where bands",
+  "hänger ihop.": "connect.",
+  "En växande kartläggning av Uppsalas hårdrock och metal — människorna, banden, demokassetterna och vägarna mellan dem.": "A growing archive of Uppsala’s hard rock and metal scene — its people, bands, demo tapes and connections.",
+  "Sök i arkivet": "Search the archive",
+  "Utforska banden": "Explore the bands",
+  "Se tidslinjen": "View the timeline",
+  "Uppsala-band": "Uppsala bands",
+  "SENAST TILLAGT": "RECENTLY ADDED",
+  "Nytt i arkivet": "New in the archive",
+  "Band, personer och utgåvor som fått en plats i arkivet.": "Bands, people and releases recently added to the archive.",
+  "DIN KUNSKAP KAN GÖRA SKILLNAD": "YOUR KNOWLEDGE CAN MAKE A DIFFERENCE",
+  "Hjälp oss fylla luckorna": "Help fill the gaps",
+  "Här saknar arkivet uppgifter eller bilder. Känner du till något om banden? Ett årtal, ett namn eller ett gammalt foto kan föra historien vidare.": "The archive is missing information or images here. Do you know these bands? A date, a name or an old photograph could help tell their story.",
+  "Vi söker": "We are looking for",
+  "Jag vet mer": "I can help",
+  "Alla tips är välkomna →": "All contributions are welcome →",
+  "Saknas i arkivet betyder att uppgiften ännu inte har registrerats här.": "Missing from the archive means the information has not yet been recorded here.",
+  "UPPSALA / FRÅN 1980-TALET OCH FRAMÅT": "UPPSALA / FROM THE 1980s ONWARDS",
+  "Inte en lista.": "More than a list.",
+  "En": "A",
+  "historia": "history",
+  "om en scen.": "of a music scene.",
+  "Arkivet följer hur musiker rörde sig mellan band, hur nya konstellationer uppstod och hur en lokal scen växte fram.": "The archive follows musicians moving between bands, new line-ups taking shape and a local scene emerging.",
+  "Varje band, person och utgåva får en egen sida. Där samlas tidslinje, medlemskap, krediter, kopplingar och källäge utan att allt hamnar i ett enda långt flöde.": "Each band, person and release has its own page, bringing together timelines, memberships, credits, connections and sources.",
+  "bekräftade uppgifter": "confirmed facts",
+  "troliga uppgifter": "probable facts",
+  "källkopplade uppgifter": "sourced facts",
+  "TIDIGA KNUTPUNKTER": "EARLY CONNECTIONS",
+  "Alla band →": "All bands →",
+  "Alla utgåvor →": "All releases →",
+  "DEMOER / KASSETTER / UTGÅVOR": "DEMOS / TAPES / RELEASES",
+  "Första spåren": "The first recordings",
+  "ORIGINALMATERIAL": "ORIGINAL MATERIAL",
+  "Ur bildarkivet": "From the image archive",
+  "HELA ARKIVET": "THE WHOLE ARCHIVE",
+  "Hitta band, personer och utgåvor. Sök på ett namn, en titel, en genre eller ett årtal.": "Find bands, people and releases. Search by name, title, genre or year.",
+  "Sök i hela arkivet": "Search the whole archive",
+  "Band, person eller utgåva…": "Band, person or release…",
+  "Börja skriva för att söka i hela arkivet.": "Start typing to search the whole archive.",
+  "Inga träffar i denna kategori.": "No results in this category.",
+  "Inga träffar. Prova ett kortare namn, en annan stavning eller ett annat sökord.": "No results. Try a shorter name, another spelling or a different search term.",
+  "BAND I ARKIVET": "BANDS IN THE ARCHIVE",
+  "Från tidig hårdrock och thrash till death, black och senare grenar av Uppsalas metalscen.": "From early hard rock and thrash to death metal, black metal and later branches of Uppsala’s metal scene.",
+  "Sök band": "Search bands",
+  "Namn, genre, ort eller år…": "Name, genre, location or year…",
+  "Sortera": "Sort by",
+  "Äldsta först": "Oldest first",
+  "Nyaste först": "Newest first",
+  "Namn A–Ö": "Name A–Z",
+  "Namn Ö–A": "Name Z–A",
+  "Flest utgåvor": "Most releases",
+  "Genre": "Genre",
+  "Alla genrer": "All genres",
+  "Årtionde": "Decade",
+  "Alla årtionden": "All decades",
+  "Ort": "Location",
+  "Alla orter": "All locations",
+  "Endast band med foto": "Only bands with photos",
+  "Endast demoband": "Demo-only bands",
+  "Band med minst en registrerad demo men inga kända bolagsutgåvor, album, EP, singlar, splittar eller samlingsskivor. Baseras på arkivets nuvarande uppgifter.": "Bands with at least one recorded demo and no known label releases, albums, EPs, singles, splits or compilations. Based on the archive’s current records.",
+  "Rensa filter": "Clear filters",
+  "Rensa filter ↺": "Clear filters ↺",
+  "Inga band hittades.": "No bands found.",
+  "Prova en annan sökning eller rensa filtren.": "Try another search or clear the filters.",
+  "MÄNNISKORNA BAKOM BANDEN": "THE PEOPLE BEHIND THE BANDS",
+  "Här listas musiker med dokumenterad medverkan i Uppsalaband. På deras profiler syns även andra band de spelat i.": "Musicians with documented involvement in Uppsala bands. Their profiles also show other bands they have played in.",
+  "Sök person": "Search people",
+  "Namn eller band…": "Name or band…",
+  "Första bokstaven i personens namn": "First letter of the person’s name",
+  "Alla": "All",
+  "Visa fler": "Show more",
+  "Inga träffar. Prova ett annat sökord eller rensa filtren.": "No results. Try another search term or clear the filters.",
+  "Sök utgåva": "Search releases",
+  "Titel, band eller år…": "Title, band or year…",
+  "Utgåvetyp": "Release type",
+  "Alla typer": "All types",
+  "Årtal saknas": "Year unknown",
+  "Titel A–Ö": "Title A–Z",
+  "Band A–Ö": "Band A–Z",
+  "Utgåvorna är ofta de bästa hållpunkterna för årtal, lineups och hur scenen faktiskt såg ut vid en viss tidpunkt.": "Releases often provide the clearest evidence of dates, line-ups and the scene at a particular point in time.",
+  "ÅR FÖR ÅR": "YEAR BY YEAR",
+  "Utgåvor och dokumenterade bandbildningar samlade kronologiskt. Årtal utan dokumenterad uppgift visas sist.": "Releases and documented band formations in chronological order. Entries with unknown years appear last.",
+  "Sök i tidslinjen": "Search the timeline",
+  "Band, utgåva, person eller år…": "Band, release, person or year…",
+  "Händelsetyp": "Event type",
+  "Alla händelser": "All events",
+  "Bandbildningar": "Band formations",
+  "Bandbildning": "Band formation",
+  "Bandkoppling": "Band connection",
+  "Alla band i arkivet": "All bands in the archive",
+  "Endast klassade Uppsala-band": "Only bands classified as Uppsala bands",
+  "händelser": "events",
+  "Visa fler år": "Show more years",
+  "Utgåva i arkivet.": "Release in the archive.",
+  "Visa dokumenterade krediter": "Show documented credits",
+  "KÄLLLÄGET ÄR EN DEL AV HISTORIEN": "THE SOURCES ARE PART OF THE STORY",
+  "Arkivet skiljer mellan förstahandskällor, bandens egna historieskrivningar och specialistdatabaser.": "The archive distinguishes between primary sources, bands’ own histories and specialist databases.",
+  "Sök källa": "Search sources",
+  "Titel, utgivare eller webbadress…": "Title, publisher or web address…",
+  "Källbedömning": "Source assessment",
+  "Alla bedömningar": "All assessments",
+  "Stark källa": "Strong source",
+  "Sekundärkälla": "Secondary source",
+  "Svag källa": "Weak source",
+  "Ej bedömd": "Not assessed",
+  "Översikt": "Overview",
+  "Aktivt": "Active",
+  "Inaktivt": "Inactive",
+  "Okänt": "Unknown",
+  "Okänd": "Unknown",
+  "Arkivklass": "Archive classification",
+  "Medlemmar i arkivet": "Members in the archive",
+  "Utgåvor i arkivet": "Releases in the archive",
+  "BAND / UPPSALA": "BAND / UPPSALA",
+  "RELATERAT BAND": "RELATED BAND",
+  "BAND / OKLASSIFICERAT": "BAND / UNCLASSIFIED",
+  "Relaterat band": "Related band",
+  "Oklassificerat": "Unclassified",
+  "Ort söks": "Location unknown",
+  "Bildningsår söks": "Formation year unknown",
+  "Bildningsår": "Formation year",
+  "Årtal söks": "Year unknown",
+  "Okänt band": "Unknown band",
+  "Okänd person": "Unknown person",
+  "HJÄLP ARKIVET VÄXA": "HELP THE ARCHIVE GROW",
+  "Vet du mer om detta band?": "Do you know more about this band?",
+  "Har du en rättelse, ett minne eller material som kompletterar bandets historia?": "Do you have a correction, a memory or material to add to the band’s history?",
+  "Medlemmar": "Members",
+  "Lineup kartläggs.": "Line-up being researched.",
+  "Lineup kartläggs": "Line-up being researched",
+  "Roll kartläggs": "Role being researched",
+  "Koppling kartläggs": "Connection being researched",
+  "Band kartläggs": "Band being researched",
+  "Krediter kartläggs": "Credits being researched",
+  "Inga utgåvor registrerade ännu.": "No releases recorded yet.",
+  "Inga dokumenterade medlemmar ännu.": "No documented members yet.",
+  "Bildarkiv": "Image archive",
+  "Källäge": "Evidence",
+  "Källkopplade uppgifter": "Sourced facts",
+  "Kopplingar": "Connections",
+  "Koppling": "Connection",
+  "Bekräftad": "Confirmed",
+  "Trolig": "Probable",
+  "Obekräftad": "Unconfirmed",
+  "Omstridd": "Disputed",
+  "Avfärdad": "Rejected",
+  "Bildades ur": "Formed from",
+  "Bytte namn till": "Renamed to",
+  "Återbildades som": "Reformed as",
+  "Sidoprojekt till": "Side project of",
+  "Efterföljare till": "Successor to",
+  "Föregångare till": "Predecessor to",
+  "Delad lineup med": "Shared line-up with",
+  "Koppling till": "Connection to",
+  "Fler uppgifter ska källkopplas.": "More facts are awaiting source references.",
+  "PERSON / UPPSALA-SCENEN": "PERSON / UPPSALA SCENE",
+  "RELATERAD PERSON": "RELATED PERSON",
+  "Profil": "Profile",
+  "Avliden": "Deceased",
+  "Född": "Born",
+  "Bandkopplingar": "Band connections",
+  "Utgåvekrediter": "Release credits",
+  "Dokumenterade släktkopplingar": "Documented family connections",
+  "Bara offentligt godkända och källbelagda familjerelationer. De påverkar inte beräkningen av musikaliska steg.": "Only publicly approved, sourced family relationships. They do not affect the calculation of musical connections.",
+  "Bandkopplingar kartläggs.": "Band connections being researched.",
+  "Har varit med i samma band som": "Has been in the same band as",
+  "Dokumenterat medlemskap i samma band. Det innebär inte nödvändigtvis att de spelade samtidigt.": "Documented membership of the same band. This does not necessarily mean they played together.",
+  "Inga gemensamma bandmedlemskap dokumenterade ännu.": "No shared band memberships documented yet.",
+  "Relaterade bilder": "Related images",
+  "Gruppbilder och pressmaterial där personen är säkert knuten till sammanhanget. De används inte som individuella porträtt om bildidentifieringen inte är entydig.": "Group photographs and press material with a confirmed connection to this person. They are not used as individual portraits unless the identification is unambiguous.",
+  "UTGÅVA / ARKIVPOST": "RELEASE / ARCHIVE ENTRY",
+  "Låtlista": "Tracklist",
+  "Hämtar låtlistan…": "Loading the tracklist…",
+  "Låtlistan kartläggs.": "Tracklist being researched.",
+  "Låtlistan kunde inte hämtas just nu.": "The tracklist could not be loaded right now.",
+  "Alla spår": "All tracks",
+  "Krediter": "Credits",
+  "Krediter kartläggs.": "Credits being researched.",
+  "Inga releasecredits registrerade ännu.": "No release credits recorded yet.",
+  "Omslag & originalmaterial": "Artwork & original material",
+  "Spårkrediter": "Track credits",
+  "Källkopplade faktauppgifter": "Sourced facts",
+  "Källor för låtlistan hämtas…": "Loading tracklist sources…",
+  "Källor för låtlistan kunde inte kontrolleras just nu.": "Tracklist sources could not be checked right now.",
+  "Inga källkopplingar är registrerade för låtlistans spår. Det betyder inte att källor saknas utanför arkivet.": "No source links have been recorded for the tracks. This does not mean sources do not exist outside the archive.",
+  "Hämtar källhänvisningar…": "Loading source references…",
+  "Inga källhänvisningar att visa för de inlästa uppgifterna.": "No source references to display for the loaded records.",
+  "MUSIK / FILM / ARKIV": "MUSIC / FILM / ARCHIVE",
+  "Musik, fullängdare, liveupptagningar och sällsynta inspelningar från band i och kring Uppsalas hårdrocksscen.": "Music, full albums, live performances and rare recordings by bands in and around Uppsala’s hard rock scene.",
+  "VÅR EGEN YOUTUBE-KANAL": "OUR YOUTUBE CHANNEL",
+  "Gamla demos. Ny chans att höras.": "Old demos. A new chance to be heard.",
+  "Lyssna på bevarade demolåtar, rariteter och historiska inspelningar från Uppsalas hårdrocksscen. Kanalen växer i takt med arkivet. Har du gamla demos, liveinspelningar eller annat material? Var gärna med och bidra!": "Listen to preserved demo tracks, rarities and historic recordings from Uppsala’s hard rock scene. The channel grows with the archive. Do you have old demos, live recordings or other material? Contributions are welcome!",
+  "Tipsa arkivet ↗": "Contribute to the archive ↗",
+  "Tipsa arkivet.": "Let us know.",
+  "▶ Besök YouTube-kanalen ↗": "▶ Visit the YouTube channel ↗",
+  "Prenumerera på kanalen ↗": "Subscribe to the channel ↗",
+  "ARKIVETS SPELLISTOR / STAINED RED": "ARCHIVE PLAYLISTS / STAINED RED",
+  "Skivor, rariteter och liveklipp från 1998–2006, samlade från olika YouTube-kanaler. Spellistan uppdateras när vi hittar fler inspelningar.": "Releases, rarities and live clips from 1998–2006, collected from different YouTube channels. The playlist is updated as we find more recordings.",
+  "Öppna spellistan på YouTube ↗": "Open the playlist on YouTube ↗",
+  "▶ SPELA SPELLISTAN": "▶ PLAY THE PLAYLIST",
+  "Spela upp Stained Reds YouTube-spellista": "Play the Stained Red YouTube playlist",
+  "Spelaren hämtas från YouTube först när du klickar på Spela. Videorna ligger kvar hos sina ursprungliga uppladdare.": "The player loads from YouTube only when you click Play. Videos remain with their original uploaders.",
+  "HÅRDROCKSROULETTE / TIDSMASKINEN": "HARD ROCK ROULETTE / THE TIME MACHINE",
+  "Slumpa ett fynd.": "Discover a random recording.",
+  "Välj ett årtionde nedan, tryck på knappen och se var i musikhistorien du hamnar. Årtal avser utgåvan, inte videons uppladdning.": "Choose a decade below, press the button and see where music history takes you. Years refer to releases, not video uploads.",
+  "▶ ÖVERRASKA MIG": "▶ SURPRISE ME",
+  "♫ STARTA ARKIVMARATON": "♫ START AN ARCHIVE MARATHON",
+  "ARKIVMARATON / FEM FYND": "ARCHIVE MARATHON / FIVE DISCOVERIES",
+  "Fem olika band. Fem oväntade stopp.": "Five different bands. Five unexpected stops.",
+  "Fem slumpade klipp från olika band": "Five random clips from different bands",
+  "Välj ett urval med minst två olika band": "Choose a selection with at least two different bands",
+  "Alla klipp i urvalet upptäckta ✓": "All clips in this selection discovered ✓",
+  "Avsluta ✕": "Finish ✕",
+  "Börja om ↺": "Start again ↺",
+  "Nästa klipp →": "Next clip →",
+  "← Tillbaka": "← Back",
+  "Framåt →": "Forward →",
+  "Sök band, låt eller utgåva": "Search bands, tracks or releases",
+  "Alla videor": "All videos",
+  "Videotyp": "Video type",
+  "Låt / inspelning": "Track / recording",
+  "Hela utgåvan": "Full release",
+  "Hela utgåvor": "Full releases",
+  "Låtar": "Tracks",
+  "Intervjuer": "Interviews",
+  "Intervju": "Interview",
+  "Övrigt": "Other",
+  "År okänt": "Year unknown",
+  "Okänt år": "Unknown year",
+  "Tidsmaskin · utgåveår": "Time machine · release year",
+  "Kopiera arkivlänk ↗": "Copy archive link ↗",
+  "Länken kopierad ✓": "Link copied ✓",
+  "Kopiera länken till arkivklippet:": "Copy the archive clip link:",
+  "Inga klipp matchar dina filter. Prova en annan tidsresa.": "No clips match your filters. Try another trip through time.",
+  "Inga videor matchar sökningen. Testa färre filter.": "No videos match your search. Try fewer filters.",
+  "Visa fler videor ↓": "Show more videos ↓",
+  "Videorna ligger kvar på YouTube och laddas här först när du väljer att spela upp dem. Saknas något?": "Videos remain on YouTube and load here only when you choose to play them. Is something missing?",
+  "Lyssna på YouTube": "Listen on YouTube",
+  "Klicka för att ladda videon": "Click to load the video",
+  "Spela videon": "Play the video",
+  "Verifierat låtklipp ur arkivet.": "Verified track video from the archive.",
+  "Verifierat klipp med flera låtar.": "Verified video with multiple tracks.",
+  "Verifierad inspelning av utgåvan.": "Verified recording of the release.",
+  "Öppna utgåvan på Spotify ↗": "Open the release on Spotify ↗",
+  "Lyssna på Spotify ↗": "Listen on Spotify ↗",
+  "Utgåvan ↗": "Release ↗",
+  "Bandsida ↗": "Band page ↗",
+  "Öppna bandsidan ↗": "Open the band page ↗",
+  "Öppna personsidan ↗": "Open the person’s page ↗",
+  "VEM LEDER VIDARE TILL VEM?": "WHO CONNECTS TO WHOM?",
+  "Utforska banden, musikerna och deras dokumenterade kopplingar. Välj ett band eller sök efter en person för att börja.": "Explore the bands, musicians and their documented connections. Choose a band or search for a person to get started.",
+  "SÖK BAND ELLER PERSON": "SEARCH BANDS OR PEOPLE",
+  "Sök bland alla dokumenterade band och personer…": "Search all documented bands and people…",
+  "Upptäck något nytt": "Discover something new",
+  "⚄ Slumpa band": "⚄ Random band",
+  "⚄ Slumpa person": "⚄ Random person",
+  "Hela nätverket": "All connections",
+  "1 nivå": "1 level",
+  "2 nivåer": "2 levels",
+  "Visa namn": "Show names",
+  "⛶ Visa helskärm": "⛶ Full screen",
+  "✕ Stäng helskärm": "✕ Exit full screen",
+  "Stäng helskärmsvyn": "Exit full screen",
+  "Öppna nätverket i helskärm": "Open connections in full screen",
+  "Hur många steg skiljer er åt?": "How many steps connect you?",
+  "Sök den kortaste dokumenterade kedjan via gemensamma bandmedlemskap.": "Find the shortest documented chain through shared band memberships.",
+  "Från musiker": "From musician",
+  "Till musiker": "To musician",
+  "Välj person": "Choose a person",
+  "Hitta kopplingen →": "Find the connection →",
+  "Välj två personer från arkivets lista.": "Choose two people from the archive’s list.",
+  "Ingen dokumenterad koppling hittades mellan dessa personer.": "No documented connection was found between these people.",
+  "Kortaste kedjan utifrån registrerade medlemskap. Samtidig aktivitet är inte verifierad.": "Shortest chain based on recorded memberships. Simultaneous activity has not been verified.",
+  "Interaktiv karta över band och personer": "Interactive map of bands and people",
+  "Anpassa nätverket till vyn": "Fit connections to the view",
+  "Visa hela nätverket": "Show all connections",
+  "Scrolla för att zooma · Dra för att flytta": "Scroll to zoom · Drag to move",
+  "VALT BAND": "SELECTED BAND",
+  "MEDLEMMAR & KOPPLINGAR": "MEMBERS & CONNECTIONS",
+  "Ingen dokumenterad bandkoppling.": "No documented band connection.",
+  "UTFORSKA ARKIVET": "EXPLORE THE ARCHIVE",
+  "Utforska kopplingar i Nätverket ↗": "Explore connections ↗",
+  "HJÄLP OSS ATT FYLLA LUCKORNA": "HELP US FILL THE GAPS",
+  "Har du ett tips, en rättelse eller material från Uppsalas hårdrockshistoria? Hör av dig och hjälp arkivet att växa.": "Do you have a tip, a correction or material from Uppsala’s hard rock history? Get in touch and help the archive grow.",
+  "DIN HISTORIA HÖR HIT": "YOUR STORY BELONGS HERE",
+  "Vad saknas i arkivet?": "What is missing from the archive?",
+  "Berätta om ett band, en spelning eller en person. Vi tar gärna emot tips om skivor, fotografier, affischer och andra källor.": "Tell us about a band, a gig or a person. We welcome information about records, photographs, posters and other sources.",
+  "Har du bilder eller inskannat material? Beskriv vad du har, så tar vi det vidare via e-post.": "Do you have pictures or scanned material? Describe what you have and we can follow up by email.",
+  "Namn": "Name",
+  "Ditt namn": "Your name",
+  "E-post": "Email",
+  "din@epost.se": "you@example.com",
+  "Ämne": "Subject",
+  "Ett band, en rättelse eller något annat?": "A band, a correction or something else?",
+  "Meddelande": "Message",
+  "Berätta vad du vet. Lägg gärna med en källhänvisning eller länk.": "Tell us what you know. Please include a source reference or link.",
+  "Skicka meddelande": "Send message",
+  "Eller mejla direkt:": "Or email us directly:",
+  "Webbplats": "Website",
+  "Ditt meddelande skickas till arkivet via FormSubmit. Namn och e-postadress publiceras inte i arkivet.": "Your message is sent to the archive via FormSubmit. Your name and email address are not published in the archive.",
+  "OM UPPSALA HÅRDROCKSARKIV": "ABOUT UPPSALA HÅRDROCKSARKIV",
+  "Ett pågående kartläggningsprojekt om Uppsalas hårdrock och metal – banden, människorna, utgåvorna och kopplingarna mellan dem.": "An ongoing archive project about Uppsala’s hard rock and metal scene — the bands, people, releases and connections.",
+  "En scen med många ingångar": "Many ways into a music scene",
+  "Arkivet samlar bandhistorik, medlemskap, utgåvor och dokumenterade uppgifter om Uppsalas musikscen. Du kan följa ett band, en person eller en utgåva och upptäcka kopplingarna vidare.": "The archive brings together band histories, memberships, releases and documented facts about Uppsala’s music scene. Follow a band, a person or a release to discover further connections.",
+  "Så läser du arkivet": "How to read the archive",
+  "Uppgifter kompletteras och korrigeras när bättre källor hittas. Bekräftade, troliga och osäkra uppgifter skiljs åt där de är bedömda. Ett medlemskap i samma band betyder inte automatiskt att två personer spelade där samtidigt.": "Information is expanded and corrected as better sources are found. Assessed facts are marked as confirmed, probable or uncertain. Membership of the same band does not automatically mean two people played there at the same time.",
+  "Band som klassas som Uppsala-band skiljs från andra band som finns med för att visa personkopplingar och sammanhang. En adress i Uppsala län räcker inte i sig för att ett band ska räknas till Uppsalas scen.": "Bands classified as Uppsala bands are distinguished from other bands included to show connections and context. An address in Uppsala County alone is not enough for a band to be considered part of the city’s scene.",
+  "Se arkivets källor": "View the archive’s sources",
+  "Tipsa eller rätta en uppgift": "Contribute or correct a fact",
+  "Sidan hittades inte": "Page not found",
+  "Länken pekar inte på någon registrerad sida i arkivet.": "This link does not point to a page in the archive.",
+  "Till startsidan": "Back to home",
+  "Bild ej tillgänglig": "Image unavailable",
+  "Kunde inte visa arkivet": "Could not display the archive",
+  "Kunde inte visa arkivet.": "Could not display the archive.",
+  "Kunde inte nå arkivet": "Could not connect to the archive",
+  "Kunde inte hämta arkivet.": "Could not load the archive.",
+  "Ett fel uppstod när sidan skulle visas. Prova att ladda om.": "An error occurred while displaying this page. Please reload.",
+  "Kontrollera internetanslutningen och ladda om sidan.": "Check your internet connection and reload the page.",
+  "Dokumenterad i Uppsalas hårdrocks- och metalscen.": "Documented in Uppsala’s hard rock and metal scene.",
+  "Dokumenterad i samband med metalband från Uppsala.": "Documented in connection with metal bands from Uppsala.",
+  "Dokumenterad i Uppsalas musikarkiv.": "Documented in Uppsala’s music archive.",
+  "Musiker i Uppsalas metalscen.": "Musician in Uppsala’s metal scene.",
+  "Dokumenterad i Uppsala-scenen.": "Documented in the Uppsala scene.",
+  "Dokumenterad via koppling till arkivets musiker.": "Documented through connections to the archive’s musicians.",
+  "Född i Uppsala och verksam i flera Uppsala-band.": "Born in Uppsala and active in several Uppsala bands.",
+  "Death metal-band från Uppsala, bildat 2005 av Hampus Eriksson, Emil Svensson och Rickard Höggren efter att Degial of Embos splittrades.": "Uppsala death metal band formed in 2005 by Hampus Eriksson, Emil Svensson and Rickard Höggren after Degial of Embos split.",
+  "Glam- och hårdrocksband från Uppsala, bildat i början av 1992.": "Uppsala glam/hard rock band formed in early 1992.",
+  "Thrash metal-duo från Uppsala, bildad 2020.": "Uppsala thrash metal duo formed in 2020.",
+  "Crossover- och hardcoreband från Uppsala, bildat 2007.": "Uppsala crossover/hardcore band formed in 2007.",
+  "Death metal-band från Uppsala, bildat 2021.": "Uppsala death metal band formed in 2021.",
+  "Black- och death metal-band från Uppsala, bildat 2019.": "Uppsala black/death metal band formed in 2019.",
+  "Hardcoreband från Uppsala, bildat våren 2019.": "Uppsala hardcore band formed in spring 2019.",
+  "Death metal-band från Uppsala, verksamt 2004–2005.": "Uppsala death metal band active 2004-2005.",
+  "Hardcore- och crustband från Uppsala, bildat 1992.": "Uppsala hardcore/crust band formed in 1992.",
+  "Crust- och d-beat-band från Uppsala, verksamt 1994–1999, med en återföreningsinspelning 2004.": "Uppsala crust/d-beat band active 1994-1999, with a 2004 reunion recording.",
+  "Stonerrockband från Uppsala, bildat 1998.": "Uppsala stoner rock band formed in 1998.",
+  "Melodiskt hårdrocksband från Uppsala, verksamt från 1992.": "Uppsala melodic hard rock band active from 1992.",
+  "Melodiskt hårdrocksband från Uppsala, verksamt under 1980-talet.": "Uppsala melodic hard rock band active in the 1980s.",
+  "Death- och thrash metal-band från Uppsala, verksamt 1999–2009.": "Uppsala death/thrash metal band active 1999–2009.",
+  "Bilder": "Images",
+  "Zooma in": "Zoom in",
+  "Zooma ut": "Zoom out",
+  "Skickar…": "Sending…",
+  "Tack! Ditt meddelande har skickats till arkivet.": "Thank you! Your message has been sent to the archive.",
+  "extern källa": "external source",
+  "Låtlista:": "Tracklist:",
+  "Vi söker:": "We are looking for:"
+};
+  const lookup = new Map(Object.entries(dictionary).map(([sv,en]) => [sv.toLocaleLowerCase('sv'),en]));
+  const storageKey = 'uha-language';
+  let language = 'sv';
+  try { if (localStorage.getItem(storageKey) === 'en') language = 'en'; } catch {}
+  const textRecords = new WeakMap(), attributeRecords = new WeakMap();
+  const attributes = ['placeholder','aria-label','title'];
+  const protectedText = 'script,style,textarea,code,pre,[translate="no"],[contenteditable="true"],.brand,.source-title,.source-publisher,svg text,.degrees-chain-node,.band-title,.release-title,.release-band,.person-bands,.person-card h3,.credit-list strong,.colleague-grid strong,.gap-card h3,.timeline-content h3,.video-card-copy strong,.video-card-band,.youtube-play strong,.release-track-main > strong,.breadcrumbs > span:last-child';
+  const roleText = '.credit-list span,.release-credits,.release-track-credit,.timeline-credits p';
+  const roles = {
+    'medlem (roll ej fastställd)':'member (role unresolved)','medverkande (roll ej angiven)':'performer (unspecified)',
+    'medverkan i låtskrivande':'co-songwriting','omslagsillustration':'cover artwork','omslagsdesign':'cover design',
+    'huvudsång':'lead vocals','körsång':'backing vocals','gästsång':'guest vocals','sång (kör)':'backing vocals',
+    'sångtext':'lyrics','sologitarr':'lead guitar','kompgitarr':'rhythm guitar','alla instrument':'all instruments',
+    'inspelningstekniker':'engineer','inspelningsteknik':'engineering','inspelad bas':'recorded bass',
+    'låtskrivande':'songwriting','låtskrivare':'songwriter','medproducent':'co-producer','bandmedlem':'band member',
+    'gästartist':'featured artist','berättarröst':'narration','fotografi':'photography','produktion':'production',
+    'producent':'producer','inspelning':'recording','mixning':'mixing','komposition':'composition','kompositör':'composer',
+    'formgivning':'design','programmering':'programming','illustration':'artwork','arrangemang':'arrangement',
+    'slagverk':'percussion','synthar':'synthesizers','trummor':'drums','gitarr':'guitar','keyboard':'keyboards',
+    'sång':'vocals','bas':'bass','akustisk':'acoustic','elektrisk':'electric','medverkande':'contributor',
+    'medlem':'member','gäst':'guest','kör':'backing vocals'
+  };
+  const rolePattern = new RegExp('(^|[^\\p{L}])(' + Object.keys(roles).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^$()|[\]{}\\]/g,'\\$&')).join('|') + ')(?!\\p{L})','giu');
+  const applyCase = (source, translated) => source === source.toLocaleUpperCase('sv') && /[A-ZÅÄÖ]/.test(source)
+    ? translated.toLocaleUpperCase('en') : source === source.toLocaleLowerCase('sv') ? translated.toLocaleLowerCase('en') : translated;
+
+  function english(source, element) {
+    const trimmed = source.trim(), key = trimmed.replace(/\s+/g,' ');
+    if (!key) return source;
+    const exact = lookup.get(key.toLocaleLowerCase('sv'));
+    let output = exact ? applyCase(key,exact) : key;
+    if (!exact) {
+      const rules = [
+        [/^(\d[\d\s,.]*) träffar: (\d+) band, (\d+) personer, (\d+) utgåvor\.$/, '$1 results: $2 bands, $3 people, $4 releases.'],
+        [/^Visar (\d+) av (\d+) träffar$/, 'Showing $1 of $2 results'],
+        [/^Visar (\d+) av (\d+) händelser · (\d+) av (\d+) årsgrupper$/, 'Showing $1 of $2 events · $3 of $4 year groups'],
+        [/^Visa fler \((\d+)\)$/, 'Show more ($1)'],
+        [/^(\d[\d\s,.]*) videor · visar (\d[\d\s,.]*)$/, '$1 videos · showing $2'],
+        [/^(\d{4})-talet$/, '$1s'],
+        [/^Bildat (\d{4})$/, 'Formed $1'],
+        [/^Från (\d{4}) \(slutår okänt\)$/, 'From $1 (end year unknown)'],
+        [/^Till (\d{4}) \(startår okänt\)$/, 'Until $1 (start year unknown)'],
+        [/^† Avliden · (.+)$/, '† Deceased · $1'],
+        [/^Live från arkivet · (.+)$/i, 'Live from the archive · $1'],
+        [/^WEBB V([\d.]+)$/, 'WEB V$1'],
+        [/^(\d+) nedslag$/, '$1 highlights'],
+        [/^(\d[\d\s,.]*) unika klipp$/, '$1 unique videos'],
+        [/^(\d[\d\s,.]*) band$/, '$1 bands'],
+        [/^(\d+) klipp upptäckta$/, '$1 clips discovered'],
+        [/^(\d+) band upptäckta$/, '$1 bands discovered'],
+        [/^Klipp (\d+) av (\d+)$/, 'Clip $1 of $2'],
+        [/^▶ ÖVERRASKA MIG · (.+)$/, '▶ SURPRISE ME · $1'],
+        [/^(\d+) oupptäckta klipp i hela arkivet\.$/, '$1 undiscovered clips in the whole archive.'],
+        [/^(\d+) oupptäckta klipp inom nuvarande filter \((.+)\)$/, '$1 undiscovered clips within the current filters ($2)'],
+        [/^Gemensamma anteckningar \((\d+)\)$/, 'Shared notes ($1)'],
+        [/^Spår (.+)$/, 'Tracks $1'],
+        [/^Låtlista: (.+)$/, 'Tracklist: $1'],
+        [/^(\d+) av (\d+) spår har registrerad källa/, '$1 of $2 tracks have a recorded source'],
+        [/^(\d+) av (\d+) spårkrediter har registrerad källa/, '$1 of $2 track credits have a recorded source'],
+        [/^En (.+) från (.+) i arkivet\.$/, (_,kind,year)=>(/^(album|ep)/i.test(kind)?'An ':'A ')+(kind==='utgåva'?'release':kind)+' from '+year+' in the archive.'],
+        [/^Tipsa om (.+)$/, 'Contribute information about $1'],
+        [/^Öppna (.+)$/, 'Open $1'],
+        [/^Spela (.+)$/, 'Play $1'],
+        [/^Visa (.+) med (.+)$/, 'Show $1 by $2'],
+        [/^Visa de (\d+) senaste(.*)$/, 'Show the $1 latest$2'],
+        [/^Senaste bandet$/, 'Latest band'],
+        [/^Senaste personen$/, 'Latest person'],
+        [/^Senaste utgåvan$/, 'Latest release'],
+        [/^YouTube-kanal: (.+)$/, 'YouTube channel: $1'],
+        [/^(.+) på YouTube \(öppnas i ny flik\)$/, '$1 on YouTube (opens in a new tab)'],
+        [/^Valt band: (.+)$/, 'Selected band: $1'],
+        [/^Vald person: (.+)$/, 'Selected person: $1'],
+        [/^(\d+) steg mellan (.+) och (.+)$/, '$1 steps between $2 and $3'],
+        [/^↓ Gemensamt band: (.*)$/, '↓ Shared band: $1'],
+        [/^Vi kunde inte bekräfta att meddelandet skickades\. Texten finns kvar – försök igen eller mejla (.+)\.$/, 'We could not confirm that your message was sent. Your text is still here — try again or email $1.'],
+        [/^Ett dokumenterat band i Uppsala-scenen\. Arkivet bygger successivt ut historik, lineups, utgåvor och kopplingar kring (.+)\.$/, 'A documented band in the Uppsala scene. The archive is gradually expanding the history, line-ups, releases and connections of $1.'],
+        [/^Ett relaterat band i person- och meritnätverket\. (.+) klassas inte som ett Uppsala-band, men finns med för att visa dokumenterade bandhistoriker och kopplingar\.$/, 'A related band in the network of people and credits. $1 is not classified as an Uppsala band, but is included to show documented band histories and connections.']
+      ];
+      for (const [pattern,replacement] of rules) {
+        if (pattern.test(output)) { output=output.replace(pattern,replacement); break; }
+      }
+      output=output.replace(/Källhänvisningarna gäller dessa uppgifter, inte automatiskt hela utgåvan\./g,'Source references apply to these records, not automatically to the entire release.')
+        .replace(/\. (\d+) av (\d+) spårkrediter har registrerad källa/g,'. $1 of $2 track credits have a recorded source')
+        .replace(/okänt år/g,'unknown year');
+      if (element?.closest('.youtube-caption')) {
+        for (const [sv,en] of Object.entries(dictionary)) if (sv.startsWith('Verifierat') || sv.startsWith('Verifierad')) output=output.replace(sv,en);
+        output=output.replace(/Cirka ([\d\s,.]+) visningar, kontrollerat ([\d-]+)\./,'Approximately $1 views, checked $2.')
+          .replace(/Kanal: /g,'Channel: ');
+      }
+      if (element?.closest(roleText)) output=output.replace(rolePattern,(_,prefix,role)=>prefix+roles[role.toLocaleLowerCase('sv')]);
+      if (/^Vi söker: /.test(output)) output=output.replace('Vi söker: ','We are looking for: ').replace(/Bildningsår/g,'Formation year').replace(/Medlemmar/g,'Members').replace(/Bilder/g,'Images');
+    }
+    return source.slice(0,source.indexOf(trimmed)) + output + source.slice(source.indexOf(trimmed)+trimmed.length);
+  }
+
+  function translateText(node) {
+    const element=node.parentElement;
+    if (!element || element.closest(protectedText)) return;
+    if (/^#\/(?:band|person|utgava)\//.test(location.hash) && element.closest('.page-hero h1')) return;
+    let record=textRecords.get(node);
+    if (!record || node.nodeValue !== record.output) record={source:node.nodeValue,output:node.nodeValue};
+    const output=language==='en' ? english(record.source,element) : record.source;
+    if (node.nodeValue!==output) node.nodeValue=output;
+    record.output=output;
+    textRecords.set(node,record);
+  }
+
+  function translateAttributes(element) {
+    if (element.closest('script,style,[translate="no"]')) return;
+    let records=attributeRecords.get(element);
+    if (!records) { records={}; attributeRecords.set(element,records); }
+    for (const attribute of attributes) {
+      if (!element.hasAttribute(attribute)) continue;
+      const current=element.getAttribute(attribute);
+      let record=records[attribute];
+      if (!record || current!==record.output) record={source:current,output:current};
+      const output=language==='en' ? english(record.source,element) : record.source;
+      if (current!==output) element.setAttribute(attribute,output);
+      record.output=output; records[attribute]=record;
+    }
+  }
+
+  let scheduled=false;
+  const observeOptions={subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:attributes};
+  const observer=new MutationObserver(()=>schedule());
+  function refresh() {
+    scheduled=false;
+    observer.disconnect();
+    document.documentElement.lang=language;
+    const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node=walker.nextNode())) translateText(node);
+    document.body.querySelectorAll('[placeholder],[aria-label],[title]').forEach(translateAttributes);
+    document.querySelectorAll('[data-language]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.language===language)));
+    const note=document.querySelector('.language-content-note');
+    if (note) note.hidden=language!=='en';
+    const titleHeading=document.querySelector('.page-hero h1,.hero h1');
+    if (titleHeading) document.title=titleHeading.textContent.trim().replace(/\s+/g,' ')+' – Uppsala Hårdrocksarkiv';
+    observer.observe(document.body,observeOptions);
+  }
+  function schedule() {
+    if (!scheduled) { scheduled=true; requestAnimationFrame(refresh); }
+  }
+  function setLanguage(value) {
+    if (!['sv','en'].includes(value)) return;
+    language=value;
+    try { localStorage.setItem(storageKey,language); } catch {}
+    refresh();
+  }
+  document.querySelectorAll('[data-language]').forEach(button=>button.addEventListener('click',()=>setLanguage(button.dataset.language)));
+  window.addEventListener('storage',event=>{if(event.key===storageKey)setLanguage(event.newValue==='en'?'en':'sv');});
+  window.archiveI18n={get language(){return language;},text:source=>language==='en'?english(String(source)):String(source),refresh};
+  refresh();
+})();
