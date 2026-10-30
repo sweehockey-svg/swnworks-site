@@ -381,7 +381,10 @@
   "Förälder / barn": "Parent / child",
   "Svåger / svägerska": "Brother-in-law / sister-in-law",
   "Syskon": "Siblings",
-  "Partner": "Partner"
+  "Partner": "Partner",
+  "Besöksstatistik": "Visitor statistics",
+  "Arkivet räknar nya öppningar och sidvisningar för att se vilka delar som används. Statistiken innehåller bara summerade räknare och trafikkällor som Google eller Facebook. Vi sparar inga besökar-ID:n, IP-adresser, söktexter eller formulärinnehåll i statistiken. Inställningarna Do Not Track och Global Privacy Control respekteras.": "The archive counts new openings and page views to understand which parts are used. Statistics contain only aggregate counters and traffic sources such as Google or Facebook. We do not store visitor IDs, IP addresses, search terms or form content in the statistics. Do Not Track and Global Privacy Control preferences are respected.",
+  "Ett besök betyder här en ny öppning av arkivet, inklusive omladdning. Det är inte ett mått på unika personer. Statistiken är privat och visas bara för arkivets administratör i Supabase.": "A visit here means a new opening of the archive, including reloads. It is not a count of unique people. Statistics are private and are only available to the archive administrator in Supabase."
 };
   const lookup = new Map(Object.entries(dictionary).map(([sv,en]) => [sv.toLocaleLowerCase('sv'),en]));
   const storageKey = 'uha-language';

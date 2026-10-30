@@ -2495,6 +2495,9 @@
         <h2>Så läser du arkivet</h2>
         <p>Uppgifter kompletteras och korrigeras när bättre källor hittas. Bekräftade, troliga och osäkra uppgifter skiljs åt där de är bedömda. Ett medlemskap i samma band betyder inte automatiskt att två personer spelade där samtidigt.</p>
         <p>Band som klassas som Uppsala-band skiljs från andra band som finns med för att visa personkopplingar och sammanhang. En adress i Uppsala län räcker inte i sig för att ett band ska räknas till Uppsalas scen.</p>
+        <h2>Besöksstatistik</h2>
+        <p>Arkivet räknar nya öppningar och sidvisningar för att se vilka delar som används. Statistiken innehåller bara summerade räknare och trafikkällor som Google eller Facebook. Vi sparar inga besökar-ID:n, IP-adresser, söktexter eller formulärinnehåll i statistiken. Inställningarna Do Not Track och Global Privacy Control respekteras.</p>
+        <p>Ett besök betyder här en ny öppning av arkivet, inklusive omladdning. Det är inte ett mått på unika personer. Statistiken är privat och visas bara för arkivets administratör i Supabase.</p>
         <div class="hero-actions"><a class="button button-ghost" href="#/kallor">Se arkivets källor</a><a class="button button-primary" href="#/kontakt">Tipsa eller rätta en uppgift</a></div>
       </section>`;
   }
