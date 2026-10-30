@@ -1103,7 +1103,7 @@
     const media = personMedia(p);
     return `<a class="person-card${media ? ' has-portrait' : ''}" href="${personHref(p)}">
       ${media ? `<div class="person-card-portrait"><img src="${media}" alt="${escapeHtml(p.canonical_name)}" loading="lazy"></div>` : ''}
-      <div class="person-card-copy"><div class="person-number">${String(i+1).padStart(2,'0')}</div><h3>${escapeHtml(p.canonical_name)}${isDeceased(p) ? '<span class="person-deceased-mark" aria-label="Avliden" title="Avliden">†</span>' : ''}</h3><div class="person-bands">${escapeHtml(names.join(' · ') || 'Koppling kartläggs')}</div></div>
+      <div class="person-card-copy"><div class="person-number">${String(i+1).padStart(2,'0')}</div><h3>${escapeHtml(p.canonical_name)}${isDeceased(p) ? '<span class="person-deceased-mark" aria-label="Avliden" title="Avliden">†</span>' : ''}</h3><div class="person-bands">${escapeHtml(names.slice(0,3).join(' · ') || 'Koppling kartläggs')}</div>${names.length > 3 ? `<span class="person-band-more">+${names.length - 3} fler band →</span>` : ''}</div>
     </a>`;
   }
 
