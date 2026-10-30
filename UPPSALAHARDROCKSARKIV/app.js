@@ -1603,6 +1603,15 @@
     const ranked = songs.filter(item=>Number.isFinite(item.views)).sort((a,b)=>b.views-a.views);
     const featured = items.find(item => item.featured === true) || ranked[0] || songs[0] || items.find(item => item.kind === 'album') || items.find(item => item.kind === 'medley');
     if (!featured) return '';
+    // Visa alla verifierade låtklipp, inte bara det som får stor förhandsvisning.
+    // Ordningen i den kuraterade listan följer albumets spårlista.
+    const videoLinks = songs.length > 1
+      ? '<div class="youtube-video-links"><h3>Videor från utgåvan (' + songs.length + ')</h3><ul>'
+        + songs.map(item => '<li><a href="https://www.youtube.com/watch?v=' + item.id
+          + '" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">▶</span> '
+          + escapeHtml(item.title) + ' <span aria-hidden="true">↗</span></a></li>').join('')
+        + '</ul></div>'
+      : '';
     return '<section class="content-section youtube-section"><h2>Lyssna på YouTube</h2>'
       + (featured ? '<div class="youtube-preview" data-youtube-id="' + featured.id + '"><button type="button" class="youtube-play" aria-label="'
       + escapeHtml('Spela ' + featured.title) + '"><span aria-hidden="true">▶</span><strong>' + escapeHtml(featured.title)
@@ -1610,6 +1619,7 @@
       + '<p class="youtube-caption">' + (featured.kind === 'track' ? 'Verifierat låtklipp ur arkivet.' : featured.kind === 'medley' ? 'Verifierat klipp med flera låtar.' : 'Verifierad inspelning av utgåvan.')
       + (featured.views != null ? ' Cirka ' + featured.views.toLocaleString('sv-SE') + ' visningar, kontrollerat ' + featured.checked + '.' : '')
       + (featured.channel ? ' Kanal: ' + escapeHtml(featured.channel) + '.' : '') + '</p>' : '')
+      + videoLinks
       + playlistLink
       + '</section>';
   }
