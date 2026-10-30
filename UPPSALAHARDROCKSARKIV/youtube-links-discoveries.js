@@ -1145,8 +1145,8 @@ window.ARCHIVE_YOUTUBE.push(...[
     "views": null,
     "sourceUrl": "https://www.youtube.com/watch?v=Y-WWtlSWbAA",
     "sourceNote": "Original 1989 års Desecrate/Uppsala Lonely Disgrace demo låt 2. Uploader beskriver Band: Desecrate, Song: Undivided Etension, Year 1989. Ej samma som den nyproducerade 2026-tolkningen Undivided Attention."
-  }
-  ,{
+  },
+  {
     "band": "equinox",
     "release": "c6c851bc-769a-494c-9132-eccf5b269bec",
     "title": "Don't Scream",
