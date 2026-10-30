@@ -1034,19 +1034,24 @@
       ? state.bands
       : state.bands.filter(isUppsalaBand);
   }
-  // Registerlistorna visar bara personer som dokumenterat spelat i ett
-  // Uppsalaband. Externa medmusiker och studiogäster finns kvar i databasen,
-  // på relevanta profiler och via direkta länkar, men visas inte i personregistret.
+  // Uppsalapersoner kräver ett dokumenterat, separat granskat personligt
+  // orts-/scensamband. En utgåvekredit eller ett medlemskap räcker inte.
+  // Övriga bandmedlemmar finns tillgängliga för fortsatt forskning på en
+  // separat flik. Personer som bett om att inte listas är alltid uteslutna.
   function uppsalaPersonIds() {
-    const localBandIds = new Set(uppsalaBands().map(b => String(b.id)));
-    return new Set(state.memberships.filter(m => localBandIds.has(String(m.band_id))).map(m => String(m.person_id)));
+    return new Set(state.people.filter(p => p.local_registry_status === 'verified').map(p => String(p.id)));
   }
   function isUppsalaPerson(p) {
-    return Boolean(p && uppsalaPersonIds().has(String(p.id)));
+    return Boolean(p && p.local_registry_status === 'verified');
   }
   function uppsalaPeople() {
-    const localIds = uppsalaPersonIds();
-    return state.people.filter(p => localIds.has(String(p.id)));
+    return state.people.filter(isUppsalaPerson);
+  }
+  function unreviewedBandPeople() {
+    const localBandIds = new Set(uppsalaBands().map(b => String(b.id)));
+    const members = new Set(state.memberships.filter(m => localBandIds.has(String(m.band_id))).map(m => String(m.person_id)));
+    return state.people.filter(p => members.has(String(p.id)) &&
+      (p.local_registry_status === 'review' || !p.local_registry_status));
   }
   function groupedMembershipsForBand(id) {
     const groups = new Map();
@@ -1287,7 +1292,7 @@
 
   function recentArchiveEntries(limit = 1) {
     const localIds = new Set(uppsalaBands().map(b => b.id));
-    const localPeople = new Set(state.memberships.filter(m => localIds.has(m.band_id)).map(m => m.person_id));
+    const localPeople = uppsalaPersonIds();
     const localReleases = new Set(state.releaseBands.filter(r => localIds.has(r.band_id)).map(r => r.release_id));
     const entry = (row, type, href, detail, image = '') => ({
       id: row.id, name: row.canonical_name || row.title, type, href, detail, image,
@@ -2207,13 +2212,22 @@
   }
 
   function renderPeopleIndex() {
-    const people = [...uppsalaPeople()];
-    const names = new Map(people.map(p => [p.id, membershipsForPerson(p.id).map(m => bandName(m.band_id)).join(' ')]));
+    const verifiedPeople = [...uppsalaPeople()];
+    const unreviewedPeople = [...unreviewedBandPeople()];
+    const allPeople = [...verifiedPeople,...unreviewedPeople];
+    const names = new Map(allPeople.map(p => [p.id, membershipsForPerson(p.id).map(m => bandName(m.band_id)).join(' ')]));
+    let people = verifiedPeople;
+    let scope = 'verified';
     let order = 'surname';
     let selected = '';
     const initial = p => personIndexName(p, order).charAt(0).toLocaleUpperCase('sv');
-    app.innerHTML = `${pageHeader('MÄNNISKORNA BAKOM BANDEN','Personer','Här listas musiker med dokumenterad medverkan i Uppsalaband. På deras profiler syns även andra band de spelat i.')}
+    app.innerHTML = `${pageHeader('PERSONER MED UPPSALAANKNYTNING','Personer','Egen dokumenterad Uppsalaanknytning granskas separat från medlemskap och skivkrediter. Relaterade medverkande finns fortfarande på band- och utgåvesidorna.')}
       <section class="section page-section first-section">
+        <div class="person-scope-switch" role="group" aria-label="Välj personkategori">
+          <button type="button" data-person-scope="verified" aria-pressed="true">Bekräftad Uppsalaanknytning (${verifiedPeople.length})</button>
+          <button type="button" data-person-scope="review" aria-pressed="false">Bandmedlemmar att granska (${unreviewedPeople.length})</button>
+        </div>
+        <p class="person-scope-note" id="person-scope-note">Här visas bara personer med separat belagd anknytning till Uppsalas musikscen. En skivkredit eller ett bandmedlemskap räcker inte som bevis.</p>
         <div class="index-toolbar"><label class="search-box"><span>Sök person</span><input id="people-search" type="search" placeholder="Namn eller band…"></label><div class="index-count"><strong id="registry-count"></strong> personer</div></div>
         <label class="people-sort"><span>Sortera på</span><select id="people-sort"><option value="surname">Efternamn</option><option value="firstname">Förnamn</option></select></label>
         <div class="registry-letters" id="people-letters" role="group"></div>
@@ -2249,6 +2263,20 @@
       update();
     });
     $('#registry-reset').addEventListener('click',()=> { input.value=''; selectLetter(''); });
+    $$('.person-scope-switch button[data-person-scope]').forEach(button => {
+      button.addEventListener('click', () => {
+        scope = button.dataset.personScope;
+        people = scope === 'verified' ? verifiedPeople : unreviewedPeople;
+        $$('.person-scope-switch button[data-person-scope]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.personScope === scope)));
+        $('#person-scope-note').textContent = scope === 'verified'
+          ? 'Här visas bara personer med separat belagd anknytning till Uppsalas musikscen. En skivkredit eller ett bandmedlemskap räcker inte som bevis.'
+          : 'Här finns personer med dokumenterat medlemskap i Uppsalaband vars personliga Uppsalaanknytning ännu inte granskats. De är inte automatiskt klassade som Uppsalapersoner.';
+        selected='';
+        input.value='';
+        renderLetters();
+        update();
+      });
+    });
   }
 
   // Graph edges represent documented membership in the same band, not
