@@ -1870,31 +1870,57 @@
     return () => { limit=48; update(); };
   }
 
+  function personIndexName(p, order = 'surname') {
+    const original = String(p.canonical_name || '').trim();
+    // Ignore band qualifiers and quoted nicknames when deriving the index key.
+    // A single stage name remains the key; archive display names never change.
+    const clean = original.replace(/\([^)]*\)/g, ' ').replace(/["“”„][^"“”„]*["“”„]/g, ' ').replace(/\s+/g, ' ').trim() || original;
+    const parts = clean.split(' ');
+    return order === 'surname' ? parts[parts.length - 1] : parts[0];
+  }
+
   function renderPeopleIndex() {
-    const ordered = [...uppsalaPeople()].sort((a,b) => a.canonical_name.localeCompare(b.canonical_name,'sv'));
-    const names = new Map(ordered.map(p => [p.id, membershipsForPerson(p.id).map(m => bandName(m.band_id)).join(' ')]));
-    const initial = p => p.canonical_name.trim().charAt(0).toLocaleUpperCase('sv');
-    const letters = [...new Set(ordered.map(initial))].sort((a,b)=>a.localeCompare(b,'sv'));
+    const people = [...uppsalaPeople()];
+    const names = new Map(people.map(p => [p.id, membershipsForPerson(p.id).map(m => bandName(m.band_id)).join(' ')]));
+    let order = 'surname';
+    let selected = '';
+    const initial = p => personIndexName(p, order).charAt(0).toLocaleUpperCase('sv');
     app.innerHTML = `${pageHeader('MÄNNISKORNA BAKOM BANDEN','Personer','Här listas musiker med dokumenterad medverkan i Uppsalaband. På deras profiler syns även andra band de spelat i.')}
       <section class="section page-section first-section">
         <div class="index-toolbar"><label class="search-box"><span>Sök person</span><input id="people-search" type="search" placeholder="Namn eller band…"></label><div class="index-count"><strong id="registry-count"></strong> personer</div></div>
-        <div class="registry-letters" role="group" aria-label="Första bokstaven i personens namn"><button type="button" data-letter="" aria-pressed="true">Alla</button>${letters.map(letter=>`<button type="button" data-letter="${escapeHtml(letter)}" aria-pressed="false">${escapeHtml(letter)}</button>`).join('')}</div>
+        <label class="people-sort"><span>Sortera på</span><select id="people-sort"><option value="surname">Efternamn</option><option value="firstname">Förnamn</option></select></label>
+        <div class="registry-letters" id="people-letters" role="group"></div>
         <button class="band-filter-reset registry-reset" id="registry-reset" type="button">Rensa filter</button>
         <div class="people-grid" id="people-grid"></div>${registryFooter()}
       </section>`;
     const input = $('#people-search');
-    let selected = '';
+    const letterGroup = $('#people-letters');
+    function renderLetters() {
+      const letters = [...new Set(people.map(initial))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'sv'));
+      letterGroup.setAttribute('aria-label', order === 'surname' ? 'Första bokstaven i efternamnet' : 'Första bokstaven i förnamnet');
+      letterGroup.innerHTML = `<button type="button" data-letter="" aria-pressed="true">Alla</button>${letters.map(letter=>`<button type="button" data-letter="${escapeHtml(letter)}" aria-pressed="false">${escapeHtml(letter)}</button>`).join('')}`;
+    }
+    renderLetters();
     const update = bindRegistry(() => {
       const term=input.value.trim().toLocaleLowerCase('sv');
-      return ordered.filter(p => (!selected || initial(p)===selected) && `${p.canonical_name} ${names.get(p.id)}`.toLocaleLowerCase('sv').includes(term));
+      return people.filter(p => (!selected || initial(p)===selected) && `${p.canonical_name} ${names.get(p.id)}`.toLocaleLowerCase('sv').includes(term))
+        .sort((a,b) => personIndexName(a,order).localeCompare(personIndexName(b,order),'sv') || a.canonical_name.localeCompare(b.canonical_name,'sv'));
     }, rows => rows.map(personCard).join(''), 'people-grid', [[input,'input']]);
-    const buttons = [...document.querySelectorAll('[data-letter]')];
     function selectLetter(letter) {
       selected=letter;
-      buttons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.letter===letter)));
+      [...letterGroup.querySelectorAll('[data-letter]')].forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.letter===letter)));
       update();
     }
-    buttons.forEach(button=>button.addEventListener('click',()=>selectLetter(button.dataset.letter)));
+    letterGroup.addEventListener('click',event=>{
+      const button=event.target.closest('button[data-letter]');
+      if(button && letterGroup.contains(button)) selectLetter(button.dataset.letter);
+    });
+    $('#people-sort').addEventListener('change',event=>{
+      order=event.target.value;
+      selected='';
+      renderLetters();
+      update();
+    });
     $('#registry-reset').addEventListener('click',()=> { input.value=''; selectLetter(''); });
   }
 

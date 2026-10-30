@@ -1515,3 +1515,9 @@ body.network-body-fullscreen { overflow:hidden; }
 .person-source-details > summary:focus-visible { outline:2px solid var(--acid); outline-offset:4px; }
 .person-source-details[open] { padding-bottom:16px; }
 .person-source-details .source-list { overflow-wrap:anywhere; }
+
+/* The alphabet follows the selected name order. */
+.people-sort { display:flex; align-items:center; gap:12px; margin:0 0 20px; }
+.people-sort > span { color:var(--muted); font:500 13px var(--condensed); text-transform:uppercase; letter-spacing:.06em; }
+.people-sort select { min-width:150px; min-height:42px; padding:8px 12px; border:1px solid var(--line-strong); background:#111315; color:var(--paper); font:500 14px var(--sans); }
+.people-sort select:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
