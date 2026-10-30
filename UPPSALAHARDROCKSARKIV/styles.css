@@ -1229,3 +1229,15 @@ body.network-body-fullscreen { overflow:hidden; }
 .recent-history li time { color:var(--muted); font:11px/1.6 var(--condensed); }
 .recent-history li small { grid-column:1/-1; color:var(--muted); font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
 
+
+/* Keep the language choice visible independently of the mobile menu. */
+.language-switch { display:inline-flex; align-items:center; gap:2px; border:1px solid var(--line-strong); padding:3px; flex-shrink:0; }
+.language-switch button { min-width:36px; min-height:34px; padding:5px 8px; color:var(--muted); background:transparent; border:0; font:500 12px var(--condensed); cursor:pointer; }
+.language-switch button[aria-pressed="true"] { color:#090a0c; background:var(--acid); }
+.language-switch button:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
+.site-footer .language-content-note { max-width:560px; font-size:12px; line-height:1.6; }
+.language-content-note[hidden] { display:none; }
+@media (max-width:480px) {
+  .header-actions { gap:8px; }
+  .language-switch button { min-width:32px; padding:5px 6px; }
+}
