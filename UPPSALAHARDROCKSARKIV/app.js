@@ -1895,6 +1895,18 @@
       }).join('') + '</details>';
   }
 
+  function bindTrackInfo(holder) {
+    holder.querySelectorAll('.release-track-toggle').forEach(button => {
+      button.addEventListener('click', () => {
+        const panel = button.closest('.release-track-main').querySelector('.release-track-info-body');
+        if (!panel) return;
+        const expanded = button.getAttribute('aria-expanded') !== 'true';
+        button.setAttribute('aria-expanded', String(expanded));
+        panel.hidden = !expanded;
+      });
+    });
+  }
+
   async function renderReleaseTracklist(releaseId) {
     const holder = $('#release-tracklist');
     if (!holder || holder.dataset.releaseId !== String(releaseId)) return;
@@ -1948,16 +1960,20 @@
         const notes = note && noteGroups.get(note).length === 1 ? `<span class="release-track-note">${escapeHtml(note)}</span>` : '';
         return `<li class="release-track">
           <span class="release-track-number">${String(track.track_number).padStart(2,'0')}</span>
-          <div class="release-track-main"><strong>${escapeHtml(track.title)}</strong>
-            ${youtubeTrackLink(releaseId, track.title)}
-            ${displayCredits || notes ? `<details class="release-track-info"><summary aria-label="Mer info om ${escapeHtml(track.title)}">Mer info</summary><div class="release-track-info-body">
+          <div class="release-track-main">
+            <div class="release-track-header"><strong>${escapeHtml(track.title)}</strong><div class="release-track-actions">
+              ${youtubeTrackLink(releaseId, track.title)}
+              ${displayCredits || notes ? `<button class="release-track-toggle" type="button" aria-expanded="false" aria-controls="track-info-${escapeHtml(releaseId)}-${escapeHtml(track.id)}" aria-label="Mer info om ${escapeHtml(track.title)}">Mer info</button>` : ''}
+            </div></div>
+            ${displayCredits || notes ? `<div class="release-track-info-body" id="track-info-${escapeHtml(releaseId)}-${escapeHtml(track.id)}" hidden>
               ${displayCredits ? `<span class="release-track-credit">${displayCredits}</span>` : ''}
               ${notes}
-            </div></details>` : ''}
+            </div>` : ''}
           </div>
           <span class="release-track-duration">${formatDuration(track.duration_seconds)}</span>
         </li>`;
       }).join('')}</ol>${sharedTrackNotes(noteGroups, tracks)}`;
+      bindTrackInfo(activeHolder());
     } catch (error) {
       console.warn('Låtlistan kunde inte hämtas', error);
       if (activeHolder()) {
