@@ -1948,11 +1948,13 @@
         const notes = note && noteGroups.get(note).length === 1 ? `<span class="release-track-note">${escapeHtml(note)}</span>` : '';
         return `<li class="release-track">
           <span class="release-track-number">${String(track.track_number).padStart(2,'0')}</span>
-          <span class="release-track-main"><strong>${escapeHtml(track.title)}</strong>
-            ${displayCredits ? `<span class="release-track-credit">${displayCredits}</span>` : ''}
-            ${notes}
+          <div class="release-track-main"><strong>${escapeHtml(track.title)}</strong>
             ${youtubeTrackLink(releaseId, track.title)}
-          </span>
+            ${displayCredits || notes ? `<details class="release-track-info"><summary aria-label="Mer info om ${escapeHtml(track.title)}">Mer info</summary><div class="release-track-info-body">
+              ${displayCredits ? `<span class="release-track-credit">${displayCredits}</span>` : ''}
+              ${notes}
+            </div></details>` : ''}
+          </div>
           <span class="release-track-duration">${formatDuration(track.duration_seconds)}</span>
         </li>`;
       }).join('')}</ol>${sharedTrackNotes(noteGroups, tracks)}`;
