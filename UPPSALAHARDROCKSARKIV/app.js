@@ -691,6 +691,86 @@
   }
 
   function bandName(id) { return bandsById().get(id)?.canonical_name || 'Okänt band'; }
+
+  // Source-verified name links, reviewed 2026-10-30. Database person UUIDs stay unchanged.
+  const VERIFIED_PERSON_IDENTITIES = [
+  {
+    "id": "6ca1a0c1-0b91-449c-9da5-322bccd220d7",
+    "aliases": [
+      "Armageddor"
+    ],
+    "bandNames": {
+      "5d451fcc-9a94-40e6-81f6-5ff9f99d3336": "Armageddor"
+    },
+    "sources": [
+      "https://www.enahabo.se/noje/balstabo-till-sweden-rock-med-black-metal-band/252924"
+    ]
+  },
+  {
+    "id": "9107c73a-f7a3-4ab7-9cec-4709bd90089b",
+    "aliases": [
+      "Angst (Nazghor)",
+      "Angst",
+      "Anton Örjes-Liljedahl",
+      "Gringo"
+    ],
+    "bandNames": {
+      "5d451fcc-9a94-40e6-81f6-5ff9f99d3336": "Angst"
+    },
+    "sources": [
+      "https://www.metal-archives.com/artists/Angst/567551"
+    ]
+  },
+  {
+    "id": "d446169f-839d-46b0-a067-76fcb7a99ee9",
+    "aliases": [
+      "Apollyon"
+    ],
+    "bandNames": {
+      "47b5d5ba-6086-4f36-b997-cf896b9a3194": "Apollyon"
+    },
+    "sources": [
+      "https://eternal-terror.com/2010/09/17/apollyon-aura-noir-jeg-synger-med-sjela/"
+    ]
+  },
+  {
+    "id": "df537068-d9e3-4036-8f5e-decc108f79f8",
+    "aliases": [
+      "A. Nekromonger",
+      "Nekromonger",
+      "AE"
+    ],
+    "bandNames": {},
+    "sources": [
+      "https://www.metal-archives.com/artists/AE/44841"
+    ]
+  },
+  {
+    "id": "88fb5923-c117-4f29-9ed9-ca5df5852433",
+    "aliases": [
+      "Angel of Doom"
+    ],
+    "bandNames": {},
+    "sources": [
+      "https://www.metal-archives.com/artists/Patrick_W._Engel/9482"
+    ]
+  }
+];
+  const verifiedIdentity = p => VERIFIED_PERSON_IDENTITIES.find(x => x.id === p?.id);
+  function personAliases(p) {
+    return (verifiedIdentity(p)?.aliases || []).filter(name => name !== p.canonical_name);
+  }
+  function personSearchName(p) {
+    return [p?.canonical_name || '', ...personAliases(p || {})].join(' ');
+  }
+  function personBandName(p, bandId) {
+    return verifiedIdentity(p)?.bandNames?.[bandId] || personDisplayName(p);
+  }
+  function personAliasSummary(p) {
+    const aliases = personAliases(p).filter(name => !/\([^)]*\)/.test(name));
+    return aliases.length ? `<p class="person-aliases"><span>Artistnamn / namnvarianter:</span> <span translate="no">${escapeHtml(aliases.join(' · '))}</span></p>` : '';
+  }
+
   function personName(id) { return peopleById().get(id)?.canonical_name || 'Okänd person'; }
   function releaseBand(releaseId) { const rb = state.releaseBands.find(x => x.release_id === releaseId); return rb ? bandsById().get(rb.band_id) : null; }
   function membershipsForBand(id) { return state.memberships.filter(x => x.band_id === id); }
@@ -861,7 +941,8 @@
   function findPerson(slug) {
     // Preserve incoming links when verified duplicate profiles are merged.
     const aliases = {'john-s-swahn':'john-swahn', 'affe-piran':'afshin-affe-piran', 'spine':'lukas-hager', 'set-teitan':'davide-totaro', 'tina-gunnarsson':'tina-moller', 'henry-bowers':'nils-jansson', 'j-meggido':'joel-lindholm', 'hans-bruniusson':'hasse-bruniusson'};
-    return state.people.find(x => slugify(x.canonical_name) === (aliases[slug] || slug));
+    return state.people.find(x => slugify(x.canonical_name) === (aliases[slug] || slug))
+      || state.people.find(x => personAliases(x).some(name => slugify(name) === slug));
   }
   function findRelease(slug) { return state.releases.find(x => slugify(`${x.title}-${x.release_year || ''}`) === slug); }
 
@@ -922,11 +1003,11 @@
     const bandPeople = new Map(), personBands = new Map(), releasePeople = new Map(), releaseBandNames = new Map();
     const add = (map,id,value) => map.set(id,[...(map.get(id) || []),value]);
     state.memberships.forEach(m => {
-      add(bandPeople,m.band_id,people.get(m.person_id)?.canonical_name || '');
+      add(bandPeople,m.band_id,personSearchName(people.get(m.person_id)));
       add(personBands,m.person_id,bands.get(m.band_id)?.canonical_name || '');
     });
     state.releaseMembers.forEach(c => add(releasePeople,c.release_id,
-      (people.get(c.person_id)?.canonical_name || '') + ' ' + (c.credited_as || '')));
+      personSearchName(people.get(c.person_id)) + ' ' + (c.credited_as || '')));
     state.releaseBands.forEach(c => add(releaseBandNames,c.release_id,bands.get(c.band_id)?.canonical_name || ''));
     const order = (items,name) => items.sort((a,b) => {
       const q = searchText(query).trim();
@@ -935,7 +1016,7 @@
     });
     return {
       bands:order(allBandRows().filter(b => matches([b.canonical_name,(b.genres || []).join(' '),b.city,b.formed_year,(bandPeople.get(b.id) || []).join(' ')].join(' '))),b=>b.canonical_name),
-      people:order(state.people.filter(p => matches([p.canonical_name,(personBands.get(p.id) || []).join(' ')].join(' '))),p=>p.canonical_name),
+      people:order(state.people.filter(p => matches([personSearchName(p),(personBands.get(p.id) || []).join(' ')].join(' '))),p=>p.canonical_name),
       releases:order(state.releases.filter(r => matches([r.title,r.release_year,(releaseBandNames.get(r.id) || []).join(' '),(releasePeople.get(r.id) || []).join(' ')].join(' '))),r=>r.title)
     };
   }
@@ -1076,7 +1157,7 @@
   function bandCard(b, i = 0) {
     const mems = membershipsForBand(b.id);
     const personIds = [...new Set(mems.map(m => m.person_id))];
-    const names = personIds.slice(0,4).map(personName);
+    const names = personIds.slice(0,4).map(id => personBandName(peopleById().get(id),b.id));
     const extra = personIds.length > 4 ? ` +${personIds.length - 4}` : '';
     const media = bandMedia(b);
     return `<a class="band-card${media ? ' has-media' : ''}" href="${bandHref(b)}" data-index="${String(i+1).padStart(2,'0')}">
@@ -1838,7 +1919,7 @@
       <section class="section detail-layout first-section band-detail-layout">
         <aside class="detail-aside">${bandMedia(b) ? `<figure class="detail-media"><img src="${bandMedia(b)}" alt="${escapeHtml(b.canonical_name)}"></figure>${externalMediaCredit(bandMedia(b))}` : ''}${spotifyLink(b)}<div class="aside-label">Översikt</div><p>${escapeHtml(archiveTextSv(b.description || defaultDescription))}</p><div class="aside-facts"><div><span>Status</span><strong>${b.status === 'active' ? 'Aktivt' : b.status === 'inactive' ? 'Inaktivt' : 'Okänt'}</strong></div><div><span>Arkivklass</span><strong>${scopeLabel}</strong></div><div><span>Medlemmar i arkivet</span><strong>${memberGroups.length}</strong></div><div><span>Utgåvor i arkivet</span><strong>${rels.length}</strong></div></div></aside>
         <div class="detail-main">
-          <section class="content-section"><div class="content-head"><span>01</span><h2>Medlemmar</h2></div><div class="credit-list">${memberGroups.length ? memberGroups.map(group => { const p=peopleById().get(group.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(p.canonical_name)}</strong><span>${escapeHtml(group.roles || 'Roll kartläggs')}</span><em>${escapeHtml(group.periods || 'Årtal söks')}</em></a>`; }).join('') : '<div class="empty-state">Lineup kartläggs.</div>'}</div></section>
+          <section class="content-section"><div class="content-head"><span>01</span><h2>Medlemmar</h2></div><div class="credit-list">${memberGroups.length ? memberGroups.map(group => { const p=peopleById().get(group.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(personBandName(p,b.id))}</strong><span>${escapeHtml(group.roles || 'Roll kartläggs')}</span><em>${escapeHtml(group.periods || 'Årtal söks')}</em></a>`; }).join('') : '<div class="empty-state">Lineup kartläggs.</div>'}</div></section>
           <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${rels.length ? rels.map(r => releaseRow(r, {compact:true})).join('') : '<div class="empty-state">Inga utgåvor registrerade ännu.</div>'}</div></section>
           ${youtubeSection(b)}
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Bildarkiv</h2></div>${archiveGallery(gallery)}</section>` : ''}
@@ -1917,7 +1998,7 @@
     renderLetters();
     const update = bindRegistry(() => {
       const term=input.value.trim().toLocaleLowerCase('sv');
-      return people.filter(p => (!selected || initial(p)===selected) && `${p.canonical_name} ${names.get(p.id)}`.toLocaleLowerCase('sv').includes(term))
+      return people.filter(p => (!selected || initial(p)===selected) && `${personSearchName(p)} ${names.get(p.id)}`.toLocaleLowerCase('sv').includes(term))
         .sort((a,b) => personIndexName(a,order).localeCompare(personIndexName(b,order),'sv') || a.canonical_name.localeCompare(b.canonical_name,'sv'));
     }, rows => rows.map(personCard).join(''), 'people-grid', [[input,'input']]);
     function selectLetter(letter) {
@@ -2013,7 +2094,7 @@
       const otherId=String(link.person_a_id)===String(p.id)?link.person_b_id:link.person_a_id;
       return {...link,relative:state.people.find(x=>String(x.id)===String(otherId)),source:state.sources.find(x=>String(x.id)===String(link.source_id))};
     }).filter(x=>x.relative);
-    app.innerHTML = `${breadcrumbs([{label:'Personer',href:'#/personer'},{label:personDisplayName(p)}])}${pageHeader(corePerson ? 'PERSON / UPPSALA-SCENEN' : 'RELATERAD PERSON',escapeHtml(personDisplayName(p)),'',meta,'person-page-hero')}
+    app.innerHTML = `${breadcrumbs([{label:'Personer',href:'#/personer'},{label:personDisplayName(p)}])}${pageHeader(corePerson ? 'PERSON / UPPSALA-SCENEN' : 'RELATERAD PERSON',escapeHtml(personDisplayName(p)),'',meta,'person-page-hero')}${personAliasSummary(p)}
       <section class="section detail-layout person-detail-layout first-section">
         <aside class="detail-aside">${personMedia(p) ? `<figure class="detail-media detail-portrait"><img src="${personMedia(p)}" alt="${escapeHtml(personDisplayName(p))}"></figure>${externalMediaCredit(personMedia(p))}` : ''}<div class="aside-label">Profil</div><p>${escapeHtml(archiveTextSv(p.biography || p.uppsala_connection || (corePerson ? 'Dokumenterad i Uppsala-scenen.' : 'Dokumenterad via koppling till arkivets musiker.')))}</p><div class="aside-facts">${isDeceased(p) ? `<div><span>Avliden</span><strong>${escapeHtml(String(deathYear(p)))}</strong></div>${p.birth_year ? `<div><span>Född</span><strong>${escapeHtml(String(p.birth_year))}</strong></div>` : ''}` : ''}<div><span>Bandkopplingar</span><strong>${uniqueBands.length}</strong></div><div><span>Utgåvekrediter</span><strong>${credits.length}</strong></div><div><span>Källkopplade uppgifter</span><strong>${claims.length}</strong></div></div></aside>
         <div class="detail-main">

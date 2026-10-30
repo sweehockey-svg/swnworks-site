@@ -1521,3 +1521,7 @@ body.network-body-fullscreen { overflow:hidden; }
 .people-sort > span { color:var(--muted); font:500 13px var(--condensed); text-transform:uppercase; letter-spacing:.06em; }
 .people-sort select { min-width:150px; min-height:42px; padding:8px 12px; border:1px solid var(--line-strong); background:#111315; color:var(--paper); font:500 14px var(--sans); }
 .people-sort select:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
+
+.person-aliases { max-width:1376px; margin:0 auto; padding:0 0 24px; color:var(--muted); font:400 14px/1.6 var(--sans); }
+.person-aliases > span:last-child { color:var(--paper); }
+@media(max-width:1480px) { .person-aliases { margin-left:4vw; margin-right:4vw; } }
