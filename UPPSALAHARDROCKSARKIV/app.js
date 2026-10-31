@@ -700,6 +700,21 @@
   // Source-verified name links, reviewed 2026-10-30. Database person UUIDs stay unchanged.
   const VERIFIED_PERSON_IDENTITIES = [
   {
+  "id": "3ae5c56f-f27c-4c55-8898-f37773b0c0b4",
+  "aliases": [
+    "Unspeakable Emp",
+    "Emil Berglin",
+    "Emil \"Empa\" Berglin"
+  ],
+  "bandNames": {
+    "14375cb3-855b-45d3-8446-8cf481a8963c": "Unspeakable Emp"
+  },
+  "sources": [
+    "https://www.spaziorock.it/fku-pat-splat-interview-2018/",
+    "https://www.metal-archives.com/artists/Emil_Berglin/75065"
+  ]
+},
+  {
     "id": "6ca1a0c1-0b91-449c-9da5-322bccd220d7",
     "aliases": [
       "Armageddor"
