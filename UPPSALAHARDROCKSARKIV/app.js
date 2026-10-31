@@ -13,7 +13,12 @@
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
   const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-  const byId = arr => new Map(arr.map(x => [x.id, x]));
+  // Snapshots replace arrays together. Reuse lookups until a new array arrives.
+  const idIndexes = new WeakMap();
+  const byId = arr => {
+    if (!idIndexes.has(arr)) idIndexes.set(arr, new Map(arr.map(x => [x.id, x])));
+    return idIndexes.get(arr);
+  };
   const peopleById = () => byId(state.people);
   const allBandRows = () => state.allBands.length ? state.allBands : [...state.bands, ...state.relatedBands];
   const bandsById = () => byId(allBandRows());
@@ -1056,10 +1061,21 @@
   }
   // Personlig Uppsalaanknytning verifieras separat. Inget medlemskap
   // och ingen skivkredit innebär automatiskt en lokal person.
+  let localPersonIndex = null;
   function uppsalaPersonIds() {
-    const musical = musicalArchivePersonIds();
-    return new Set(state.people.filter(p => p.local_registry_status === 'verified'
-      && musical.has(String(p.id))).map(p => String(p.id)));
+    if (!localPersonIndex || localPersonIndex.people !== state.people
+      || localPersonIndex.memberships !== state.memberships
+      || localPersonIndex.releaseMembers !== state.releaseMembers) {
+      const musical = musicalArchivePersonIds();
+      localPersonIndex = {
+        people: state.people,
+        memberships: state.memberships,
+        releaseMembers: state.releaseMembers,
+        ids: new Set(state.people.filter(p => p.local_registry_status === 'verified'
+          && musical.has(String(p.id))).map(p => String(p.id)))
+      };
+    }
+    return localPersonIndex.ids;
   }
   function isUppsalaPerson(p) {
     return Boolean(p && uppsalaPersonIds().has(String(p.id)));
@@ -1446,8 +1462,8 @@
     const qualifier = key(match[2]);
     const isBand = qualifier && membershipsForPerson(p.id).some(m => key(bandName(m.band_id)) === qualifier);
     if (!base || !isBand) return original;
-    const collision = state.people.some(other => String(other.id) !== String(p.id) && isUppsalaPerson(other) &&
-      key(String(other.canonical_name || '').replace(/\s*\([^()]*\)\s*$/, '').trim()) === key(base));
+    const collision = state.people.some(other => String(other.id) !== String(p.id) &&
+      key(String(other.canonical_name || '').replace(/\s*\([^()]*\)\s*$/, '').trim()) === key(base) && isUppsalaPerson(other));
     return collision ? original : base;
   }
 
