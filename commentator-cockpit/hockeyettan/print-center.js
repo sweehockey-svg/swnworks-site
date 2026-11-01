@@ -5,6 +5,29 @@
     const selected=new Set(['lines','players']);
     const options={textSize:'normal',extraWriting:false};
     const choices=[['lines','Kedjor','Båda lagens uppställningar och skrivyta.'],['players','Spelarlistor','Nummerordning, position och säsongens matcher, mål, assist och poäng.'],['match','Matchunderlag','Matchinfo, tabellplacering, senaste fem och tidigare möten.'],['notes','Anteckningar','Dina sparade anteckningar som hör till matchen.'],['ai','AI · Talking points','Generera ett kommentatorsblad med upp till sex pratpunkter, underlag och skrivyta.']];
+    let preferenceOwner=null,storageAvailable=true;
+    const storageMessage=()=>storageAvailable?'Dina val sparas automatiskt för ditt konto i den här webbläsaren.':'Dina val gäller under den här sessionen. Webbläsaren kunde inte spara dem.';
+    function syncPreferences(){
+      const owner=String(state.authUser?.id||'guest');
+      if(owner===preferenceOwner)return;
+      preferenceOwner=owner;selected.clear();selected.add('lines');selected.add('players');
+      options.textSize='normal';options.extraWriting=false;storageAvailable=true;
+      try{
+        const saved=JSON.parse(global.localStorage.getItem('cockpit-print-preferences:v1:'+owner)||'null');
+        if(!saved||typeof saved!=='object')return;
+        if(Array.isArray(saved.parts)){
+          selected.clear();saved.parts.filter(id=>choices.some(([valid])=>valid===id)).forEach(id=>selected.add(id));
+        }
+        options.textSize=saved.textSize==='large'?'large':'normal';
+        options.extraWriting=saved.extraWriting===true;
+      }catch{storageAvailable=false;}
+    }
+    function savePreferences(){
+      try{
+        global.localStorage.setItem('cockpit-print-preferences:v1:'+preferenceOwner,JSON.stringify({parts:[...selected],textSize:options.textSize,extraWriting:options.extraWriting}));storageAvailable=true;
+      }catch{storageAvailable=false;}
+    }
+    syncPreferences();
     const ids=()=>[state.nextGame?.home_team_id||state.focusTeam?.id,state.nextGame?.away_team_id||state.opponent?.id].filter(Boolean);
     const name=row=>humanSourceName(cleanLineupSourceName(row.source_name||''));
     const key=row=>name(row).trim().toLocaleLowerCase('sv-SE');
@@ -38,6 +61,7 @@
       return '<h2>Egna anteckningar</h2>'+(rows.length?rows.map(n=>'<article class="editorial-note"><small>'+esc(noteScopeLabel(n))+(n.pinned?' · FÄST':'')+'</small><h3>'+esc(n.title||'Anteckning')+'</h3><p>'+esc(n.body||'')+'</p></article>').join(''):'<p>Inga sparade anteckningar för den här matchen.</p>')+'<div class="notes handwriting"><h3>Fler noteringar</h3>'+Array.from({length:rows.length?10:20},()=>'<div class="rule"></div>').join('')+'</div>';
     }
     function documentHtml(parts=selected){
+      syncPreferences();
       const included=new Set(parts);
       const base=lineupPrintDocument();
       const head=base.slice(0,base.indexOf('</head>'));
@@ -57,7 +81,8 @@
       return head+'<style>.ai-print-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm;flex:1}.ai-print-point{border:1px solid #aaa;padding:2mm;break-inside:avoid;overflow-wrap:anywhere}.ai-print-point h3{font-size:9pt}.ai-print-point p{font-size:9pt;margin:1.5mm 0;line-height:1.35}.ai-print-point small,.ai-print-meta{font-size:7pt}.ai-print-point .ai-print-why{font-size:8pt;color:#444}.print-sheet:has(.ai-print-sheet){min-height:185mm;display:flex;flex-direction:column}.ai-print-sheet{display:flex;flex-direction:column;flex:1}.ai-print-sheet>h2{font-size:13pt}.print-sheet{break-before:page}.print-sheet:first-child{break-before:auto}.print-sheet:has(.handwriting){min-height:185mm;display:flex;flex-direction:column}.handwriting{display:flex;flex-direction:column;flex:1;break-inside:auto}.handwriting .rule{flex:1;min-height:6mm;height:auto;border-bottom:1px solid #bbb}.handwriting h3{flex:none}table{border-collapse:collapse;width:100%;margin:2mm 0 3mm;font-size:9pt}th,td{border-bottom:1px solid #bbb;text-align:left;padding:1.2mm 1mm}thead{display:table-header-group}tr{break-inside:avoid}th{font-size:8pt}.writing{width:24%}.match-columns{display:grid;grid-template-columns:1fr 1fr;gap:6mm}.editorial-note{border-bottom:1px solid #aaa;padding:2mm 0;break-inside:avoid}.editorial-note p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.4}.editorial-note h3{margin-top:1mm}.editorial-note small{font-size:8pt}p{line-height:1.4}footer{break-inside:avoid}</style><style>'+optionCss+'</style></head><body class="'+(options.textSize==='large'?'print-large':'print-normal')+'">'+pages.map(content=>'<section class="print-sheet">'+header+content+extra+footer+'</section>').join('')+'</body></html>';
     }
     function render(){
-      return '<section class="print-center"><p class="print-center-intro">Samla ditt matchpaket på papper eller spara det som PDF. Välj de blad du vill ha med.</p><fieldset class="print-settings"><legend>Utseende på papper</legend><label>Textstorlek<select id="printTextSize" data-print-setting><option value="normal"'+(options.textSize==='normal'?' selected':'')+'>Normal</option><option value="large"'+(options.textSize==='large'?' selected':'')+'>Stor – lättare att läsa</option></select></label><label class="print-extra-toggle"><input id="printExtraWriting" data-print-setting type="checkbox"'+(options.extraWriting?' checked':'')+'>Extra skrivyta · fem extra rader per blad</label><small>Valen gäller även snabbknapparna i vyerna. Stor text och extra skrivyta kan ge fler sidor.</small></fieldset><div class="print-choices">'+choices.map(([id,title,description])=>'<label class="print-choice"><input type="checkbox" data-print-part="'+id+'"'+(selected.has(id)?' checked':'')+'><span><strong>'+title+'</strong><small>'+description+'</small></span></label>').join('')+'</div><div class="print-center-actions"><button id="printPackage" type="button">Skriv ut / spara som PDF</button><button id="previewPackage" type="button">Förhandsvisa</button><p id="printPackageSummary" role="status" aria-live="polite"></p></div><p>Liggande A4 · Svartvitt · Uppställningarnas status och utskriftstid följer med. Välj ”Spara som PDF” i utskriftsrutan.</p><div id="printPreviewContainer"></div></section>';
+      syncPreferences();
+      return '<section class="print-center"><p class="print-center-intro">Samla ditt matchpaket på papper eller spara det som PDF. Välj de blad du vill ha med.</p><fieldset class="print-settings"><legend>Utseende på papper</legend><label>Textstorlek<select id="printTextSize" data-print-setting><option value="normal"'+(options.textSize==='normal'?' selected':'')+'>Normal</option><option value="large"'+(options.textSize==='large'?' selected':'')+'>Stor – lättare att läsa</option></select></label><label class="print-extra-toggle"><input id="printExtraWriting" data-print-setting type="checkbox"'+(options.extraWriting?' checked':'')+'>Extra skrivyta · fem extra rader per blad</label><small><span id="printPreferencesStatus">'+esc(storageMessage())+'</span> Valen gäller även snabbknapparna i vyerna. Stor text och extra skrivyta kan ge fler sidor.</small></fieldset><div class="print-choices">'+choices.map(([id,title,description])=>'<label class="print-choice"><input type="checkbox" data-print-part="'+id+'"'+(selected.has(id)?' checked':'')+'><span><strong>'+title+'</strong><small>'+description+'</small></span></label>').join('')+'</div><div class="print-center-actions"><button id="printPackage" type="button">Skriv ut / spara som PDF</button><button id="previewPackage" type="button">Förhandsvisa</button><p id="printPackageSummary" role="status" aria-live="polite"></p></div><p>Liggande A4 · Svartvitt · Uppställningarnas status och utskriftstid följer med. Välj ”Spara som PDF” i utskriftsrutan.</p><div id="printPreviewContainer"></div></section>';
     }
     function bind(root){
       const print=root.querySelector('#printPackage'),preview=root.querySelector('#previewPackage');
@@ -66,13 +91,14 @@
         root.querySelector('#printPackageSummary').textContent=count?'Cirka '+count+' sidor med normal text. Stor text, extra skrivyta och långa texter kan ge fler sidor.':'Välj minst ett blad.';
         print.disabled=preview.disabled=!count;
         root.querySelector('#printPreviewContainer').replaceChildren();
+        root.querySelector('#printPreferencesStatus').textContent=storageMessage();
       }
-      root.querySelectorAll('[data-print-part]').forEach(input=>input.addEventListener('change',()=>{input.checked?selected.add(input.dataset.printPart):selected.delete(input.dataset.printPart);update();}));
+      root.querySelectorAll('[data-print-part]').forEach(input=>input.addEventListener('change',()=>{input.checked?selected.add(input.dataset.printPart):selected.delete(input.dataset.printPart);savePreferences();update();}));
       let previewHtml=null;
       root.querySelectorAll('[data-print-setting]').forEach(input=>input.addEventListener('change',()=>{
         options.textSize=root.querySelector('#printTextSize').value==='large'?'large':'normal';
         options.extraWriting=root.querySelector('#printExtraWriting').checked;
-        previewHtml=null;update();
+        previewHtml=null;savePreferences();update();
       }));
       root.querySelectorAll('[data-print-part]').forEach(input=>input.addEventListener('change',()=>{previewHtml=null;}));
       async function run(showPreview){
