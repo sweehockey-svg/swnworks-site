@@ -3,6 +3,7 @@
   global.createCockpitPrintCenter=function(api){
     const {state,esc,getTeamName,swedishDate,lineupPrintDocument,lineupContextForTeam,humanSourceName,cleanLineupSourceName,currentEditorialNotes,noteScopeLabel}=api;
     const selected=new Set(['lines','players']);
+    const options={textSize:'normal',extraWriting:false};
     const choices=[['lines','Kedjor','Båda lagens uppställningar och skrivyta.'],['players','Spelarlistor','Nummerordning, position och säsongens matcher, mål, assist och poäng.'],['match','Matchunderlag','Matchinfo, tabellplacering, senaste fem och tidigare möten.'],['notes','Anteckningar','Dina sparade anteckningar som hör till matchen.'],['ai','AI · Talking points','Generera ett kommentatorsblad med upp till sex pratpunkter, underlag och skrivyta.']];
     const ids=()=>[state.nextGame?.home_team_id||state.focusTeam?.id,state.nextGame?.away_team_id||state.opponent?.id].filter(Boolean);
     const name=row=>humanSourceName(cleanLineupSourceName(row.source_name||''));
@@ -51,24 +52,31 @@
         if(kind==='notes')pages.push(notes());
         if(kind==='ai')pages.push(api.aiPrintHtml());
       }
-      return head+'<style>.ai-print-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm;flex:1}.ai-print-point{border:1px solid #aaa;padding:2mm;break-inside:avoid;overflow-wrap:anywhere}.ai-print-point h3{font-size:9pt}.ai-print-point p{font-size:9pt;margin:1.5mm 0;line-height:1.35}.ai-print-point small,.ai-print-meta{font-size:7pt}.ai-print-point .ai-print-why{font-size:8pt;color:#444}.print-sheet:has(.ai-print-sheet){min-height:185mm;display:flex;flex-direction:column}.ai-print-sheet{display:flex;flex-direction:column;flex:1}.ai-print-sheet>h2{font-size:13pt}.print-sheet{break-before:page}.print-sheet:first-child{break-before:auto}.print-sheet:has(.handwriting){min-height:185mm;display:flex;flex-direction:column}.handwriting{display:flex;flex-direction:column;flex:1;break-inside:auto}.handwriting .rule{flex:1;min-height:6mm;height:auto;border-bottom:1px solid #bbb}.handwriting h3{flex:none}table{border-collapse:collapse;width:100%;margin:2mm 0 3mm;font-size:9pt}th,td{border-bottom:1px solid #bbb;text-align:left;padding:1.2mm 1mm}thead{display:table-header-group}tr{break-inside:avoid}th{font-size:8pt}.writing{width:24%}.match-columns{display:grid;grid-template-columns:1fr 1fr;gap:6mm}.editorial-note{border-bottom:1px solid #aaa;padding:2mm 0;break-inside:avoid}.editorial-note p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.4}.editorial-note h3{margin-top:1mm}.editorial-note small{font-size:8pt}p{line-height:1.4}footer{break-inside:avoid}</style></head><body>'+pages.map(content=>'<section class="print-sheet">'+header+content+footer+'</section>').join('')+'</body></html>';
+      const extra=options.extraWriting?'<section class="extra-writing"><h3>Extra skrivyta</h3>'+Array.from({length:5},()=>'<div></div>').join('')+'</section>':'';
+      const optionCss='.extra-writing{margin-top:3mm;break-inside:avoid}.extra-writing div{height:7mm;border-bottom:1px solid #bbb}body.print-large{font-size:12pt}body.print-large header p{font-size:11pt}body.print-large .status{font-size:10pt}body.print-large h3{font-size:10pt}body.print-large table{font-size:11pt}body.print-large th{font-size:10pt}body.print-large .player{min-height:13mm}body.print-large .player span{font-size:11pt}body.print-large .player small{font-size:8pt}body.print-large .player b{font-size:22pt}body.print-large .editorial-note small{font-size:10pt}body.print-large .ai-print-point h3{font-size:11pt}body.print-large .ai-print-point p{font-size:11pt}body.print-large .ai-print-point .ai-print-why{font-size:10pt}body.print-large .ai-print-point small,body.print-large .ai-print-meta{font-size:9pt}';
+      return head+'<style>.ai-print-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm;flex:1}.ai-print-point{border:1px solid #aaa;padding:2mm;break-inside:avoid;overflow-wrap:anywhere}.ai-print-point h3{font-size:9pt}.ai-print-point p{font-size:9pt;margin:1.5mm 0;line-height:1.35}.ai-print-point small,.ai-print-meta{font-size:7pt}.ai-print-point .ai-print-why{font-size:8pt;color:#444}.print-sheet:has(.ai-print-sheet){min-height:185mm;display:flex;flex-direction:column}.ai-print-sheet{display:flex;flex-direction:column;flex:1}.ai-print-sheet>h2{font-size:13pt}.print-sheet{break-before:page}.print-sheet:first-child{break-before:auto}.print-sheet:has(.handwriting){min-height:185mm;display:flex;flex-direction:column}.handwriting{display:flex;flex-direction:column;flex:1;break-inside:auto}.handwriting .rule{flex:1;min-height:6mm;height:auto;border-bottom:1px solid #bbb}.handwriting h3{flex:none}table{border-collapse:collapse;width:100%;margin:2mm 0 3mm;font-size:9pt}th,td{border-bottom:1px solid #bbb;text-align:left;padding:1.2mm 1mm}thead{display:table-header-group}tr{break-inside:avoid}th{font-size:8pt}.writing{width:24%}.match-columns{display:grid;grid-template-columns:1fr 1fr;gap:6mm}.editorial-note{border-bottom:1px solid #aaa;padding:2mm 0;break-inside:avoid}.editorial-note p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.4}.editorial-note h3{margin-top:1mm}.editorial-note small{font-size:8pt}p{line-height:1.4}footer{break-inside:avoid}</style><style>'+optionCss+'</style></head><body class="'+(options.textSize==='large'?'print-large':'print-normal')+'">'+pages.map(content=>'<section class="print-sheet">'+header+content+extra+footer+'</section>').join('')+'</body></html>';
     }
     function render(){
-      return '<section class="print-center"><p class="print-center-intro">Samla ditt matchpaket på papper eller spara det som PDF. Välj de blad du vill ha med.</p><div class="print-choices">'+choices.map(([id,title,description])=>'<label class="print-choice"><input type="checkbox" data-print-part="'+id+'"'+(selected.has(id)?' checked':'')+'><span><strong>'+title+'</strong><small>'+description+'</small></span></label>').join('')+'</div><div class="print-center-actions"><button id="printPackage" type="button">Skriv ut / spara som PDF</button><button id="previewPackage" type="button">Förhandsvisa</button><p id="printPackageSummary" role="status" aria-live="polite"></p></div><p>Liggande A4 · Svartvitt · Uppställningarnas status och utskriftstid följer med. Välj ”Spara som PDF” i utskriftsrutan.</p><div id="printPreviewContainer"></div></section>';
+      return '<section class="print-center"><p class="print-center-intro">Samla ditt matchpaket på papper eller spara det som PDF. Välj de blad du vill ha med.</p><fieldset class="print-settings"><legend>Utseende på papper</legend><label>Textstorlek<select id="printTextSize" data-print-setting><option value="normal"'+(options.textSize==='normal'?' selected':'')+'>Normal</option><option value="large"'+(options.textSize==='large'?' selected':'')+'>Stor – lättare att läsa</option></select></label><label class="print-extra-toggle"><input id="printExtraWriting" data-print-setting type="checkbox"'+(options.extraWriting?' checked':'')+'>Extra skrivyta · fem extra rader per blad</label><small>Valen gäller även snabbknapparna i vyerna. Stor text och extra skrivyta kan ge fler sidor.</small></fieldset><div class="print-choices">'+choices.map(([id,title,description])=>'<label class="print-choice"><input type="checkbox" data-print-part="'+id+'"'+(selected.has(id)?' checked':'')+'><span><strong>'+title+'</strong><small>'+description+'</small></span></label>').join('')+'</div><div class="print-center-actions"><button id="printPackage" type="button">Skriv ut / spara som PDF</button><button id="previewPackage" type="button">Förhandsvisa</button><p id="printPackageSummary" role="status" aria-live="polite"></p></div><p>Liggande A4 · Svartvitt · Uppställningarnas status och utskriftstid följer med. Välj ”Spara som PDF” i utskriftsrutan.</p><div id="printPreviewContainer"></div></section>';
     }
     function bind(root){
       const print=root.querySelector('#printPackage'),preview=root.querySelector('#previewPackage');
       function update(){
         const count=Number(selected.has('lines'))+(selected.has('players')?ids().length:0)+Number(selected.has('match'))+Number(selected.has('notes'))+Number(selected.has('ai'));
-        root.querySelector('#printPackageSummary').textContent=count?'Cirka '+count+' sidor. Långa listor och anteckningar kan ge fler sidor.':'Välj minst ett blad.';
+        root.querySelector('#printPackageSummary').textContent=count?'Cirka '+count+' sidor med normal text. Stor text, extra skrivyta och långa texter kan ge fler sidor.':'Välj minst ett blad.';
         print.disabled=preview.disabled=!count;
         root.querySelector('#printPreviewContainer').replaceChildren();
       }
       root.querySelectorAll('[data-print-part]').forEach(input=>input.addEventListener('change',()=>{input.checked?selected.add(input.dataset.printPart):selected.delete(input.dataset.printPart);update();}));
       let previewHtml=null;
+      root.querySelectorAll('[data-print-setting]').forEach(input=>input.addEventListener('change',()=>{
+        options.textSize=root.querySelector('#printTextSize').value==='large'?'large':'normal';
+        options.extraWriting=root.querySelector('#printExtraWriting').checked;
+        previewHtml=null;update();
+      }));
       root.querySelectorAll('[data-print-part]').forEach(input=>input.addEventListener('change',()=>{previewHtml=null;}));
       async function run(showPreview){
-        const controls=[print,preview,...root.querySelectorAll('[data-print-part]')];
+        const controls=[print,preview,...root.querySelectorAll('[data-print-part],[data-print-setting]')];
         controls.forEach(control=>control.disabled=true);
         const status=root.querySelector('#printPackageSummary');
         status.textContent=selected.has('ai')?'Genererar pratpunktsblad…':'Förbereder matchpaket…';
@@ -89,6 +97,6 @@
       preview.onclick=()=>run(true);
       update();
     }
-    return {render,bind,documentHtml,roster,selected};
+    return {render,bind,documentHtml,roster,selected,options};
   };
 })(window);

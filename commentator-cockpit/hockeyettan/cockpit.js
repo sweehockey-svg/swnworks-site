@@ -3208,7 +3208,7 @@
       '</style></head><body><header><h1>'+esc(title)+'</h1><p>Matchkedjor · '+esc(game.scheduled_start?swedishDate(game.scheduled_start):'Matchtid saknas')+(game.venue_name?' · '+esc(game.venue_name):'')+'</p></header><main class="teams">'+ids.map(lineupPrintTeam).join('')+'</main><footer>Commentator Cockpit · Utskrivet '+esc(stamp)+' (svensk tid) · Ögonblicksbild – kontrollera sena ändringar.</footer></body></html>';
   }
 
-  function printLineups() { printDocument(lineupPrintDocument()); }
+  function printLineups() { printDocument(printCenter.documentHtml(['lines'])); }
 
   function printDocument(html) {
     document.getElementById('lineupPrintFrame')?.remove();
