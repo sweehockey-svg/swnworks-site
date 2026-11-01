@@ -3239,7 +3239,7 @@
     }catch(error){if(document.getElementById('aiPrintPreviewContainer')===host)host.textContent=error.message||'Kunde inte generera bladet. Försök igen.';}
     finally{button.disabled=false;}
   }
-  const printCenter=window.createCockpitPrintCenter({prepareAiPrint:force=>aiPrint.prepare(force),aiPrintHtml:()=>aiPrint.html(),state,esc,getTeamName,swedishDate,lineupPrintDocument,lineupContextForTeam,humanSourceName,cleanLineupSourceName,currentEditorialNotes,noteScopeLabel,printDocument,seasonLabel:league.seasonLabel});
+  const printCenter=window.createCockpitPrintCenter({prepareAiPrint:force=>aiPrint.prepare(force),aiPrintHtml:()=>aiPrint.html(),state,esc,getTeamName,swedishDate,lineupPrintDocument,lineupPrintTeam,lineupContextForTeam,humanSourceName,cleanLineupSourceName,currentEditorialNotes,noteScopeLabel,printDocument,seasonLabel:league.seasonLabel});
 
   function renderLineups() {
     const officialTeams = state.nextLineup
