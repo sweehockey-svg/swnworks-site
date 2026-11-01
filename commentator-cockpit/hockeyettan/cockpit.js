@@ -2596,7 +2596,7 @@
     return bonus;
   }
 
-  function localAiBrief(question="") {
+  function localAiBrief(question="",limit=3) {
     const unpinnedEditorial=currentEditorialNotes()
       .filter((note)=>!note.pinned)
       .map((note)=>({
@@ -2613,7 +2613,7 @@
     const facts=[...buildInsightFacts(),...unpinnedEditorial]
       .map((fact)=>({...fact,localRank:Number(fact.score||0)+aiQuestionBonus(fact,question)}))
       .sort((a,b)=>b.localRank-a.localRank)
-      .slice(0,3);
+      .slice(0,limit);
 
     return {
       headline:question
@@ -2836,10 +2836,11 @@
       '</form>' +
       (state.aiError?'<div class="ai-error">'+esc(state.aiError)+'</div>':"") +
       '<div class="ai-output">'+aiBriefHtml(brief,state.aiBriefSource)+'</div>'+
-      aiPauseHtml();
+      aiPauseHtml()+'<section class="ai-print-tools"><h3>Pratpunkter på papper</h3><p>Generera ett färskt A4-blad med upp till sex pratpunkter, underlag och egna noteringar. Förhandsvisa före utskrift.</p><button type="button" id="generateAiPrint" class="ai-print-action">Generera utskriftsblad</button><div id="aiPrintPreviewContainer" role="status" aria-live="polite"></div></section>';
   }
 
   function bindAiUi() {
+    document.getElementById('generateAiPrint')?.addEventListener('click',generateAiPrintPreview);
     drawerBody.querySelectorAll("[data-ai-action]").forEach((button)=>button.addEventListener("click",()=>{
       const index=Number(button.dataset.aiIndex);
       const point=button.dataset.aiLocation==="pause"
@@ -3220,7 +3221,25 @@
 
 
 
-  const printCenter=window.createCockpitPrintCenter({state,esc,getTeamName,swedishDate,lineupPrintDocument,lineupContextForTeam,humanSourceName,cleanLineupSourceName,currentEditorialNotes,noteScopeLabel,printDocument,seasonLabel:league.seasonLabel});
+  const aiPrint=window.createCockpitAiPrint({esc,requestServerAi,localAiBrief,contextKey:()=>JSON.stringify([state.authUser?.id,state.nextGame?.id,state.focusTeam?.id])});
+  async function generateAiPrintPreview(){
+    const host=document.getElementById('aiPrintPreviewContainer');
+    if(!host)return;
+    const button=document.getElementById('generateAiPrint');
+    if(button.disabled)return;
+    button.disabled=true;host.textContent='Genererar pratpunktsblad…';
+    host.scrollIntoView({behavior:'smooth',block:'start'});
+    try{
+      await aiPrint.prepare(true);
+      if(document.getElementById('aiPrintPreviewContainer')!==host)return;
+      const html=printCenter.documentHtml(['ai']);
+      const print=document.createElement('button');print.type='button';print.textContent='Skriv ut / spara som PDF';print.className='ai-print-action';print.onclick=()=>printDocument(html);
+      const frame=document.createElement('iframe');frame.title='Förhandsvisning av AI-pratpunktsblad';frame.className='print-package-preview';frame.srcdoc=html;
+      host.replaceChildren(print,frame);
+    }catch(error){if(document.getElementById('aiPrintPreviewContainer')===host)host.textContent=error.message||'Kunde inte generera bladet. Försök igen.';}
+    finally{button.disabled=false;}
+  }
+  const printCenter=window.createCockpitPrintCenter({prepareAiPrint:force=>aiPrint.prepare(force),aiPrintHtml:()=>aiPrint.html(),state,esc,getTeamName,swedishDate,lineupPrintDocument,lineupContextForTeam,humanSourceName,cleanLineupSourceName,currentEditorialNotes,noteScopeLabel,printDocument,seasonLabel:league.seasonLabel});
 
   function renderLineups() {
     const officialTeams = state.nextLineup
@@ -4265,7 +4284,8 @@
       ? {start:document.activeElement.selectionStart,end:document.activeElement.selectionEnd}:null;
     const changedPanel=drawer.dataset.panel!==key;
     drawer.dataset.panel=key;
-    document.getElementById('printLineups').hidden=!['lines','players','match','notes'].includes(key);
+    document.getElementById('printLineups').hidden=!['lines','players','match','notes','ai'].includes(key);
+    document.getElementById('printLineups').textContent=key==='ai'?'Generera utskriftsblad':'Skriv ut';
     const data = panels[key] || panels.match;
     drawerKicker.textContent = data.kicker;
     drawerTitle.textContent = data.title;
@@ -5096,6 +5116,7 @@
 
   document.getElementById('printLineups').addEventListener('click',()=>{
     const key=drawer.dataset.panel;
+    if(key==='ai'){generateAiPrintPreview();return;}
     if(key==='lines'){printLineups();return;}
     const part={players:'players',match:'match',notes:'notes'}[key];
     if(part)printDocument(printCenter.documentHtml([part]));
