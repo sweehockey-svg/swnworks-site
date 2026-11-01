@@ -3176,6 +3176,47 @@
     '</section>';
   }
 
+  function lineupPrintTeam(teamId) {
+    const ctx=lineupContextForTeam(teamId);
+    const rows=(ctx?.players||[]).filter(row=>row.team_id===teamId);
+    const name=row=>esc(humanSourceName(cleanLineupSourceName(row.source_name||'')));
+    const player=(row,pos)=>'<div class="player"><small>'+esc(pos)+'</small><b>'+esc(row?.jersey_number??'–')+'</b><span>'+(row?name(row):'–')+'</span></div>';
+    const status=!ctx?'UPPSTÄLLNING SAKNAS':ctx.mode==='manual'?'EGEN UPPSTÄLLNING':ctx.mode==='official'?'OFFICIELL UPPSTÄLLNING':'PRELIMINÄR · SENAST KÄNDA';
+    const sourceDate=ctx?.mode==='previous'&&ctx.game?.scheduled_start?' · Från '+swedishDate(ctx.game.scheduled_start):'';
+    const goalies=rows.filter(row=>row.position==='GK').sort((a,b)=>Number(b.goalie_role==='starter')-Number(a.goalie_role==='starter'));
+    return '<section class="team"><h2>'+esc(getTeamName(teamId))+'</h2><p class="status">'+status+esc(sourceDate)+'</p>'+
+      '<div class="goalies">'+goalies.map(row=>player(row,ctx.mode!=='previous'&&row.goalie_role==='starter'?'Startmålvakt':ctx.mode!=='previous'&&row.goalie_role==='reserve'?'Reserv':'Målvakt')).join('')+'</div>'+
+      [1,2,3,4].map(n=>{
+        const line=rows.filter(row=>Number(row.line_number)===n&&row.position!=='GK');
+        if(!line.length)return '';
+        const at=pos=>line.find(row=>row.position===pos||(pos==='CE'&&row.position==='C'));
+        return '<article class="line"><h3>Kedja '+n+'</h3><div class="forwards">'+player(at('LW'),'LW')+player(at('CE'),'C')+player(at('RW'),'RW')+'</div><div class="defense">'+player(at('LD'),'LD')+player(at('RD'),'RD')+'</div></article>';
+      }).join('')+
+      (rows.some(row=>row.position!=='GK'&&!row.line_number)?'<div class="extras"><h3>Extra</h3>'+rows.filter(row=>row.position!=='GK'&&!row.line_number).map(row=>player(row,row.position==='CE'?'C':row.position||'Extra')).join('')+'</div>':'')+
+      (!rows.length?'<p>Uppställning saknas.</p>':'')+'<div class="notes"><h3>Anteckningar / ändringar</h3><div></div><div></div><div></div></div></section>';
+  }
+
+  function lineupPrintDocument() {
+    const game=state.nextGame||{};
+    const ids=[game.home_team_id||state.focusTeam.id,game.away_team_id||state.opponent.id];
+    const title=ids.map(getTeamName).join(' – ');
+    const stamp=new Intl.DateTimeFormat('sv-SE',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Stockholm'}).format(new Date());
+    return '<!doctype html><html lang="sv"><head><meta charset="utf-8"><title>'+esc(title)+' · Matchkedjor</title><style>'+
+      '@page{size:A4 landscape;margin:9mm}*{box-sizing:border-box}body{margin:0;color:#111;background:white;font:10pt Arial,sans-serif}header{border-bottom:2px solid #111;padding-bottom:3mm;margin-bottom:4mm}h1{font-size:17pt;margin:0 0 2mm}header p{margin:0;font-size:9pt}.teams{display:grid;grid-template-columns:1fr 1fr;gap:7mm}.team{min-width:0}h2{font-size:15pt;margin:0 0 1mm}.status{font-size:8pt;margin:0 0 3mm;font-weight:bold}.line{margin:2mm 0;break-inside:avoid}h3{font-size:8pt;margin:0 0 1mm;text-transform:uppercase}.forwards,.defense,.goalies{display:grid;gap:1.5mm}.forwards{grid-template-columns:repeat(3,minmax(0,1fr))}.defense,.goalies{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:1mm}.player{border:1px solid #aaa;min-height:10mm;padding:1mm;display:grid;grid-template-columns:auto 1fr;column-gap:1.5mm;align-items:center;break-inside:avoid}.player small{grid-column:1/-1;font-size:6.5pt;color:#444}.player b{font-size:17pt;line-height:1}.player span{font-size:9pt;overflow-wrap:anywhere}.notes{margin-top:3mm;break-inside:avoid}.notes div{height:5mm;border-bottom:1px solid #bbb}.extras{margin-top:2mm;display:flex;gap:1mm;flex-wrap:wrap}.extras h3{width:100%}.extras .player{flex:1;min-width:30mm}footer{margin-top:3mm;font-size:7pt;border-top:1px solid #aaa;padding-top:1mm}'+
+      '</style></head><body><header><h1>'+esc(title)+'</h1><p>Matchkedjor · '+esc(game.scheduled_start?swedishDate(game.scheduled_start):'Matchtid saknas')+(game.venue_name?' · '+esc(game.venue_name):'')+'</p></header><main class="teams">'+ids.map(lineupPrintTeam).join('')+'</main><footer>Commentator Cockpit · Utskrivet '+esc(stamp)+' (svensk tid) · Ögonblicksbild – kontrollera sena ändringar.</footer></body></html>';
+  }
+
+  function printLineups() {
+    document.getElementById('lineupPrintFrame')?.remove();
+    const frame=document.createElement('iframe');
+    frame.id='lineupPrintFrame';frame.title='Utskrift av matchkedjor';
+    frame.style.cssText='position:fixed;left:-10000px;top:0;width:1123px;height:794px;border:0';
+    frame.onload=()=>{frame.contentWindow.focus();frame.contentWindow.print();};
+    frame.srcdoc=lineupPrintDocument();document.body.appendChild(frame);
+  }
+
+
+
   function renderLineups() {
     const officialTeams = state.nextLineup
       ? new Set(state.nextLineup.players.map((row) => row.team_id))
@@ -4219,6 +4260,7 @@
       ? {start:document.activeElement.selectionStart,end:document.activeElement.selectionEnd}:null;
     const changedPanel=drawer.dataset.panel!==key;
     drawer.dataset.panel=key;
+    document.getElementById('printLineups').hidden=key!=='lines';
     const data = panels[key] || panels.match;
     drawerKicker.textContent = data.kicker;
     drawerTitle.textContent = data.title;
@@ -5044,6 +5086,7 @@
     });
   });
 
+  document.getElementById('printLineups').addEventListener('click',printLineups);
   document.getElementById("closeDrawer").addEventListener("click", () => setDrawerOpen(false));
   document.getElementById('expandDrawer').addEventListener('click',()=>{
     const expanded=drawer.classList.toggle('page-expanded');
