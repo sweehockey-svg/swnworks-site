@@ -26,6 +26,19 @@
         if(!result?.used||!result.brief?.talking_points?.length){fallback=true;break;}
         batches.push(...result.brief.talking_points.map(p=>({...p})));
       }
+      // A source category can be missing, or two answers can repeat a point.
+      // Ask for another supported angle rather than leaving a vacant sixth slot.
+      for(let attempt=0;!fallback&&unique(batches).length<6&&attempt<2;attempt++){
+        if(context()!==key)throw Error('Match eller konto har ändrats. Generera bladet igen.');
+        const existing=unique(batches);
+        const covered=existing.map(p=>p.label||'').join(', ').slice(0,140);
+        const question='Komplettera kommentatorsbladet med '+(6-existing.length)+' NYA korta pratpunkter. Redan täckt: '+covered+'. Välj andra belagda vinklar, t.ex. tabelläge, utvisningar, skott/räddningar eller en annan spelare. Högst 35 ord per punkt och 10 ord i why_now. Upprepa inte tidigare punkter. Använd bara tillgängliga källor. Saknas tidigare möten, välj annan vinkel.';
+        let result;
+        try{result=await api.requestServerAi(question,'relevant');}catch{break;}
+        if(context()!==key)throw Error('Match eller konto har ändrats. Generera bladet igen.');
+        if(!result?.used||!result.brief?.talking_points?.length)break;
+        batches.push(...result.brief.talking_points.map(p=>({...p})));
+      }
       // Use one clearly labelled source mode for the entire sheet when AI fails.
       const brief=fallback?api.localAiBrief('',6):null;
       const points=unique(fallback?(brief?.talking_points||[]):batches);
