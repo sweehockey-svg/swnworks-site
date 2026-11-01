@@ -104,6 +104,7 @@
   };
 
   const panels = {
+    prints: { kicker: "UTSKRIFTER", title: "Ditt matchpaket", cards: [] },
     match: {
       kicker: "MATCH",
       title: "Matchöversikt",
@@ -3206,16 +3207,20 @@
       '</style></head><body><header><h1>'+esc(title)+'</h1><p>Matchkedjor · '+esc(game.scheduled_start?swedishDate(game.scheduled_start):'Matchtid saknas')+(game.venue_name?' · '+esc(game.venue_name):'')+'</p></header><main class="teams">'+ids.map(lineupPrintTeam).join('')+'</main><footer>Commentator Cockpit · Utskrivet '+esc(stamp)+' (svensk tid) · Ögonblicksbild – kontrollera sena ändringar.</footer></body></html>';
   }
 
-  function printLineups() {
+  function printLineups() { printDocument(lineupPrintDocument()); }
+
+  function printDocument(html) {
     document.getElementById('lineupPrintFrame')?.remove();
     const frame=document.createElement('iframe');
     frame.id='lineupPrintFrame';frame.title='Utskrift av matchkedjor';
     frame.style.cssText='position:fixed;left:-10000px;top:0;width:1123px;height:794px;border:0';
     frame.onload=()=>{frame.contentWindow.focus();frame.contentWindow.print();};
-    frame.srcdoc=lineupPrintDocument();document.body.appendChild(frame);
+    frame.srcdoc=html;document.body.appendChild(frame);
   }
 
 
+
+  const printCenter=window.createCockpitPrintCenter({state,esc,getTeamName,swedishDate,lineupPrintDocument,lineupContextForTeam,humanSourceName,cleanLineupSourceName,currentEditorialNotes,noteScopeLabel,printDocument,seasonLabel:league.seasonLabel});
 
   function renderLineups() {
     const officialTeams = state.nextLineup
@@ -4267,13 +4272,16 @@
 
     const statsWide = key === "players" || key === "goalies";
     const fullWork = key === "lines" || key === "players";
-    const medium = key === "match" || key === "goalies" || key === "story" || key === "h2h" || key === "studio" || key === "notes" || key === "ai" || key === "account";
+    const medium = key === "prints" || key === "match" || key === "goalies" || key === "story" || key === "h2h" || key === "studio" || key === "notes" || key === "ai" || key === "account";
     drawer.classList.remove("wide","medium","full-work","ai-work");
     drawer.classList.toggle("stats-wide", statsWide);
     drawer.classList.toggle("full-work", fullWork);
     drawer.classList.toggle("medium", medium);
     drawer.classList.toggle("ai-work", key === "ai");
-    if (key === "lines") {
+    if (key === "prints") {
+      drawerBody.innerHTML=printCenter.render();
+      printCenter.bind(drawerBody);
+    } else if (key === "lines") {
       drawerBody.innerHTML = renderLineups();
       drawerBody.querySelectorAll('[data-edit-lineup]').forEach(button=>button.onclick=()=>editPersonalLineup(button.dataset.editLineup));
     } else if (key === "players") {
