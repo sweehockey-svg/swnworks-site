@@ -4265,7 +4265,7 @@
       ? {start:document.activeElement.selectionStart,end:document.activeElement.selectionEnd}:null;
     const changedPanel=drawer.dataset.panel!==key;
     drawer.dataset.panel=key;
-    document.getElementById('printLineups').hidden=key!=='lines';
+    document.getElementById('printLineups').hidden=!['lines','players','match','notes'].includes(key);
     const data = panels[key] || panels.match;
     drawerKicker.textContent = data.kicker;
     drawerTitle.textContent = data.title;
@@ -5094,7 +5094,12 @@
     });
   });
 
-  document.getElementById('printLineups').addEventListener('click',printLineups);
+  document.getElementById('printLineups').addEventListener('click',()=>{
+    const key=drawer.dataset.panel;
+    if(key==='lines'){printLineups();return;}
+    const part={players:'players',match:'match',notes:'notes'}[key];
+    if(part)printDocument(printCenter.documentHtml([part]));
+  });
   document.getElementById("closeDrawer").addEventListener("click", () => setDrawerOpen(false));
   document.getElementById('expandDrawer').addEventListener('click',()=>{
     const expanded=drawer.classList.toggle('page-expanded');

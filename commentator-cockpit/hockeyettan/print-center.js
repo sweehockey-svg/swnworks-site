@@ -36,14 +36,15 @@
       const rows=currentEditorialNotes();
       return '<h2>Egna anteckningar</h2>'+(rows.length?rows.map(n=>'<article class="editorial-note"><small>'+esc(noteScopeLabel(n))+(n.pinned?' · FÄST':'')+'</small><h3>'+esc(n.title||'Anteckning')+'</h3><p>'+esc(n.body||'')+'</p></article>').join(''):'<p>Inga sparade anteckningar för den här matchen.</p>')+'<div class="notes"><h3>Fler noteringar</h3><div></div><div></div><div></div></div>';
     }
-    function documentHtml(){
+    function documentHtml(parts=selected){
+      const included=new Set(parts);
       const base=lineupPrintDocument();
       const head=base.slice(0,base.indexOf('</head>'));
       const header=base.slice(base.indexOf('<header>'),base.indexOf('</header>')+9);
       const footer=base.slice(base.indexOf('<footer>'),base.indexOf('</footer>')+9);
       const pages=[];
       for(const [kind] of choices){
-        if(!selected.has(kind))continue;
+        if(!included.has(kind))continue;
         if(kind==='lines')pages.push(base.slice(base.indexOf('<main'),base.indexOf('</main>')+7));
         if(kind==='players')for(const id of ids())pages.push(players(id));
         if(kind==='match')pages.push(match());
