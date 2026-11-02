@@ -921,7 +921,7 @@ a.product-feature-card:hover{
   min-width:118px;
   display:block;
   flex:0 0 118px;
-  background-image:url("assets/swnworks-logo-official-white.png?v=3");
+  background-image:url("assets/swnworks-logo-white.svg?v=20261102-new-logo");
   background-repeat:no-repeat;
   background-position:left center;
   background-size:contain;
@@ -1272,3 +1272,6 @@ a:focus-visible,button:focus-visible{
   html{scroll-behavior:auto}
   *,*::before,*::after{transition:none!important;animation:none!important}
 }
+
+/* Supplied horizontal SWNWORKS brand lockup. */
+.brand-lockup-mark{width:clamp(180px,22vw,260px);height:auto;max-width:100%;flex:0 0 auto;object-fit:contain}.brand-lockup{max-width:100%}.official-brand{width:240px;min-width:0;flex-basis:240px;height:78px}@media(max-width:720px){.brand-lockup-mark{width:190px;height:auto;flex-basis:auto}.official-brand{width:190px;flex-basis:190px;height:61px}}

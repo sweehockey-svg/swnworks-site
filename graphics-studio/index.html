@@ -11,7 +11,7 @@
 :root{--bg:#060c12;--panel:#0a141d;--line:#263a49;--muted:#7790a3;--text:#f5f8fa;--gold:#ffbd00}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font:14px/1.4 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}
 .top{height:66px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #20313f;background:#081119;position:sticky;top:0;z-index:10}
-.brand{display:flex;align-items:center;gap:11px;color:#fff;text-decoration:none}.brand img{width:42px;height:42px}.brand span{display:flex;flex-direction:column;line-height:1}.brand strong{font-size:16px;letter-spacing:.08em}.brand small{margin-top:5px;color:#7b96ad;font-size:9px;font-weight:900;letter-spacing:.13em}
+.brand{display:flex;align-items:center;gap:11px;color:#fff;text-decoration:none}.brand img{width:180px;height:auto;object-fit:contain}@media(max-width:600px){.brand img{width:140px}.brand span{display:none}}.brand span{display:flex;flex-direction:column;line-height:1}.brand strong{font-size:16px;letter-spacing:.08em}.brand small{margin-top:5px;color:#7b96ad;font-size:9px;font-weight:900;letter-spacing:.13em}
 .live{font-size:10px;font-weight:900;letter-spacing:.13em;color:#b0c2cf}.live:before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:#55d58e;box-shadow:0 0 12px #55d58e88}
 .live[data-state="empty"]:before{background:#7790a3;box-shadow:none}.live[data-state="load"]:before{background:#ffcf4a;box-shadow:none}.live[data-state="error"]:before{background:#f07777;box-shadow:none}
 .layout{display:grid;grid-template-columns:minmax(340px,430px) minmax(0,1fr);min-height:calc(100vh - 66px)}
@@ -35,7 +35,7 @@
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="../"><img src="../assets/swnworks-logo.svg" alt=""><span><strong>SWNWORKS</strong><small>GRAPHICS STUDIO · ADMIN</small></span></a>
+  <a class="brand" href="../"><img src="../assets/swnworks-logo-white.svg?v=20261102-new-logo" alt="SWNWORKS"><span><small>GRAPHICS STUDIO · ADMIN</small></span></a>
   <div class="live" id="topStatus" data-state="empty">INGEN DATA</div>
 </header>
 <main class="layout">

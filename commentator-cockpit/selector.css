@@ -1036,3 +1036,5 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--yellow);outline-off
 @media(max-width:900px){.intro-features{grid-template-columns:1fr;gap:0}.product-intro{padding-bottom:32px}}
 @media(max-width:420px){.selector-topbar{height:auto;min-height:76px;flex-wrap:wrap;gap:14px;padding-block:16px}.topbar-actions{width:100%;justify-content:space-between}.intro-actions{gap:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+
+.swn-brand img{width:clamp(160px,22vw,230px);height:auto;max-width:100%;flex:0 0 auto;object-fit:contain}@media(max-width:560px){.swn-brand img{width:170px;height:auto;flex-basis:auto}}
