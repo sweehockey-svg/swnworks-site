@@ -1347,6 +1347,9 @@ html.obs-preview.obs-twitch-playing body #screen>.scene.active{
 
 
 /* v120: Match Live compact top-right box, sized like the NHL scoreboard. */
+.road-card{grid-template-rows:auto;align-content:start}
+.road-card .road-step{min-height:100px}
+.road-empty{color:#9db0bf;font-size:18px}
 .screen.live-mode>.top{
   left:auto!important;
   right:3%!important;

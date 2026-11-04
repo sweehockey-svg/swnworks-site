@@ -386,7 +386,23 @@ window.SWNViewerBridge=(()=>{
   function renderRoad() {
     $("#roadGrid").innerHTML = ["home", "away"].map(side => {
       const t = selectedTeam(side), r = stage(t, "regular"), po = playoff(t);
-      return '<div class="road-card"><div class="road-team">' + (logo(t) ? image(logo(t)) : "") + '<b>' + esc(t.team_name_in_league) + '</b></div><div class="road-step"><small>' + tx("groupstage") + '</small><strong>#' + stat(po.regular_season_seed) + '</strong><span>' + stat(r.total_wins) + ' ' + tx("wins") + ' · ' + stat(r.goals_for) + '–' + stat(r.goals_against) + '</span></div><i></i><div class="road-step"><small>' + tx("playoffs") + ' · ' + esc(po.playoff_round_name || tx("dataMissing")) + '</small><strong>' + stat(po.series_won) + '–' + stat(po.series_lost) + ' ' + tx("series") + '</strong><span>' + stat(po.matched_playoff_game_wins) + ' ' + tx("matchWins") + '</span></div><i></i><div class="road-step final"><small>' + (activeLeagueId===520?tx("testMatch"):tx("currentTournament")) + '</small><strong>' + (activeLeagueId===520?tx("bronze"):tx("playoffs")) + '</strong><span>' + (activeLeagueId===520?tx("dataMissing"):tx("liveTournamentData")) + '</span></div></div>';
+      const valid=value=>number(value)!==null&&number(value)>=0;
+      const sections=[];
+      const step=(label,value,detail='')=>'<div class="road-step"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong>'+(detail?'<span>'+esc(detail)+'</span>':'')+'</div>';
+      const regularDetails=[];
+      if(valid(r.goals_for)&&valid(r.goals_against))regularDetails.push(r.goals_for+'–'+r.goals_against+' '+tx('goals'));
+      if(valid(po.regular_season_seed)&&number(po.regular_season_seed)>0){
+        if(valid(r.total_wins))regularDetails.unshift(r.total_wins+' '+tx('wins'));
+        sections.push(step(tx('groupstage'),'#'+po.regular_season_seed,regularDetails.join(' · ')));
+      }else if(valid(r.total_wins))sections.push(step(tx('groupstage'),r.total_wins+' '+tx('wins'),regularDetails.join(' · ')));
+      const p=stage(t,'playoffs');
+      if(valid(po.series_won)&&valid(po.series_lost))sections.push(step(tx('playoffs')+(po.playoff_round_name?' · '+po.playoff_round_name:''),po.series_won+'–'+po.series_lost+' '+tx('series'),valid(po.matched_playoff_game_wins)?po.matched_playoff_game_wins+' '+tx('matchWins'):''));
+      else if(valid(p.games_played)&&number(p.games_played)>0&&valid(p.total_wins))sections.push(step(tx('playoffs'),p.total_wins+' '+tx('matchWins'),p.games_played+' '+tx('matches')));
+      if($('#showLiveSeries')?.checked){
+        const bo=Number($('#seriesFormat')?.value||5),need=Math.ceil(bo/2),wins=Math.max(0,Math.min(need,number($('#series'+(side==='home'?'Home':'Away')).value)||0));
+        sections.push(step(tx('seriesState')+' · '+($('#seriesRound')?.value||tx('playoffs')),wins+' '+tx('matchWins'),seriesBestOf(bo)));
+      }
+      return '<div class="road-card"><div class="road-team">'+(logo(t)?image(logo(t)):'')+'<b>'+esc(t.team_name_in_league)+'</b></div>'+ (sections.length?sections.join('<i></i>'):'<p class="road-empty">'+esc(tx('dataMissing'))+'</p>')+'</div>';
     }).join("");
   }
 
@@ -592,7 +608,7 @@ window.SWNViewerBridge=(()=>{
     }
   }
 
-  function renderSeries(){const bo=Number($("#seriesFormat")?.value||5),need=Math.ceil(bo/2),hw=Math.max(0,Math.min(need,Number($("#seriesHome")?.value||0))),aw=Math.max(0,Math.min(need,Number($("#seriesAway")?.value||0))),round=($("#seriesRound")?.value||tx("playoffs")).trim().toLocaleUpperCase(LOCALE),h=selectedTeam("home"),a=selectedTeam("away");renderLiveSeries(hw,aw,need);$("#seriesHomeScore").textContent=hw;$("#seriesAwayScore").textContent=aw;$("#seriesKicker").textContent=round+" · "+seriesBestOf(bo);const dots=(wins)=>Array.from({length:need},(_,i)=>'<i class="'+(i<wins?"won":"")+'"></i>').join("");$("#seriesHomeDots").innerHTML=dots(hw);$("#seriesAwayDots").innerHTML=dots(aw);const done=hw===need||aw===need;$("#seriesTitle").textContent=done?(hw===need?h.team_name_in_league:a.team_name_in_league)+" "+tx("winsSeries"):tx("seriesState");$("#seriesNext").textContent=done?tx("seriesDone")+" · "+hw+"–"+aw:tx("nextMatch")+" · "+(hw+aw+1);const showResults=!!$("#seriesShowResults")?.checked,results=Array.from({length:bo},(_,i)=>($("#seriesR"+(i+1))?.value||"").trim()).map((v,i)=>v?'<span><b>M'+(i+1)+'</b> '+esc(v.replace(/\s+/g,""))+'</span>':"").filter(Boolean),resultBox=$("#seriesResults");if(resultBox){resultBox.hidden=!showResults||!results.length;$("#seriesResultsList").innerHTML=results.join("");}for(let i=1;i<=7;i++){const label=$("#seriesR"+i)?.closest("label");if(label)label.hidden=i>bo;}["seriesHome","seriesAway"].forEach(id=>{const el=$("#"+id);if(el)el.max=need;});}
+  function renderSeries(){const bo=Number($("#seriesFormat")?.value||5),need=Math.ceil(bo/2),hw=Math.max(0,Math.min(need,Number($("#seriesHome")?.value||0))),aw=Math.max(0,Math.min(need,Number($("#seriesAway")?.value||0))),round=($("#seriesRound")?.value||tx("playoffs")).trim().toLocaleUpperCase(LOCALE),h=selectedTeam("home"),a=selectedTeam("away");renderLiveSeries(hw,aw,need);renderRoad();$("#seriesHomeScore").textContent=hw;$("#seriesAwayScore").textContent=aw;$("#seriesKicker").textContent=round+" · "+seriesBestOf(bo);const dots=(wins)=>Array.from({length:need},(_,i)=>'<i class="'+(i<wins?"won":"")+'"></i>').join("");$("#seriesHomeDots").innerHTML=dots(hw);$("#seriesAwayDots").innerHTML=dots(aw);const done=hw===need||aw===need;$("#seriesTitle").textContent=done?(hw===need?h.team_name_in_league:a.team_name_in_league)+" "+tx("winsSeries"):tx("seriesState");$("#seriesNext").textContent=done?tx("seriesDone")+" · "+hw+"–"+aw:tx("nextMatch")+" · "+(hw+aw+1);const showResults=!!$("#seriesShowResults")?.checked,results=Array.from({length:bo},(_,i)=>($("#seriesR"+(i+1))?.value||"").trim()).map((v,i)=>v?'<span><b>M'+(i+1)+'</b> '+esc(v.replace(/\s+/g,""))+'</span>':"").filter(Boolean),resultBox=$("#seriesResults");if(resultBox){resultBox.hidden=!showResults||!results.length;$("#seriesResultsList").innerHTML=results.join("");}for(let i=1;i<=7;i++){const label=$("#seriesR"+i)?.closest("label");if(label)label.hidden=i>bo;}["seriesHome","seriesAway"].forEach(id=>{const el=$("#"+id);if(el)el.max=need;});}
 
   function studioState(){const ls={};["home","away"].forEach(side=>{const l=lineupFor(side);ls[side]={};SLOTS.forEach(slot=>ls[side][slot]=l[slot]||"");});return {footerBrand,competitionProfileId:activeLeagueId,transientSource:currentSourceReference,matchName:String(window.__sehTwitchState?.matchName||""),leagueId:activeLeagueId,theme:$("#theme")?.value||"broadcast",backgroundPackage:$("#theme")?.value||"broadcast",graphicsPackage:$("#graphicsPackage")?.value||"standard",liveSeriesShow:!!$("#showLiveSeries")?.checked,seriesFormat:$("#seriesFormat")?.value||"5",seriesRound:$("#seriesRound")?.value||tx("playoffs"),seriesHome:$("#seriesHome")?.value||"0",seriesAway:$("#seriesAway")?.value||"0",seriesShowResults:!!$("#seriesShowResults")?.checked,seriesResults:Array.from({length:7},(_,i)=>$("#seriesR"+(i+1))?.value||""),scene:activeScene,lineupSide:$("#lineupSide").value,home:$("#home").value,away:$("#away").value,hs:$("#hs").value,as:$("#as").value,headline:$("#headline").value,subline:$("#subline").value,commentator1:$("#commentator1").value,commentator2:$("#commentator2").value,person:$("#person").value,role:$("#role").value,videoSource:$("#videoSource")?.value||"twitch",hlsUrl:$("#hlsUrl")?.value||"",twitchChannel:$("#twitchChannel")?.value||"",twitchShow:$("#showTwitch")?.checked!==false,twitchMute:$("#muteTwitch")?.checked!==false,liveTeamStripShow:$("#showLiveTeamStrip")?.checked!==false,liveCommentatorsShow:!!$("#showLiveCommentators")?.checked,lineups:ls};}
   function applyScene(name,side){
@@ -863,7 +879,8 @@ window.SWNViewerBridge=(()=>{
     onData:(payload,reference)=>{
       tournamentDataRequest++;sourcePayload=payload;currentSourceReference=reference;
       data.teams=payload.teams;data.players=[...new Map(payload.players.map(p=>[p.sports_gamer_team_id+':'+p.sports_gamer_player_id,p])).values()];
-      status.teams=data.teams.length?'ready':'empty';status.players=data.players.length?'ready':'empty';status.playoffs='empty';
+      data.playoffs=Array.isArray(payload.playoffs)?payload.playoffs:[];
+      status.teams=data.teams.length?'ready':'empty';status.players=data.players.length?'ready':'empty';status.playoffs=data.playoffs.length?'ready':'empty';
       document.documentElement.dataset.broadcastDataSource='temporary';
       renderAllCompetitionData();renderStatus();
     }
