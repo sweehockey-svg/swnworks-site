@@ -1,5 +1,11 @@
 /* Verified release artwork; identity and source recorded per release. */
 window.ARCHIVE_RELEASE_COVERS = {
+  "1b57e397-c085-4bb4-ac94-d899d74bd3bd": {
+    "src": "https://swnworks.se/UPPSALAHARDROCKSARKIV/covers/stained-red-kulturnatten-uppsala-2002.webp",
+    "sourceUrl": "https://swnworks.se/UPPSALAHARDROCKSARKIV/covers/stained-red-kulturnatten-uppsala-2002.webp",
+    "label": "Stained Red – Kulturnatten Uppsala 2002 · ny omslagsillustration 2026",
+    "checked": "2026-11-04"
+  },
   "e2f1b77a-a469-4400-b29b-1d5881af4045": {
     "src": "assets/release-covers/e2f1b77a-a469-4400-b29b-1d5881af4045.svg",
     "sourceUrl": "https://acolytesofmoros.bandcamp.com/album/coalition-of-the-anathematized",
