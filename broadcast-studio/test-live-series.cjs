@@ -19,6 +19,8 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   await page.evaluate(s=>seriesFixture.remote({...s,scene:'live',seriesFormat:'5',seriesHome:'1',seriesAway:'0',liveSeriesShow:true}),state);
   assert.equal(await page.locator('.homeTeam .live-series-wins .won').count(),1);assert.equal(await page.locator('.awayTeam .live-series-wins .won').count(),0);
   assert.equal(await page.locator('.live-team-strip.has-series-wins').count(),1);
+  await page.locator('#topSub').evaluate(el=>el.textContent='NORTHERN ZTARS HOCKEY vs SSK ACADEMY ESPORT');
+  assert(await page.locator('#topSub').evaluate(el=>el.scrollWidth<=el.clientWidth),'Longest SCL matchup must fit compact banner');
   const size=await page.locator('.live-team-strip').evaluate(el=>({width:el.offsetWidth,height:el.offsetHeight}));assert.deepEqual(size,{width:162,height:72});
   assert(await page.locator('.live-team-strip .homeTeam').evaluate(el=>el.querySelector('.live-series-wins').getBoundingClientRect().top>=el.querySelector('b').getBoundingClientRect().bottom),'Marks below team name, including missing logo');
   if(lang==='SV'&&process.env.SERIES_TEST_SCREENSHOT){await page.locator('#screen').screenshot({path:process.env.SERIES_TEST_SCREENSHOT});}
