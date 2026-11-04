@@ -1347,8 +1347,16 @@ html.obs-preview.obs-twitch-playing body #screen>.scene.active{
 
 
 /* v120: Match Live compact top-right box, sized like the NHL scoreboard. */
-.road-card{grid-template-rows:auto;align-content:start}
-.road-card .road-step{min-height:100px}
+.road-grid{min-height:0;grid-template-rows:minmax(0,1fr);align-items:stretch}
+.road-card{display:flex;flex-direction:column;min-height:0;height:100%;gap:10px;padding:18px;overflow:hidden}
+.road-card .road-team{flex:0 0 auto;gap:12px}
+.road-card .road-team img{width:56px;height:56px}
+.road-card .road-team b{font-size:28px;line-height:1.1}
+.road-card .road-step{flex:1 1 0;min-height:0;gap:4px}
+.road-card .road-step small{font-size:10px}
+.road-card .road-step strong{font-size:32px;line-height:1.1}
+.road-card .road-step span{font-size:12px}
+.road-card>i{flex:0 0 1px}
 .road-empty{color:#9db0bf;font-size:18px}
 .screen.live-mode>.top{
   left:auto!important;

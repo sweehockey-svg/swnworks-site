@@ -387,6 +387,7 @@ window.SWNViewerBridge=(()=>{
     $("#roadGrid").innerHTML = ["home", "away"].map(side => {
       const t = selectedTeam(side), r = stage(t, "regular"), po = playoff(t);
       const valid=value=>number(value)!==null&&number(value)>=0;
+      const matchWinsLabel=value=>number(value)===1?({sv:'matchvinst',en:'match win',fi:'otteluvoitto',de:'Spielsieg'}[LOCALE]||tx('matchWins')):tx('matchWins');
       const sections=[];
       const step=(label,value,detail='')=>'<div class="road-step"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong>'+(detail?'<span>'+esc(detail)+'</span>':'')+'</div>';
       const regularDetails=[];
@@ -396,11 +397,11 @@ window.SWNViewerBridge=(()=>{
         sections.push(step(tx('groupstage'),'#'+po.regular_season_seed,regularDetails.join(' · ')));
       }else if(valid(r.total_wins))sections.push(step(tx('groupstage'),r.total_wins+' '+tx('wins'),regularDetails.join(' · ')));
       const p=stage(t,'playoffs');
-      if(valid(po.series_won)&&valid(po.series_lost))sections.push(step(tx('playoffs')+(po.playoff_round_name?' · '+po.playoff_round_name:''),po.series_won+'–'+po.series_lost+' '+tx('series'),valid(po.matched_playoff_game_wins)?po.matched_playoff_game_wins+' '+tx('matchWins'):''));
-      else if(valid(p.games_played)&&number(p.games_played)>0&&valid(p.total_wins))sections.push(step(tx('playoffs'),p.total_wins+' '+tx('matchWins'),p.games_played+' '+tx('matches')));
+      if(valid(po.series_won)&&valid(po.series_lost))sections.push(step(tx('playoffs')+(po.playoff_round_name?' · '+po.playoff_round_name:''),po.series_won+'–'+po.series_lost+' '+tx('series'),valid(po.matched_playoff_game_wins)?po.matched_playoff_game_wins+' '+matchWinsLabel(po.matched_playoff_game_wins):''));
+      else if(valid(p.games_played)&&number(p.games_played)>0&&valid(p.total_wins))sections.push(step(tx('playoffs'),p.total_wins+' '+matchWinsLabel(p.total_wins),p.games_played+' '+tx('matches')));
       if($('#showLiveSeries')?.checked){
         const bo=Number($('#seriesFormat')?.value||5),need=Math.ceil(bo/2),wins=Math.max(0,Math.min(need,number($('#series'+(side==='home'?'Home':'Away')).value)||0));
-        sections.push(step(tx('seriesState')+' · '+($('#seriesRound')?.value||tx('playoffs')),wins+' '+tx('matchWins'),seriesBestOf(bo)));
+        sections.push(step(tx('seriesState')+' · '+($('#seriesRound')?.value||tx('playoffs')),wins+' '+matchWinsLabel(wins),seriesBestOf(bo)));
       }
       return '<div class="road-card"><div class="road-team">'+(logo(t)?image(logo(t)):'')+'<b>'+esc(t.team_name_in_league)+'</b></div>'+ (sections.length?sections.join('<i></i>'):'<p class="road-empty">'+esc(tx('dataMissing'))+'</p>')+'</div>';
     }).join("");
