@@ -1539,6 +1539,8 @@ body.network-body-fullscreen { overflow:hidden; }
 .person-scope-switch button:hover:not([aria-pressed="true"]),
 .person-scope-switch button:focus-visible { border-color:var(--acid); color:var(--text); }
 .person-scope-note { color:var(--muted); max-width:850px; margin:0 0 24px; line-height:1.6; }
+.person-scope-switch label { display:flex; align-items:center; gap:7px; cursor:pointer; font-size:14px; }
+.person-scope-switch input { width:16px; height:16px; margin:0; accent-color:var(--acid); }
 @media(max-width:550px) {
   .person-scope-switch { display:grid; grid-template-columns:1fr; }
   .person-scope-switch button { text-align:center; }

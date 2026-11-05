@@ -2265,20 +2265,20 @@
   function renderPeopleIndex() {
     const verifiedPeople = [...uppsalaPeople()];
     const unreviewedPeople = [...unreviewedBandPeople()];
-    const allPeople = [...verifiedPeople,...unreviewedPeople];
+    const allPeople = [...new Map([...verifiedPeople,...unreviewedPeople].map(p=>[p.id,p])).values()];
     const names = new Map(allPeople.map(p => [p.id, membershipsForPerson(p.id).map(m => bandName(m.band_id)).join(' ')]));
-    let people = verifiedPeople;
-    let scope = 'verified';
+    let people = allPeople;
+    let scope = 'all';
     let order = 'surname';
     let selected = '';
     const initial = p => personIndexName(p, order).charAt(0).toLocaleUpperCase('sv');
     app.innerHTML = `${pageHeader('PERSONER MED UPPSALAANKNYTNING','Personer','Musiker, låtskrivare, producenter och ljudtekniker med dokumenterad Uppsalaanknytning. Foto- och omslagskrediter finns kvar på utgåvorna men gör ingen till Uppsalaperson.')}
       <section class="section page-section first-section">
         <div class="person-scope-switch" role="group" aria-label="Välj personkategori">
-          <button type="button" data-person-scope="verified" aria-pressed="true">Bekräftad Uppsalaanknytning (${verifiedPeople.length})</button>
-          <button type="button" data-person-scope="review" aria-pressed="false">Bandmedlemmar att granska (${unreviewedPeople.length})</button>
+          <label><input type="checkbox" data-person-scope="verified"> Endast bekräftade (${verifiedPeople.length})</label>
+          <label><input type="checkbox" data-person-scope="review"> Endast obekräftade (${unreviewedPeople.length})</label>
         </div>
-        <p class="person-scope-note" id="person-scope-note">Här visas musiker, låtskrivare och produktionspersonal med separat belagd Uppsalaanknytning. Foto, omslag och formgivning räcker inte för att listas.</p>
+        <p class="person-scope-note" id="person-scope-note">Alla visas: personer med bekräftad Uppsalaanknytning samt bandmedlemmar vars personliga anknytning ännu inte granskats. Obekräftade är inte automatiskt klassade som Uppsalapersoner.</p>
         <div class="index-toolbar"><label class="search-box"><span>Sök person</span><input id="people-search" type="search" placeholder="Namn eller band…"></label><div class="index-count"><strong id="registry-count"></strong> personer</div></div>
         <label class="people-sort"><span>Sortera på</span><select id="people-sort"><option value="surname">Efternamn</option><option value="firstname">Förnamn</option></select></label>
         <div class="registry-letters" id="people-letters" role="group"></div>
@@ -2313,20 +2313,21 @@
       renderLetters();
       update();
     });
-    $('#registry-reset').addEventListener('click',()=> { input.value=''; selectLetter(''); });
-    $$('.person-scope-switch button[data-person-scope]').forEach(button => {
-      button.addEventListener('click', () => {
-        scope = button.dataset.personScope;
-        people = scope === 'verified' ? verifiedPeople : unreviewedPeople;
-        $$('.person-scope-switch button[data-person-scope]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.personScope === scope)));
+    function selectScope(next) {
+        scope = next;
+        people = scope === 'verified' ? verifiedPeople : scope === 'review' ? unreviewedPeople : allPeople;
+        $$('.person-scope-switch input[data-person-scope]').forEach(box => { box.checked=box.dataset.personScope===scope; });
         $('#person-scope-note').textContent = scope === 'verified'
           ? 'Här visas musiker, låtskrivare och produktionspersonal med separat belagd Uppsalaanknytning. Foto, omslag och formgivning räcker inte för att listas.'
-          : 'Här finns personer med dokumenterat medlemskap i Uppsalaband vars personliga Uppsalaanknytning ännu inte granskats. De är inte automatiskt klassade som Uppsalapersoner.';
+          : scope === 'review' ? 'Här finns personer med dokumenterat medlemskap i Uppsalaband vars personliga Uppsalaanknytning ännu inte granskats. De är inte automatiskt klassade som Uppsalapersoner.'
+          : 'Alla visas: personer med bekräftad Uppsalaanknytning samt bandmedlemmar vars personliga anknytning ännu inte granskats. Obekräftade är inte automatiskt klassade som Uppsalapersoner.';
         selected='';
-        input.value='';
         renderLetters();
         update();
-      });
+    }
+    $('#registry-reset').addEventListener('click',()=> { input.value=''; selectScope('all'); });
+    $$('.person-scope-switch input[data-person-scope]').forEach(box => {
+      box.addEventListener('change', () => selectScope(box.checked ? box.dataset.personScope : 'all'));
     });
   }
 
