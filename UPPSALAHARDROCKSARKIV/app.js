@@ -1095,15 +1095,75 @@
   function isUppsalaPerson(p) {
     return Boolean(p && uppsalaPersonIds().has(String(p.id)));
   }
+  // Geografiskt verifierad Uppsalaanknytning är inte i sig en rockmerit.
+  // Behåll alla personposter och sidoprojekt i arkivet, men visa bara personer
+  // med dokumenterade musik- eller produktionsroller inom rock/punk/metal i indexet.
+  // En grupp med okänd genre och belagd Uppsalaanknytning lämnas kvar i listan
+  // tills genren har granskats. Inga profiler eller utgåvekrediter raderas.
+  const ROCK_ARCHIVE_GENRE = /rock|metal|punk|hardcore|grind|crust|d.beat|noisecore|screamo|emo|stoner|sludge|grunge|shoegaze|\\baor\\b/i;
+  // Verifierade rockkopplingar som ännu inte har band/utgåva registrerad i
+  // databasen. Ersätt undantagen med vanliga källbelagda bandkrediter när
+  // respektive utgåva har färdigställts.
+  const SOURCED_ROCK_PERSON_IDS = new Set([
+    'bdd2c04c-1077-4c02-8b6f-28c52ba4a496', // Pelle Lindroth: Indisciplined Lucy (progrock)
+    '825fe01c-54e3-41b0-b9fc-5b16b11ccb73', // Jakob Luttinger: Indisciplined Lucy (progrock)
+    '1e0b8815-ba46-4523-b78d-4d7ebdce512d', // Henrik von Euler: The Chrysler (indierock, produktion)
+    'eed239b5-d650-44eb-9040-9ebd79ab0b2e'  // Kristian Berger: dokumenterad produktion av Uppsalapunk
+  ]);
+  let archiveGenrePersonIndex = null;
+  function rockArchivePersonIds() {
+    if (!archiveGenrePersonIndex || archiveGenrePersonIndex.bands !== state.allBands
+      || archiveGenrePersonIndex.memberships !== state.memberships
+      || archiveGenrePersonIndex.releaseBands !== state.releaseBands
+      || archiveGenrePersonIndex.releaseMembers !== state.releaseMembers) {
+      const relevantBands = new Set(allBandRows().filter(b => {
+        const genres = Array.isArray(b.genres) ? b.genres : [];
+        return genres.some(g => ROCK_ARCHIVE_GENRE.test(String(g)))
+          || (!genres.length && isUppsalaBand(b));
+      }).map(b => String(b.id)));
+      // Albumövergripande krediter på en blandad samling säger inte
+      // vilken artist personen arbetade med. Räkna dem bara om samtliga
+      // band på utgåvan har relevant genre.
+      const releaseBands = new Map();
+      state.releaseBands.forEach(link => {
+        const id = String(link.release_id);
+        if (!releaseBands.has(id)) releaseBands.set(id,new Set());
+        releaseBands.get(id).add(String(link.band_id));
+      });
+      const relevantReleases = new Set([...releaseBands].filter(([,ids]) =>
+        ids.size && [...ids].every(id => relevantBands.has(id))
+      ).map(([id]) => id));
+      const ids = new Set(SOURCED_ROCK_PERSON_IDS);
+      state.memberships.forEach(m => {
+        if (relevantBands.has(String(m.band_id)) && musicOrProductionMember(m)) ids.add(String(m.person_id));
+      });
+      state.releaseMembers.forEach(m => {
+        if (relevantReleases.has(String(m.release_id))
+          && (musicOrProductionRole(m.role) || (m.instruments || []).some(musicOrProductionRole))) {
+          ids.add(String(m.person_id));
+        }
+      });
+      archiveGenrePersonIndex = {
+        bands: state.allBands,
+        memberships: state.memberships,
+        releaseBands: state.releaseBands,
+        releaseMembers: state.releaseMembers,
+        ids
+      };
+    }
+    return archiveGenrePersonIndex.ids;
+  }
   function uppsalaPeople() {
-    const ids = uppsalaPersonIds();
-    return state.people.filter(p => ids.has(String(p.id)));
+    const local = uppsalaPersonIds();
+    const rock = rockArchivePersonIds();
+    return state.people.filter(p => local.has(String(p.id)) && rock.has(String(p.id)));
   }
   function unreviewedBandPeople() {
     const localBandIds = new Set(uppsalaBands().map(b => String(b.id)));
+    const rock = rockArchivePersonIds();
     const members = new Set(state.memberships.filter(m => localBandIds.has(String(m.band_id))
       && musicOrProductionMember(m)).map(m => String(m.person_id)));
-    return state.people.filter(p => members.has(String(p.id)) &&
+    return state.people.filter(p => members.has(String(p.id)) && rock.has(String(p.id)) &&
       (p.local_registry_status === 'review' || !p.local_registry_status));
   }
   function groupedMembershipsForBand(id) {
@@ -2272,13 +2332,13 @@
     let order = 'surname';
     let selected = '';
     const initial = p => personIndexName(p, order).charAt(0).toLocaleUpperCase('sv');
-    app.innerHTML = `${pageHeader('PERSONER MED UPPSALAANKNYTNING','Personer','Musiker, låtskrivare, producenter och ljudtekniker med dokumenterad Uppsalaanknytning. Foto- och omslagskrediter finns kvar på utgåvorna men gör ingen till Uppsalaperson.')}
+    app.innerHTML = `${pageHeader('PERSONER MED UPPSALAANKNYTNING','Personer','Musiker, låtskrivare, producenter och ljudtekniker med Uppsalaanknytning och koppling till rock, punk, metal eller närliggande genrer. Andra musikprojekt finns kvar i band- och utgåvehistoriken.')}
       <section class="section page-section first-section">
         <div class="person-scope-switch" role="group" aria-label="Välj personkategori">
           <label><input type="checkbox" data-person-scope="verified"> Endast bekräftade (${verifiedPeople.length})</label>
           <label><input type="checkbox" data-person-scope="review"> Endast obekräftade (${unreviewedPeople.length})</label>
         </div>
-        <p class="person-scope-note" id="person-scope-note">Alla visas: personer med bekräftad Uppsalaanknytning samt bandmedlemmar vars personliga anknytning ännu inte granskats. Obekräftade är inte automatiskt klassade som Uppsalapersoner.</p>
+        <p class="person-scope-note" id="person-scope-note">Här visas bara personer med rock-, metal- eller punkkoppling. Både bekräftade Uppsalapersoner och bandmedlemmar under granskning ingår.</p>
         <div class="index-toolbar"><label class="search-box"><span>Sök person</span><input id="people-search" type="search" placeholder="Namn eller band…"></label><div class="index-count"><strong id="registry-count"></strong> personer</div></div>
         <label class="people-sort"><span>Sortera på</span><select id="people-sort"><option value="surname">Efternamn</option><option value="firstname">Förnamn</option></select></label>
         <div class="registry-letters" id="people-letters" role="group"></div>
@@ -2318,9 +2378,9 @@
         people = scope === 'verified' ? verifiedPeople : scope === 'review' ? unreviewedPeople : allPeople;
         $$('.person-scope-switch input[data-person-scope]').forEach(box => { box.checked=box.dataset.personScope===scope; });
         $('#person-scope-note').textContent = scope === 'verified'
-          ? 'Här visas musiker, låtskrivare och produktionspersonal med separat belagd Uppsalaanknytning. Foto, omslag och formgivning räcker inte för att listas.'
-          : scope === 'review' ? 'Här finns personer med dokumenterat medlemskap i Uppsalaband vars personliga Uppsalaanknytning ännu inte granskats. De är inte automatiskt klassade som Uppsalapersoner.'
-          : 'Alla visas: personer med bekräftad Uppsalaanknytning samt bandmedlemmar vars personliga anknytning ännu inte granskats. Obekräftade är inte automatiskt klassade som Uppsalapersoner.';
+          ? 'Här visas musiker, låtskrivare och produktionspersonal med belagd Uppsalaanknytning och rock-, metal- eller punkkoppling. Enbart foto, omslag eller andra musikgenrer räcker inte.'
+          : scope === 'review' ? 'Här finns personer från relevanta Uppsalarock-, metal- och punkband vars personliga Uppsalaanknytning ännu inte granskats.'
+          : 'Här visas bara personer med rock-, metal- eller punkkoppling. Både bekräftade Uppsalapersoner och bandmedlemmar under granskning ingår.';
         selected='';
         renderLetters();
         update();
