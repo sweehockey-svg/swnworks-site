@@ -1100,7 +1100,7 @@
   // med dokumenterade musik- eller produktionsroller inom rock/punk/metal i indexet.
   // En grupp med okänd genre och belagd Uppsalaanknytning lämnas kvar i listan
   // tills genren har granskats. Inga profiler eller utgåvekrediter raderas.
-  const ROCK_ARCHIVE_GENRE = /rock|metal|punk|hardcore|grind|crust|d.beat|noisecore|screamo|emo|stoner|sludge|grunge|shoegaze|\\baor\\b/i;
+  const ROCK_ARCHIVE_GENRE = /rock|metal|punk|hardcore|grind|crust|d.beat|noisecore|screamo|emo|stoner|sludge|grunge|shoegaze|aor/i;
   // Verifierade rockkopplingar som ännu inte har band/utgåva registrerad i
   // databasen. Ersätt undantagen med vanliga källbelagda bandkrediter när
   // respektive utgåva har färdigställts.
@@ -1163,7 +1163,8 @@
     const rock = rockArchivePersonIds();
     const members = new Set(state.memberships.filter(m => localBandIds.has(String(m.band_id))
       && musicOrProductionMember(m)).map(m => String(m.person_id)));
-    return state.people.filter(p => members.has(String(p.id)) && rock.has(String(p.id)) &&
+    return state.people.filter(p => rock.has(String(p.id)) &&
+      (members.has(String(p.id)) || SOURCED_ROCK_PERSON_IDS.has(String(p.id))) &&
       (p.local_registry_status === 'review' || !p.local_registry_status));
   }
   function groupedMembershipsForBand(id) {
