@@ -1101,57 +1101,70 @@
   // En grupp med okänd genre och belagd Uppsalaanknytning lämnas kvar i listan
   // tills genren har granskats. Inga profiler eller utgåvekrediter raderas.
   const ROCK_ARCHIVE_GENRE = /rock|metal|punk|hardcore|grind|crust|d.beat|noisecore|screamo|emo|stoner|sludge|grunge|shoegaze|aor/i;
-  // Verifierade rockkopplingar som ännu inte har band/utgåva registrerad i
-  // databasen. Ersätt undantagen med vanliga källbelagda bandkrediter när
-  // respektive utgåva har färdigställts.
-  const SOURCED_ROCK_PERSON_IDS = new Set([
-    'bdd2c04c-1077-4c02-8b6f-28c52ba4a496', // Pelle Lindroth: Indisciplined Lucy (progrock)
-    '825fe01c-54e3-41b0-b9fc-5b16b11ccb73', // Jakob Luttinger: Indisciplined Lucy (progrock)
-    '1e0b8815-ba46-4523-b78d-4d7ebdce512d', // Henrik von Euler: The Chrysler (indierock, produktion)
-    'eed239b5-d650-44eb-9040-9ebd79ab0b2e'  // Kristian Berger: dokumenterad produktion av Uppsalapunk
-  ]);
+  // Indexets relevans räknas enbart från dokumenterade band- och
+  // utgåvekrediter i databasen. Inga person-ID-undantag i webbklienten.
   let archiveGenrePersonIndex = null;
   function rockArchivePersonIds() {
     if (!archiveGenrePersonIndex || archiveGenrePersonIndex.bands !== state.allBands
       || archiveGenrePersonIndex.memberships !== state.memberships
       || archiveGenrePersonIndex.releaseBands !== state.releaseBands
       || archiveGenrePersonIndex.releaseMembers !== state.releaseMembers) {
+      const bands = new Map(allBandRows().map(b => [String(b.id), b]));
       const relevantBands = new Set(allBandRows().filter(b => {
         const genres = Array.isArray(b.genres) ? b.genres : [];
         return genres.some(g => ROCK_ARCHIVE_GENRE.test(String(g)))
           || (!genres.length && isUppsalaBand(b));
       }).map(b => String(b.id)));
-      // Albumövergripande krediter på en blandad samling säger inte
-      // vilken artist personen arbetade med. Räkna dem bara om samtliga
-      // band på utgåvan har relevant genre.
+      // En generell utgåvekredit på en blandad samlingsskiva identifierar
+      // inte vilka band personen faktiskt medverkade med.
       const releaseBands = new Map();
       state.releaseBands.forEach(link => {
         const id = String(link.release_id);
         if (!releaseBands.has(id)) releaseBands.set(id,new Set());
         releaseBands.get(id).add(String(link.band_id));
       });
-      const relevantReleases = new Set([...releaseBands].filter(([,ids]) =>
+      const relevantReleases = new Set([...releaseBands].filter(([, ids]) =>
         ids.size && [...ids].every(id => relevantBands.has(id))
       ).map(([id]) => id));
-      const ids = new Set(SOURCED_ROCK_PERSON_IDS);
+      const ids = new Set();
+      const bandIdsByPerson = new Map();
+      const record = (personId, bandId) => {
+        personId = String(personId);
+        bandId = String(bandId);
+        ids.add(personId);
+        if (!bandIdsByPerson.has(personId)) bandIdsByPerson.set(personId, new Set());
+        bandIdsByPerson.get(personId).add(bandId);
+      };
       state.memberships.forEach(m => {
-        if (relevantBands.has(String(m.band_id)) && musicOrProductionMember(m)) ids.add(String(m.person_id));
-      });
-      state.releaseMembers.forEach(m => {
-        if (relevantReleases.has(String(m.release_id))
-          && (musicOrProductionRole(m.role) || (m.instruments || []).some(musicOrProductionRole))) {
-          ids.add(String(m.person_id));
+        if (relevantBands.has(String(m.band_id)) && musicOrProductionMember(m)) {
+          record(m.person_id,m.band_id);
         }
       });
+      state.releaseMembers.forEach(m => {
+        if (!relevantReleases.has(String(m.release_id))
+          || !(musicOrProductionRole(m.role) || (m.instruments || []).some(musicOrProductionRole))) return;
+        (releaseBands.get(String(m.release_id)) || []).forEach(bandId => record(m.person_id,bandId));
+      });
+      const bandNamesByPerson = new Map([...bandIdsByPerson].map(([pid,bandIds]) =>
+        [pid,[...bandIds].map(id => bands.get(id)).filter(Boolean)
+          .sort((a,b) => Number(isUppsalaBand(b)) - Number(isUppsalaBand(a))
+            || a.canonical_name.localeCompare(b.canonical_name,'sv'))
+          .map(b => b.canonical_name)]
+      ));
       archiveGenrePersonIndex = {
         bands: state.allBands,
         memberships: state.memberships,
         releaseBands: state.releaseBands,
         releaseMembers: state.releaseMembers,
-        ids
+        ids,
+        bandNamesByPerson
       };
     }
     return archiveGenrePersonIndex.ids;
+  }
+  function personRelevantRockBands(p) {
+    rockArchivePersonIds();
+    return archiveGenrePersonIndex.bandNamesByPerson.get(String(p?.id)) || [];
   }
   function uppsalaPeople() {
     const local = uppsalaPersonIds();
@@ -1163,8 +1176,7 @@
     const rock = rockArchivePersonIds();
     const members = new Set(state.memberships.filter(m => localBandIds.has(String(m.band_id))
       && musicOrProductionMember(m)).map(m => String(m.person_id)));
-    return state.people.filter(p => rock.has(String(p.id)) &&
-      (members.has(String(p.id)) || SOURCED_ROCK_PERSON_IDS.has(String(p.id))) &&
+    return state.people.filter(p => rock.has(String(p.id)) && members.has(String(p.id)) &&
       (p.local_registry_status === 'review' || !p.local_registry_status));
   }
   function groupedMembershipsForBand(id) {
@@ -1545,7 +1557,9 @@
 
   function personCard(p, i = 0) {
     const mems = membershipsForPerson(p.id);
-    const names = [...new Set(mems.map(m => bandName(m.band_id)))];
+    // Visa arkivets relevanta band först. Sidoprojekt får finnas med efteråt.
+    // Även en gäst- eller producentkredit kan ge relevant bandnamn.
+    const names = [...new Set([...personRelevantRockBands(p), ...mems.map(m => bandName(m.band_id))])];
     return `<a class="person-card" href="${personHref(p)}">
       <div class="person-card-copy"><div class="person-number">${String(i+1).padStart(2,'0')}</div><h3>${escapeHtml(personDisplayName(p))}${isDeceased(p) ? '<span class="person-deceased-mark" aria-label="Avliden" title="Avliden">†</span>' : ''}</h3><div class="person-bands">${escapeHtml(names.slice(0,3).join(' · ') || 'Koppling kartläggs')}</div>${names.length > 3 ? `<span class="person-band-more">+${names.length - 3} fler band →</span>` : ''}</div>
     </a>`;
@@ -2327,7 +2341,9 @@
     const verifiedPeople = [...uppsalaPeople()];
     const unreviewedPeople = [...unreviewedBandPeople()];
     const allPeople = [...new Map([...verifiedPeople,...unreviewedPeople].map(p=>[p.id,p])).values()];
-    const names = new Map(allPeople.map(p => [p.id, membershipsForPerson(p.id).map(m => bandName(m.band_id)).join(' ')]));
+    const names = new Map(allPeople.map(p => [p.id,
+      [...new Set([...personRelevantRockBands(p), ...membershipsForPerson(p.id).map(m => bandName(m.band_id))])].join(' ')
+    ]));
     let people = allPeople;
     let scope = 'all';
     let order = 'surname';
@@ -2460,7 +2476,10 @@
     const gallery = personGallery(p);
     const corePerson = isUppsalaPerson(p);
     const uniqueBands = bandGroups.map(group => group.band);
-    const meta = [isDeceased(p) ? `<span class="profile-deceased-meta">† Avliden · ${escapeHtml(personLifeLabel(p))}</span>` : '', ...uniqueBands.slice(0,5).map(b => `<a href="${bandHref(b)}">${escapeHtml(b.canonical_name)}</a>`)].filter(Boolean).join('');
+    const metaBandNames = [...new Set([...personRelevantRockBands(p), ...uniqueBands.map(b => b.canonical_name)])].slice(0,5);
+    const meta = [isDeceased(p) ? `<span class="profile-deceased-meta">† Avliden · ${escapeHtml(personLifeLabel(p))}</span>` : '',
+      ...metaBandNames.map(name => allBandRows().find(b => b.canonical_name === name))
+        .filter(Boolean).map(b => `<a href="${bandHref(b)}">${escapeHtml(b.canonical_name)}</a>`)].filter(Boolean).join('');
     const colleagueGraph=colleagueIndex();
     const colleagues=[...(colleagueGraph.neighbors.get(String(p.id))||new Map())].map(([id,bands])=>({person:colleagueGraph.people.get(id),bands})).filter(x=>x.person).sort((a,b)=>a.person.canonical_name.localeCompare(b.person.canonical_name,'sv'));
     const family=state.familyRelations.filter(link=>String(link.person_a_id)===String(p.id)||String(link.person_b_id)===String(p.id)).map(link=>{
