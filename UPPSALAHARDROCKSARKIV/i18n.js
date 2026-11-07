@@ -15,6 +15,8 @@
   "Person": "Person",
   "Utgåvor": "Releases",
   "Spelningar": "Live shows",
+  "Spelställe ej dokumenterat": "Venue not documented",
+  "Sverige": "Sweden",
   "Stäng": "Close",
   "Uppgift att kontrollera": "Not independently verified",
   "Spelningarna har källhänvisningar. Användarinrapporterade uppgifter som ännu inte oberoende verifierats är märkta.": "Concerts have source references. User-submitted reports that have not yet been independently verified are clearly labelled.",
