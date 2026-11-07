@@ -1,6 +1,8 @@
 -- Uppsala Hårdrocksarkiv: safely publish sourced, confirmed concerts by band.
 -- Applied and updated in Supabase project fqygdpzyqqguyaujdhjq on 2026-11-07.
 -- The underlying events, event_bands, venues, claims and sources tables remain private.
+-- Structured other_acts (external guest performers) are combined with linked event_bands,
+-- excluding the band whose profile is open. No inferred bands from free text.
 create or replace function public.get_public_band_concerts(p_band_id uuid)
 returns jsonb
 language sql
@@ -18,6 +20,25 @@ as $function$
         'date_precision', e.date_precision,
         'venue', v.name,
         'city', coalesce(e.city, v.city),
+        'country', e.country,
+        'other_bands', (
+          select coalesce(jsonb_agg(guest.name order by guest.name), '[]'::jsonb)
+          from (
+            select distinct names.name
+            from (
+              select nullif(btrim(act), '') as name
+              from unnest(e.other_acts) as act
+              union all
+              select other_band.canonical_name as name
+              from public.event_bands other_event_band
+              join public.bands other_band on other_band.id = other_event_band.band_id
+              where other_event_band.event_id = e.id
+                and other_event_band.band_id <> eb.band_id
+            ) names
+            where names.name is not null
+              and lower(names.name) <> lower(main_band.canonical_name)
+          ) guest
+        ),
         'description', e.description,
         'verification_status', case when exists (
           select 1
@@ -54,6 +75,7 @@ as $function$
   )
   from public.event_bands eb
   join public.events e on e.id = eb.event_id
+  join public.bands main_band on main_band.id = eb.band_id
   left join public.venues v on v.id = e.venue_id
   where eb.band_id = p_band_id
     and e.event_type in ('concert', 'festival', 'release_party')
