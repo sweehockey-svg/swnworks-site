@@ -671,17 +671,25 @@ window.SWNViewerBridge=(()=>{
   async function remoteRequest(method,body){const cfg=window.EHOCKEY_CONFIG||{};if(!cfg.supabaseUrl||!cfg.supabasePublishableKey)return;const key=String(cfg.supabasePublishableKey),headers={apikey:key,Accept:"application/json","Content-Type":"application/json"};if(/^eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(key))headers.Authorization="Bearer "+key;if(method!=="GET"){const session=await window.SWNStudioAccess?.session();if(!session)throw new Error("Admininloggning krävs.");headers.Authorization="Bearer "+session.access_token;}const url=String(cfg.supabaseUrl).replace(/\/+$/,"")+"/rest/v1/broadcast_studio_state?channel=eq."+encodeURIComponent(REMOTE_CHANNEL);const res=await fetch(url,{method,headers,body:body?JSON.stringify(body):undefined,cache:"no-store"});if(!res.ok)throw new Error("Broadcast state HTTP "+res.status);return method==="GET"?res.json():null;}
   // Preparing a match must never publish its state to the program output.
   let programState=null,programHeld=true,canResumeProgram=false,takeSequence=0;
+  let directorSceneKey='',directorRevision=0,directorWrites=0,directorReading=false,directorRestoring=false;
+  const sceneKey=s=>JSON.stringify([s.scene,s.lineupSide||'home',!!s.publicNoMatch,s.publicNextMatch||null]);
   function holdProgram(){
     takeSequence++;
     if(!programHeld)programState=structuredClone(studioState());
-    programHeld=true;clearTimeout(remoteTimer);
+    programHeld=true;directorRevision++;clearTimeout(remoteTimer);remoteTimer=0;
   }
   function publishState(){
     if(OBS_MODE||VIEWER_MODE||remoteApplying||(programHeld&&!programState))return;
     const state={...structuredClone(programHeld?programState:studioState()),publicNoMatch,publicNextMatch,commentary:window.__sehCommentarySession||null};
     if(PREVIEW_MODE){previewChannel?.postMessage({type:"state",state});return;}
     clearTimeout(remoteTimer);
-    remoteTimer=setTimeout(()=>remoteRequest("PATCH",{state,updated_at:new Date().toISOString()}).catch(console.error),120);
+    directorRevision++;
+    remoteTimer=setTimeout(async()=>{
+      remoteTimer=0;directorWrites++;
+      try{await remoteRequest("PATCH",{state,updated_at:new Date().toISOString()});directorSceneKey=sceneKey(state);}
+      catch(error){console.error(error);}
+      finally{directorWrites--;}
+    },120);
   }
   window.__sehPublishBroadcastState=publishState;
   let stateRequestPending=false,lastRemoteState='';
@@ -732,9 +740,11 @@ window.SWNViewerBridge=(()=>{
     publicNextMatch=next;publicNoMatch=true;publishState();
   };
   if(!OBS_MODE&&!PREVIEW_MODE){
+    directorRestoring=true;
     void remoteRequest("GET").then(async rows=>{
       if(programHeld&&!programState&&rows?.[0]?.state){
         programState=structuredClone(rows[0].state);
+        directorSceneKey=sceneKey(programState);
         if(window.__sehCommentarySession===undefined)window.__sehCommentarySession=programState.commentary||null;canResumeProgram=true;
         publicNoMatch=!!programState.publicNoMatch;publicNextMatch=programState.publicNextMatch||null;
         const restored=structuredClone(programState),seq=takeSequence;
@@ -747,7 +757,31 @@ window.SWNViewerBridge=(()=>{
         }
         window.dispatchEvent(new CustomEvent("seh:program-status",{detail:programState}));
       }
-    }).catch(console.error);
+    }).catch(console.error).finally(()=>{directorRestoring=false;});
+  }
+  // A mobile command is already on air. Mirror just the scene, never the
+  // remote match fields, and do not send a write back to the broadcast.
+  async function followProgramScene(){
+    if(directorRestoring||directorReading||directorWrites||remoteTimer||!programState||document.hidden)return;
+    directorReading=true;
+    const revision=directorRevision;
+    try{
+      const rows=await remoteRequest("GET");
+      const state=rows?.[0]?.state;
+      if(!state||!Object.keys(state).length||revision!==directorRevision||directorWrites||remoteTimer)return;
+      const key=sceneKey(state);
+      if(key===directorSceneKey)return;
+      directorSceneKey=key;
+      publicNoMatch=!!state.publicNoMatch;
+      publicNextMatch=state.publicNextMatch||null;
+      const side=state.lineupSide==='away'?'away':'home';
+      if(!publicNoMatch&&[...document.querySelectorAll('[data-scene]')].some(button=>button.dataset.scene===state.scene)){
+        programState={...programState,scene:state.scene,lineupSide:side};
+        applyScene(state.scene,side);
+      }
+      window.dispatchEvent(new CustomEvent('seh:program-status',{detail:state}));
+    }catch(error){console.error("Director scene sync:",error);}
+    finally{directorReading=false;}
   }
   async function pullState(){if(stateRequestPending)return;stateRequestPending=true;try{const rows=await remoteRequest("GET");if(rows&&rows[0]&&rows[0].state&&Object.keys(rows[0].state).length){const signature=JSON.stringify(rows[0].state);if(signature!==lastRemoteState){lastRemoteState=signature;applyRemoteState(viewerState(rows[0].state));}}}catch(e){console.error("Broadcast remote:",e);if(VIEWER_MODE)window.SWNViewerBridge.postStatus({type:'seh-tv-status',text:'Kontakten med studion är tillfälligt bruten. Försöker igen.'});}finally{stateRequestPending=false;}}
   if(previewChannel){previewChannel.onmessage=event=>{if(OBS_MODE&&event.data?.type==="state")applyRemoteState(viewerState(event.data.state));else if(!OBS_MODE&&event.data?.type==="request")publishState();};}
@@ -759,6 +793,10 @@ window.SWNViewerBridge=(()=>{
     document.addEventListener("visibilitychange",obsPoll);
     window.addEventListener("focus",obsPoll);
     window.addEventListener("pageshow",obsPoll);
+  }else if(!PREVIEW_MODE){
+    setInterval(()=>void followProgramScene(),1000);
+    window.addEventListener("focus",()=>void followProgramScene());
+    document.addEventListener("visibilitychange",()=>void followProgramScene());
   }else setTimeout(publishState,800);
 
   // Controls are installed synchronously, before any data request starts.
