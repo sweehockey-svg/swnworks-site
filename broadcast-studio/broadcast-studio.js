@@ -746,11 +746,12 @@ window.SWNViewerBridge=(()=>{
   const seriesDotState=new WeakMap();
   const genericOpeningRounds=new Set(["SLUTSPEL","PLAYOFFS","PUDOTUSPELIT"]);
   function renderOpeningRound(){
-    const label=$(".opening-round");
-    if(!label)return;
     const round=($("#seriesRound")?.value||"").trim().toLocaleUpperCase(LOCALE);
-    label.hidden=!round||genericOpeningRounds.has(round);
-    label.textContent=label.hidden?"":round;
+    const hidden=!round||genericOpeningRounds.has(round);
+    for(const label of $$(".opening-round,#topRound")){
+      label.hidden=hidden;
+      label.textContent=hidden?"":round;
+    }
   }
   function renderSeriesDots(box,wins,need,teamId,round){
     const key=JSON.stringify([activeLeagueId,window.__sehTwitchState?.matchName||"",teamId,need,round]);

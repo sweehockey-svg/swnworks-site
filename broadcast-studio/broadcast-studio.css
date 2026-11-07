@@ -1409,6 +1409,18 @@ html.obs-preview.obs-twitch-playing body #screen>.scene.active{
   overflow:hidden!important;
   text-overflow:ellipsis!important;
 }
+.top-title-row{display:flex;align-items:center;gap:9px;min-width:0}
+.top-title-row>strong{min-width:0}
+.top-round{
+  max-width:55%;padding:3px 6px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  border:1px solid currentColor;border-radius:3px;color:var(--theme-accent,#f4b21b);
+  font-size:clamp(8px,.75vw,12px);font-weight:900;letter-spacing:.09em;line-height:1.1;
+}
+body[data-graphics="gamenight"] .top-round{color:#ffbd00}
+.screen.live-mode .top-title-row{justify-content:flex-end;gap:6px}
+.screen.live-mode .top-round{font-size:8px;padding:2px 4px;letter-spacing:.05em}
+.top-round[hidden],
+.screen:is([data-arena-scene="opening"],[data-arena-scene="series"]) .top-round{display:none!important}
 
 
 /* v121: regional broadcast skins.

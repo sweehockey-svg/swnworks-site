@@ -48,6 +48,14 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   await page.evaluate(s=>seriesFixture.remote({...s,scene:'opening',seriesRound:' Semifinal '}),state);
   assert.equal(await openingRound.textContent(),'SEMIFINAL');
   assert.equal(await openingRound.getAttribute('hidden'),null);
+  assert.equal(await page.locator('#topRound').textContent(),'SEMIFINAL');
+  assert.equal(await page.locator('#topRound').evaluate(el=>getComputedStyle(el).display),'none','Opening does not repeat the round');
+  for(const scene of ['lineup','live']){
+   await page.evaluate(({s,scene})=>seriesFixture.remote({...s,scene,headline:'SCL 27',seriesRound:'Semifinal'}),{s:state,scene});
+   const roundTag=await page.locator('#topRound').evaluate(el=>({text:el.textContent,width:el.clientWidth,scroll:el.scrollWidth}));
+   assert.equal(roundTag.text,'SEMIFINAL');
+   assert(roundTag.width>0&&roundTag.scroll<=roundTag.width,lang+' round fits in '+scene+' header');
+  }
   await page.locator('#seriesRound').fill('Kvartsfinal');
   assert.equal(await openingRound.textContent(),'KVARTSFINAL','Round updates from the studio input');
   await page.locator('#seriesRound').fill('');
