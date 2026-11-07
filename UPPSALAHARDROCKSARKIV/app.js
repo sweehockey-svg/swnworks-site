@@ -2281,7 +2281,7 @@
   }
 
   function renumberBandHeadings() {
-    $('.band-detail-layout .content-section > .content-head > span')
+    Array.from(document.querySelectorAll('.band-detail-layout .content-section > .content-head > span'))
       .filter(number => !number.closest('.content-section').hidden)
       .forEach((number, index) => { number.textContent = String(index + 1).padStart(2, '0'); });
   }
