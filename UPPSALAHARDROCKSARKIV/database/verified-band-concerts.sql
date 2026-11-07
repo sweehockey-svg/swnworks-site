@@ -5,6 +5,8 @@
 -- excluding the band whose profile is open. No inferred bands from free text.
 -- Public caveats are independently curated and explicitly allowed for publication.
 -- Private research notes remain private and are never returned from the RPC.
+-- Other type is included only for a sourced live_performance claim, such as a radio performance.
+-- A merely scheduled date without performance evidence remains excluded.
 alter table public.events
   add column if not exists public_uncertainty_note text;
 
@@ -91,7 +93,7 @@ as $function$
   join public.bands main_band on main_band.id = eb.band_id
   left join public.venues v on v.id = e.venue_id
   where eb.band_id = p_band_id
-    and e.event_type in ('concert', 'festival', 'release_party')
+    and e.event_type in ('concert', 'festival', 'release_party', 'other')
     and exists (
       select 1
       from public.claim_entities ce
