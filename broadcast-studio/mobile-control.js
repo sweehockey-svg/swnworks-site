@@ -36,6 +36,15 @@ const I18N={
 };
 const T=I18N[LANG];
 const labels=T.labels;
+const lineupFallback=side=>labels.lineup+" "+(side==="away"?(LANG==="sv"?"B":"A"):"H");
+function lineupTeamLabel(state,side){
+ if(!state||state.publicNoMatch||!state[side])return "";
+ const names=state.lineupTeamNames;
+ const id=String(state[side]);
+ if(names&&Object.hasOwn(names,id)&&typeof names[id]==="string"&&names[id].trim())return names[id].trim();
+ const pair=String(state.subline||"").split(/\s+(?:vs\.?|–|—)\s+/i).map(name=>name.trim());
+ return pair.length===2&&pair.every(Boolean)?pair[side==="away"?1:0]:"";
+}
 const buttons=[...document.querySelectorAll("[data-scene]")];
 const musicButtons=[...document.querySelectorAll("[data-music]")];
 const musicEnabled=scene=>scene!=="live"&&Object.hasOwn(labels,scene);
@@ -56,7 +65,7 @@ document.getElementById("footText").textContent=T.foot;
 buttons.forEach(b=>{
  const key=b.dataset.scene;
  const text=labels[key]||b.textContent;
- if(key==="lineup") b.textContent=text+" "+(b.dataset.lineupSide==="away"?(LANG==="sv"?"B":"A"):(LANG==="sv"?"H":"H"));
+ if(key==="lineup") b.textContent=lineupFallback(b.dataset.lineupSide);
  else b.textContent=text;
 });
 
@@ -139,8 +148,17 @@ function render(state){
  const expires=Date.parse(state?.transientSource?.expires_at||"");
  ready=Boolean(state&&!state.publicNoMatch&&Number.isFinite(expires)&&expires>Date.now());
  const scene=state?.scene==="lowerthird"?"matchup":state?.scene||"",side=state?.lineupSide||"home";
- buttons.forEach(b=>{b.classList.toggle("active",b.dataset.scene===scene&&(scene!=="lineup"||(b.dataset.lineupSide||"home")===side));b.classList.remove("pending");});
- current.textContent=scene?((labels[scene]||scene)+(scene==="lineup"?" "+(side==="away"?(LANG==="sv"?"B":"A"):"H"):"")):"Ingen scen";
+ buttons.forEach(b=>{
+  b.classList.toggle("active",b.dataset.scene===scene&&(scene!=="lineup"||(b.dataset.lineupSide||"home")===side));
+  b.classList.remove("pending");
+  if(b.dataset.scene==="lineup"){
+   const team=lineupTeamLabel(state,b.dataset.lineupSide),fallback=lineupFallback(b.dataset.lineupSide);
+   b.textContent=team||fallback;
+   b.setAttribute("aria-label",team?fallback+" · "+team:fallback);
+  }
+ });
+ const lineupName=scene==="lineup"?lineupTeamLabel(state,side):"";
+ current.textContent=scene==="lineup"?(lineupName?labels.lineup+" · "+lineupName:lineupFallback(side)):(labels[scene]||scene||"Ingen scen");
  const reason=!state||!Object.keys(state).length?"missing":state.publicNoMatch?"idle":Number.isFinite(expires)?"expired":"missing";
  const messages={
   sv:{missing:"Ingen aktiv match med matchdata. Hämta data och välj ”Visa förberedd match i sändning” i huvudstudion.",idle:"Vänteskärmen är på. Återgå till sändningen i huvudstudion för att välja scen.",expired:"Matchdatan har gått ut. Uppdatera och godkänn statistiken i huvudstudion. Scenknapparna låses upp automatiskt."},

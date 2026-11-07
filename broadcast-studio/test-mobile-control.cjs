@@ -4,7 +4,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
 const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
 try{
  const context=await browser.newContext({viewport:{width:390,height:844}}),errors=[];
- const state={scene:'live',lineupSide:'home',home:'111',away:'222',hs:3,as:2,subline:'Testlaget A – Testlaget B',twitchChannel:'unchanged',lineups:{home:{G:'333'}},seriesFormat:'5',seriesHome:'0',seriesAway:'0',transientSource:{ticket:'fixture.ticket',expires_at:new Date(Date.now()+3600000).toISOString()}};
+ const state={scene:'live',lineupSide:'home',home:'111',away:'222',lineupTeamNames:{111:'Testlaget A',222:'Testlaget B'},hs:3,as:2,subline:'TESTLAGET A – TESTLAGET B',twitchChannel:'unchanged',lineups:{home:{G:'333'}},seriesFormat:'5',seriesHome:'0',seriesAway:'0',transientSource:{ticket:'fixture.ticket',expires_at:new Date(Date.now()+3600000).toISOString()}};
  const original=structuredClone(state),writes=[];let offline=false,deny=false;
  const html=fs.readFileSync(__dirname+'/mobile.html','utf8').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link[^>]*>/g,'').replace(' data-studio-locked','');
  await context.route('https://fixture.invalid/**',async route=>{
@@ -45,6 +45,12 @@ try{
  });
  async function open(){const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto('https://fixture.invalid/mobile.html');await page.evaluate(()=>{window.EHOCKEY_CONFIG={supabaseUrl:'https://fixture.invalid',supabasePublishableKey:'fixture-key'};window.SWNStudioAccess={session:async()=>({access_token:'fixture-token'})};});await page.addScriptTag({content:fs.readFileSync(__dirname+'/mobile-control.js','utf8')});await page.waitForFunction(()=>document.querySelector('[data-scene="live"]').disabled===false);return page;}
  const a=await open(),b=await open();assert.equal(writes.length,0,'opening never changes program');
+ assert.equal(await a.locator('[data-lineup-side="home"]').textContent(),'Testlaget A');
+ assert.equal(await a.locator('[data-lineup-side="away"]').textContent(),'Testlaget B');
+ const names=state.lineupTeamNames;
+ delete state.lineupTeamNames;
+ await a.waitForFunction(()=>document.querySelector('[data-lineup-side="home"]').textContent==='TESTLAGET A');
+ state.lineupTeamNames=names;
  assert.deepEqual(await a.locator('[data-scene]').evaluateAll(buttons=>buttons.slice(0,4).map(b=>[b.dataset.scene,b.dataset.lineupSide||null])),[['opening',null],['live',null],['lineup','home'],['lineup','away']]);
  assert.equal(await a.locator('.live-group [data-scene]').count(),1);
  assert.equal(await a.locator('[data-scene="defense"]').count(),1);
@@ -115,6 +121,8 @@ try{
  assert.equal(state.hs,beforeFlip.as);
  assert.equal(state.seriesHome,beforeFlip.seriesAway);
  assert.equal(state.twitchChannel,beforeFlip.twitchChannel);
+ assert.equal(await b.locator('[data-lineup-side="home"]').textContent(),'Testlaget B','Names follow team IDs when sides swap');
+ assert.equal(await b.locator('[data-lineup-side="away"]').textContent(),'Testlaget A');
  assert.deepEqual(errors,[]);console.log('PASS two controllers sync, scene-only RPC, scoped token, no load writes, preserved match data, mobile layout, offline/denied/expired locks');
 }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});
