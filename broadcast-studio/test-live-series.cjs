@@ -64,7 +64,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
  await obs.route('**/*',r=>{
   const url=new URL(r.request().url());
   if(url.origin!==origin)return r.abort();
-  if(url.pathname==='/broadcast-studio/assets/aztrozmurfen-superhero.mp3')return r.fulfill({contentType:'audio/mpeg',path:__dirname+'/assets/aztrozmurfen-superhero.mp3'});
+  if(url.pathname==='/broadcast-studio/assets/aztrozmurfen-superhero-in-the-game.mp3')return r.fulfill({contentType:'audio/mpeg',path:__dirname+'/assets/aztrozmurfen-superhero-in-the-game.mp3'});
   if(url.pathname!=='/broadcast-studio/SV/')return r.abort();
   return r.fulfill({contentType:'text/html',body:read('SV/index.html').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link\b[^>]*>/g,'')});
  });

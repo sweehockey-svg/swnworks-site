@@ -110,7 +110,7 @@ window.SWNViewerBridge=(()=>{
       return;
     }
     if(!musicAudio){
-      musicAudio=new Audio("/broadcast-studio/assets/aztrozmurfen-superhero.mp3");
+      musicAudio=new Audio("/broadcast-studio/assets/aztrozmurfen-superhero-in-the-game.mp3");
       musicAudio.loop=true;
       musicAudio.addEventListener("playing",()=>{
         musicPlaying=!musicAudio.paused&&musicMode(activeScene)!=="off"&&(!VIEWER_MODE||!musicViewerMuted);
