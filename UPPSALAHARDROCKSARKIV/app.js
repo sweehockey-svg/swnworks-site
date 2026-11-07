@@ -2274,7 +2274,14 @@
     const rawDate = typeof event.event_date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(event.event_date) ? event.event_date : '';
     const dateLabel = rawDate || String(event.event_year || 'Årtal saknas');
     const date = rawDate ? '<time datetime="' + escapeHtml(rawDate) + '">' + escapeHtml(rawDate) + '</time>' : escapeHtml(dateLabel);
-    const place = [event.venue, event.city].filter(Boolean).join(' · ');
+    const venue = typeof event.venue === 'string' && event.venue.trim() ? event.venue.trim() : 'Spelställe ej dokumenterat';
+    const city = typeof event.city === 'string' ? event.city.trim() : '';
+    const rawCountry = typeof event.country === 'string' ? event.country.trim() : '';
+    const country = rawCountry.toLowerCase() === 'sweden' ? 'Sverige' : rawCountry;
+    const location = [city, country].filter(Boolean).join(', ');
+    const otherBands = (Array.isArray(event.other_bands) ? event.other_bands : [])
+      .filter(name => typeof name === 'string' && name.trim())
+      .map(name => name.trim());
     const isUnverified = event.verification_status === 'probable';
     const sources = (Array.isArray(event.sources) ? event.sources : [])
       .filter(source => typeof source.url === 'string' && /^https?:\/\//i.test(source.url))
@@ -2283,9 +2290,10 @@
     return '<details class="band-concert">'
       + '<summary class="band-concert-summary">'
       + '<span class="band-concert-date">' + date + '</span>'
-      + '<span class="band-concert-headline"><strong>' + escapeHtml(event.title || 'Dokumenterad spelning') + '</strong>'
+      + '<span class="band-concert-headline"><strong>' + escapeHtml(venue) + '</strong>'
       + '<span class="band-concert-subline">'
-      + (place ? '<span class="band-concert-place">' + escapeHtml(place) + '</span>' : '')
+      + (location ? '<span class="band-concert-place">' + escapeHtml(location) + '</span>' : '')
+      + (otherBands.length ? '<span class="band-concert-other-bands">(' + otherBands.map(escapeHtml).join(', ') + ')</span>' : '')
       + (isUnverified ? '<span class="band-concert-review">Uppgift att kontrollera</span>' : '')
       + '</span></span>'
       + '<span class="band-concert-toggle"><span class="band-concert-show-label">Mer info</span>'
