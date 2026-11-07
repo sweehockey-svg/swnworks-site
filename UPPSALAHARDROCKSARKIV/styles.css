@@ -1547,31 +1547,87 @@ body.network-body-fullscreen { overflow:hidden; }
 }
 
 
-/* Documented historical concerts on band pages. */
-.band-concert-intro { margin:-5px 0 20px; color:var(--muted); font-size:13px; line-height:1.6; }
-.band-concert-list { border-top:1px solid var(--line-strong); }
-.band-concert { display:grid; grid-template-columns:145px minmax(0,1fr); gap:20px; padding:21px 0; border-bottom:1px solid var(--line); }
-.band-concert-date { color:var(--acid); font-family:var(--condensed); font-weight:600; font-size:17px; letter-spacing:.015em; white-space:nowrap; }
-.band-concert-main { min-width:0; display:flex; flex-direction:column; gap:8px; }
-.band-concert-main > strong { font-family:var(--condensed); font-size:20px; line-height:1.2; }
-.band-concert-place { color:#c5c7c9; font-weight:600; font-size:14px; }
-.band-concert-main > p { margin:0; color:var(--muted); font-size:13px; line-height:1.6; }
-.band-concert-sources { display:flex; flex-wrap:wrap; gap:7px 14px; align-items:baseline; margin-top:3px; font-size:12px; }
-.band-concert-sources > span { color:var(--muted); font-family:var(--condensed); font-weight:600; letter-spacing:.05em; text-transform:uppercase; }
-.band-concert-sources a { color:var(--acid); text-decoration:underline; text-underline-offset:3px; overflow-wrap:anywhere; }
-.band-concert-sources a:hover { color:#fff; }
-@media (max-width:620px) {
-  .band-concert { grid-template-columns:1fr; gap:7px; padding:17px 0; }
-  .band-concert-main > strong { font-size:18px; }
+/* Compact, expandable historical concert rows on band pages. */
+.band-concert-intro {
+  margin:-5px 0 15px; color:var(--muted); font-size:13px; line-height:1.6;
 }
-
-
-/* Historical concerts reported by users and awaiting independent confirmation. */
+.band-concert-list { border-top:1px solid var(--line-strong); }
+.band-concert { border-bottom:1px solid var(--line); }
+.band-concert-summary {
+  display:grid; grid-template-columns:114px minmax(0,1fr) auto;
+  align-items:center; gap:18px; padding:14px 0; cursor:pointer;
+  list-style:none; transition:background-color .18s ease;
+}
+.band-concert-summary::-webkit-details-marker { display:none; }
+.band-concert-summary::marker { content:""; }
+.band-concert-summary:hover,
+.band-concert-summary:focus-visible { background:rgba(255,255,255,.025); }
+.band-concert-summary:focus-visible { outline:2px solid var(--acid); outline-offset:2px; }
+.band-concert-date {
+  color:var(--acid); font-family:var(--condensed);
+  font-weight:600; font-size:16px; letter-spacing:.015em; white-space:nowrap;
+}
+.band-concert-headline { min-width:0; display:flex; flex-direction:column; gap:4px; }
+.band-concert-headline > strong {
+  color:var(--fg); font-family:var(--condensed); font-size:18px;
+  font-weight:600; line-height:1.25;
+}
+.band-concert-subline { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.band-concert-place { color:var(--muted); font-size:12px; line-height:1.3; }
 .band-concert-review {
-  align-self:flex-start; display:inline-block;
-  padding:3px 8px; border:1px solid var(--line-strong);
-  color:var(--muted); background:var(--bg-soft);
-  font-family:var(--condensed); font-weight:600;
-  font-size:11px; line-height:1.4; letter-spacing:.04em;
-  text-transform:uppercase;
+  display:inline-block; padding:2px 6px; border:1px solid var(--line-strong);
+  color:var(--muted); font-family:var(--condensed); font-weight:600;
+  font-size:10px; line-height:1.3; letter-spacing:.035em; text-transform:uppercase;
+}
+.band-concert-toggle {
+  display:inline-flex; align-items:center; justify-content:flex-end;
+  gap:9px; min-width:82px; color:var(--muted);
+  font-family:var(--condensed); font-size:12px; font-weight:600;
+  white-space:nowrap;
+}
+.band-concert-hide-label { display:none; }
+.band-concert-chevron {
+  display:inline-block; width:8px; height:8px; border-right:2px solid currentColor;
+  border-bottom:2px solid currentColor; transform:rotate(45deg);
+  transition:transform .18s ease; margin:-4px 4px 0 0;
+}
+.band-concert[open] > .band-concert-summary .band-concert-show-label { display:none; }
+.band-concert[open] > .band-concert-summary .band-concert-hide-label { display:inline; }
+.band-concert[open] > .band-concert-summary .band-concert-chevron {
+  transform:rotate(225deg); margin:4px 4px 0 0;
+}
+.band-concert[open] > .band-concert-summary .band-concert-headline > strong {
+  color:var(--acid);
+}
+.band-concert-details {
+  padding:0 44px 19px 132px; max-width:1050px; color:var(--muted);
+  font-size:13px; line-height:1.65;
+}
+.band-concert-details > p { margin:0 0 12px; }
+.band-concert-sources {
+  display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 13px; font-size:12px;
+}
+.band-concert-sources > span {
+  color:var(--muted); font-family:var(--condensed); font-weight:600;
+  letter-spacing:.05em; text-transform:uppercase;
+}
+.band-concert-sources a {
+  color:var(--acid); text-decoration:underline; text-underline-offset:3px;
+  overflow-wrap:anywhere;
+}
+.band-concert-sources a:hover { color:#fff; }
+@media (max-width:640px) {
+  .band-concert-summary {
+    grid-template-columns:88px minmax(0,1fr) 16px;
+    gap:9px; padding:12px 0;
+  }
+  .band-concert-date { font-size:13px; }
+  .band-concert-headline > strong { font-size:16px; }
+  .band-concert-review { font-size:9px; }
+  .band-concert-toggle { min-width:0; }
+  .band-concert-show-label,.band-concert-hide-label { display:none !important; }
+  .band-concert-details { padding:0 6px 16px 97px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .band-concert-summary,.band-concert-chevron { transition:none; }
 }
