@@ -790,7 +790,7 @@ window.SWNViewerBridge=(()=>{
   // Preparing a match must never publish its state to the program output.
   let programState=null,programHeld=true,canResumeProgram=false,takeSequence=0;
   let directorSceneKey='',directorRevision=0,directorWrites=0,directorReading=false,directorRestoring=false;
-  const sceneKey=s=>JSON.stringify([s.scene,s.lineupSide||'home',!!s.publicNoMatch,s.publicNextMatch||null,s.sceneMusic||{}]);
+  const sceneKey=s=>JSON.stringify([s.scene,s.lineupSide||'home',!!s.publicNoMatch,s.publicNextMatch||null,s.sceneMusic||{},s.seriesHome,s.seriesAway]);
   function holdProgram(){
     takeSequence++;
     if(!programHeld)programState=structuredClone(studioState());
@@ -877,8 +877,8 @@ window.SWNViewerBridge=(()=>{
       }
     }).catch(console.error).finally(()=>{directorRestoring=false;});
   }
-  // A mobile command is already on air. Mirror just the scene, never the
-  // remote match fields, and do not send a write back to the broadcast.
+  // A mobile command is already on air. Mirror only its allowed controls
+  // and do not send a write back or overwrite a prepared match.
   async function followProgramScene(){
     if(directorRestoring||directorReading||directorWrites||remoteTimer||!programState||document.hidden)return;
     directorReading=true;
@@ -895,8 +895,16 @@ window.SWNViewerBridge=(()=>{
       const side=state.lineupSide==='away'?'away':'home';
       if(!publicNoMatch&&[...document.querySelectorAll('[data-scene]')].some(button=>button.dataset.scene===state.scene)){
         const sceneChanged=programState.scene!==state.scene||(programState.lineupSide||'home')!==side;
-        programState={...programState,scene:state.scene,lineupSide:side,sceneMusic:state.sceneMusic||{}};
-        if(!programHeld)setSceneMusic(state.sceneMusic);
+        const seriesChanged=programState.seriesHome!==state.seriesHome||programState.seriesAway!==state.seriesAway;
+        programState={...programState,scene:state.scene,lineupSide:side,sceneMusic:state.sceneMusic||{},seriesHome:state.seriesHome,seriesAway:state.seriesAway};
+        if(!programHeld){
+          setSceneMusic(state.sceneMusic);
+          if(seriesChanged){
+            $("#seriesHome").value=state.seriesHome??"0";
+            $("#seriesAway").value=state.seriesAway??"0";
+            renderSeries();
+          }
+        }
         if(sceneChanged)applyScene(state.scene,side);
         else if(!programHeld)syncSceneMusic();
       }

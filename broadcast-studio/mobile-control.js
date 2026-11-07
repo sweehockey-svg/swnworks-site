@@ -63,11 +63,45 @@ buttons.forEach(b=>{
 document.getElementById("brandName").textContent="SWNWORKS";
 document.getElementById("studioLink").href=({sv:"SV/",en:"en/",fi:"fi/",de:"de/"})[LANG];
 const matchStatus=document.getElementById("broadcastStatus");
+const seriesForm=document.getElementById("seriesEditor"),seriesSummary=document.getElementById("seriesSummary");
+const seriesHome=document.getElementById("mobileSeriesHome"),seriesAway=document.getElementById("mobileSeriesAway");
+const seriesSave=document.getElementById("mobileSeriesSave"),seriesStatus=document.getElementById("mobileSeriesStatus");
+const seriesText=({
+ sv:["Serieläge","Bäst av","Hemmavinster","Bortavinster","Spara vinstläge","Sparat i sändningen.","Kunde inte spara. Kontrollera det aktuella vinstläget och försök igen.","Vinstläget eller matchen ändrades. Kontrollera siffrorna igen."],
+ en:["Series score","Best of","Home wins","Away wins","Save series score","Saved on air.","Could not save. Check the current series score and try again.","The series score or match changed. Check the numbers again."],
+ fi:["Sarjatilanne","Paras","Kotivoitot","Vierasvoitot","Tallenna sarjatilanne","Tallennettu lähetykseen.","Tallennus epäonnistui. Tarkista sarjatilanne ja yritä uudelleen.","Sarjatilanne tai ottelu vaihtui. Tarkista luvut uudelleen."],
+ de:["Serienstand","Best of","Heimsiege","Auswärtssiege","Serienstand speichern","In der Sendung gespeichert.","Speichern fehlgeschlagen. Prüfe den aktuellen Serienstand und versuche es erneut.","Der Serienstand oder das Spiel hat sich geändert. Prüfe die Zahlen erneut."]
+})[LANG];
+const seriesFields=["leagueId","home","away","matchName","seriesFormat","seriesRound","seriesHome","seriesAway"];
+const seriesExpected=s=>Object.fromEntries([...seriesFields.map(key=>[key,s?.[key]??null]),["ticket",s?.transientSource?.ticket??null]]);
+const seriesBest=s=>Number(s?.seriesFormat??5);
+const seriesLimit=s=>Math.ceil(seriesBest(s)/2);
+const seriesValid=s=>!!s?.home&&!!s?.away&&!!s?.transientSource?.ticket&&[3,5,7].includes(seriesBest(s));
+document.getElementById("seriesHomeLabel").textContent=seriesText[2];
+document.getElementById("seriesAwayLabel").textContent=seriesText[3];
+seriesSave.textContent=seriesText[4];
+let seriesKey="";
 let busy=false,reading=false,revision=0,ready=false,received=null,lastReceived=0;
 function config(){const c=window.EHOCKEY_CONFIG||{};if(!c.supabaseUrl||!c.supabasePublishableKey)throw new Error("Konfiguration saknas");return c;}
 function headers(token){const h={apikey:config().supabasePublishableKey,Accept:"application/json","Content-Type":"application/json"};if(token)h.Authorization="Bearer "+token;return h;}
 function base(){return config().supabaseUrl.replace(/\/+$/,"");}
 function setConnection(text,mode=""){connection.className="connection"+(mode?" "+mode:"");connection.querySelector("span").textContent=text;}
+function seriesWins(value,state){
+ return Math.min(seriesLimit(state),Math.max(0,Math.trunc(Number(value)||0)));
+}
+function renderSeriesEditor(state){
+ const valid=seriesValid(state),key=valid?JSON.stringify(seriesExpected(state)):"";
+ seriesSummary.textContent=valid?`${seriesText[0]} · ${seriesWins(state.seriesHome,state)}–${seriesWins(state.seriesAway,state)} · ${seriesText[1]} ${seriesBest(state)}`:seriesText[0];
+ if(key===seriesKey)return;
+ const edited=seriesKey&&seriesForm.dataset.dirty==="true";
+ seriesKey=key;
+ for(const [select,value] of [[seriesHome,state?.seriesHome],[seriesAway,state?.seriesAway]]){
+  select.replaceChildren(...(valid?Array.from({length:seriesLimit(state)+1},(_,n)=>new Option(String(n),String(n))):[]));
+  if(valid)select.value=String(seriesWins(value,state));
+ }
+ seriesForm.dataset.dirty="false";
+ seriesStatus.textContent=edited?seriesText[7]:"";
+}
 function controls(){
  const locked=busy||!ready||Date.now()-lastReceived>10000||document.hidden;
  buttons.forEach(b=>{b.disabled=locked;b.title=locked&&!busy?matchStatus.textContent:(b.dataset.shortcut||"");});
@@ -79,6 +113,10 @@ function controls(){
   b.classList.toggle("active",b.dataset.music===mode);
   b.setAttribute("aria-pressed",String(b.dataset.music===mode));
  });
+ seriesHome.disabled=seriesAway.disabled=locked||!seriesKey;
+ const h=Number(seriesHome.value),a=Number(seriesAway.value),limit=seriesLimit(received);
+ seriesSave.disabled=seriesHome.disabled||(h===limit&&a===limit)||
+  (h===seriesWins(received?.seriesHome,received)&&a===seriesWins(received?.seriesAway,received));
 }
 function render(state){
  received=state;lastReceived=Date.now();
@@ -95,6 +133,7 @@ function render(state){
   de:{missing:"Keine Spieldaten auf Sendung. Daten abrufen und das vorbereitete Spiel im Hauptstudio live schalten.",idle:"Der Wartebildschirm ist aktiv. Setze die Sendung im Hauptstudio fort.",expired:"Die Spieldaten sind abgelaufen. Aktualisiere und bestätige die Statistik im Hauptstudio."}
  };
  matchStatus.textContent=ready?(state.subline||state.headline||"Aktiv sändning"):messages[LANG][reason];
+ renderSeriesEditor(state);
  controls();
 }
 async function request(url,options={}){
@@ -130,6 +169,25 @@ async function changeProgram(button,music=false){
 const setScene=button=>changeProgram(button);
 buttons.forEach(b=>{b.disabled=true;b.addEventListener("click",()=>void setScene(b));});
 musicButtons.forEach(b=>b.addEventListener("click",()=>void changeProgram(b,true)));
+seriesForm.addEventListener("change",()=>{seriesForm.dataset.dirty="true";seriesStatus.textContent="";controls();});
+seriesForm.addEventListener("submit",async event=>{
+ event.preventDefault();
+ controls();
+ if(seriesSave.disabled)return;
+ const args={p_channel:CHANNEL,p_expected:seriesExpected(received),p_home:Number(seriesHome.value),p_away:Number(seriesAway.value)};
+ busy=true;revision++;controls();setConnection(T.sending,"busy");
+ try{
+  const session=await window.SWNStudioAccess.session();
+  const res=await request(base()+"/rest/v1/rpc/broadcast_studio_set_series_wins",{method:"POST",headers:headers(session.access_token),body:JSON.stringify(args)});
+  if(!res.ok)throw new Error("HTTP "+res.status);
+  const state=await res.json();
+  if(!state||typeof state!=="object"||Array.isArray(state))throw new Error("No program state");
+  seriesForm.dataset.dirty="false";render(state);seriesStatus.textContent=seriesText[5];
+  setConnection(T.sent,"ok");
+ }catch{
+  ready=false;seriesForm.dataset.dirty="false";seriesKey="";seriesStatus.textContent=seriesText[6];setConnection(T.error);
+ }finally{busy=false;controls();}
+});
 // Stream Deck System > Hotkey sends these to the focused controller page.
 // No URL-triggered commands or credentials in Stream Deck are needed.
 const deckShortcuts=[

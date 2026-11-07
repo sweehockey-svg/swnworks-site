@@ -40,6 +40,14 @@ button[disabled].pending{cursor:wait;opacity:1}
 .foot{margin-top:4px;padding:12px 4px;color:#617686;font-size:10px;line-height:1.45;text-align:center}
 .music-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .music-grid button{min-height:44px}
+.series-editor{margin:12px 0 4px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.series-editor summary{cursor:pointer;color:#9bafbc;font-size:12px;font-weight:800}
+.series-editor form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.series-editor label{display:grid;gap:4px;color:#afc2cf;font-size:12px}
+.series-editor select{min-height:40px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--text);font:inherit}
+.series-editor button,.series-editor [role="status"]{grid-column:1/-1}
+.series-editor button{min-height:40px}
+.series-editor [role="status"]{margin:0;color:#9bafbc;font-size:11px}
 @media(min-width:560px) and (orientation:landscape){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}button{min-height:54px}}
 </style>
 </head>
@@ -95,7 +103,16 @@ button[disabled].pending{cursor:wait;opacity:1}
     <button data-scene="leaders">Spelare</button>
   </div></section>
 
+  <details class="series-editor">
+    <summary id="seriesSummary">Serieläge</summary>
+    <form id="seriesEditor">
+      <label><span id="seriesHomeLabel">Hemmavinster</span><select id="mobileSeriesHome" disabled></select></label>
+      <label><span id="seriesAwayLabel">Bortavinster</span><select id="mobileSeriesAway" disabled></select></label>
+      <button type="submit" id="mobileSeriesSave" disabled>Spara vinstläge</button>
+      <p id="mobileSeriesStatus" role="status"></p>
+    </form>
+  </details>
   <div class="foot" id="footText">Hög och Låg gäller den aktiva scenen. Av ligger kvar vid scenbyte. Match Live är alltid utan musik.</div>
 </main>
-<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261107-blue-line"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
+<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261107-mobile-series"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
 

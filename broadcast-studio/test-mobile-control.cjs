@@ -4,7 +4,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
 const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
 try{
  const context=await browser.newContext({viewport:{width:390,height:844}}),errors=[];
- const state={scene:'live',lineupSide:'home',home:'111',away:'222',hs:3,as:2,subline:'Testlaget A – Testlaget B',twitchChannel:'unchanged',lineups:{home:{G:'333'}},transientSource:{expires_at:new Date(Date.now()+3600000).toISOString()}};
+ const state={scene:'live',lineupSide:'home',home:'111',away:'222',hs:3,as:2,subline:'Testlaget A – Testlaget B',twitchChannel:'unchanged',lineups:{home:{G:'333'}},seriesFormat:'5',seriesHome:'0',seriesAway:'0',transientSource:{ticket:'fixture.ticket',expires_at:new Date(Date.now()+3600000).toISOString()}};
  const original=structuredClone(state),writes=[];let offline=false,deny=false;
  const html=fs.readFileSync(__dirname+'/mobile.html','utf8').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link[^>]*>/g,'').replace(' data-studio-locked','');
  await context.route('https://fixture.invalid/**',async route=>{
@@ -13,7 +13,13 @@ try{
    const body=req.postDataJSON();writes.push(body);
    assert.equal(req.headers().authorization,'Bearer fixture-token');
    if(deny)return route.fulfill({status:403,body:'{}'});
-   if(req.url().endsWith('broadcast_studio_set_music')){
+   if(req.url().endsWith('broadcast_studio_set_series_wins')){
+    assert.deepEqual(Object.keys(body).sort(),['p_away','p_channel','p_expected','p_home']);
+    assert.equal(body.p_expected.seriesFormat,'5');
+    assert.equal(body.p_expected.ticket,'fixture.ticket');
+    if(body.p_expected.seriesHome!==state.seriesHome||body.p_expected.seriesAway!==state.seriesAway)return route.fulfill({status:400,body:'{}'});
+    state.seriesHome=String(body.p_home);state.seriesAway=String(body.p_away);
+   }else if(req.url().endsWith('broadcast_studio_set_music')){
     assert.deepEqual(Object.keys(body).sort(),['p_channel','p_mode','p_scene']);
     if(body.p_scene!==state.scene||state.scene==='live')return route.fulfill({status:400,body:'{}'});
     state.sceneMusic=body.p_mode==='off'?{...state.sceneMusic,muted:true}:{...state.sceneMusic,muted:false,[body.p_scene]:body.p_mode};
@@ -34,6 +40,24 @@ try{
  assert.equal(await a.locator('[data-scene="lowerthird"]').count(),0);
  assert.equal(await a.locator('[data-scene="defenseleaders"]').count(),1,'Backar remains available');
  assert(await a.locator('[data-music="high"]').isDisabled(),'Music is locked in Match Live');
+ assert.equal(await a.locator('.series-editor').getAttribute('open'),null);
+ await a.locator('#seriesSummary').click();
+ assert.match(await a.locator('#seriesSummary').innerText(),/0–0 · Bäst av 5/);
+ assert.equal(await a.locator('#mobileSeriesHome option').count(),4);
+ await a.locator('#mobileSeriesHome').selectOption('3');
+ await a.locator('#mobileSeriesAway').selectOption('3');
+ assert(await a.locator('#mobileSeriesSave').isDisabled(),'Both teams cannot win the same series');
+ await a.locator('#mobileSeriesHome').selectOption('2');
+ await a.locator('#mobileSeriesAway').selectOption('1');
+ await a.locator('#mobileSeriesSave').click();
+ await b.waitForFunction(()=>document.querySelector('#seriesSummary').textContent.includes('2–1'));
+ assert.equal(state.scene,'live','Series score edit does not switch the active scene');
+ assert.equal(state.seriesFormat,'5');
+ await a.locator('#mobileSeriesHome').selectOption('3');
+ state.seriesAway='2';
+ await a.waitForFunction(()=>document.querySelector('#seriesSummary').textContent.includes('2–2'));
+ assert.equal(await a.locator('#mobileSeriesHome').inputValue(),'2','Changed on-air score clears stale draft');
+ assert(await a.locator('#mobileSeriesSave').isDisabled());
  await a.locator('[data-scene="lineup"][data-lineup-side="away"]').click();await a.locator('[data-scene="lineup"][data-lineup-side="away"].active').waitFor();
  await b.locator('[data-scene="lineup"][data-lineup-side="away"].active').waitFor({timeout:5000});
  await b.locator('[data-scene="goalies"]').click();await a.locator('[data-scene="goalies"].active').waitFor({timeout:5000});
@@ -49,7 +73,7 @@ try{
  await a.locator('[data-scene="goalies"]').click();
  await a.locator('[data-scene="goalies"].active').waitFor();
  assert.equal(await a.locator('[data-music="low"]').getAttribute('aria-pressed'),'true');
- const {scene,lineupSide,sceneMusic,...rest}=state,{scene:oldScene,lineupSide:oldSide,...oldRest}=original;assert.deepEqual(rest,oldRest,'match data preserved');assert(writes.every(x=>x.p_channel==='sec21-bronze-test'));
+ const {scene,lineupSide,sceneMusic,seriesHome,seriesAway,...rest}=state,{scene:oldScene,lineupSide:oldSide,seriesHome:oldHome,seriesAway:oldAway,...oldRest}=original;assert.deepEqual(rest,oldRest,'match data preserved');assert(writes.every(x=>x.p_channel==='sec21-bronze-test'));
  assert(await a.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile fits viewport');
  if(process.env.MOBILE_TEST_SCREENSHOT)await a.screenshot({path:process.env.MOBILE_TEST_SCREENSHOT,fullPage:true});
  offline=true;await a.waitForFunction(()=>document.querySelector('#connectionText').textContent==='OFFLINE',{timeout:5000});assert(await a.locator('[data-scene="live"]').isDisabled());
