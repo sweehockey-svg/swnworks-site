@@ -1569,7 +1569,7 @@ body.network-body-fullscreen { overflow:hidden; }
 }
 .band-concert-headline { min-width:0; display:flex; flex-direction:column; gap:4px; }
 .band-concert-headline > strong {
-  color:var(--fg); font-family:var(--condensed); font-size:18px;
+  color:var(--ink); font-family:var(--condensed); font-size:18px;
   font-weight:600; line-height:1.25;
 }
 .band-concert-subline { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
