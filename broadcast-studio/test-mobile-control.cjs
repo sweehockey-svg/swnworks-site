@@ -25,7 +25,14 @@ try{
  offline=false;await a.waitForFunction(()=>!document.querySelector('[data-scene="live"]').disabled,{timeout:5000});
  deny=true;const deniedResponse=a.waitForResponse(r=>r.url().includes('/rpc/')&&r.status()===403);await a.locator('[data-scene="stats"]').click();await deniedResponse;
  assert.equal(state.scene,'goalies','denied writes leave program unchanged');
- state.transientSource.expires_at='2020-01-01T00:00:00Z';await a.waitForFunction(()=>document.querySelector('#broadcastStatus').textContent.includes('Ingen aktiv match'),{timeout:5000});assert(await a.locator('[data-scene="live"]').isDisabled());
+ state.transientSource.expires_at='2020-01-01T00:00:00Z';await a.waitForFunction(()=>document.querySelector('#broadcastStatus').textContent.includes('gått ut'),{timeout:5000});assert(await a.locator('[data-scene="live"]').isDisabled());
+ state.transientSource.expires_at=new Date(Date.now()+3600000).toISOString();
+ await a.waitForFunction(()=>!document.querySelector('[data-scene="live"]').disabled,{timeout:5000});
+ state.publicNoMatch=true;
+ await a.waitForFunction(()=>document.querySelector('#broadcastStatus').textContent.includes('Vänteskärmen är på'),{timeout:5000});
+ assert(await a.locator('[data-scene="live"]').isDisabled());
+ state.publicNoMatch=false;
+ await a.waitForFunction(()=>!document.querySelector('[data-scene="live"]').disabled,{timeout:5000});
  assert.deepEqual(errors,[]);console.log('PASS two controllers sync, scene-only RPC, scoped token, no load writes, preserved match data, mobile layout, offline/denied/expired locks');
 }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});

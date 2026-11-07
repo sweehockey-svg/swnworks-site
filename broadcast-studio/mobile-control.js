@@ -58,7 +58,10 @@ function config(){const c=window.EHOCKEY_CONFIG||{};if(!c.supabaseUrl||!c.supaba
 function headers(token){const h={apikey:config().supabasePublishableKey,Accept:"application/json","Content-Type":"application/json"};if(token)h.Authorization="Bearer "+token;return h;}
 function base(){return config().supabaseUrl.replace(/\/+$/,"");}
 function setConnection(text,mode=""){connection.className="connection"+(mode?" "+mode:"");connection.querySelector("span").textContent=text;}
-function controls(){buttons.forEach(b=>b.disabled=busy||!ready||Date.now()-lastReceived>10000||document.hidden);}
+function controls(){
+ const locked=busy||!ready||Date.now()-lastReceived>10000||document.hidden;
+ buttons.forEach(b=>{b.disabled=locked;b.title=locked&&!busy?matchStatus.textContent:(b.dataset.shortcut||"");});
+}
 function render(state){
  received=state;lastReceived=Date.now();
  const expires=Date.parse(state?.transientSource?.expires_at||"");
@@ -66,7 +69,14 @@ function render(state){
  const scene=state?.scene||"",side=state?.lineupSide||"home";
  buttons.forEach(b=>{b.classList.toggle("active",b.dataset.scene===scene&&(scene!=="lineup"||(b.dataset.lineupSide||"home")===side));b.classList.remove("pending");});
  current.textContent=scene?((labels[scene]||scene)+(scene==="lineup"?" "+(side==="away"?(LANG==="sv"?"B":"A"):"H"):"")):"Ingen scen";
- matchStatus.textContent=ready?(state.subline||state.headline||"Aktiv sändning"):"Ingen aktiv match med giltiga data. Förbered och skicka matchen till sändning i huvudstudion först.";
+ const reason=!state||!Object.keys(state).length?"missing":state.publicNoMatch?"idle":Number.isFinite(expires)?"expired":"missing";
+ const messages={
+  sv:{missing:"Ingen aktiv match med matchdata. Hämta data och välj ”Visa förberedd match i sändning” i huvudstudion.",idle:"Vänteskärmen är på. Återgå till sändningen i huvudstudion för att välja scen.",expired:"Matchdatan har gått ut. Uppdatera och godkänn statistiken i huvudstudion. Scenknapparna låses upp automatiskt."},
+  en:{missing:"No match data on air. Fetch data and take the prepared match live in the main studio.",idle:"The waiting screen is on. Resume the broadcast in the main studio to select a scene.",expired:"Match data has expired. Refresh and approve the statistics in the main studio. Scene controls unlock automatically."},
+  fi:{missing:"Lähetyksessä ei ole otteludataa. Hae tiedot ja siirrä valmisteltu ottelu lähetykseen.",idle:"Odotusruutu on käytössä. Jatka lähetystä päästudiossa.",expired:"Otteludata on vanhentunut. Päivitä ja hyväksy tilastot päästudiossa."},
+  de:{missing:"Keine Spieldaten auf Sendung. Daten abrufen und das vorbereitete Spiel im Hauptstudio live schalten.",idle:"Der Wartebildschirm ist aktiv. Setze die Sendung im Hauptstudio fort.",expired:"Die Spieldaten sind abgelaufen. Aktualisiere und bestätige die Statistik im Hauptstudio."}
+ };
+ matchStatus.textContent=ready?(state.subline||state.headline||"Aktiv sändning"):messages[LANG][reason];
  controls();
 }
 async function request(url,options={}){
@@ -105,7 +115,7 @@ const deckShortcuts=[
 ];
 deckShortcuts.forEach(([code,scene,side],index)=>{
  const button=buttons.find(b=>b.dataset.scene===scene&&(!side||b.dataset.lineupSide===side));
- if(button)button.title="Stream Deck: Ctrl + Alt + Shift + "+(index+1);
+ if(button)button.dataset.shortcut="Stream Deck: Ctrl + Alt + Shift + "+(index+1);
 });
 if(LANG==="sv"){
  const guide=document.createElement("details");guide.className="foot";

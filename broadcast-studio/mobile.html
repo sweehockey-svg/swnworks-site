@@ -32,7 +32,8 @@ button{appearance:none;border:1px solid #2a3d4c;background:#0b1924;color:#f1f6f9
 button:active{transform:scale(.985)}
 button.active{border-color:var(--yellow);background:#17170d;color:var(--yellow);box-shadow:inset 0 0 0 1px #f4b21b55}
 button.pending{opacity:.7}
-button[disabled]{cursor:wait}
+button[disabled]{cursor:not-allowed;opacity:.55}
+button[disabled].pending{cursor:wait;opacity:1}
 .foot{margin-top:4px;padding:12px 4px;color:#617686;font-size:10px;line-height:1.45;text-align:center}
 @media(min-width:560px) and (orientation:landscape){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}button{min-height:54px}}
 </style>
@@ -80,5 +81,5 @@ button[disabled]{cursor:wait}
 
   <div class="foot" id="footText">Ni kan båda ha den här sidan öppen. Senaste scenbytet gäller. Den här sidan ändrar bara aktiv scen. Lag, score, Twitch, lineups och övriga sändningsinställningar lämnas orörda.</div>
 </main>
-<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261020-streamdeck"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
+<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261107-scene-status"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
 
