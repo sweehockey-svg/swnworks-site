@@ -706,7 +706,11 @@ window.SWNViewerBridge=(()=>{
   function setFooterBrand(value){
     footerBrand=value==='sportsgamer'?'sportsgamer':'seh';
     if($('#footerBrand'))$('#footerBrand').value=footerBrand;
-    const label=$('.bug b');if(label)label.textContent=footerBrand==='sportsgamer'?'SportsGamer':'SVENSK eHOCKEY';
+    const sportsGamer=footerBrand==='sportsgamer';
+    const label=$('.bug b');if(label)label.textContent=sportsGamer?'SportsGamer':'SVENSK eHOCKEY';
+    const presenter=$('.opening>.eyebrow');
+    const presents=({sv:'PRESENTERAR',en:'PRESENTS',fi:'ESITTÄÄ',de:'PRÄSENTIERT'})[LOCALE]||'PRESENTS';
+    if(presenter)presenter.textContent=(sportsGamer?'SPORTSGAMER':'SVENSK eHOCKEY')+' '+presents;
   }
 
   function renderLiveSeries(homeWins,awayWins,needed){
@@ -998,7 +1002,7 @@ window.SWNViewerBridge=(()=>{
   $("#theme")?.addEventListener("change",()=>{setTheme($("#theme").value);publishState();});
   $("#graphicsPackage")?.addEventListener("change",()=>{setGraphicsPackage($("#graphicsPackage").value);publishState();});
   if(!OBS_MODE&&!VIEWER_MODE){
-    const label=document.createElement('label');label.textContent=LOCALE==='sv'?'AVSÄNDARE · NEDERKANT':'FOOTER BRAND';
+    const label=document.createElement('label');label.textContent=({sv:'AVSÄNDARE',en:'BROADCAST BRAND',fi:'LÄHETYKSEN BRÄNDI',de:'SENDERMARKE'})[LOCALE]||'BROADCAST BRAND';
     const select=document.createElement('select');select.id='footerBrand';select.add(new Option('Svensk eHockey','seh'));select.add(new Option('SportsGamer','sportsgamer'));label.append(select);
     $('#graphicsPackage')?.closest('label')?.after(label);
     select.addEventListener('change',()=>{setFooterBrand(select.value);publishState();});

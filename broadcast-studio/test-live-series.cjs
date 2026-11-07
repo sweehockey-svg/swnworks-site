@@ -37,6 +37,16 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert.equal(await page.locator('.live-team-strip .awayTeam .live-series-wins .won').count(),1);
   }
   const state=await page.evaluate(()=>seriesFixture.state());assert.equal(state.liveSeriesShow,true);
+  const presents={SV:'PRESENTERAR',en:'PRESENTS',fi:'ESITTÄÄ',de:'PRÄSENTIERT'}[lang];
+  const presenter=page.locator('.opening>.eyebrow');
+  await page.locator('#footerBrand').selectOption('sportsgamer');
+  assert.equal(await presenter.textContent(),'SPORTSGAMER '+presents);
+  const branded=await page.evaluate(()=>seriesFixture.state());
+  assert.equal(branded.footerBrand,'sportsgamer');
+  await page.evaluate(s=>seriesFixture.remote({...s,footerBrand:'seh'}),branded);
+  assert.equal(await presenter.textContent(),'SVENSK eHOCKEY '+presents);
+  await page.evaluate(s=>seriesFixture.remote(s),branded);
+  assert.equal(await presenter.textContent(),'SPORTSGAMER '+presents,'Remote state updates Opening too');
   const showSeries=(home,seriesHome)=>page.evaluate(({s,home,seriesHome})=>seriesFixture.remote({...s,home,away:'222',scene:'series',graphicsPackage:'gamenight',backgroundPackage:'gamenight',arenaMist:true,seriesFormat:'5',seriesHome,seriesAway:'0'}),{s:state,home,seriesHome});
   await showSeries('111','1');
   const seriesStyle=await page.locator('.series-board').evaluate(board=>({
