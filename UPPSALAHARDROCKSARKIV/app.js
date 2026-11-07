@@ -2262,6 +2262,55 @@
     });
   }
 
+  // Historical concerts are published through a narrow RPC, never the private research tables.
+  function bandConcertMarkup(event) {
+    const rawDate = typeof event.event_date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(event.event_date) ? event.event_date : '';
+    const dateLabel = rawDate || String(event.event_year || 'Årtal saknas');
+    const date = rawDate ? '<time datetime="' + escapeHtml(rawDate) + '">' + escapeHtml(rawDate) + '</time>' : escapeHtml(dateLabel);
+    const place = [event.venue, event.city].filter(Boolean).join(' · ');
+    const sources = (Array.isArray(event.sources) ? event.sources : [])
+      .filter(source => typeof source.url === 'string' && /^https?:\/\//i.test(source.url))
+      .map(source => '<a href="' + escapeHtml(source.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(source.title || 'Visa källa') + '</a>')
+      .join('');
+    return '<article class="band-concert"><div class="band-concert-date">' + date + '</div>'
+      + '<div class="band-concert-main"><strong>' + escapeHtml(event.title || 'Dokumenterad spelning') + '</strong>'
+      + (place ? '<span class="band-concert-place">' + escapeHtml(place) + '</span>' : '')
+      + (event.description ? '<p>' + escapeHtml(event.description) + '</p>' : '')
+      + (sources ? '<div class="band-concert-sources"><span>Källor</span>' + sources + '</div>' : '')
+      + '</div></article>';
+  }
+
+  function renumberBandHeadings() {
+    $('.band-detail-layout .content-section > .content-head > span')
+      .filter(number => !number.closest('.content-section').hidden)
+      .forEach((number, index) => { number.textContent = String(index + 1).padStart(2, '0'); });
+  }
+
+  async function renderBandConcerts(bandId) {
+    const activeHolder = () => {
+      const holder = $('#band-concerts');
+      return holder?.dataset.bandId === String(bandId) ? holder : null;
+    };
+    if (!activeHolder()) return;
+    try {
+      const response = await fetch(cfg.supabaseUrl + '/rest/v1/rpc/get_public_band_concerts', {
+        method: 'POST',
+        headers: { apikey: cfg.publishableKey, Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_band_id: bandId })
+      });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const concerts = await response.json();
+      if (!Array.isArray(concerts)) throw new Error('Ogiltigt konsertsvar');
+      const holder = activeHolder();
+      if (!holder || !concerts.length) return;
+      holder.querySelector('.band-concert-list').innerHTML = concerts.map(bandConcertMarkup).join('');
+      holder.hidden = false;
+      renumberBandHeadings();
+    } catch (error) {
+      console.warn('Källbelagda konserter kunde inte hämtas', error);
+    }
+  }
+
   function renderBandDetail(b) {
     const mems = membershipsForBand(b.id);
     const memberGroups = groupedMembershipsForBand(b.id);
@@ -2284,6 +2333,11 @@
         <div class="detail-main">
           <section class="content-section"><div class="content-head"><span>01</span><h2>Medlemmar</h2></div><div class="credit-list">${memberGroups.length ? memberGroups.map(group => { const p=peopleById().get(group.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(personBandName(p,b.id))}</strong><span>${escapeHtml(group.roles || 'Roll kartläggs')}</span><em>${escapeHtml(group.periods || 'Årtal söks')}</em></a>`; }).join('') : '<div class="empty-state">Lineup kartläggs.</div>'}</div></section>
           <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${rels.length ? rels.map(r => releaseRow(r, {compact:true})).join('') : '<div class="empty-state">Inga utgåvor registrerade ännu.</div>'}</div></section>
+          <section class="content-section band-concert-section" id="band-concerts" data-band-id="${escapeHtml(b.id)}" hidden>
+            <div class="content-head"><span>03</span><h2>Spelningar</h2></div>
+            <p class="band-concert-intro">Endast dokumenterade spelningar med källhänvisning visas här.</p>
+            <div class="band-concert-list"></div>
+          </section>
           ${youtubeSection(b)}
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Bildarkiv</h2></div>${archiveGallery(gallery)}</section>` : ''}
           ${links.length ? `<section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Kopplingar</h2></div><div class="relation-grid">${links.map(r => { const otherId = r.from_band_id === b.id ? r.to_band_id : r.from_band_id; const other = bandsById().get(otherId); return `<a href="${bandHref(other)}"><span>${escapeHtml(relationSv(r.relation_type))}</span><strong>${escapeHtml(other.canonical_name)}</strong><em>${r.from_year || ''}</em></a>`; }).join('')}</div></section>` : ''}
@@ -2295,6 +2349,7 @@
           </section>
         </div>
       </section>`;
+    renderBandConcerts(b.id);
   }
 
 
