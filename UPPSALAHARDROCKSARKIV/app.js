@@ -2275,12 +2275,14 @@
     const dateLabel = rawDate || String(event.event_year || 'Årtal saknas');
     const date = rawDate ? '<time datetime="' + escapeHtml(rawDate) + '">' + escapeHtml(rawDate) + '</time>' : escapeHtml(dateLabel);
     const place = [event.venue, event.city].filter(Boolean).join(' · ');
+    const isUnverified = event.verification_status === 'probable';
     const sources = (Array.isArray(event.sources) ? event.sources : [])
       .filter(source => typeof source.url === 'string' && /^https?:\/\//i.test(source.url))
       .map(source => '<a href="' + escapeHtml(source.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(source.title || 'Visa källa') + '</a>')
       .join('');
     return '<article class="band-concert"><div class="band-concert-date">' + date + '</div>'
-      + '<div class="band-concert-main"><strong>' + escapeHtml(event.title || 'Dokumenterad spelning') + '</strong>'
+      + '<div class="band-concert-main">' + (isUnverified ? '<span class="band-concert-review">Uppgift att kontrollera</span>' : '')
+      + '<strong>' + escapeHtml(event.title || 'Dokumenterad spelning') + '</strong>'
       + (place ? '<span class="band-concert-place">' + escapeHtml(place) + '</span>' : '')
       + (event.description ? '<p>' + escapeHtml(event.description) + '</p>' : '')
       + (sources ? '<div class="band-concert-sources"><span>Källor</span>' + sources + '</div>' : '')
@@ -2342,7 +2344,7 @@
           <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${rels.length ? rels.map(r => releaseRow(r, {compact:true})).join('') : '<div class="empty-state">Inga utgåvor registrerade ännu.</div>'}</div></section>
           <section class="content-section band-concert-section" id="band-concerts" data-band-id="${escapeHtml(b.id)}" hidden>
             <div class="content-head"><span>03</span><h2>Spelningar</h2></div>
-            <p class="band-concert-intro">Endast dokumenterade spelningar med källhänvisning visas här.</p>
+            <p class="band-concert-intro">Spelningarna har källhänvisningar. Användarinrapporterade uppgifter som ännu inte oberoende verifierats är märkta.</p>
             <div class="band-concert-list"></div>
           </section>
           ${youtubeSection(b)}
