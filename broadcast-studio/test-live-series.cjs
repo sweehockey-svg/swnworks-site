@@ -104,6 +104,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   assert.equal(await page.evaluate(()=>seriesFixture.state().arenaMist),true,'Checkbox serializes to OBS state');
   const mistStyle=()=>page.locator('.background-package-layer').evaluate(el=>{const style=getComputedStyle(el,'::before');return {content:style.content,animation:style.animationName,duration:style.animationDuration,opacity:Number(style.opacity),display:getComputedStyle(el).display};});
   const edgeLight=()=>page.locator('.arena-edge-lights').evaluate(el=>({display:getComputedStyle(el).display,animations:[...el.children].map(light=>getComputedStyle(light).animationName),timings:[...el.children].map(light=>getComputedStyle(light).animationDelay)}));
+  const centerLight=()=>page.locator('.arena-center-light').evaluate(el=>({display:getComputedStyle(el).display,animation:getComputedStyle(el).animationName}));
   const scenes=await page.locator('[data-scene]').evaluateAll(buttons=>[...new Set(buttons.map(b=>b.dataset.scene))].filter(scene=>scene!=='live'));
   for(const scene of [...scenes,'idle','nextmatch']){
    await page.evaluate(({s,scene})=>seriesFixture.remote({...s,scene,backgroundPackage:'gamenight',arenaMist:true}),{s:state,scene});
@@ -118,16 +119,19 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert.equal(lights.display,'block');
    assert.deepEqual(lights.animations,Array(6).fill('arena-edge-pulse'));
    assert.equal(new Set(lights.timings).size,6,'Edge pulses are staggered');
+   assert.deepEqual(await centerLight(),{display:'block',animation:'arena-center-shimmer'});
   }
   await page.emulateMedia({reducedMotion:'reduce'});
   assert.equal((await mistStyle()).animation,'none','Reduced motion suppresses movement');
   assert.equal((await edgeLight()).display,'none','Reduced motion also hides the edge lights');
+  assert.equal((await centerLight()).display,'none');
   await page.emulateMedia({reducedMotion:'no-preference'});
   for(const [scene,backgroundPackage,arenaMist] of [['live','gamenight',true],['live','gamenight',false],['live','broadcast',true],['opening','broadcast',true],['opening','gamenight',false]]){
    await page.evaluate(s=>seriesFixture.remote(s),{...state,scene,backgroundPackage,arenaMist});
    const mist=await mistStyle();
    assert.equal(mist.content,'none','No mist in Match Live, when off or outside Game Night');
    assert.equal((await edgeLight()).display,'none','Edge lights also stay off');
+   assert.equal((await centerLight()).display,'none','Center shimmer also stays off');
    if(scene==='live')assert.equal(mist.display,'none','Live never displays the background layer');
   }
   assert.deepEqual(errors,[],lang);await page.close();

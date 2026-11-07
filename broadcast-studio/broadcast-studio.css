@@ -2779,10 +2779,23 @@ body[data-background="gamenight"] .screen.arena-mist-enabled:not(.live-mode) .ar
   0%,12%{background-position:center 155%}
   78%,100%{background-position:center -60%}
 }
+.arena-center-light{display:none}
+body[data-background="gamenight"] .screen.arena-mist-enabled:not(.live-mode) .arena-center-light{
+  display:block;position:absolute;top:77%;bottom:0;left:50%;width:6%;
+  transform:translateX(-50%);pointer-events:none;mix-blend-mode:screen;
+  clip-path:polygon(45% 0,55% 0,100% 100%,0 100%);
+  background:radial-gradient(ellipse at center,rgba(255,236,156,.72),rgba(255,178,25,.22) 42%,transparent 72%) center 120% / 100% 42% no-repeat;
+  animation:arena-center-shimmer 7s ease-in-out -2s infinite;
+}
+@keyframes arena-center-shimmer{
+  0%,10%{background-position:center 120%;opacity:0}
+  40%{opacity:.8}
+  72%,100%{background-position:center -65%;opacity:0}
+}
 @media(prefers-reduced-motion:reduce){
   body[data-background="gamenight"] .screen.arena-mist-enabled>.background-package-layer::before,
   body[data-background="gamenight"] .screen.arena-mist-enabled>.background-package-layer::after{animation:none!important}
-  body[data-background="gamenight"] .screen.arena-mist-enabled:not(.live-mode) .arena-edge-lights{display:none}
+  body[data-background="gamenight"] .screen.arena-mist-enabled:not(.live-mode) :is(.arena-edge-lights,.arena-center-light){display:none}
 }
 .screen>.texture,
 .screen>.top,
