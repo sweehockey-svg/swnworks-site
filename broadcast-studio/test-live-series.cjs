@@ -52,20 +52,29 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   assert.equal(await page.evaluate(()=>document.documentElement.dataset.sceneMusic),undefined,'Director never starts music audio');
   await page.locator('#arenaMist').check();
   assert.equal(await page.evaluate(()=>seriesFixture.state().arenaMist),true,'Checkbox serializes to OBS state');
-  const mistStyle=()=>page.locator('.background-package-layer').evaluate(el=>{const style=getComputedStyle(el,'::before');return {content:style.content,animation:style.animationName,duration:style.animationDuration,opacity:Number(style.opacity)};});
-  for(const scene of ['opening','matchup','intermission']){
+  const mistStyle=()=>page.locator('.background-package-layer').evaluate(el=>{const style=getComputedStyle(el,'::before'),layer=getComputedStyle(el);return {content:style.content,animation:style.animationName,duration:style.animationDuration,opacity:Number(style.opacity),display:layer.display,image:layer.backgroundImage,layerOpacity:Number(layer.opacity),pointerEvents:layer.pointerEvents};});
+  const scenes=await page.locator('[data-scene]').evaluateAll(buttons=>[...new Set(buttons.map(b=>b.dataset.scene))]);
+  for(const scene of [...scenes,'idle','nextmatch']){
    await page.evaluate(({s,scene})=>seriesFixture.remote({...s,scene,backgroundPackage:'gamenight',arenaMist:true}),{s:state,scene});
    const mist=await mistStyle();
    assert.equal(mist.animation,'arena-mist-drift',lang+' '+scene);
    assert.equal(mist.duration,'10s','Mist should travel noticeably over a few seconds');
    assert(mist.opacity>=.45,'Moving layer must not be too faint against baked-in smoke');
+   assert.equal(mist.display,'block',lang+' '+scene);
+   if(scene==='live'){
+    assert.equal(mist.image,'none','Match Live must not show the arena photo over video');
+    assert(mist.layerOpacity<.5,'Live mist stays subtle');
+    assert.equal(mist.pointerEvents,'none','Live video remains interactive');
+   }
   }
   await page.emulateMedia({reducedMotion:'reduce'});
   assert.equal((await mistStyle()).animation,'none','Reduced motion suppresses movement');
   await page.emulateMedia({reducedMotion:'no-preference'});
-  for(const [scene,backgroundPackage,arenaMist] of [['live','gamenight',true],['table','gamenight',true],['opening','broadcast',true],['opening','gamenight',false]]){
+  for(const [scene,backgroundPackage,arenaMist] of [['live','gamenight',false],['live','broadcast',true],['opening','broadcast',true],['opening','gamenight',false]]){
    await page.evaluate(s=>seriesFixture.remote(s),{...state,scene,backgroundPackage,arenaMist});
-   assert.equal((await mistStyle()).content,'none','No mist outside opted-in Game Night presentation scenes');
+   const mist=await mistStyle();
+   assert.equal(mist.content,'none','No mist when off or outside Game Night');
+   if(scene==='live')assert.equal(mist.display,'none','Live has no background layer when the mist is off');
   }
   assert.deepEqual(errors,[],lang);await page.close();
  }
