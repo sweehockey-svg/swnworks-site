@@ -21,6 +21,11 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    stats:getComputedStyle(card.querySelector('.player-info')).transform
   }));
   assert.equal(lineupCrop.zoom,2.22,lang+' portrait zoom');
+  const avatarZoom=await page.locator('.lineup .player>img').evaluate(img=>{
+   img.src='https://fixture.invalid/players/1DEFAULTBILDID.png';
+   return new DOMMatrixReadOnly(getComputedStyle(img).transform).a;
+  });
+  assert.equal(avatarZoom,1.62,lang+' fallback avatar uses a wider crop');
   assert.equal(lineupCrop.flag,'none','Flag stays at its original size');
   assert.equal(lineupCrop.stats,'none','Name and stats stay at their original size');
   assert.equal(await page.locator('[data-scene="defense"],.scene.defense').count(),2);
