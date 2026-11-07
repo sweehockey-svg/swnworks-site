@@ -37,6 +37,27 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert.equal(await page.locator('.live-team-strip .awayTeam .live-series-wins .won').count(),1);
   }
   const state=await page.evaluate(()=>seriesFixture.state());assert.equal(state.liveSeriesShow,true);
+  const showSeries=(home,seriesHome)=>page.evaluate(({s,home,seriesHome})=>seriesFixture.remote({...s,home,away:'222',scene:'series',graphicsPackage:'gamenight',backgroundPackage:'gamenight',arenaMist:true,seriesFormat:'5',seriesHome,seriesAway:'0'}),{s:state,home,seriesHome});
+  await showSeries('111','1');
+  assert.equal(await page.locator('.series-dots .new-win').count(),0,'Initial series state does not pulse');
+  await showSeries('111','2');
+  const wonPulse=page.locator('#seriesHomeDots .new-win');
+  assert.equal(await wonPulse.count(),1,'Only the new win pulses');
+  assert.equal(await wonPulse.evaluate(el=>getComputedStyle(el).animationName),'series-win-pulse');
+  await showSeries('111','2');
+  assert.equal(await wonPulse.count(),1,'Unchanged snapshots do not restart the pulse');
+  await showSeries('333','3');
+  assert.equal(await page.locator('.series-dots .new-win').count(),0,'A different matchup does not pulse');
+  await page.evaluate(s=>{
+   seriesFixture.remote({...s,scene:'opening',graphicsPackage:'gamenight',backgroundPackage:'gamenight',arenaMist:true});
+   const logo=document.querySelector('.opening-match .homeTeam>img');
+   logo.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%2F%3E';logo.hidden=false;
+  },state);
+  const openingLight=()=>page.locator('.opening-match .homeTeam').evaluate(el=>getComputedStyle(el,'::before').animationName);
+  assert.equal(await openingLight(),'opening-logo-light');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  assert.equal(await openingLight(),'none');
+  await page.emulateMedia({reducedMotion:'no-preference'});
   await page.evaluate(s=>seriesFixture.remote({...s,scene:'teamcompare',graphicsPackage:'gamenight',backgroundPackage:'gamenight',arenaMist:true}),state);
   const duelCards=await page.locator('.tc-team,.goalie-person,.key-person').evaluateAll(cards=>cards.map(card=>({
    background:getComputedStyle(card).backgroundImage,border:getComputedStyle(card).borderColor

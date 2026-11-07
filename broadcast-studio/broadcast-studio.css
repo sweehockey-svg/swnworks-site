@@ -843,6 +843,13 @@ body.obs-preview[data-theme="impact"] .screen{background:
 .series-dots{display:flex;gap:9px;margin-top:20px;min-height:14px}
 .series-dots i{display:block;width:42px;height:7px;border-radius:10px;background:#ffffff22;border:1px solid #ffffff25}
 .series-dots i.won{background:var(--theme-accent,#f4b21b);border-color:var(--theme-accent,#f4b21b);box-shadow:0 0 14px color-mix(in srgb,var(--theme-accent,#f4b21b) 38%,transparent)}
+.arena-mist-enabled .series-dots i.new-win{animation:series-win-pulse 1.1s ease-out}
+@keyframes series-win-pulse{
+  0%{transform:scaleX(.48);opacity:.65}
+  34%{transform:scaleX(1.12);opacity:1;box-shadow:0 0 19px 4px rgba(255,193,50,.66)}
+  100%{transform:scaleX(1);opacity:1}
+}
+@media(prefers-reduced-motion:reduce){.arena-mist-enabled .series-dots i.new-win{animation:none}}
 .series-next{margin-top:38px;padding:12px 26px;border:1px solid #ffffff20;background:#061521b8;font-size:13px;font-weight:900;letter-spacing:.16em}
 
 
@@ -2505,6 +2512,25 @@ body[data-graphics="gamenight"] .opening-match .team{
   flex-direction:column;
   align-items:center;
   gap:8px;
+}
+body[data-background="gamenight"][data-graphics="gamenight"] .arena-mist-enabled .opening-match .team{
+  position:relative;isolation:isolate;
+}
+body[data-background="gamenight"][data-graphics="gamenight"] .arena-mist-enabled .opening-match .team:has(>img[src]:not([hidden]))::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  top:-12%;left:8%;right:8%;bottom:19%;
+  background:radial-gradient(ellipse at center,rgba(255,191,64,.34),rgba(215,142,21,.12) 38%,transparent 70%);
+  animation:opening-logo-light 14s ease-in-out -3s infinite alternate;
+}
+body[data-background="gamenight"][data-graphics="gamenight"] .arena-mist-enabled .opening-match .awayTeam::before{
+  animation-direction:alternate-reverse;animation-delay:-7s;
+}
+@keyframes opening-logo-light{
+  from{transform:translate3d(-15%,-4%,0);opacity:.40}
+  to{transform:translate3d(15%,4%,0);opacity:.85}
+}
+@media(prefers-reduced-motion:reduce){
+  body[data-background="gamenight"][data-graphics="gamenight"] .arena-mist-enabled .opening-match .team:has(>img[src]:not([hidden]))::before{animation:none;opacity:.5}
 }
 body[data-graphics="gamenight"] .opening-match .team img{
   width:clamp(125px,11.8vw,190px)!important;
