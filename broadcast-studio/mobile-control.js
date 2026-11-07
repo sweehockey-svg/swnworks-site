@@ -147,7 +147,7 @@ function render(state){
  received=state;lastReceived=Date.now();
  const expires=Date.parse(state?.transientSource?.expires_at||"");
  ready=Boolean(state&&!state.publicNoMatch&&Number.isFinite(expires)&&expires>Date.now());
- const scene=state?.scene==="lowerthird"?"matchup":state?.scene||"",side=state?.lineupSide||"home";
+ const scene=state?.scene==="stats"?"teamcompare":state?.scene==="lowerthird"?"matchup":state?.scene||"",side=state?.lineupSide||"home";
  buttons.forEach(b=>{
   b.classList.toggle("active",b.dataset.scene===scene&&(scene!=="lineup"||(b.dataset.lineupSide||"home")===side));
   b.classList.remove("pending");
@@ -250,12 +250,12 @@ seriesForm.addEventListener("submit",async event=>{
 // No URL-triggered commands or credentials in Stream Deck are needed.
 const deckShortcuts=[
  ["Digit1","opening"],["Digit2","live"],["Digit3","lineup","home"],
- ["Digit4","lineup","away"],["Digit5","table"],["Digit6","stats"],
+ ["Digit4","lineup","away"],["Digit5","table"],["Digit6","teamcompare"],
  ["Digit7","teamcompare"],["Digit8","intermission"],["Digit9","matchup"]
 ];
 deckShortcuts.forEach(([code,scene,side],index)=>{
  const button=buttons.find(b=>b.dataset.scene===scene&&(!side||b.dataset.lineupSide===side));
- if(button)button.dataset.shortcut="Stream Deck: Ctrl + Alt + Shift + "+(index+1);
+ if(button&&code!=="Digit6")button.dataset.shortcut="Stream Deck: Ctrl + Alt + Shift + "+(index+1);
 });
 if(LANG==="sv"){
  const guide=document.createElement("details");guide.className="foot";

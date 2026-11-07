@@ -22,7 +22,7 @@ Alla kombinationer använder **Ctrl + Alt + Shift** tillsammans med siffran på 
 | Lineup hemma | Ctrl + Alt + Shift + 3 |
 | Lineup borta | Ctrl + Alt + Shift + 4 |
 | Tabell | Ctrl + Alt + Shift + 5 |
-| Stats | Ctrl + Alt + Shift + 6 |
+| Lagduell (tidigare Stats) | Ctrl + Alt + Shift + 6 |
 | Lagduell | Ctrl + Alt + Shift + 7 |
 | Paus | Ctrl + Alt + Shift + 8 |
 | Matchup | Ctrl + Alt + Shift + 9 |
