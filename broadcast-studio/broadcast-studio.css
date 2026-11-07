@@ -2489,6 +2489,15 @@ body[data-graphics="gamenight"] .opening h1{
   filter:drop-shadow(0 5px 3px rgba(0,0,0,.75));
 }
 body[data-graphics="gamenight"] .opening h1 br{display:none}
+.opening-round{
+  max-width:100%;margin:0 0 14px;color:var(--theme-accent,#f4b21b);
+  font-size:clamp(11px,1.2vw,18px);font-weight:900;letter-spacing:.24em;
+  line-height:1.15;text-align:center;text-shadow:0 2px 7px #000;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.opening-round[hidden]{display:none!important}
+body[data-graphics="gamenight"] .opening:has(>.opening-round:not([hidden])) h1{margin-bottom:10px!important}
+body[data-graphics="gamenight"] .opening-round{color:#ffbd00}
 body[data-graphics="gamenight"] .opening h1 span{
   display:inline-block;
   margin-left:.16em;

@@ -42,6 +42,16 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert.equal(await page.locator('.live-team-strip .awayTeam .live-series-wins .won').count(),1);
   }
   const state=await page.evaluate(()=>seriesFixture.state());assert.equal(state.liveSeriesShow,true);
+  const openingRound=page.locator('.opening-round');
+  await page.evaluate(s=>seriesFixture.remote({...s,scene:'opening',seriesRound:'SLUTSPEL'}),state);
+  assert.notEqual(await openingRound.getAttribute('hidden'),null,'Generic playoff default stays hidden');
+  await page.evaluate(s=>seriesFixture.remote({...s,scene:'opening',seriesRound:' Semifinal '}),state);
+  assert.equal(await openingRound.textContent(),'SEMIFINAL');
+  assert.equal(await openingRound.getAttribute('hidden'),null);
+  await page.locator('#seriesRound').fill('Kvartsfinal');
+  assert.equal(await openingRound.textContent(),'KVARTSFINAL','Round updates from the studio input');
+  await page.locator('#seriesRound').fill('');
+  assert.notEqual(await openingRound.getAttribute('hidden'),null,'Blank round stays hidden');
   const presents={SV:'PRESENTERAR',en:'PRESENTS',fi:'ESITTÄÄ',de:'PRÄSENTIERT'}[lang];
   const presenter=page.locator('.opening>.eyebrow');
   await page.locator('#footerBrand').selectOption('sportsgamer');
