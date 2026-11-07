@@ -31,6 +31,7 @@ main{max-width:720px;margin:0 auto;padding:14px}
 .grid.single{grid-template-columns:1fr}
 .grid.lineups{grid-template-columns:repeat(2,minmax(0,1fr))}
 .group.live-group{padding-bottom:16px;border-bottom:1px solid var(--line)}
+.live-group #mobileFlipLiveTeams{min-height:40px;font-weight:700}
 button{appearance:none;border:1px solid #2a3d4c;background:#0b1924;color:#f1f6f9;border-radius:9px;min-height:58px;padding:10px 8px;font:900 12px/1.1 Arial,Helvetica,sans-serif;letter-spacing:.01em;touch-action:manipulation}
 button:active{transform:scale(.985)}
 button.active{border-color:var(--yellow);background:#17170d;color:var(--yellow);box-shadow:inset 0 0 0 1px #f4b21b55}
@@ -70,6 +71,7 @@ button[disabled].pending{cursor:wait;opacity:1}
   </div></section>
   <section class="group live-group"><h2 id="groupLive">LIVE</h2><div class="grid single">
     <button data-scene="live">Match Live</button>
+    <button type="button" id="mobileFlipLiveTeams" aria-pressed="false" disabled>Vänd lagrutan</button>
   </div></section>
   <section class="group"><h2 id="groupLineups">LAGUPPSTÄLLNINGAR</h2><div class="grid lineups">
     <button data-scene="lineup" data-lineup-side="home">Lineup H</button>
@@ -109,10 +111,11 @@ button[disabled].pending{cursor:wait;opacity:1}
       <label><span id="seriesHomeLabel">Hemmavinster</span><select id="mobileSeriesHome" disabled></select></label>
       <label><span id="seriesAwayLabel">Bortavinster</span><select id="mobileSeriesAway" disabled></select></label>
       <button type="submit" id="mobileSeriesSave" disabled>Spara vinstläge</button>
+      <button type="button" id="mobileSwapTeams" disabled>Byt hemma/borta</button>
       <p id="mobileSeriesStatus" role="status"></p>
     </form>
   </details>
   <div class="foot" id="footText">Hög och Låg gäller den aktiva scenen. Av ligger kvar vid scenbyte. Match Live är alltid utan musik.</div>
 </main>
-<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261107-mobile-series"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
+<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261107-team-order"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
 

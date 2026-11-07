@@ -13,7 +13,18 @@ try{
    const body=req.postDataJSON();writes.push(body);
    assert.equal(req.headers().authorization,'Bearer fixture-token');
    if(deny)return route.fulfill({status:403,body:'{}'});
-   if(req.url().endsWith('broadcast_studio_set_series_wins')){
+   if(req.url().endsWith('broadcast_studio_set_team_order')){
+    assert.deepEqual(Object.keys(body).sort(),['p_action','p_channel','p_expected']);
+    assert.equal(body.p_expected.home,state.home);
+    assert.equal(body.p_expected.away,state.away);
+    assert.equal(body.p_expected.liveTeamsReversed,state.liveTeamsReversed===true);
+    state.liveTeamsReversed=!state.liveTeamsReversed;
+    if(body.p_action==='swap'){
+     [state.home,state.away]=[state.away,state.home];
+     [state.seriesHome,state.seriesAway]=[state.seriesAway,state.seriesHome];
+     [state.hs,state.as]=[state.as,state.hs];
+    }else assert.equal(body.p_action,'live');
+   }else if(req.url().endsWith('broadcast_studio_set_series_wins')){
     assert.deepEqual(Object.keys(body).sort(),['p_away','p_channel','p_expected','p_home']);
     assert.equal(body.p_expected.seriesFormat,'5');
     assert.equal(body.p_expected.ticket,'fixture.ticket');
@@ -88,6 +99,22 @@ try{
  assert(await a.locator('[data-scene="live"]').isDisabled());
  state.publicNoMatch=false;
  await a.waitForFunction(()=>!document.querySelector('[data-scene="live"]').disabled,{timeout:5000});
+ deny=false;
+ assert(await a.locator('#mobileFlipLiveTeams').isDisabled(),'Live overlay control is scoped to Match Live');
+ await a.locator('[data-scene="live"]').click();
+ await a.locator('[data-scene="live"].active').waitFor();
+ const beforeFlip=structuredClone(state);
+ await a.locator('#mobileFlipLiveTeams').click();
+ await b.locator('#mobileFlipLiveTeams[aria-pressed="true"]').waitFor();
+ assert.deepEqual(state,{...beforeFlip,liveTeamsReversed:true},'Live flip only affects the overlay');
+ a.once('dialog',dialog=>dialog.accept());
+ await a.locator('#mobileSwapTeams').click();
+ await b.locator('#mobileFlipLiveTeams[aria-pressed="false"]').waitFor();
+ assert.equal(state.home,beforeFlip.away);
+ assert.equal(state.away,beforeFlip.home);
+ assert.equal(state.hs,beforeFlip.as);
+ assert.equal(state.seriesHome,beforeFlip.seriesAway);
+ assert.equal(state.twitchChannel,beforeFlip.twitchChannel);
  assert.deepEqual(errors,[]);console.log('PASS two controllers sync, scene-only RPC, scoped token, no load writes, preserved match data, mobile layout, offline/denied/expired locks');
 }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});

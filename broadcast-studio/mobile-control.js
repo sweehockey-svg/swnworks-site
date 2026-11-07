@@ -66,6 +66,14 @@ const matchStatus=document.getElementById("broadcastStatus");
 const seriesForm=document.getElementById("seriesEditor"),seriesSummary=document.getElementById("seriesSummary");
 const seriesHome=document.getElementById("mobileSeriesHome"),seriesAway=document.getElementById("mobileSeriesAway");
 const seriesSave=document.getElementById("mobileSeriesSave"),seriesStatus=document.getElementById("mobileSeriesStatus");
+const swapTeams=document.getElementById("mobileSwapTeams"),flipLiveTeams=document.getElementById("mobileFlipLiveTeams");
+const orderText=({
+ sv:["Byt hemma/borta","Vänd lagrutan","Hemma överst","Borta överst","Byta plats på hemma och borta i sändningen? Resultat, serievinst­er och uppställningar följer lagen.","Lagordningen uppdaterades.","Kunde inte ändra lagordningen. Kontrollera vilken match som är aktiv och försök igen."],
+ en:["Swap home/away","Flip live teams","Home on top","Away on top","Swap home and away in the broadcast? Scores, series wins and lineups stay with each team.","Team order updated.","Could not change team order. Check the active match and try again."],
+ fi:["Vaihda koti/vieras","Käännä livejärjestys","Koti ylimpänä","Vieras ylimpänä","Vaihdetaanko koti- ja vierasjoukkue? Tulokset, sarjavoitot ja kokoonpanot seuraavat joukkueita.","Joukkuejärjestys päivitetty.","Joukkuejärjestystä ei voitu vaihtaa. Tarkista aktiivinen ottelu."],
+ de:["Heim/Gast tauschen","Live-Teamfeld umdrehen","Heim oben","Gast oben","Heim und Gast in der Sendung tauschen? Spielstand, Seriensiege und Aufstellungen bleiben bei ihren Teams.","Teamreihenfolge aktualisiert.","Teamreihenfolge konnte nicht geändert werden. Prüfe das aktive Spiel."]
+})[LANG];
+swapTeams.textContent=orderText[0];
 const seriesText=({
  sv:["Serieläge","Bäst av","Hemmavinster","Bortavinster","Spara vinstläge","Sparat i sändningen.","Kunde inte spara. Kontrollera det aktuella vinstläget och försök igen.","Vinstläget eller matchen ändrades. Kontrollera siffrorna igen."],
  en:["Series score","Best of","Home wins","Away wins","Save series score","Saved on air.","Could not save. Check the current series score and try again.","The series score or match changed. Check the numbers again."],
@@ -77,6 +85,9 @@ const seriesExpected=s=>Object.fromEntries([...seriesFields.map(key=>[key,s?.[ke
 const seriesBest=s=>Number(s?.seriesFormat??5);
 const seriesLimit=s=>Math.ceil(seriesBest(s)/2);
 const seriesValid=s=>!!s?.home&&!!s?.away&&!!s?.transientSource?.ticket&&[3,5,7].includes(seriesBest(s));
+const orderValid=s=>!!s?.home&&!!s?.away&&String(s.home)!==String(s.away)&&!!s?.transientSource?.ticket;
+const orderExpected=s=>({leagueId:s.leagueId??null,home:s.home,away:s.away,matchName:s.matchName??null,ticket:s.transientSource.ticket,
+ teamOrderRevision:s.teamOrderRevision??null,liveTeamsReversed:s.liveTeamsReversed===true});
 document.getElementById("seriesHomeLabel").textContent=seriesText[2];
 document.getElementById("seriesAwayLabel").textContent=seriesText[3];
 seriesSave.textContent=seriesText[4];
@@ -117,6 +128,11 @@ function controls(){
  const h=Number(seriesHome.value),a=Number(seriesAway.value),limit=seriesLimit(received);
  seriesSave.disabled=seriesHome.disabled||(h===limit&&a===limit)||
   (h===seriesWins(received?.seriesHome,received)&&a===seriesWins(received?.seriesAway,received));
+ swapTeams.disabled=locked||!orderValid(received);
+ flipLiveTeams.disabled=swapTeams.disabled||scene!=="live";
+ const reversed=received?.liveTeamsReversed===true;
+ flipLiveTeams.textContent=orderText[1]+" · "+orderText[reversed?3:2];
+ flipLiveTeams.setAttribute("aria-pressed",String(reversed));
 }
 function render(state){
  received=state;lastReceived=Date.now();
@@ -169,6 +185,30 @@ async function changeProgram(button,music=false){
 const setScene=button=>changeProgram(button);
 buttons.forEach(b=>{b.disabled=true;b.addEventListener("click",()=>void setScene(b));});
 musicButtons.forEach(b=>b.addEventListener("click",()=>void changeProgram(b,true)));
+async function changeTeamOrder(action){
+ controls();
+ const button=action==="swap"?swapTeams:flipLiveTeams;
+ if(button.disabled)return;
+ const args={p_channel:CHANNEL,p_expected:orderExpected(received),p_action:action};
+ if(action==="swap"&&!window.confirm(orderText[4]))return;
+ busy=true;revision++;controls();setConnection(T.sending,"busy");
+ try{
+  const session=await window.SWNStudioAccess.session();
+  const res=await request(base()+"/rest/v1/rpc/broadcast_studio_set_team_order",{method:"POST",headers:headers(session.access_token),body:JSON.stringify(args)});
+  if(!res.ok)throw new Error("HTTP "+res.status);
+  const state=await res.json();
+  if(!state||typeof state!=="object"||Array.isArray(state))throw new Error("No program state");
+  render(state);
+  if(action==="swap")seriesStatus.textContent=orderText[5];
+  setConnection(T.sent,"ok");
+ }catch{
+  ready=false;
+  (action==="swap"?seriesStatus:matchStatus).textContent=orderText[6];
+  setConnection(T.error);
+ }finally{busy=false;controls();}
+}
+swapTeams.addEventListener("click",()=>void changeTeamOrder("swap"));
+flipLiveTeams.addEventListener("click",()=>void changeTeamOrder("live"));
 seriesForm.addEventListener("change",()=>{seriesForm.dataset.dirty="true";seriesStatus.textContent="";controls();});
 seriesForm.addEventListener("submit",async event=>{
  event.preventDefault();
