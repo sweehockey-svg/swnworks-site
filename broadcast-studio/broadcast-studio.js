@@ -443,8 +443,16 @@ window.SWNViewerBridge=(()=>{
   }
   function renderTeamCompare() {
     const sides=["home","away"].map(side=>({side,t:selectedTeam(side)}));
-    const vals=(x,key)=>{const r=stage(x.t,"regular"),p=stage(x.t,"playoffs"); if(key==="WIN%") return [rate(r.total_wins,r.games_played,true),rate(p.total_wins,p.games_played,true)]; if(key==="GF/G") return [rate(r.goals_for,r.games_played),rate(p.goals_for,p.games_played)]; if(key==="GA/G") return [rate(r.goals_against,r.games_played),rate(p.goals_against,p.games_played)]; return [stat(r[key]),stat(p[key])];};
-    const rows=[["WIN%","WIN%"],["GF/G",tx("goalsPerGame")],["GA/G",tx("goalsAgainstPerGame")],["goal_difference",tx("goalDiff")]];
+    const [gamesLabel,recordLabel]=({sv:["SPELADE MATCHER","VINSTER–FÖRLUSTER"],en:["GAMES PLAYED","WINS–LOSSES"],fi:["PELATTU","VOITOT–TAPPIOT"],de:["SPIELE","SIEGE–NIEDERLAGEN"]})[LOCALE]||["GAMES PLAYED","WINS–LOSSES"];
+    const vals=(x,key)=>["regular","playoffs"].map(phase=>{
+      const s=stage(x.t,phase);
+      if(key==="RECORD")return number(s.total_wins)===null||number(s.losses)===null?"–":stat(s.total_wins)+"–"+stat(s.losses);
+      if(key==="WIN%")return rate(s.total_wins,s.games_played,true);
+      if(key==="GF/G")return rate(s.goals_for,s.games_played);
+      if(key==="GA/G")return rate(s.goals_against,s.games_played);
+      return stat(s[key]);
+    });
+    const rows=[["games_played",gamesLabel],["RECORD",recordLabel],["WIN%","WIN%"],["GF/G",tx("goalsPerGame")],["GA/G",tx("goalsAgainstPerGame")],["goal_difference",tx("goalDiff")]];
     const sideHead=x=>'<div class="tc-team">'+(logo(x.t)?'<img src="'+esc(logo(x.t))+'" alt="">':"")+'<b>'+esc(x.t.team_name_in_league)+'</b></div>';
     $("#teamCompare").innerHTML=sideHead(sides[0])+'<div class="tc-center"><div class="tc-cols"><span>'+tx("group")+'</span><span>'+tx("playoffs")+'</span><i></i><span>'+tx("group")+'</span><span>'+tx("playoffs")+'</span></div>'+rows.map(r=>{const a=vals(sides[0],r[0]),b=vals(sides[1],r[0]);return '<div class="tc-row"><b>'+a[0]+'</b><b>'+a[1]+'</b><span>'+r[1]+'</span><b>'+b[0]+'</b><b>'+b[1]+'</b></div>'}).join("")+'</div>'+sideHead(sides[1]);
   }

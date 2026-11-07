@@ -7,7 +7,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   await page.setContent('<base href="https://series.test/broadcast-studio/">'+read(lang+'/index.html').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link\b[^>]*>/g,'').replace(/<base\b[^>]*>/g,''));
   await page.addStyleTag({content:read('broadcast-studio.css')});await page.evaluate(()=>{window.EHOCKEY_CONFIG={};});
   await page.addScriptTag({content:read('studio-language.js')});
-  await page.addScriptTag({content:read('broadcast-studio.js').replace('  function studioState(){','  window.seriesFixture={state:()=>studioState(),remote:s=>applyRemoteState(s)};\n  function studioState(){')});
+  await page.addScriptTag({content:read('broadcast-studio.js').replace('  function studioState(){','  window.seriesFixture={state:()=>studioState(),remote:s=>applyRemoteState(s),compare:teams=>{const prior=data.teams;data.teams=teams;renderTeamCompare();data.teams=prior;}};\n  function studioState(){')});
   await page.evaluate(()=>seriesFixture.remote({...seriesFixture.state(),scene:'lineup'}));
   await page.locator('.lineup .players').evaluate(grid=>{
    const card=document.createElement('div');
@@ -37,7 +37,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert.equal(await page.locator('.live-team-strip .awayTeam .live-series-wins .won').count(),1);
   }
   const state=await page.evaluate(()=>seriesFixture.state());assert.equal(state.liveSeriesShow,true);
-  await page.evaluate(s=>seriesFixture.remote({...s,graphicsPackage:'gamenight'}),state);
+  await page.evaluate(s=>seriesFixture.remote({...s,scene:'teamcompare',graphicsPackage:'gamenight'}),state);
   const duelCards=await page.locator('.tc-team,.goalie-person,.key-person').evaluateAll(cards=>cards.map(card=>({
    background:getComputedStyle(card).backgroundImage,border:getComputedStyle(card).borderColor
   })));
@@ -46,6 +46,19 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert(card.background.includes('rgba(2, 12, 21, 0.98)'),lang+' duel card uses dark Game Night surface');
    assert.equal(card.border,'rgba(255, 189, 0, 0.42)');
   }
+  const comparisonRows=()=>page.locator('#teamCompare .tc-row').evaluateAll(rows=>rows.map(row=>[...row.querySelectorAll('b')].map(el=>el.textContent)));
+  assert.deepEqual((await comparisonRows()).slice(0,2),[['–','–','–','–'],['–','–','–','–']]);
+  await page.evaluate(()=>seriesFixture.compare([
+   {sports_gamer_team_id:'',team_name_in_league:'Test',statistics_stage:'regular',games_played:14,total_wins:12,losses:2},
+   {sports_gamer_team_id:'',team_name_in_league:'Test',statistics_stage:'playoffs',games_played:4,total_wins:3,losses:1}
+  ]));
+  const compare=await comparisonRows();
+  assert.equal(compare.length,6);
+  assert.deepEqual(compare.slice(0,3),[['14','4','14','4'],['12–2','3–1','12–2','3–1'],['86%','75%','86%','75%']]);
+  assert(await page.locator('#teamCompare').evaluate(grid=>{
+   const center=grid.querySelector('.tc-center').offsetHeight;
+   return center>0&&[...grid.querySelectorAll('.tc-team')].every(card=>Math.abs(card.offsetHeight-center)<=1);
+  }),lang+' team cards align with the six-row table');
   await page.evaluate(s=>seriesFixture.remote({...s,scene:'live',seriesFormat:'5',seriesHome:'1',seriesAway:'0',liveSeriesShow:true}),state);
   assert.equal(await page.locator('.homeTeam .live-series-wins .won').count(),1);assert.equal(await page.locator('.awayTeam .live-series-wins .won').count(),0);
   assert.equal(await page.locator('.live-team-strip.has-series-wins').count(),1);
