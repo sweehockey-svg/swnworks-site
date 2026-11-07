@@ -56,7 +56,7 @@ as $function$
   join public.events e on e.id = eb.event_id
   left join public.venues v on v.id = e.venue_id
   where eb.band_id = p_band_id
-    and e.event_type = 'concert'
+    and e.event_type in ('concert', 'festival', 'release_party')
     and exists (
       select 1
       from public.claim_entities ce
