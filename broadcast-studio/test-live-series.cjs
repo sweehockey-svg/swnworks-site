@@ -20,7 +20,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    flag:getComputedStyle(card.querySelector('.player-flag')).transform,
    stats:getComputedStyle(card.querySelector('.player-info')).transform
   }));
-  assert.equal(lineupCrop.zoom,1.84,lang+' portrait zoom');
+  assert.equal(lineupCrop.zoom,2.22,lang+' portrait zoom');
   assert.equal(lineupCrop.flag,'none','Flag stays at its original size');
   assert.equal(lineupCrop.stats,'none','Name and stats stay at their original size');
   assert.equal(await page.locator('[data-scene="defense"],.scene.defense').count(),2);
