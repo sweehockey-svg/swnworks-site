@@ -2734,17 +2734,17 @@ body[data-background="gamenight"] .background-package-layer{
 body[data-background="gamenight"] .screen.arena-mist-enabled:is([data-arena-scene="opening"],[data-arena-scene="matchup"],[data-arena-scene="intermission"])>.background-package-layer::before,
 body[data-background="gamenight"] .screen.arena-mist-enabled:is([data-arena-scene="opening"],[data-arena-scene="matchup"],[data-arena-scene="intermission"])>.background-package-layer::after{
   content:"";position:absolute;pointer-events:none;
-  width:110%;height:22%;left:-12%;bottom:16%;
+  width:96%;height:23%;left:-7%;bottom:16%;
   background:url("assets/arena-mist.svg") center / 100% 100% no-repeat;
-  opacity:.29;animation:arena-mist-drift 27s ease-in-out infinite alternate;
+  opacity:.55;animation:arena-mist-drift 10s ease-in-out -3s infinite alternate;
 }
 body[data-background="gamenight"] .screen.arena-mist-enabled:is([data-arena-scene="opening"],[data-arena-scene="matchup"],[data-arena-scene="intermission"])>.background-package-layer::after{
-  left:8%;bottom:20%;height:25%;opacity:.19;
-  animation:arena-mist-drift 34s ease-in-out -12s infinite alternate-reverse;
+  width:80%;left:22%;bottom:20%;height:25%;opacity:.42;
+  animation:arena-mist-drift 14s ease-in-out -6s infinite alternate-reverse;
 }
 @keyframes arena-mist-drift{
-  from{transform:translate3d(-9%,2%,0) scale(1);opacity:.18}
-  to{transform:translate3d(12%,-7%,0) scale(1.08,1.14);opacity:.33}
+  from{transform:translate3d(-22%,5%,0) scale(1);opacity:.45}
+  to{transform:translate3d(23%,-9%,0) scale(1.1,1.14);opacity:.72}
 }
 @media(prefers-reduced-motion:reduce){
   body[data-background="gamenight"] .screen.arena-mist-enabled>.background-package-layer::before,

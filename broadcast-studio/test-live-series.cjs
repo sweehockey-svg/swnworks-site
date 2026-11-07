@@ -29,10 +29,13 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   assert.equal(await page.locator('#arenaMist').isChecked(),false,'Existing matches default to still background');
   await page.locator('#arenaMist').check();
   assert.equal(await page.evaluate(()=>seriesFixture.state().arenaMist),true,'Checkbox serializes to OBS state');
-  const mistStyle=()=>page.locator('.background-package-layer').evaluate(el=>{const style=getComputedStyle(el,'::before');return {content:style.content,animation:style.animationName};});
+  const mistStyle=()=>page.locator('.background-package-layer').evaluate(el=>{const style=getComputedStyle(el,'::before');return {content:style.content,animation:style.animationName,duration:style.animationDuration,opacity:Number(style.opacity)};});
   for(const scene of ['opening','matchup','intermission']){
    await page.evaluate(({s,scene})=>seriesFixture.remote({...s,scene,backgroundPackage:'gamenight',arenaMist:true}),{s:state,scene});
-   assert.equal((await mistStyle()).animation,'arena-mist-drift',lang+' '+scene);
+   const mist=await mistStyle();
+   assert.equal(mist.animation,'arena-mist-drift',lang+' '+scene);
+   assert.equal(mist.duration,'10s','Mist should travel noticeably over a few seconds');
+   assert(mist.opacity>=.45,'Moving layer must not be too faint against baked-in smoke');
   }
   await page.emulateMedia({reducedMotion:'reduce'});
   assert.equal((await mistStyle()).animation,'none','Reduced motion suppresses movement');
@@ -43,5 +46,13 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   }
   assert.deepEqual(errors,[],lang);await page.close();
  }
- console.log('PASS SV/EN/FI/DE: BO3/5/7, win counts, serialization, remote sync, off/legacy states and unchanged 162x72 live strip. Isolated browser; no production writes.');
+ const motionPage=await browser.newPage({viewport:{width:1920,height:1080},reducedMotion:'no-preference'});
+ await motionPage.setContent('<body data-background="gamenight"><div class="screen arena-mist-enabled" data-arena-scene="opening" style="position:relative;width:1000px;height:563px"><div class="background-package-layer"></div></div></body>');
+ await motionPage.route('**/*',r=>r.abort());
+ await motionPage.addStyleTag({content:read('broadcast-studio.css')});
+ const mistX=()=>motionPage.locator('.background-package-layer').evaluate(el=>new DOMMatrixReadOnly(getComputedStyle(el,'::before').transform).m41/el.offsetWidth);
+ const start=await mistX();
+ await motionPage.waitForFunction(start=>{const el=document.querySelector('.background-package-layer');return Math.abs(new DOMMatrixReadOnly(getComputedStyle(el,'::before').transform).m41/el.offsetWidth-start)>.1;},start,{timeout:3000});
+ await motionPage.close();
+ console.log('PASS SV/EN/FI/DE: series display, OBS state, mist motion and scene restrictions. Isolated browser; no production writes.');
 }finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});
