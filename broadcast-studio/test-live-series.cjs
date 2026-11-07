@@ -39,6 +39,14 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   const state=await page.evaluate(()=>seriesFixture.state());assert.equal(state.liveSeriesShow,true);
   const showSeries=(home,seriesHome)=>page.evaluate(({s,home,seriesHome})=>seriesFixture.remote({...s,home,away:'222',scene:'series',graphicsPackage:'gamenight',backgroundPackage:'gamenight',arenaMist:true,seriesFormat:'5',seriesHome,seriesAway:'0'}),{s:state,home,seriesHome});
   await showSeries('111','1');
+  const seriesStyle=await page.locator('.series-board').evaluate(board=>({
+   background:getComputedStyle(board).backgroundImage,
+   outline:getComputedStyle(board).borderTopWidth,
+   namePlate:getComputedStyle(board.querySelector('.series-team>b')).clipPath
+  }));
+  assert.equal(seriesStyle.background,'none','Game Night series has no large blue panel');
+  assert.equal(seriesStyle.outline,'0px');
+  assert.match(seriesStyle.namePlate,/^polygon/,'Team names use the Opening-style nameplate');
   assert.equal(await page.locator('.series-dots .new-win').count(),0,'Initial series state does not pulse');
   await showSeries('111','2');
   const wonPulse=page.locator('#seriesHomeDots .new-win');
