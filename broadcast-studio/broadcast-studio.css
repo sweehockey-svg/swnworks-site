@@ -2762,15 +2762,19 @@ body[data-background="gamenight"] .screen.arena-mist-enabled:not(.live-mode) .ar
   display:block;position:absolute;inset:0;overflow:hidden;pointer-events:none;
   mask-image:linear-gradient(90deg,#000 8%,transparent 22%,transparent 78%,#000 92%);
 }
-.arena-edge-lights::before,.arena-edge-lights::after{
-  content:"";position:absolute;top:-12%;height:126%;width:1.15%;
+.arena-edge-lights>i{
+  position:absolute;top:-12%;height:126%;width:1.15%;
   transform:skewX(-27deg);transform-origin:center top;
   background:radial-gradient(ellipse at center,rgba(255,239,166,.82),rgba(255,190,43,.42) 32%,transparent 72%) center 155% / 100% 36% no-repeat;
   filter:drop-shadow(0 0 5px rgba(255,183,30,.45));
   animation:arena-edge-pulse 10s ease-in-out infinite;
 }
-.arena-edge-lights::before{left:15%}
-.arena-edge-lights::after{left:111%;animation-duration:13s;animation-delay:-6s}
+.arena-edge-lights>i:nth-child(1){left:9.5%;width:.55%;opacity:.65;animation-duration:12s;animation-delay:-3s}
+.arena-edge-lights>i:nth-child(2){left:15%;animation-delay:-5s}
+.arena-edge-lights>i:nth-child(3){left:20%;width:.7%;opacity:.70;animation-duration:15s;animation-delay:-11s}
+.arena-edge-lights>i:nth-child(4){left:103%;width:.65%;opacity:.75;animation-duration:11s;animation-delay:-2s}
+.arena-edge-lights>i:nth-child(5){left:108%;animation-duration:13s;animation-delay:-7s}
+.arena-edge-lights>i:nth-child(6){left:113%;width:.55%;opacity:.60;animation-duration:16s;animation-delay:-10s}
 @keyframes arena-edge-pulse{
   0%,12%{background-position:center 155%}
   78%,100%{background-position:center -60%}

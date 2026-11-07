@@ -103,7 +103,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   await page.locator('#arenaMist').check();
   assert.equal(await page.evaluate(()=>seriesFixture.state().arenaMist),true,'Checkbox serializes to OBS state');
   const mistStyle=()=>page.locator('.background-package-layer').evaluate(el=>{const style=getComputedStyle(el,'::before');return {content:style.content,animation:style.animationName,duration:style.animationDuration,opacity:Number(style.opacity),display:getComputedStyle(el).display};});
-  const edgeLight=()=>page.locator('.arena-edge-lights').evaluate(el=>({display:getComputedStyle(el).display,animation:getComputedStyle(el,'::before').animationName}));
+  const edgeLight=()=>page.locator('.arena-edge-lights').evaluate(el=>({display:getComputedStyle(el).display,animations:[...el.children].map(light=>getComputedStyle(light).animationName),timings:[...el.children].map(light=>getComputedStyle(light).animationDelay)}));
   const scenes=await page.locator('[data-scene]').evaluateAll(buttons=>[...new Set(buttons.map(b=>b.dataset.scene))].filter(scene=>scene!=='live'));
   for(const scene of [...scenes,'idle','nextmatch']){
    await page.evaluate(({s,scene})=>seriesFixture.remote({...s,scene,backgroundPackage:'gamenight',arenaMist:true}),{s:state,scene});
@@ -114,7 +114,10 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert.equal(mist.duration,'10s','Mist should travel noticeably over a few seconds');
    assert(mist.opacity>=.45,'Moving layer must not be too faint against baked-in smoke');
    assert.equal(mist.display,'block',lang+' '+scene);
-   assert.deepEqual(await edgeLight(),{display:'block',animation:'arena-edge-pulse'});
+   const lights=await edgeLight();
+   assert.equal(lights.display,'block');
+   assert.deepEqual(lights.animations,Array(6).fill('arena-edge-pulse'));
+   assert.equal(new Set(lights.timings).size,6,'Edge pulses are staggered');
   }
   await page.emulateMedia({reducedMotion:'reduce'});
   assert.equal((await mistStyle()).animation,'none','Reduced motion suppresses movement');
