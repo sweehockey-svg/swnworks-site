@@ -2576,6 +2576,9 @@ body[data-graphics="gamenight"] .scorer-side,
 body[data-graphics="gamenight"] .lb-side,
 body[data-graphics="gamenight"] .form-card,
 body[data-graphics="gamenight"] .role-card,
+body[data-graphics="gamenight"] .tc-team,
+body[data-graphics="gamenight"] .goalie-person,
+body[data-graphics="gamenight"] .key-person,
 body[data-graphics="gamenight"] .spotlight-player{
   background:linear-gradient(145deg,rgba(8,31,47,.97),rgba(2,12,21,.98))!important;
   border-color:rgba(255,189,0,.42)!important;

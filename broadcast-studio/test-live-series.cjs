@@ -37,6 +37,15 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert.equal(await page.locator('.live-team-strip .awayTeam .live-series-wins .won').count(),1);
   }
   const state=await page.evaluate(()=>seriesFixture.state());assert.equal(state.liveSeriesShow,true);
+  await page.evaluate(s=>seriesFixture.remote({...s,graphicsPackage:'gamenight'}),state);
+  const duelCards=await page.locator('.tc-team,.goalie-person,.key-person').evaluateAll(cards=>cards.map(card=>({
+   background:getComputedStyle(card).backgroundImage,border:getComputedStyle(card).borderColor
+  })));
+  assert.equal(duelCards.length,6);
+  for(const card of duelCards){
+   assert(card.background.includes('rgba(2, 12, 21, 0.98)'),lang+' duel card uses dark Game Night surface');
+   assert.equal(card.border,'rgba(255, 189, 0, 0.42)');
+  }
   await page.evaluate(s=>seriesFixture.remote({...s,scene:'live',seriesFormat:'5',seriesHome:'1',seriesAway:'0',liveSeriesShow:true}),state);
   assert.equal(await page.locator('.homeTeam .live-series-wins .won').count(),1);assert.equal(await page.locator('.awayTeam .live-series-wins .won').count(),0);
   assert.equal(await page.locator('.live-team-strip.has-series-wins').count(),1);
