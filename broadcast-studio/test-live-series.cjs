@@ -8,6 +8,21 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   await page.addStyleTag({content:read('broadcast-studio.css')});await page.evaluate(()=>{window.EHOCKEY_CONFIG={};});
   await page.addScriptTag({content:read('studio-language.js')});
   await page.addScriptTag({content:read('broadcast-studio.js').replace('  function studioState(){','  window.seriesFixture={state:()=>studioState(),remote:s=>applyRemoteState(s)};\n  function studioState(){')});
+  await page.evaluate(()=>seriesFixture.remote({...seriesFixture.state(),scene:'lineup'}));
+  await page.locator('.lineup .players').evaluate(grid=>{
+   const card=document.createElement('div');
+   card.className='player';
+   card.innerHTML='<img alt=""><div class="player-info lineup-stage-info"><strong><span class="lineup-meta">#27 <img class="player-flag" alt=""></span><span class="lineup-gt">Testspelare</span></strong><small>14 GP · 3 G · 10 A<br>4 GP · 2 G · 3 A</small></div>';
+   grid.replaceChildren(card);
+  });
+  const lineupCrop=await page.locator('.lineup .player').evaluate(card=>({
+   zoom:new DOMMatrixReadOnly(getComputedStyle(card.firstElementChild).transform).a,
+   flag:getComputedStyle(card.querySelector('.player-flag')).transform,
+   stats:getComputedStyle(card.querySelector('.player-info')).transform
+  }));
+  assert.equal(lineupCrop.zoom,1.84,lang+' portrait zoom');
+  assert.equal(lineupCrop.flag,'none','Flag stays at its original size');
+  assert.equal(lineupCrop.stats,'none','Name and stats stay at their original size');
   assert.equal(await page.locator('[data-scene="defense"],.scene.defense').count(),2);
   assert.equal(await page.locator('[data-scene="lowerthird"],.scene.lowerthird').count(),0);
   await page.evaluate(()=>seriesFixture.remote({...seriesFixture.state(),scene:'defense'}));
