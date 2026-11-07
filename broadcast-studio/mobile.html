@@ -28,6 +28,9 @@ header{position:sticky;top:0;z-index:10;background:rgba(6,17,26,.96);backdrop-fi
 main{max-width:720px;margin:0 auto;padding:14px}
 .group{margin:0 0 18px}.group h2{margin:0 0 8px;color:#8296a5;font-size:9px;letter-spacing:.18em}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.grid.single{grid-template-columns:1fr}
+.grid.lineups{grid-template-columns:repeat(2,minmax(0,1fr))}
+.group.live-group{padding-bottom:16px;border-bottom:1px solid var(--line)}
 button{appearance:none;border:1px solid #2a3d4c;background:#0b1924;color:#f1f6f9;border-radius:9px;min-height:58px;padding:10px 8px;font:900 12px/1.1 Arial,Helvetica,sans-serif;letter-spacing:.01em;touch-action:manipulation}
 button:active{transform:scale(.985)}
 button.active{border-color:var(--yellow);background:#17170d;color:var(--yellow);box-shadow:inset 0 0 0 1px #f4b21b55}
@@ -54,39 +57,45 @@ button[disabled].pending{cursor:wait;opacity:1}
     <button type="button" data-music="low" aria-pressed="false" disabled>Låg</button>
     <button type="button" data-music="off" aria-pressed="false" disabled>Av</button>
   </div></section>
-  <section class="group"><h2 id="groupBroadcast">SÄNDNING</h2><div class="grid">
-    <button data-scene="live">Match Live</button>
-    <button data-scene="intermission">Paus</button>
+  <section class="group"><h2 id="groupBroadcast">START</h2><div class="grid single">
     <button data-scene="opening">Opening</button>
-    <button data-scene="series">Serieläge</button>
   </div></section>
-
-  <section class="group"><h2 id="groupMatch">MATCH</h2><div class="grid">
-    <button data-scene="matchup">Matchup</button>
+  <section class="group live-group"><h2 id="groupLive">LIVE</h2><div class="grid single">
+    <button data-scene="live">Match Live</button>
+  </div></section>
+  <section class="group"><h2 id="groupLineups">LAGUPPSTÄLLNINGAR</h2><div class="grid lineups">
     <button data-scene="lineup" data-lineup-side="home">Lineup H</button>
     <button data-scene="lineup" data-lineup-side="away">Lineup B</button>
+  </div></section>
+
+  <section class="group"><h2 id="groupMatch">MATCH &amp; PAUS</h2><div class="grid">
+    <button data-scene="matchup">Matchup</button>
+    <button data-scene="intermission">Paus</button>
     <button data-scene="stats">Stats</button>
-    <button data-scene="table">Tabell</button>
     <button data-scene="teamcompare">Lagduell</button>
-    <button data-scene="scorers">Poängliga</button>
+    <button data-scene="series">Serieläge</button>
+    <button data-scene="road">Slutspelsvägen</button>
+  </div></section>
+
+  <section class="group"><h2 id="groupStats">TABELL &amp; TOPPLISTOR</h2><div class="grid">
+    <button data-scene="table">Tabell</button>
     <button data-scene="formguide">Form</button>
+    <button data-scene="scorers">Poängliga</button>
     <button data-scene="offense">Offensiv</button>
     <button data-scene="defenseleaders">Backar</button>
     <button data-scene="goalieleaders">Målvaktsliga</button>
-    <button data-scene="road">Bronsvägen</button>
   </div></section>
 
   <section class="group"><h2 id="groupPlayers">SPELARE / OVERLAYS</h2><div class="grid">
-    <button data-scene="leaders">Spelare</button>
-    <button data-scene="lowerthird">Lower third</button>
     <button data-scene="forwards">Forwards</button>
-    <button data-scene="defense">Blue Line</button>
     <button data-scene="goalies">Goalies</button>
     <button data-scene="keymatchup">Key Matchup</button>
     <button data-scene="spotlight">Spotlight</button>
+    <button data-scene="leaders">Spelare</button>
+    <button data-scene="lowerthird">Lower third</button>
   </div></section>
 
   <div class="foot" id="footText">Hög och Låg gäller den aktiva scenen. Av ligger kvar vid scenbyte. Match Live är alltid utan musik.</div>
 </main>
-<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261107-sticky-music-off"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
+<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261107-scene-order"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
 

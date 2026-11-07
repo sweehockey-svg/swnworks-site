@@ -28,6 +28,10 @@ try{
  });
  async function open(){const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto('https://fixture.invalid/mobile.html');await page.evaluate(()=>{window.EHOCKEY_CONFIG={supabaseUrl:'https://fixture.invalid',supabasePublishableKey:'fixture-key'};window.SWNStudioAccess={session:async()=>({access_token:'fixture-token'})};});await page.addScriptTag({content:fs.readFileSync(__dirname+'/mobile-control.js','utf8')});await page.waitForFunction(()=>document.querySelector('[data-scene="live"]').disabled===false);return page;}
  const a=await open(),b=await open();assert.equal(writes.length,0,'opening never changes program');
+ assert.deepEqual(await a.locator('[data-scene]').evaluateAll(buttons=>buttons.slice(0,4).map(b=>[b.dataset.scene,b.dataset.lineupSide||null])),[['opening',null],['live',null],['lineup','home'],['lineup','away']]);
+ assert.equal(await a.locator('.live-group [data-scene]').count(),1);
+ assert.equal(await a.locator('[data-scene="defense"]').count(),0);
+ assert.equal(await a.locator('[data-scene="defenseleaders"]').count(),1,'Backar remains available');
  assert(await a.locator('[data-music="high"]').isDisabled(),'Music is locked in Match Live');
  await a.locator('[data-scene="lineup"][data-lineup-side="away"]').click();await a.locator('[data-scene="lineup"][data-lineup-side="away"].active').waitFor();
  await b.locator('[data-scene="lineup"][data-lineup-side="away"].active').waitFor({timeout:5000});
