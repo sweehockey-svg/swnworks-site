@@ -8,8 +8,11 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   await page.addStyleTag({content:read('broadcast-studio.css')});await page.evaluate(()=>{window.EHOCKEY_CONFIG={};});
   await page.addScriptTag({content:read('studio-language.js')});
   await page.addScriptTag({content:read('broadcast-studio.js').replace('  function studioState(){','  window.seriesFixture={state:()=>studioState(),remote:s=>applyRemoteState(s)};\n  function studioState(){')});
-  assert.equal(await page.locator('[data-scene="defense"],.scene.defense').count(),0);
+  assert.equal(await page.locator('[data-scene="defense"],.scene.defense').count(),2);
+  assert.equal(await page.locator('[data-scene="lowerthird"],.scene.lowerthird').count(),0);
   await page.evaluate(()=>seriesFixture.remote({...seriesFixture.state(),scene:'defense'}));
+  assert.equal(await page.evaluate(()=>seriesFixture.state().scene),'defense','Blue Line remains selectable');
+  await page.evaluate(()=>seriesFixture.remote({...seriesFixture.state(),scene:'lowerthird'}));
   assert.equal(await page.evaluate(()=>seriesFixture.state().scene),'matchup','Retired scene safely falls back to Matchup');
   assert.equal(await page.locator('#showLiveSeries').count(),1);assert.equal(await page.locator('#showLiveSeries').isChecked(),false);
   for(const [bo,need] of [[3,2],[5,3],[7,4]]){

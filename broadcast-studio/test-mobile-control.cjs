@@ -30,7 +30,8 @@ try{
  const a=await open(),b=await open();assert.equal(writes.length,0,'opening never changes program');
  assert.deepEqual(await a.locator('[data-scene]').evaluateAll(buttons=>buttons.slice(0,4).map(b=>[b.dataset.scene,b.dataset.lineupSide||null])),[['opening',null],['live',null],['lineup','home'],['lineup','away']]);
  assert.equal(await a.locator('.live-group [data-scene]').count(),1);
- assert.equal(await a.locator('[data-scene="defense"]').count(),0);
+ assert.equal(await a.locator('[data-scene="defense"]').count(),1);
+ assert.equal(await a.locator('[data-scene="lowerthird"]').count(),0);
  assert.equal(await a.locator('[data-scene="defenseleaders"]').count(),1,'Backar remains available');
  assert(await a.locator('[data-music="high"]').isDisabled(),'Music is locked in Match Live');
  await a.locator('[data-scene="lineup"][data-lineup-side="away"]').click();await a.locator('[data-scene="lineup"][data-lineup-side="away"].active').waitFor();
