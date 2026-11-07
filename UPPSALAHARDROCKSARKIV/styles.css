@@ -1564,3 +1564,14 @@ body.network-body-fullscreen { overflow:hidden; }
   .band-concert { grid-template-columns:1fr; gap:7px; padding:17px 0; }
   .band-concert-main > strong { font-size:18px; }
 }
+
+
+/* Historical concerts reported by users and awaiting independent confirmation. */
+.band-concert-review {
+  align-self:flex-start; display:inline-block;
+  padding:3px 8px; border:1px solid var(--line-strong);
+  color:var(--muted); background:var(--bg-soft);
+  font-family:var(--condensed); font-weight:600;
+  font-size:11px; line-height:1.4; letter-spacing:.04em;
+  text-transform:uppercase;
+}
