@@ -2282,7 +2282,13 @@
     const otherBands = (Array.isArray(event.other_bands) ? event.other_bands : [])
       .filter(name => typeof name === 'string' && name.trim())
       .map(name => name.trim());
-    const isUnverified = event.verification_status === 'probable';
+    const isConfirmed = event.verification_status === 'confirmed';
+    const hasSetlistSource = (Array.isArray(event.sources) ? event.sources : [])
+      .some(source => typeof source.url === 'string' && /^https?:\/\/(?:www\.)?setlist\.fm\//i.test(source.url));
+    const evidenceStatus = isConfirmed ? 'Dokumenterad'
+      : hasSetlistSource ? 'Registrerad på setlist.fm'
+      : 'Källuppgift under granskning';
+    const uncertaintyNote = typeof event.uncertainty_note === 'string' ? event.uncertainty_note.trim() : '';
     const sources = (Array.isArray(event.sources) ? event.sources : [])
       .filter(source => typeof source.url === 'string' && /^https?:\/\//i.test(source.url))
       .map(source => '<a href="' + escapeHtml(source.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(source.title || 'Visa källa') + '</a>')
@@ -2294,13 +2300,14 @@
       + '<span class="band-concert-subline">'
       + (location ? '<span class="band-concert-place">' + escapeHtml(location) + '</span>' : '')
       + (otherBands.length ? '<span class="band-concert-other-bands">(' + otherBands.map(escapeHtml).join(', ') + ')</span>' : '')
-      + (isUnverified ? '<span class="band-concert-review">Uppgift att kontrollera</span>' : '')
       + '</span></span>'
       + '<span class="band-concert-toggle"><span class="band-concert-show-label">Mer info</span>'
       + '<span class="band-concert-hide-label">Stäng</span>'
       + '<span class="band-concert-chevron" aria-hidden="true"></span></span>'
       + '</summary>'
       + '<div class="band-concert-details">'
+      + '<div class="band-concert-evidence"><span>Källäge</span><strong>' + escapeHtml(evidenceStatus) + '</strong></div>'
+      + (uncertaintyNote ? '<p class="band-concert-uncertainty"><strong>Osäkert datum eller spelställe:</strong> ' + escapeHtml(uncertaintyNote) + '</p>' : '')
       + (event.description ? '<p>' + escapeHtml(event.description) + '</p>' : '')
       + (sources ? '<div class="band-concert-sources"><span>Källor</span>' + sources + '</div>' : '')
       + '</div></details>';
@@ -2361,7 +2368,7 @@
           <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${rels.length ? rels.map(r => releaseRow(r, {compact:true})).join('') : '<div class="empty-state">Inga utgåvor registrerade ännu.</div>'}</div></section>
           <section class="content-section band-concert-section" id="band-concerts" data-band-id="${escapeHtml(b.id)}" hidden>
             <div class="content-head"><span>03</span><h2>Spelningar</h2></div>
-            <p class="band-concert-intro">Spelningarna har källhänvisningar. Användarinrapporterade uppgifter som ännu inte oberoende verifierats är märkta.</p>
+            <p class="band-concert-intro">Källor och eventuella osäkerheter visas under Mer info.</p>
             <div class="band-concert-list"></div>
           </section>
           ${youtubeSection(b)}
