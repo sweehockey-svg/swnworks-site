@@ -148,7 +148,7 @@
     'almost-human|eaten-by-the-machine':'assets/archive-media/releases/eaten-by-the-machine.gif',
     'almost-human|left-overs':'assets/archive-media/releases/left-overs.png',
     'the-unkinds|almost-human':'assets/archive-media/releases/the-unkinds-almost-human.jpg',
-    'the-unkinds|live-at-fellini-uppsala-02-20':'assets/archive-media/releases/live-at-fellini-uppsala-02-20.gif',
+    'the-unkinds|live-at-fellini-2003':'assets/archive-media/releases/live-at-fellini-uppsala-02-20.gif',
     'treebeard|the-eldest':'assets/archive-media/releases/the-eldest.jpg',
     'treebeard|no-padre-yes-padre':'assets/archive-media/releases/no-padre-yes-padre.gif',
     'treebeard|anguish-on-parade':'assets/archive-media/releases/anguish-on-parade.gif',
@@ -423,9 +423,9 @@
       ['assets/archive-media/gallery/the-unkinds/2003-almost-human-front.jpg','Almost Human · framsida'],
       ['assets/archive-media/gallery/the-unkinds/2003-almost-human-spread.jpg','Almost Human · spread']
     ],
-    'the-unkinds|live-at-fellini-uppsala-02-20': [
-      ['assets/archive-media/gallery/the-unkinds/2003-live-at-fellini-front.gif','Live at Fellini Uppsala 02-20 · framsida'],
-      ['assets/archive-media/gallery/the-unkinds/2003-live-at-fellini-back.gif','Live at Fellini Uppsala 02-20 · baksida']
+    'the-unkinds|live-at-fellini-2003': [
+      ['assets/archive-media/gallery/the-unkinds/2003-live-at-fellini-front.gif','Live at Fellini 2003 · framsida'],
+      ['assets/archive-media/gallery/the-unkinds/2003-live-at-fellini-back.gif','Live at Fellini 2003 · baksida']
     ],
     'treebeard|admiration': [
       ['assets/archive-media/gallery/treebeard/2008-admiration-inside.gif','Admiration · insida'],
@@ -1307,7 +1307,14 @@
     return state.people.find(x => slugify(x.canonical_name) === (aliases[slug] || slug))
       || state.people.find(x => personAliases(x).some(name => slugify(name) === slug));
   }
-  function findRelease(slug) { return state.releases.find(x => slugify(`${x.title}-${x.release_year || ''}`) === slug); }
+  function findRelease(slug) {
+    // Preserve bookmarks to the earlier catalogue title after the 2026-11-07 correction.
+    const aliases = {
+      'live-at-fellini-uppsala-02-20-2003': 'live-at-fellini-2003-2003'
+    };
+    const normalized = aliases[slug] || slug;
+    return state.releases.find(x => slugify(`${x.title}-${x.release_year || ''}`) === normalized);
+  }
 
   function pageHeader(kicker, title, lead = '', meta = '', extraClass = '') {
     return `<header class="page-hero${extraClass ? ' ' + escapeHtml(extraClass) : ''}">
