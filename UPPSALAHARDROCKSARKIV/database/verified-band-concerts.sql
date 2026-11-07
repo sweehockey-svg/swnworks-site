@@ -10,12 +10,8 @@
 alter table public.events
   add column if not exists public_uncertainty_note text;
 
-update public.events
-set public_uncertainty_note =
-  'Datumet behöver granskas: setlist.fm anger 15 september 2002, medan Kulturnatten i Uppsala 2002 hölls den 14 september. En uppgiven privat liveinspelning behöver jämföras med originaluppgifterna.',
-    updated_at = now()
-where id = '569c47ec-60fa-4a4e-985c-ce169ec91397'
-  and public_uncertainty_note is null;
+-- Previous fixed-date initialization removed: Stained Red's Kulturnatten event
+-- was conclusively corrected to 2002-09-14 at 24.00 in production.
 
 create or replace function public.get_public_band_concerts(p_band_id uuid)
 returns jsonb
@@ -55,18 +51,44 @@ as $function$
         ),
         'description', e.description,
         'uncertainty_note', e.public_uncertainty_note,
-        'verification_status', case when exists (
-          select 1
-          from public.claim_entities cce
-          join public.claims cc on cc.id = cce.claim_id
-          join public.claim_sources ccs on ccs.claim_id = cc.id
-          join public.sources ss on ss.id = ccs.source_id
-          where cce.entity_type = 'event'
-            and cce.entity_id = e.id
-            and cc.status = 'confirmed'
-            and cc.claim_type = 'live_performance'
-            and ss.url ~ '^https?://'
-        ) then 'confirmed' else 'probable' end,
+        'verification_status', case
+          -- When this particular band has sourced claims for the concert, use those
+          -- rather than claims for another band on the same bill.
+          when exists (
+            select 1 from public.claim_entities cce
+            join public.claims cc on cc.id = cce.claim_id
+            join public.claim_entities band_ce
+              on band_ce.claim_id = cc.id and band_ce.entity_type = 'band'
+              and band_ce.entity_id = eb.band_id
+            join public.claim_sources ccs on ccs.claim_id = cc.id
+            join public.sources ss on ss.id = ccs.source_id
+            where cce.entity_type = 'event' and cce.entity_id = e.id
+              and cc.claim_type = 'live_performance'
+              and cc.status = 'confirmed' and ss.url ~ '^https?://'
+          ) then 'confirmed'
+          when exists (
+            select 1 from public.claim_entities cce
+            join public.claims cc on cc.id = cce.claim_id
+            join public.claim_entities band_ce
+              on band_ce.claim_id = cc.id and band_ce.entity_type = 'band'
+              and band_ce.entity_id = eb.band_id
+            join public.claim_sources ccs on ccs.claim_id = cc.id
+            join public.sources ss on ss.id = ccs.source_id
+            where cce.entity_type = 'event' and cce.entity_id = e.id
+              and cc.claim_type = 'live_performance'
+              and cc.status = 'probable' and ss.url ~ '^https?://'
+          ) then 'probable'
+          when exists (
+            select 1 from public.claim_entities cce
+            join public.claims cc on cc.id = cce.claim_id
+            join public.claim_sources ccs on ccs.claim_id = cc.id
+            join public.sources ss on ss.id = ccs.source_id
+            where cce.entity_type = 'event' and cce.entity_id = e.id
+              and cc.claim_type = 'live_performance'
+              and cc.status = 'confirmed' and ss.url ~ '^https?://'
+          ) then 'confirmed'
+          else 'probable'
+        end,
         'sources', (
           select coalesce(jsonb_agg(jsonb_build_object('title', evidence.title, 'url', evidence.url) order by evidence.title), '[]'::jsonb)
           from (
