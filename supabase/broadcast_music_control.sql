@@ -1,4 +1,4 @@
--- The mobile controller may only change music for the current on-air scene.
+-- High/low set the active scene's level; off mutes across scene changes.
 create or replace function broadcast_control.set_music(p_channel text, p_scene text, p_mode text)
 returns jsonb
 language plpgsql
@@ -22,7 +22,8 @@ begin
   set state = jsonb_set(
     state, '{sceneMusic}',
     (case when jsonb_typeof(state->'sceneMusic') = 'object' then state->'sceneMusic' else '{}'::jsonb end)
-      || jsonb_build_object(p_scene, p_mode),
+      || case when p_mode = 'off' then jsonb_build_object('muted', true)
+              else jsonb_build_object('muted', false, p_scene, p_mode) end,
     true
   ), updated_at = clock_timestamp()
   where channel = p_channel

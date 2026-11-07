@@ -16,7 +16,7 @@ try{
    if(req.url().endsWith('broadcast_studio_set_music')){
     assert.deepEqual(Object.keys(body).sort(),['p_channel','p_mode','p_scene']);
     if(body.p_scene!==state.scene||state.scene==='live')return route.fulfill({status:400,body:'{}'});
-    state.sceneMusic={...state.sceneMusic,[body.p_scene]:body.p_mode};
+    state.sceneMusic=body.p_mode==='off'?{...state.sceneMusic,muted:true}:{...state.sceneMusic,muted:false,[body.p_scene]:body.p_mode};
    }else{
     assert.deepEqual(Object.keys(body).sort(),['p_channel','p_lineup_side','p_scene']);
     state.scene=body.p_scene;if(body.p_scene==='lineup')state.lineupSide=body.p_lineup_side;
@@ -35,13 +35,15 @@ try{
  assert.equal(await a.locator('[data-music="low"]').getAttribute('aria-pressed'),'true');
  await a.locator('[data-music="off"]').click();
  await b.locator('[data-music="off"][aria-pressed="true"]').waitFor({timeout:5000});
- assert.deepEqual(state.sceneMusic,{goalies:'off'});
+ assert.deepEqual(state.sceneMusic,{muted:true});
  await b.locator('[data-scene="opening"]').click();
  await a.locator('[data-scene="opening"].active').waitFor({timeout:5000});
- assert.equal(await a.locator('[data-music="high"]').getAttribute('aria-pressed'),'true');
+ assert.equal(await a.locator('[data-music="off"]').getAttribute('aria-pressed'),'true');
+ await a.locator('[data-music="high"]').click();
+ await b.locator('[data-music="high"][aria-pressed="true"]').waitFor({timeout:5000});
  await a.locator('[data-scene="goalies"]').click();
  await a.locator('[data-scene="goalies"].active').waitFor();
- assert.equal(await a.locator('[data-music="off"]').getAttribute('aria-pressed'),'true');
+ assert.equal(await a.locator('[data-music="low"]').getAttribute('aria-pressed'),'true');
  const {scene,lineupSide,sceneMusic,...rest}=state,{scene:oldScene,lineupSide:oldSide,...oldRest}=original;assert.deepEqual(rest,oldRest,'match data preserved');assert(writes.every(x=>x.p_channel==='sec21-bronze-test'));
  assert(await a.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile fits viewport');
  if(process.env.MOBILE_TEST_SCREENSHOT)await a.screenshot({path:process.env.MOBILE_TEST_SCREENSHOT,fullPage:true});

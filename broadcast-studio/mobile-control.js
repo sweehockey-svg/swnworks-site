@@ -8,28 +8,28 @@ const I18N={
  sv:{
   brand:"SVENSK eHOCKEY",sub:"MOBIL SCENSTYRNING",active:"AKTIV SCEN",connecting:"ANSLUTER",connected:"ANSLUTEN",sending:"BYTER…",sent:"SKICKAT",offline:"OFFLINE",error:"FEL",
   broadcast:"SÄNDNING",match:"MATCH",players:"SPELARE / OVERLAYS",
-  foot:"Byt scen eller ställ in musik för den aktiva scenen. Match Live har alltid musiken av.",
+  foot:"Hög och Låg gäller den aktiva scenen. Av ligger kvar vid scenbyte. Match Live är alltid utan musik.",
   music:["MUSIK · AKTIV SCEN","Hög","Låg","Av","Musikvalet kunde inte sparas. Kontrollera anslutningen och vilken scen som är aktiv."],
   labels:{opening:"Opening",live:"Match Live",matchup:"Matchup",series:"Serieläge",lineup:"Lineup",stats:"Stats",table:"Tabell",teamcompare:"Lagduell",scorers:"Poängliga",formguide:"Form",offense:"Offensiv",defenseleaders:"Backar",goalieleaders:"Målvaktsliga",road:"Slutspelsvägen",leaders:"Spelare",intermission:"Paus",lowerthird:"Lower third",forwards:"Forwards",defense:"Blue Line",goalies:"Goalies",keymatchup:"Key Matchup",spotlight:"Spotlight"}
  },
  fi:{
   brand:"SPORTSGAMER",sub:"MOBIILIOHJAUS",active:"AKTIIVINEN NÄKYMÄ",connecting:"YHDISTETÄÄN",connected:"YHDISTETTY",sending:"VAIHDETAAN…",sent:"LÄHETETTY",offline:"OFFLINE",error:"VIRHE",
   broadcast:"LÄHETYS",match:"OTTELU",players:"PELAAJAT / GRAFIIKAT",
-  foot:"Vaihda näkymää tai säädä aktiivisen näkymän musiikkia. Live-ottelussa ei ole musiikkia.",
+  foot:"Korkea ja matala koskevat aktiivista näkymää. Pois pysyy voimassa näkymän vaihtuessa. Live-ottelussa ei ole musiikkia.",
   music:["MUSIIKKI · AKTIIVINEN NÄKYMÄ","Korkea","Matala","Pois","Musiikkivalintaa ei voitu tallentaa. Tarkista yhteys ja aktiivinen näkymä."],
   labels:{opening:"Avaus",live:"Live-ottelu",matchup:"Vertailu",series:"Sarjatilanne",lineup:"Kokoonpano",stats:"Tilastot",table:"Taulukko",teamcompare:"Joukkuevertailu",scorers:"Pistepörssi",formguide:"Vire",offense:"Hyökkäys",defenseleaders:"Puolustajat",goalieleaders:"Maalivahdit",road:"Pudotuspelitie",leaders:"Pelaajat",intermission:"Tauko",lowerthird:"Nimigrafiikka",forwards:"Hyökkääjät",defense:"Puolustajat",goalies:"Maalivahdit",keymatchup:"Avainvertailu",spotlight:"Nosto"}
  },
  de:{
   brand:"SPORTSGAMER",sub:"MOBILE REGIE",active:"AKTIVE SZENE",connecting:"VERBINDET",connected:"VERBUNDEN",sending:"WECHSELT…",sent:"GESENDET",offline:"OFFLINE",error:"FEHLER",
   broadcast:"SENDUNG",match:"SPIEL",players:"SPIELER / OVERLAYS",
-  foot:"Wechsle die Szene oder stelle die Musik für die aktive Szene ein. Das Live-Spiel bleibt ohne Musik.",
+  foot:"Laut und Leise gelten für die aktive Szene. Aus bleibt beim Szenenwechsel aktiv. Das Live-Spiel bleibt ohne Musik.",
   music:["MUSIK · AKTIVE SZENE","Laut","Leise","Aus","Die Musikeinstellung konnte nicht gespeichert werden. Prüfe Verbindung und aktive Szene."],
   labels:{opening:"Opening",live:"Live-Spiel",matchup:"Vergleich",series:"Serie",lineup:"Aufstellung",stats:"Statistik",table:"Tabelle",teamcompare:"Teamvergleich",scorers:"Punkteliga",formguide:"Form",offense:"Offensive",defenseleaders:"Verteidiger",goalieleaders:"Torhüter",road:"Playoff-Weg",leaders:"Spieler",intermission:"Pause",lowerthird:"Bauchbinde",forwards:"Stürmer",defense:"Blue Line",goalies:"Goalies",keymatchup:"Schlüsselduell",spotlight:"Fokus"}
  },
  en:{
   brand:"SPORTSGAMER",sub:"MOBILE CONTROL",active:"ACTIVE SCENE",connecting:"CONNECTING",connected:"CONNECTED",sending:"SWITCHING…",sent:"SENT",offline:"OFFLINE",error:"ERROR",
   broadcast:"BROADCAST",match:"MATCH",players:"PLAYERS / OVERLAYS",
-  foot:"Switch scenes or set music for the active scene. Match Live is always music-free.",
+  foot:"High and Low apply to the active scene. Off stays on across scene changes. Match Live is always music-free.",
   music:["MUSIC · ACTIVE SCENE","High","Low","Off","Music could not be saved. Check the connection and active scene."],
   labels:{opening:"Opening",live:"Match Live",matchup:"Matchup",series:"Series",lineup:"Lineup",stats:"Stats",table:"Standings",teamcompare:"Team Compare",scorers:"Scoring",formguide:"Form",offense:"Offense",defenseleaders:"Defense",goalieleaders:"Goalies",road:"Playoff Road",leaders:"Players",intermission:"Intermission",lowerthird:"Lower third",forwards:"Forwards",defense:"Blue Line",goalies:"Goalies",keymatchup:"Key Matchup",spotlight:"Spotlight"}
  }
@@ -71,7 +71,7 @@ function controls(){
  buttons.forEach(b=>{b.disabled=locked;b.title=locked&&!busy?matchStatus.textContent:(b.dataset.shortcut||"");});
  const scene=received?.scene,saved=received?.sceneMusic?.[scene];
  const enabled=musicEnabled(scene);
- const mode=!enabled?"off":["high","low","off"].includes(saved)?saved:scene==="opening"?"high":"low";
+ const mode=!enabled||received?.sceneMusic?.muted===true?"off":["high","low","off"].includes(saved)?saved:scene==="opening"?"high":"low";
  musicButtons.forEach(b=>{
   b.disabled=locked||!enabled;
   b.classList.toggle("active",b.dataset.music===mode);

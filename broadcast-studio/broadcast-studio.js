@@ -69,10 +69,10 @@ window.SWNViewerBridge=(()=>{
   const musicScenes=[...new Set($$("[data-scene]").map(button=>button.dataset.scene))].filter(scene=>scene!=="live");
   const musicVolume={high:.32,low:.10};
   const musicLabels={
-    sv:["Bakgrundsmusik","Scen","Volym","Av","Låg","Hög","Musik av Aztrozmurfen"],
-    en:["Background music","Scene","Volume","Off","Low","High","Music by Aztrozmurfen"],
-    fi:["Taustamusiikki","Näkymä","Äänenvoimakkuus","Pois","Matala","Korkea","Musiikki: Aztrozmurfen"],
-    de:["Hintergrundmusik","Szene","Lautstärke","Aus","Leise","Laut","Musik von Aztrozmurfen"]
+    sv:["Bakgrundsmusik","Scen","Volym","Av (alla scener)","Låg","Hög","Musik av Aztrozmurfen"],
+    en:["Background music","Scene","Volume","Off (all scenes)","Low","High","Music by Aztrozmurfen"],
+    fi:["Taustamusiikki","Näkymä","Äänenvoimakkuus","Pois kaikista","Matala","Korkea","Musiikki: Aztrozmurfen"],
+    de:["Hintergrundmusik","Szene","Lautstärke","Aus (alle Szenen)","Leise","Laut","Musik von Aztrozmurfen"]
   };
   const musicText=musicLabels[LOCALE]||musicLabels.en;
   const musicCredit=document.createElement("div");
@@ -81,10 +81,11 @@ window.SWNViewerBridge=(()=>{
   musicCredit.hidden=true;
   $("#screen")?.append(musicCredit);
   let sceneMusic={},musicAudio=null,musicStart=null,musicPlaying=false,musicViewerMuted=true;
-  const musicMode=(scene,settings=sceneMusic)=>!musicScenes.includes(scene)?"off":
+  const musicMode=(scene,settings=sceneMusic)=>settings.muted===true||!musicScenes.includes(scene)?"off":
     ["high","low","off"].includes(settings?.[scene])?settings[scene]:scene==="opening"?"high":"low";
   function setSceneMusic(settings){
     sceneMusic=Object.fromEntries(musicScenes.filter(scene=>["high","low","off"].includes(settings?.[scene])).map(scene=>[scene,settings[scene]]));
+    if(settings?.muted===true)sceneMusic.muted=true;
     syncMusicControl();
   }
   function syncMusicControl(follow=false){
@@ -158,7 +159,7 @@ window.SWNViewerBridge=(()=>{
     });
     scene.addEventListener("change",()=>syncMusicControl());
     level.addEventListener("change",()=>{
-      setSceneMusic({...sceneMusic,[scene.value]:level.value});
+      setSceneMusic(level.value==="off"?{...sceneMusic,muted:true}:{...sceneMusic,muted:false,[scene.value]:level.value});
       syncSceneMusic();
       publishState();
     });
