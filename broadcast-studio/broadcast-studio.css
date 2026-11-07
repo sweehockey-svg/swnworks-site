@@ -2729,6 +2729,27 @@ body[data-background="gamenight"] .background-package-layer{
 .screen.live-mode>.background-package-layer{
   display:none!important;
 }
+
+/* A low drifting mist behind the graphics, never over the match feed. */
+body[data-background="gamenight"] .screen.arena-mist-enabled:is([data-arena-scene="opening"],[data-arena-scene="matchup"],[data-arena-scene="intermission"])>.background-package-layer::before,
+body[data-background="gamenight"] .screen.arena-mist-enabled:is([data-arena-scene="opening"],[data-arena-scene="matchup"],[data-arena-scene="intermission"])>.background-package-layer::after{
+  content:"";position:absolute;pointer-events:none;
+  width:110%;height:22%;left:-12%;bottom:16%;
+  background:url("assets/arena-mist.svg") center / 100% 100% no-repeat;
+  opacity:.29;animation:arena-mist-drift 27s ease-in-out infinite alternate;
+}
+body[data-background="gamenight"] .screen.arena-mist-enabled:is([data-arena-scene="opening"],[data-arena-scene="matchup"],[data-arena-scene="intermission"])>.background-package-layer::after{
+  left:8%;bottom:20%;height:25%;opacity:.19;
+  animation:arena-mist-drift 34s ease-in-out -12s infinite alternate-reverse;
+}
+@keyframes arena-mist-drift{
+  from{transform:translate3d(-9%,2%,0) scale(1);opacity:.18}
+  to{transform:translate3d(12%,-7%,0) scale(1.08,1.14);opacity:.33}
+}
+@media(prefers-reduced-motion:reduce){
+  body[data-background="gamenight"] .screen.arena-mist-enabled>.background-package-layer::before,
+  body[data-background="gamenight"] .screen.arena-mist-enabled>.background-package-layer::after{animation:none!important}
+}
 .screen>.texture,
 .screen>.top,
 .screen>.scene,

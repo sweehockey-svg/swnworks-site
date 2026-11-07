@@ -26,6 +26,21 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   if(lang==='SV'&&process.env.SERIES_TEST_SCREENSHOT){await page.locator('#screen').screenshot({path:process.env.SERIES_TEST_SCREENSHOT});}
   await page.evaluate(s=>seriesFixture.remote({...s,scene:'live',liveSeriesShow:false}),state);assert.equal(await page.locator('.live-team-strip.has-series-wins').count(),0);
   await page.evaluate(s=>{delete s.liveSeriesShow;seriesFixture.remote(s);},state);assert.equal(await page.locator('#showLiveSeries').isChecked(),false,'Old state must not enable series marks');
+  assert.equal(await page.locator('#arenaMist').isChecked(),false,'Existing matches default to still background');
+  await page.locator('#arenaMist').check();
+  assert.equal(await page.evaluate(()=>seriesFixture.state().arenaMist),true,'Checkbox serializes to OBS state');
+  const mistStyle=()=>page.locator('.background-package-layer').evaluate(el=>{const style=getComputedStyle(el,'::before');return {content:style.content,animation:style.animationName};});
+  for(const scene of ['opening','matchup','intermission']){
+   await page.evaluate(({s,scene})=>seriesFixture.remote({...s,scene,backgroundPackage:'gamenight',arenaMist:true}),{s:state,scene});
+   assert.equal((await mistStyle()).animation,'arena-mist-drift',lang+' '+scene);
+  }
+  await page.emulateMedia({reducedMotion:'reduce'});
+  assert.equal((await mistStyle()).animation,'none','Reduced motion suppresses movement');
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  for(const [scene,backgroundPackage,arenaMist] of [['live','gamenight',true],['table','gamenight',true],['opening','broadcast',true],['opening','gamenight',false]]){
+   await page.evaluate(s=>seriesFixture.remote(s),{...state,scene,backgroundPackage,arenaMist});
+   assert.equal((await mistStyle()).content,'none','No mist outside opted-in Game Night presentation scenes');
+  }
   assert.deepEqual(errors,[],lang);await page.close();
  }
  console.log('PASS SV/EN/FI/DE: BO3/5/7, win counts, serialization, remote sync, off/legacy states and unchanged 162x72 live strip. Isolated browser; no production writes.');
