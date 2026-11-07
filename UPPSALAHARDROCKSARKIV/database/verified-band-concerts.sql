@@ -3,6 +3,18 @@
 -- The underlying events, event_bands, venues, claims and sources tables remain private.
 -- Structured other_acts (external guest performers) are combined with linked event_bands,
 -- excluding the band whose profile is open. No inferred bands from free text.
+-- Public caveats are independently curated and explicitly allowed for publication.
+-- Private research notes remain private and are never returned from the RPC.
+alter table public.events
+  add column if not exists public_uncertainty_note text;
+
+update public.events
+set public_uncertainty_note =
+  'Datumet behöver granskas: setlist.fm anger 15 september 2002, medan Kulturnatten i Uppsala 2002 hölls den 14 september. En uppgiven privat liveinspelning behöver jämföras med originaluppgifterna.',
+    updated_at = now()
+where id = '569c47ec-60fa-4a4e-985c-ce169ec91397'
+  and public_uncertainty_note is null;
+
 create or replace function public.get_public_band_concerts(p_band_id uuid)
 returns jsonb
 language sql
@@ -40,6 +52,7 @@ as $function$
           ) guest
         ),
         'description', e.description,
+        'uncertainty_note', e.public_uncertainty_note,
         'verification_status', case when exists (
           select 1
           from public.claim_entities cce

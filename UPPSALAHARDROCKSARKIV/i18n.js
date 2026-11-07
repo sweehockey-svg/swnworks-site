@@ -15,6 +15,13 @@
   "Person": "Person",
   "Utgåvor": "Releases",
   "Spelningar": "Live shows",
+  "Dokumenterad": "Documented",
+  "Registrerad på setlist.fm": "Listed on setlist.fm",
+  "Källuppgift under granskning": "Source information under review",
+  "Osäkert datum eller spelställe:": "Uncertain date or venue:",
+  "Källor och eventuella osäkerheter visas under Mer info.": "Sources and any uncertainties are available under Details.",
+  "Datumet behöver granskas: setlist.fm anger 15 september 2002, medan Kulturnatten i Uppsala 2002 hölls den 14 september. En uppgiven privat liveinspelning behöver jämföras med originaluppgifterna.": "The date needs review: setlist.fm lists September 15, 2002, while Uppsala's Culture Night took place on September 14, 2002. A reported private live recording needs to be compared with the original documentation.",
+
   "Spelställe ej dokumenterat": "Venue not documented",
   "Sverige": "Sweden",
   "Stäng": "Close",
