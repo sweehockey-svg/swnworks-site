@@ -429,7 +429,7 @@ window.ARCHIVE_RELEASE_COVERS = {
   "f5213218-bea5-4bbb-8098-12a63b863ee0": {
     "src": "assets/release-covers/f5213218-bea5-4bbb-8098-12a63b863ee0.svg",
     "sourceUrl": "https://desecrate.se/JS/releases/2003-the-unkinds-live-at-fellini-uppsala-02-20.html",
-    "label": "The Unkinds — Live at Fellini Uppsala 02-20"
+    "label": "The Unkinds — Live at Fellini 2003"
   },
   "517d803d-9e0f-4476-9725-b319d44bf8d2": {
     "src": "assets/release-covers/517d803d-9e0f-4476-9725-b319d44bf8d2.svg",
