@@ -37,7 +37,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert.equal(await page.locator('.live-team-strip .awayTeam .live-series-wins .won').count(),1);
   }
   const state=await page.evaluate(()=>seriesFixture.state());assert.equal(state.liveSeriesShow,true);
-  await page.evaluate(s=>seriesFixture.remote({...s,scene:'teamcompare',graphicsPackage:'gamenight'}),state);
+  await page.evaluate(s=>seriesFixture.remote({...s,scene:'teamcompare',graphicsPackage:'gamenight',backgroundPackage:'gamenight',arenaMist:true}),state);
   const duelCards=await page.locator('.tc-team,.goalie-person,.key-person').evaluateAll(cards=>cards.map(card=>({
    background:getComputedStyle(card).backgroundImage,border:getComputedStyle(card).borderColor
   })));
@@ -49,7 +49,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   const comparisonRows=()=>page.locator('#teamCompare .tc-row').evaluateAll(rows=>rows.map(row=>[...row.querySelectorAll('b')].map(el=>el.textContent)));
   assert.deepEqual((await comparisonRows()).slice(0,2),[['–','–','–','–'],['–','–','–','–']]);
   await page.evaluate(()=>seriesFixture.compare([
-   {sports_gamer_team_id:'',team_name_in_league:'Test',statistics_stage:'regular',games_played:14,total_wins:12,losses:2},
+   {sports_gamer_team_id:'',team_name_in_league:'Test',team_logo_in_league:'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%221%22%2F%3E',statistics_stage:'regular',games_played:14,total_wins:12,losses:2},
    {sports_gamer_team_id:'',team_name_in_league:'Test',statistics_stage:'playoffs',games_played:4,total_wins:3,losses:1}
   ]));
   const compare=await comparisonRows();
@@ -59,6 +59,15 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    const center=grid.querySelector('.tc-center').offsetHeight;
    return center>0&&[...grid.querySelectorAll('.tc-team')].every(card=>Math.abs(card.offsetHeight-center)<=1);
   }),lang+' team cards align with the six-row table');
+  const duelCard=page.locator('#teamCompare .tc-team').first();
+  assert.equal(await duelCard.locator('img').evaluate(logo=>logo.offsetHeight),168);
+  const light=()=>duelCard.evaluate(card=>getComputedStyle(card,'::before').animationName);
+  assert.equal(await light(),'team-duel-light');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  assert.equal(await light(),'none');
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.locator('#arenaMist').uncheck();
+  assert.equal(await light(),'none','Light follows the same motion toggle as mist');
   await page.evaluate(s=>seriesFixture.remote({...s,scene:'live',seriesFormat:'5',seriesHome:'1',seriesAway:'0',liveSeriesShow:true}),state);
   assert.equal(await page.locator('.homeTeam .live-series-wins .won').count(),1);assert.equal(await page.locator('.awayTeam .live-series-wins .won').count(),0);
   assert.equal(await page.locator('.live-team-strip.has-series-wins').count(),1);
