@@ -9,18 +9,42 @@ try{
  const html=fs.readFileSync(__dirname+'/mobile.html','utf8').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link[^>]*>/g,'').replace(' data-studio-locked','');
  await context.route('https://fixture.invalid/**',async route=>{
   const req=route.request();
-  if(req.url().includes('/rpc/')){const body=req.postDataJSON();writes.push(body);assert.deepEqual(Object.keys(body).sort(),['p_channel','p_lineup_side','p_scene']);assert.equal(req.headers().authorization,'Bearer fixture-token');if(deny)return route.fulfill({status:403,body:'{}'});state.scene=body.p_scene;if(body.p_scene==='lineup')state.lineupSide=body.p_lineup_side;return route.fulfill({contentType:'application/json',body:JSON.stringify(state)});}
+  if(req.url().includes('/rpc/')){
+   const body=req.postDataJSON();writes.push(body);
+   assert.equal(req.headers().authorization,'Bearer fixture-token');
+   if(deny)return route.fulfill({status:403,body:'{}'});
+   if(req.url().endsWith('broadcast_studio_set_music')){
+    assert.deepEqual(Object.keys(body).sort(),['p_channel','p_mode','p_scene']);
+    if(body.p_scene!==state.scene||state.scene==='live')return route.fulfill({status:400,body:'{}'});
+    state.sceneMusic={...state.sceneMusic,[body.p_scene]:body.p_mode};
+   }else{
+    assert.deepEqual(Object.keys(body).sort(),['p_channel','p_lineup_side','p_scene']);
+    state.scene=body.p_scene;if(body.p_scene==='lineup')state.lineupSide=body.p_lineup_side;
+   }
+   return route.fulfill({contentType:'application/json',body:JSON.stringify(state)});
+  }
   if(req.url().includes('/rest/'))return route.fulfill({status:offline?503:200,contentType:'application/json',body:JSON.stringify([{state}])});
   return route.fulfill({contentType:'text/html',body:html});
  });
  async function open(){const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto('https://fixture.invalid/mobile.html');await page.evaluate(()=>{window.EHOCKEY_CONFIG={supabaseUrl:'https://fixture.invalid',supabasePublishableKey:'fixture-key'};window.SWNStudioAccess={session:async()=>({access_token:'fixture-token'})};});await page.addScriptTag({content:fs.readFileSync(__dirname+'/mobile-control.js','utf8')});await page.waitForFunction(()=>document.querySelector('[data-scene="live"]').disabled===false);return page;}
  const a=await open(),b=await open();assert.equal(writes.length,0,'opening never changes program');
+ assert(await a.locator('[data-music="high"]').isDisabled(),'Music is locked in Match Live');
  await a.locator('[data-scene="lineup"][data-lineup-side="away"]').click();await a.locator('[data-scene="lineup"][data-lineup-side="away"].active').waitFor();
  await b.locator('[data-scene="lineup"][data-lineup-side="away"].active').waitFor({timeout:5000});
  await b.locator('[data-scene="goalies"]').click();await a.locator('[data-scene="goalies"].active').waitFor({timeout:5000});
- const {scene,lineupSide,...rest}=state,{scene:oldScene,lineupSide:oldSide,...oldRest}=original;assert.deepEqual(rest,oldRest,'match data preserved');assert(writes.every(x=>x.p_channel==='sec21-bronze-test'));
+ assert.equal(await a.locator('[data-music="low"]').getAttribute('aria-pressed'),'true');
+ await a.locator('[data-music="off"]').click();
+ await b.locator('[data-music="off"][aria-pressed="true"]').waitFor({timeout:5000});
+ assert.deepEqual(state.sceneMusic,{goalies:'off'});
+ await b.locator('[data-scene="opening"]').click();
+ await a.locator('[data-scene="opening"].active').waitFor({timeout:5000});
+ assert.equal(await a.locator('[data-music="high"]').getAttribute('aria-pressed'),'true');
+ await a.locator('[data-scene="goalies"]').click();
+ await a.locator('[data-scene="goalies"].active').waitFor();
+ assert.equal(await a.locator('[data-music="off"]').getAttribute('aria-pressed'),'true');
+ const {scene,lineupSide,sceneMusic,...rest}=state,{scene:oldScene,lineupSide:oldSide,...oldRest}=original;assert.deepEqual(rest,oldRest,'match data preserved');assert(writes.every(x=>x.p_channel==='sec21-bronze-test'));
  assert(await a.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile fits viewport');
- await a.screenshot({path:__dirname+'/mobile-control-preview.png',fullPage:true});
+ if(process.env.MOBILE_TEST_SCREENSHOT)await a.screenshot({path:process.env.MOBILE_TEST_SCREENSHOT,fullPage:true});
  offline=true;await a.waitForFunction(()=>document.querySelector('#connectionText').textContent==='OFFLINE',{timeout:5000});assert(await a.locator('[data-scene="live"]').isDisabled());
  offline=false;await a.waitForFunction(()=>!document.querySelector('[data-scene="live"]').disabled,{timeout:5000});
  deny=true;const deniedResponse=a.waitForResponse(r=>r.url().includes('/rpc/')&&r.status()===403);await a.locator('[data-scene="stats"]').click();await deniedResponse;

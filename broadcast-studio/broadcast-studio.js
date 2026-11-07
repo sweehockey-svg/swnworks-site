@@ -66,35 +66,38 @@ window.SWNViewerBridge=(()=>{
     window.addEventListener("resize", fitObsPreview);
   }
   let activeScene = "opening", remoteApplying = false, remoteTimer = 0;
-  const musicScenes=["opening","matchup","intermission"],musicVolume={high:.32,low:.10};
+  const musicScenes=[...new Set($$("[data-scene]").map(button=>button.dataset.scene))].filter(scene=>scene!=="live");
+  const musicVolume={high:.32,low:.10};
   const musicLabels={
-    sv:["Bakgrundsmusik","Opening","Matchup","Paus","Av","Låg","Hög","Musik av Aztrozmurfen"],
-    en:["Background music","Opening","Matchup","Intermission","Off","Low","High","Music by Aztrozmurfen"],
-    fi:["Taustamusiikki","Avaus","Ottelupari","Tauko","Pois","Matala","Korkea","Musiikki: Aztrozmurfen"],
-    de:["Hintergrundmusik","Eröffnung","Begegnung","Pause","Aus","Leise","Laut","Musik von Aztrozmurfen"]
+    sv:["Bakgrundsmusik","Scen","Volym","Av","Låg","Hög","Musik av Aztrozmurfen"],
+    en:["Background music","Scene","Volume","Off","Low","High","Music by Aztrozmurfen"],
+    fi:["Taustamusiikki","Näkymä","Äänenvoimakkuus","Pois","Matala","Korkea","Musiikki: Aztrozmurfen"],
+    de:["Hintergrundmusik","Szene","Lautstärke","Aus","Leise","Laut","Musik von Aztrozmurfen"]
   };
   const musicText=musicLabels[LOCALE]||musicLabels.en;
   const musicCredit=document.createElement("div");
   musicCredit.className="scene-music-credit";
-  musicCredit.textContent=musicText[7];
+  musicCredit.textContent=musicText[6];
   musicCredit.hidden=true;
   $("#screen")?.append(musicCredit);
   let sceneMusic={},musicAudio=null,musicStart=null,musicPlaying=false,musicViewerMuted=true;
+  const musicMode=(scene,settings=sceneMusic)=>!musicScenes.includes(scene)?"off":
+    ["high","low","off"].includes(settings?.[scene])?settings[scene]:scene==="opening"?"high":"low";
   function setSceneMusic(settings){
-    sceneMusic=Object.fromEntries(musicScenes.map(scene=>{
-      const mode=settings?.[scene];
-      return [scene,mode==="high"||mode==="low"?mode:"off"];
-    }));
-    for(const scene of musicScenes){
-      const select=$("#music-"+scene);
-      if(select)select.value=sceneMusic[scene];
-    }
+    sceneMusic=Object.fromEntries(musicScenes.filter(scene=>["high","low","off"].includes(settings?.[scene])).map(scene=>[scene,settings[scene]]));
+    syncMusicControl();
+  }
+  function syncMusicControl(follow=false){
+    const scene=$("#music-scene"),level=$("#music-level");
+    if(!scene||!level)return;
+    if(follow&&musicScenes.includes(activeScene))scene.value=activeScene;
+    level.value=musicMode(scene.value);
   }
   function renderMusicCredit(){
-    musicCredit.hidden=activeScene!=="opening"||!musicVolume[sceneMusic.opening]||(OBS_MODE&&!PREVIEW_MODE&&!musicPlaying);
+    musicCredit.hidden=activeScene!=="opening"||musicMode("opening")==="off"||(OBS_MODE&&!PREVIEW_MODE&&!musicPlaying);
   }
   function syncSceneMusic(){
-    const volume=musicVolume[sceneMusic[activeScene]]||0;
+    const volume=musicVolume[musicMode(activeScene)]||0;
     if(!OBS_MODE||PREVIEW_MODE){renderMusicCredit();return;}
     if(!volume||(VIEWER_MODE&&musicViewerMuted)){
       musicPlaying=false;
@@ -110,7 +113,7 @@ window.SWNViewerBridge=(()=>{
       musicAudio=new Audio("/broadcast-studio/assets/aztrozmurfen-superhero.mp3");
       musicAudio.loop=true;
       musicAudio.addEventListener("playing",()=>{
-        musicPlaying=!musicAudio.paused&&!!musicVolume[sceneMusic[activeScene]]&&(!VIEWER_MODE||!musicViewerMuted);
+        musicPlaying=!musicAudio.paused&&musicMode(activeScene)!=="off"&&(!VIEWER_MODE||!musicViewerMuted);
         if(musicPlaying)document.documentElement.dataset.sceneMusic="playing";
         renderMusicCredit();
       });
@@ -123,7 +126,7 @@ window.SWNViewerBridge=(()=>{
     if(musicAudio.paused&&!musicStart){
       musicStart=musicAudio.play().then(()=>{musicStart=null;},error=>{
         musicStart=null;
-        if(!musicVolume[sceneMusic[activeScene]]||(VIEWER_MODE&&musicViewerMuted))return;
+        if(musicMode(activeScene)==="off"||(VIEWER_MODE&&musicViewerMuted))return;
         if(error.name==="AbortError"){syncSceneMusic();return;}
         document.documentElement.dataset.sceneMusic=error.name==="NotAllowedError"?"blocked":"unavailable";
       });
@@ -141,26 +144,26 @@ window.SWNViewerBridge=(()=>{
     });
   }
   function installSceneMusic(){
-    setSceneMusic();
     if(OBS_MODE||VIEWER_MODE)return;
     const controls=document.createElement("fieldset"),title=document.createElement("legend");
     controls.className="scene-music-controls";
     title.textContent=musicText[0]+" · Superhero";
     controls.append(title);
-    musicScenes.forEach((scene,i)=>{
-      const label=document.createElement("label"),select=document.createElement("select");
-      label.textContent=musicText[i+1];
-      select.id="music-"+scene;
-      ["off","low","high"].forEach((mode,n)=>select.add(new Option(musicText[4+n],mode)));
-      select.addEventListener("change",()=>{
-        setSceneMusic({...sceneMusic,[scene]:select.value});
-        syncSceneMusic();
-        publishState();
-      });
-      label.append(select);
-      controls.append(label);
+    const scene=document.createElement("select"),level=document.createElement("select");
+    scene.id="music-scene";level.id="music-level";
+    for(const name of musicScenes)scene.add(new Option($(`[data-scene="${name}"]`)?.textContent.trim()||name,name));
+    ["off","low","high"].forEach((mode,n)=>level.add(new Option(musicText[3+n],mode)));
+    [scene,level].forEach((select,i)=>{
+      const label=document.createElement("label");label.textContent=musicText[i+1];label.append(select);controls.append(label);
+    });
+    scene.addEventListener("change",()=>syncMusicControl());
+    level.addEventListener("change",()=>{
+      setSceneMusic({...sceneMusic,[scene.value]:level.value});
+      syncSceneMusic();
+      publishState();
     });
     $("#theme")?.closest(".theme-control")?.append(controls);
+    syncMusicControl(true);
   }
   let displayedLineupSide = "home", sceneTransitionTimer = 0, lineupTransitionTimer = 0;
   const SLOTS = ["LW", "C", "RW", "LD", "G", "RD"];
@@ -740,6 +743,7 @@ window.SWNViewerBridge=(()=>{
     displayedLineupSide=next==="lineup"?nextSide:displayedLineupSide;
     document.querySelectorAll("[data-scene]").forEach(x=>x.classList.toggle("active",x.dataset.scene===next&&(!x.dataset.lineupSide||x.dataset.lineupSide===$("#lineupSide").value)));
     activeScene=next;
+    syncMusicControl(current!==target);
     syncSceneMusic();
     if($("#screen"))$("#screen").dataset.arenaScene=next;
     document.getElementById('screen')?.classList.toggle('no-match',next==='idle'||next==='nextmatch');
@@ -787,7 +791,7 @@ window.SWNViewerBridge=(()=>{
   // Preparing a match must never publish its state to the program output.
   let programState=null,programHeld=true,canResumeProgram=false,takeSequence=0;
   let directorSceneKey='',directorRevision=0,directorWrites=0,directorReading=false,directorRestoring=false;
-  const sceneKey=s=>JSON.stringify([s.scene,s.lineupSide||'home',!!s.publicNoMatch,s.publicNextMatch||null]);
+  const sceneKey=s=>JSON.stringify([s.scene,s.lineupSide||'home',!!s.publicNoMatch,s.publicNextMatch||null,s.sceneMusic||{}]);
   function holdProgram(){
     takeSequence++;
     if(!programHeld)programState=structuredClone(studioState());
@@ -891,8 +895,11 @@ window.SWNViewerBridge=(()=>{
       publicNextMatch=state.publicNextMatch||null;
       const side=state.lineupSide==='away'?'away':'home';
       if(!publicNoMatch&&[...document.querySelectorAll('[data-scene]')].some(button=>button.dataset.scene===state.scene)){
-        programState={...programState,scene:state.scene,lineupSide:side};
-        applyScene(state.scene,side);
+        const sceneChanged=programState.scene!==state.scene||(programState.lineupSide||'home')!==side;
+        programState={...programState,scene:state.scene,lineupSide:side,sceneMusic:state.sceneMusic||{}};
+        if(!programHeld)setSceneMusic(state.sceneMusic);
+        if(sceneChanged)applyScene(state.scene,side);
+        else if(!programHeld)syncSceneMusic();
       }
       window.dispatchEvent(new CustomEvent('seh:program-status',{detail:state}));
     }catch(error){console.error("Director scene sync:",error);}

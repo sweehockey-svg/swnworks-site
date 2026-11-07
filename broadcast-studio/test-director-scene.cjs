@@ -2,14 +2,17 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const src=fs.readFileSync(__dirname+'/broadcast-studio.js','utf8');
 const read=src.slice(src.indexOf('  async function followProgramScene()'),src.indexOf('  async function pullState()'));
 const key=src.split('\n').find(line=>line.includes('const sceneKey='));
-const calls=[],scenes=[],statuses=[];
+const calls=[],scenes=[],statuses=[],music=[];
 const document={hidden:false,querySelectorAll:()=>['opening','lineup','live'].map(scene=>({dataset:{scene}}))};
-const ctx=vm.createContext({console,document,calls,scenes,statuses,window:{dispatchEvent:e=>statuses.push(e.detail)},CustomEvent:class{constructor(type,{detail}){this.type=type;this.detail=detail;}}});
+const ctx=vm.createContext({console,document,calls,scenes,statuses,music,window:{dispatchEvent:e=>statuses.push(e.detail)},CustomEvent:class{constructor(type,{detail}){this.type=type;this.detail=detail;}}});
 vm.runInContext(`
 let directorRestoring=false,directorReading=false,directorWrites=0,remoteTimer=0,directorRevision=0;
 let programState={home:'prepared-home',away:'prepared-away',scene:'opening',lineupSide:'home',lineups:{home:{G:'player'}}};
+let programHeld=false;
 let incoming={scene:'opening',home:'on-air-home',lineupSide:'home'},publicNoMatch=true,publicNextMatch=null,delay=null;
 const applyScene=(...args)=>scenes.push(args);
+const setSceneMusic=settings=>music.push(settings);
+const syncSceneMusic=()=>{};
 const remoteRequest=async method=>{calls.push(method);if(delay)await delay;return [{state:incoming}];};
 ${key}
 let directorSceneKey=sceneKey(incoming);
@@ -22,6 +25,10 @@ const run=code=>vm.runInContext(code,ctx);
  await run('followProgramScene()');assert.equal(JSON.stringify(scenes.at(-1)),JSON.stringify(['lineup','away']));
  assert.equal(run('programState.home'),'prepared-home');assert.equal(run('programState.lineups.home.G'),'player');assert.equal(run('publicNoMatch'),false);
  await run('followProgramScene()');assert.equal(scenes.length,1,'unchanged state does not rerender');
+ run("incoming={...incoming,sceneMusic:{lineup:'off'}}");await run('followProgramScene()');
+ assert.equal(scenes.length,1,'music-only changes do not switch scenes');
+ assert.equal(music.at(-1).lineup,'off');
+ assert.equal(run('programState.sceneMusic.lineup'),'off');
  run("incoming={...incoming,scene:'idle',publicNoMatch:true}");await run('followProgramScene()');
  assert.equal(scenes.length,1,'waiting screen does not replace prepared scene');assert.equal(statuses.at(-1).publicNoMatch,true);
  run("incoming={scene:'live'};directorWrites=1");await run('followProgramScene()');assert.equal(scenes.length,1);

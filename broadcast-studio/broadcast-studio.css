@@ -2732,7 +2732,7 @@ body[data-background="gamenight"] .background-package-layer{
 
 .theme-control .scene-music-controls{
   grid-column:1/-1;min-width:0;margin:8px 0 0;padding:8px 12px 10px;
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+  display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:8px;
   border:1px solid #304b5d;border-radius:6px;
 }
 .scene-music-controls legend{padding:0 5px;color:#f4b21b;font-size:11px;font-weight:800}

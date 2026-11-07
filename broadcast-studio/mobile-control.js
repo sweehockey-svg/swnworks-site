@@ -1,4 +1,4 @@
-/* Authenticated scene-only controller. No local copy of full broadcast state is written. */
+/* Authenticated scene and music controls. No local copy of full broadcast state is written. */
 (() => {
 "use strict";
 const rawLang=(new URLSearchParams(location.search).get("lang")||"sv").toLowerCase();
@@ -8,31 +8,39 @@ const I18N={
  sv:{
   brand:"SVENSK eHOCKEY",sub:"MOBIL SCENSTYRNING",active:"AKTIV SCEN",connecting:"ANSLUTER",connected:"ANSLUTEN",sending:"BYTER…",sent:"SKICKAT",offline:"OFFLINE",error:"FEL",
   broadcast:"SÄNDNING",match:"MATCH",players:"SPELARE / OVERLAYS",
-  foot:"Den här sidan ändrar bara aktiv scen. Lag, score, Twitch, lineups och övriga sändningsinställningar lämnas orörda.",
+  foot:"Byt scen eller ställ in musik för den aktiva scenen. Match Live har alltid musiken av.",
+  music:["MUSIK · AKTIV SCEN","Hög","Låg","Av","Musikvalet kunde inte sparas. Kontrollera anslutningen och vilken scen som är aktiv."],
   labels:{opening:"Opening",live:"Match Live",matchup:"Matchup",series:"Serieläge",lineup:"Lineup",stats:"Stats",table:"Tabell",teamcompare:"Lagduell",scorers:"Poängliga",formguide:"Form",offense:"Offensiv",defenseleaders:"Backar",goalieleaders:"Målvaktsliga",road:"Slutspelsvägen",leaders:"Spelare",intermission:"Paus",lowerthird:"Lower third",forwards:"Forwards",defense:"Blue Line",goalies:"Goalies",keymatchup:"Key Matchup",spotlight:"Spotlight"}
  },
  fi:{
   brand:"SPORTSGAMER",sub:"MOBIILIOHJAUS",active:"AKTIIVINEN NÄKYMÄ",connecting:"YHDISTETÄÄN",connected:"YHDISTETTY",sending:"VAIHDETAAN…",sent:"LÄHETETTY",offline:"OFFLINE",error:"VIRHE",
   broadcast:"LÄHETYS",match:"OTTELU",players:"PELAAJAT / GRAFIIKAT",
-  foot:"Tämä sivu vaihtaa vain aktiivista näkymää. Joukkueet, tulos, Twitch, kokoonpanot ja muut lähetysasetukset säilyvät ennallaan.",
+  foot:"Vaihda näkymää tai säädä aktiivisen näkymän musiikkia. Live-ottelussa ei ole musiikkia.",
+  music:["MUSIIKKI · AKTIIVINEN NÄKYMÄ","Korkea","Matala","Pois","Musiikkivalintaa ei voitu tallentaa. Tarkista yhteys ja aktiivinen näkymä."],
   labels:{opening:"Avaus",live:"Live-ottelu",matchup:"Vertailu",series:"Sarjatilanne",lineup:"Kokoonpano",stats:"Tilastot",table:"Taulukko",teamcompare:"Joukkuevertailu",scorers:"Pistepörssi",formguide:"Vire",offense:"Hyökkäys",defenseleaders:"Puolustajat",goalieleaders:"Maalivahdit",road:"Pudotuspelitie",leaders:"Pelaajat",intermission:"Tauko",lowerthird:"Nimigrafiikka",forwards:"Hyökkääjät",defense:"Puolustajat",goalies:"Maalivahdit",keymatchup:"Avainvertailu",spotlight:"Nosto"}
  },
  de:{
   brand:"SPORTSGAMER",sub:"MOBILE REGIE",active:"AKTIVE SZENE",connecting:"VERBINDET",connected:"VERBUNDEN",sending:"WECHSELT…",sent:"GESENDET",offline:"OFFLINE",error:"FEHLER",
   broadcast:"SENDUNG",match:"SPIEL",players:"SPIELER / OVERLAYS",
-  foot:"Diese Seite ändert nur die aktive Szene. Teams, Spielstand, Twitch, Aufstellungen und weitere Sendeeinstellungen bleiben unverändert.",
+  foot:"Wechsle die Szene oder stelle die Musik für die aktive Szene ein. Das Live-Spiel bleibt ohne Musik.",
+  music:["MUSIK · AKTIVE SZENE","Laut","Leise","Aus","Die Musikeinstellung konnte nicht gespeichert werden. Prüfe Verbindung und aktive Szene."],
   labels:{opening:"Opening",live:"Live-Spiel",matchup:"Vergleich",series:"Serie",lineup:"Aufstellung",stats:"Statistik",table:"Tabelle",teamcompare:"Teamvergleich",scorers:"Punkteliga",formguide:"Form",offense:"Offensive",defenseleaders:"Verteidiger",goalieleaders:"Torhüter",road:"Playoff-Weg",leaders:"Spieler",intermission:"Pause",lowerthird:"Bauchbinde",forwards:"Stürmer",defense:"Blue Line",goalies:"Goalies",keymatchup:"Schlüsselduell",spotlight:"Fokus"}
  },
  en:{
   brand:"SPORTSGAMER",sub:"MOBILE CONTROL",active:"ACTIVE SCENE",connecting:"CONNECTING",connected:"CONNECTED",sending:"SWITCHING…",sent:"SENT",offline:"OFFLINE",error:"ERROR",
   broadcast:"BROADCAST",match:"MATCH",players:"PLAYERS / OVERLAYS",
-  foot:"This page only changes the active scene. Teams, score, Twitch, lineups and other broadcast settings remain untouched.",
+  foot:"Switch scenes or set music for the active scene. Match Live is always music-free.",
+  music:["MUSIC · ACTIVE SCENE","High","Low","Off","Music could not be saved. Check the connection and active scene."],
   labels:{opening:"Opening",live:"Match Live",matchup:"Matchup",series:"Series",lineup:"Lineup",stats:"Stats",table:"Standings",teamcompare:"Team Compare",scorers:"Scoring",formguide:"Form",offense:"Offense",defenseleaders:"Defense",goalieleaders:"Goalies",road:"Playoff Road",leaders:"Players",intermission:"Intermission",lowerthird:"Lower third",forwards:"Forwards",defense:"Blue Line",goalies:"Goalies",keymatchup:"Key Matchup",spotlight:"Spotlight"}
  }
 };
 const T=I18N[LANG];
 const labels=T.labels;
 const buttons=[...document.querySelectorAll("[data-scene]")];
+const musicButtons=[...document.querySelectorAll("[data-music]")];
+const musicEnabled=scene=>scene!=="live"&&Object.hasOwn(labels,scene);
+document.getElementById("musicHeading").textContent=T.music[0];
+musicButtons.forEach((button,i)=>{button.textContent=T.music[i+1];});
 const current=document.getElementById("currentScene");
 const connection=document.getElementById("connection");
 document.documentElement.lang=LANG;
@@ -61,6 +69,14 @@ function setConnection(text,mode=""){connection.className="connection"+(mode?" "
 function controls(){
  const locked=busy||!ready||Date.now()-lastReceived>10000||document.hidden;
  buttons.forEach(b=>{b.disabled=locked;b.title=locked&&!busy?matchStatus.textContent:(b.dataset.shortcut||"");});
+ const scene=received?.scene,saved=received?.sceneMusic?.[scene];
+ const enabled=musicEnabled(scene);
+ const mode=!enabled?"off":["high","low","off"].includes(saved)?saved:scene==="opening"?"high":"low";
+ musicButtons.forEach(b=>{
+  b.disabled=locked||!enabled;
+  b.classList.toggle("active",b.dataset.music===mode);
+  b.setAttribute("aria-pressed",String(b.dataset.music===mode));
+ });
 }
 function render(state){
  received=state;lastReceived=Date.now();
@@ -93,19 +109,25 @@ async function pull(){
  }catch{if(started===revision){ready=false;controls();setConnection(T.offline);matchStatus.textContent="Ingen kontakt med sändningen. Scenknapparna är låsta tills kontakten är tillbaka.";}}
  finally{reading=false;}
 }
-async function setScene(button){
+async function changeProgram(button,music=false){
  if(busy||!ready||document.hidden||Date.now()-lastReceived>10000)return;
+ const scene=received?.scene;
+ if(music&&!musicEnabled(scene))return;
  busy=true;revision++;controls();button.classList.add("pending");setConnection(T.sending,"busy");
  try{
   const session=await window.SWNStudioAccess.session();
-  const res=await request(base()+"/rest/v1/rpc/broadcast_studio_set_scene",{method:"POST",headers:headers(session.access_token),body:JSON.stringify({p_channel:CHANNEL,p_scene:button.dataset.scene,p_lineup_side:button.dataset.scene==="lineup"?(button.dataset.lineupSide||"home"):null})});
+  const args=music?{p_channel:CHANNEL,p_scene:scene,p_mode:button.dataset.music}:{p_channel:CHANNEL,p_scene:button.dataset.scene,p_lineup_side:button.dataset.scene==="lineup"?(button.dataset.lineupSide||"home"):null};
+  const rpc=music?"broadcast_studio_set_music":"broadcast_studio_set_scene";
+  const res=await request(base()+"/rest/v1/rpc/"+rpc,{method:"POST",headers:headers(session.access_token),body:JSON.stringify(args)});
   if(!res.ok)throw new Error("HTTP "+res.status);
   const state=await res.json();if(!state||typeof state!=="object"||Array.isArray(state))throw new Error("Saknar sändning eller behörighet");
   render(state);navigator.vibrate?.(18);setConnection(T.sent,"ok");
- }catch{ready=false;setConnection(T.error);matchStatus.textContent="Scenbytet kunde inte bekräftas. Kontrollera anslutning och inloggning. Nästa hämtning visar vad som faktiskt sänds.";}
- finally{busy=false;buttons.forEach(b=>b.classList.remove("pending"));controls();}
+ }catch{ready=false;setConnection(T.error);matchStatus.textContent=music?T.music[4]:"Scenbytet kunde inte bekräftas. Kontrollera anslutning och inloggning. Nästa hämtning visar vad som faktiskt sänds.";}
+ finally{busy=false;button.classList.remove("pending");controls();}
 }
+const setScene=button=>changeProgram(button);
 buttons.forEach(b=>{b.disabled=true;b.addEventListener("click",()=>void setScene(b));});
+musicButtons.forEach(b=>b.addEventListener("click",()=>void changeProgram(b,true)));
 // Stream Deck System > Hotkey sends these to the focused controller page.
 // No URL-triggered commands or credentials in Stream Deck are needed.
 const deckShortcuts=[
