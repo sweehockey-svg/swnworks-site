@@ -2280,13 +2280,22 @@
       .filter(source => typeof source.url === 'string' && /^https?:\/\//i.test(source.url))
       .map(source => '<a href="' + escapeHtml(source.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(source.title || 'Visa källa') + '</a>')
       .join('');
-    return '<article class="band-concert"><div class="band-concert-date">' + date + '</div>'
-      + '<div class="band-concert-main">' + (isUnverified ? '<span class="band-concert-review">Uppgift att kontrollera</span>' : '')
-      + '<strong>' + escapeHtml(event.title || 'Dokumenterad spelning') + '</strong>'
+    return '<details class="band-concert">'
+      + '<summary class="band-concert-summary">'
+      + '<span class="band-concert-date">' + date + '</span>'
+      + '<span class="band-concert-headline"><strong>' + escapeHtml(event.title || 'Dokumenterad spelning') + '</strong>'
+      + '<span class="band-concert-subline">'
       + (place ? '<span class="band-concert-place">' + escapeHtml(place) + '</span>' : '')
+      + (isUnverified ? '<span class="band-concert-review">Uppgift att kontrollera</span>' : '')
+      + '</span></span>'
+      + '<span class="band-concert-toggle"><span class="band-concert-show-label">Mer info</span>'
+      + '<span class="band-concert-hide-label">Stäng</span>'
+      + '<span class="band-concert-chevron" aria-hidden="true"></span></span>'
+      + '</summary>'
+      + '<div class="band-concert-details">'
       + (event.description ? '<p>' + escapeHtml(event.description) + '</p>' : '')
       + (sources ? '<div class="band-concert-sources"><span>Källor</span>' + sources + '</div>' : '')
-      + '</div></article>';
+      + '</div></details>';
   }
 
   function renumberBandHeadings() {
