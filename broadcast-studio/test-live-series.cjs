@@ -103,6 +103,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   await page.locator('#arenaMist').check();
   assert.equal(await page.evaluate(()=>seriesFixture.state().arenaMist),true,'Checkbox serializes to OBS state');
   const mistStyle=()=>page.locator('.background-package-layer').evaluate(el=>{const style=getComputedStyle(el,'::before');return {content:style.content,animation:style.animationName,duration:style.animationDuration,opacity:Number(style.opacity),display:getComputedStyle(el).display};});
+  const edgeLight=()=>page.locator('.arena-edge-lights').evaluate(el=>({display:getComputedStyle(el).display,animation:getComputedStyle(el,'::before').animationName}));
   const scenes=await page.locator('[data-scene]').evaluateAll(buttons=>[...new Set(buttons.map(b=>b.dataset.scene))].filter(scene=>scene!=='live'));
   for(const scene of [...scenes,'idle','nextmatch']){
    await page.evaluate(({s,scene})=>seriesFixture.remote({...s,scene,backgroundPackage:'gamenight',arenaMist:true}),{s:state,scene});
@@ -113,14 +114,17 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert.equal(mist.duration,'10s','Mist should travel noticeably over a few seconds');
    assert(mist.opacity>=.45,'Moving layer must not be too faint against baked-in smoke');
    assert.equal(mist.display,'block',lang+' '+scene);
+   assert.deepEqual(await edgeLight(),{display:'block',animation:'arena-edge-pulse'});
   }
   await page.emulateMedia({reducedMotion:'reduce'});
   assert.equal((await mistStyle()).animation,'none','Reduced motion suppresses movement');
+  assert.equal((await edgeLight()).display,'none','Reduced motion also hides the edge lights');
   await page.emulateMedia({reducedMotion:'no-preference'});
   for(const [scene,backgroundPackage,arenaMist] of [['live','gamenight',true],['live','gamenight',false],['live','broadcast',true],['opening','broadcast',true],['opening','gamenight',false]]){
    await page.evaluate(s=>seriesFixture.remote(s),{...state,scene,backgroundPackage,arenaMist});
    const mist=await mistStyle();
    assert.equal(mist.content,'none','No mist in Match Live, when off or outside Game Night');
+   assert.equal((await edgeLight()).display,'none','Edge lights also stay off');
    if(scene==='live')assert.equal(mist.display,'none','Live never displays the background layer');
   }
   assert.deepEqual(errors,[],lang);await page.close();
