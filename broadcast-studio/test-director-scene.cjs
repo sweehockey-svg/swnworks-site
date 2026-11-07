@@ -2,13 +2,14 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const src=fs.readFileSync(__dirname+'/broadcast-studio.js','utf8');
 const read=src.slice(src.indexOf('  async function followProgramScene()'),src.indexOf('  async function pullState()'));
 const key=src.split('\n').find(line=>line.includes('const sceneKey='));
-const calls=[],scenes=[],statuses=[],music=[],series={seriesHome:{value:"0"},seriesAway:{value:"0"}};
+const calls=[],scenes=[],statuses=[],music=[],series={seriesHome:{value:"0"},seriesAway:{value:"0"},hs:{value:"0"},as:{value:"0"},seriesR2:{value:""},seriesShowResults:{checked:false}};
 const document={hidden:false,querySelectorAll:()=>['opening','lineup','live'].map(scene=>({dataset:{scene}}))};
 const ctx=vm.createContext({console,document,calls,scenes,statuses,music,series,window:{dispatchEvent:e=>statuses.push(e.detail)},CustomEvent:class{constructor(type,{detail}){this.type=type;this.detail=detail;}}});
 vm.runInContext(`
 let directorRestoring=false,directorReading=false,directorWrites=0,remoteTimer=0,directorRevision=0;
 let programState={home:'prepared-home',away:'prepared-away',scene:'opening',lineupSide:'home',lineups:{home:{G:'player'}}};
 let programHeld=false;
+let seriesGameFinal=null;
 let incoming={scene:'opening',home:'on-air-home',lineupSide:'home'},publicNoMatch=true,publicNextMatch=null,delay=null;
 const applyScene=(...args)=>scenes.push(args);
 const setSceneMusic=settings=>music.push(settings);
@@ -18,6 +19,7 @@ const studioState=()=>({twitchChannel:'unchanged'});
 const applyRemoteState=state=>statuses.push(state);
 const $=id=>series[id.slice(1)];
 const renderSeries=()=>{};
+const renderMatch=()=>{};
 const remoteRequest=async method=>{calls.push(method);if(delay)await delay;return [{state:incoming}];};
 ${key}
 let directorSceneKey=sceneKey(incoming);
@@ -37,6 +39,10 @@ const run=code=>vm.runInContext(code,ctx);
  run("incoming={...incoming,seriesHome:'2',seriesAway:'1'}");await run('followProgramScene()');
  assert.equal(series.seriesHome.value,'2');assert.equal(series.seriesAway.value,'1');
  assert.equal(scenes.length,1,'Series-only changes do not switch scenes');
+ run("incoming={...incoming,hs:'4',as:'2',seriesGameFinal:2,seriesResults:['','4–2'],seriesShowResults:true}");await run('followProgramScene()');
+ assert.equal(series.hs.value,'4');assert.equal(series.as.value,'2');
+ assert.equal(series.seriesR2.value,'4–2');assert.equal(series.seriesShowResults.checked,true);
+ assert.equal(run('seriesGameFinal'),2);
  run("programHeld=true;incoming={...incoming,seriesHome:'3'}");await run('followProgramScene()');
  assert.equal(run('programState.seriesHome'),'3');
  assert.equal(series.seriesHome.value,'2','Prepared match keeps its own wins');

@@ -75,6 +75,19 @@ const matchStatus=document.getElementById("broadcastStatus");
 const seriesForm=document.getElementById("seriesEditor"),seriesSummary=document.getElementById("seriesSummary");
 const seriesHome=document.getElementById("mobileSeriesHome"),seriesAway=document.getElementById("mobileSeriesAway");
 const seriesSave=document.getElementById("mobileSeriesSave"),seriesStatus=document.getElementById("mobileSeriesStatus");
+const gameForm=document.getElementById("mobileMatchResult"),gameHeading=document.getElementById("mobileMatchNumber");
+const homeGoals=document.getElementById("mobileHomeGoals"),awayGoals=document.getElementById("mobileAwayGoals");
+const gameProgress=document.getElementById("mobileProgressResult"),gameFinal=document.getElementById("mobileFinalResult"),gameNext=document.getElementById("mobileNextGame");
+const gameStatus=document.getElementById("mobileMatchResultStatus");
+const gameText=({
+ sv:["Match","Hemmamål","Bortamål","Spara pågående resultat","Spara slutresultat","Starta nästa match","SLUT","Spara slutresultatet och räkna in segern i serien?","Resultatet ändrades eller kunde inte sparas. Kontrollera siffrorna och försök igen.","Sparat i sändningen.","Båda lagen kan inte sluta på samma resultat.","Den här matchen har redan ett sparat resultat."],
+ en:["Game","Home goals","Away goals","Save current score","Save final score","Start next game","FINAL","Save this final score and count the win in the series?","The score changed or could not be saved. Check the numbers and try again.","Saved on air.","A final score cannot be tied.","This game already has a saved result."],
+ fi:["Ottelu","Kotimaalit","Vierasmaalit","Tallenna tilanne","Tallenna lopputulos","Aloita seuraava ottelu","PÄÄTTYNYT","Tallennetaanko lopputulos ja sarjavoitto?","Tulos muuttui tai tallennus epäonnistui. Tarkista luvut.","Tallennettu lähetykseen.","Lopputulos ei voi olla tasan.","Ottelulla on jo tallennettu tulos."],
+ de:["Spiel","Heimtore","Auswärtstore","Spielstand speichern","Endstand speichern","Nächstes Spiel starten","ENDE","Endstand speichern und den Sieg zur Serie zählen?","Der Spielstand hat sich geändert oder konnte nicht gespeichert werden. Prüfe die Zahlen.","In der Sendung gespeichert.","Ein Endstand kann nicht unentschieden sein.","Für dieses Spiel ist bereits ein Ergebnis gespeichert."]
+})[LANG];
+document.getElementById("mobileHomeGoalsLabel").textContent=gameText[1];
+document.getElementById("mobileAwayGoalsLabel").textContent=gameText[2];
+[gameProgress,gameFinal,gameNext].forEach((button,i)=>{button.textContent=gameText[i+3];});
 const swapTeams=document.getElementById("mobileSwapTeams"),flipLiveTeams=document.getElementById("mobileFlipLiveTeams");
 const orderText=({
  sv:["Byt hemma/borta","Vänd lagrutan","Hemma överst","Borta överst","Byta plats på hemma och borta i sändningen? Resultat, serievinst­er och uppställningar följer lagen.","Lagordningen uppdaterades.","Kunde inte ändra lagordningen. Kontrollera vilken match som är aktiv och försök igen."],
@@ -97,10 +110,13 @@ const seriesValid=s=>!!s?.home&&!!s?.away&&!!s?.transientSource?.ticket&&[3,5,7]
 const orderValid=s=>!!s?.home&&!!s?.away&&String(s.home)!==String(s.away)&&!!s?.transientSource?.ticket;
 const orderExpected=s=>({leagueId:s.leagueId??null,home:s.home,away:s.away,matchName:s.matchName??null,ticket:s.transientSource.ticket,
  teamOrderRevision:s.teamOrderRevision??null,liveTeamsReversed:s.liveTeamsReversed===true});
+const gameExpected=s=>({...seriesExpected(s),hs:s?.hs??null,as:s?.as??null,seriesResults:s?.seriesResults??null,seriesGameFinal:s?.seriesGameFinal??null});
+const finalGame=s=>/^[1-7]$/.test(String(s?.seriesGameFinal??""))?Number(s.seriesGameFinal):0;
+const goalValue=input=>/^\d{1,2}$/.test(input.value)?Number(input.value):null;
 document.getElementById("seriesHomeLabel").textContent=seriesText[2];
 document.getElementById("seriesAwayLabel").textContent=seriesText[3];
 seriesSave.textContent=seriesText[4];
-let seriesKey="";
+let seriesKey="",gameKey="";
 let busy=false,reading=false,revision=0,ready=false,received=null,lastReceived=0;
 function config(){const c=window.EHOCKEY_CONFIG||{};if(!c.supabaseUrl||!c.supabasePublishableKey)throw new Error("Konfiguration saknas");return c;}
 function headers(token){const h={apikey:config().supabasePublishableKey,Accept:"application/json","Content-Type":"application/json"};if(token)h.Authorization="Bearer "+token;return h;}
@@ -108,6 +124,19 @@ function base(){return config().supabaseUrl.replace(/\/+$/,"");}
 function setConnection(text,mode=""){connection.className="connection"+(mode?" "+mode:"");connection.querySelector("span").textContent=text;}
 function seriesWins(value,state){
  return Math.min(seriesLimit(state),Math.max(0,Math.trunc(Number(value)||0)));
+}
+function gameIndex(state){return seriesWins(state?.seriesHome,state)+seriesWins(state?.seriesAway,state);}
+function seriesFinished(state){return seriesWins(state?.seriesHome,state)===seriesLimit(state)||seriesWins(state?.seriesAway,state)===seriesLimit(state);}
+function gameAlreadyRecorded(state){return Boolean(String(state?.seriesResults?.[gameIndex(state)]??"").trim());}
+function renderMatchEditor(state){
+ const key=orderValid(state)?JSON.stringify(gameExpected(state)):"";
+ const finished=finalGame(state);
+ const number=finished||gameIndex(state)+1;
+ gameHeading.textContent=key?gameText[0]+" "+number+(finished?" · "+gameText[6]:""):gameText[0];
+ if(key===gameKey)return;
+ gameKey=key;
+ homeGoals.value=key?String(state.hs??0):"";
+ awayGoals.value=key?String(state.as??0):"";
 }
 function renderSeriesEditor(state){
  const valid=seriesValid(state),key=valid?JSON.stringify(seriesExpected(state)):"";
@@ -142,6 +171,15 @@ function controls(){
  const reversed=received?.liveTeamsReversed===true;
  flipLiveTeams.textContent=orderText[1]+" · "+orderText[reversed?3:2];
  flipLiveTeams.setAttribute("aria-pressed",String(reversed));
+ const finished=finalGame(received);
+ const scoreLocked=locked||!gameKey||!!finished;
+ homeGoals.disabled=awayGoals.disabled=scoreLocked;
+ const hg=goalValue(homeGoals),ag=goalValue(awayGoals);
+ gameProgress.hidden=gameFinal.hidden=!!finished;
+ gameNext.hidden=!finished||seriesFinished(received);
+ gameProgress.disabled=scoreLocked||hg===null||ag===null;
+ gameFinal.disabled=gameProgress.disabled||hg===ag||!seriesValid(received)||seriesFinished(received)||gameAlreadyRecorded(received);
+ gameNext.disabled=locked||!gameKey||gameNext.hidden;
 }
 function render(state){
  received=state;lastReceived=Date.now();
@@ -168,6 +206,7 @@ function render(state){
  };
  matchStatus.textContent=ready?(state.subline||state.headline||"Aktiv sändning"):messages[LANG][reason];
  renderSeriesEditor(state);
+ renderMatchEditor(state);
  controls();
 }
 async function request(url,options={}){
@@ -227,6 +266,33 @@ async function changeTeamOrder(action){
 }
 swapTeams.addEventListener("click",()=>void changeTeamOrder("swap"));
 flipLiveTeams.addEventListener("click",()=>void changeTeamOrder("live"));
+gameForm.addEventListener("submit",event=>event.preventDefault());
+gameForm.addEventListener("input",()=>{
+ const h=goalValue(homeGoals),a=goalValue(awayGoals);
+ gameStatus.textContent=gameAlreadyRecorded(received)?gameText[11]:h!==null&&h===a?gameText[10]:"";
+ controls();
+});
+async function saveMatchResult(action,button){
+ controls();
+ if(button.disabled)return;
+ const args={p_channel:CHANNEL,p_expected:gameExpected(received),p_action:action,
+  p_home:action==="next"?0:goalValue(homeGoals),p_away:action==="next"?0:goalValue(awayGoals)};
+ if(action==="final"&&!window.confirm(gameText[7]))return;
+ busy=true;revision++;controls();setConnection(T.sending,"busy");
+ try{
+  const session=await window.SWNStudioAccess.session();
+  const res=await request(base()+"/rest/v1/rpc/broadcast_studio_set_match_result",{method:"POST",headers:headers(session.access_token),body:JSON.stringify(args)});
+  if(!res.ok)throw new Error("HTTP "+res.status);
+  const state=await res.json();
+  if(!state||typeof state!=="object"||Array.isArray(state))throw new Error("No program state");
+  render(state);gameStatus.textContent=gameText[9];setConnection(T.sent,"ok");
+ }catch{
+  ready=false;gameKey="";gameStatus.textContent=gameText[8];setConnection(T.error);
+ }finally{busy=false;controls();}
+}
+[[gameProgress,"progress"],[gameFinal,"final"],[gameNext,"next"]].forEach(([button,action])=>{
+ button.addEventListener("click",()=>void saveMatchResult(action,button));
+});
 seriesForm.addEventListener("change",()=>{seriesForm.dataset.dirty="true";seriesStatus.textContent="";controls();});
 seriesForm.addEventListener("submit",async event=>{
  event.preventDefault();

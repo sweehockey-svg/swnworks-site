@@ -13,7 +13,22 @@ try{
    const body=req.postDataJSON();writes.push(body);
    assert.equal(req.headers().authorization,'Bearer fixture-token');
    if(deny)return route.fulfill({status:403,body:'{}'});
-   if(req.url().endsWith('broadcast_studio_set_team_order')){
+   if(req.url().endsWith('broadcast_studio_set_match_result')){
+    assert.equal(body.p_expected.hs,String(state.hs));
+    assert.equal(body.p_expected.as,String(state.as));
+    const i=Number(state.seriesHome)+Number(state.seriesAway);
+    if(body.p_action==='next'){state.seriesGameFinal=null;state.hs=state.as='0';}
+    else{
+     state.hs=String(body.p_home);state.as=String(body.p_away);
+     if(body.p_action==='final'){
+      const side=body.p_home>body.p_away?'seriesHome':'seriesAway';
+      state[side]=String(Number(state[side])+1);
+      state.seriesResults=Array.from({length:i+1},(_,n)=>state.seriesResults?.[n]||'');
+      state.seriesResults[i]=state.hs+'–'+state.as;
+      state.seriesShowResults=true;state.seriesGameFinal=i+1;
+     }
+    }
+   }else if(req.url().endsWith('broadcast_studio_set_team_order')){
     assert.deepEqual(Object.keys(body).sort(),['p_action','p_channel','p_expected']);
     assert.equal(body.p_expected.home,state.home);
     assert.equal(body.p_expected.away,state.away);
@@ -126,6 +141,26 @@ try{
  assert.equal(state.twitchChannel,beforeFlip.twitchChannel);
  assert.equal(await b.locator('[data-lineup-side="home"]').textContent(),'Testlaget B','Names follow team IDs when sides swap');
  assert.equal(await b.locator('[data-lineup-side="away"]').textContent(),'Testlaget A');
+ state.seriesHome='1';state.seriesAway='0';state.hs='0';state.as='0';
+ await a.waitForFunction(()=>document.querySelector('#seriesSummary').textContent.includes('1–0'));
+ assert(await a.locator('#mobileFinalResult').isDisabled(),'Cannot finalize tied score');
+ await a.locator('#mobileHomeGoals').fill('3');
+ await a.locator('#mobileAwayGoals').fill('2');
+ await a.locator('#mobileProgressResult').click();
+ await b.waitForFunction(()=>document.querySelector('#mobileHomeGoals').value==='3');
+ assert.equal(state.seriesHome,'1','Progress changes no wins');
+ assert.equal(state.seriesResults,undefined,'Progress adds no historical result');
+ a.once('dialog',dialog=>dialog.accept());
+ await a.locator('#mobileFinalResult').click();
+ await b.waitForFunction(()=>document.querySelector('#mobileMatchNumber').textContent.includes('Match 2 · SLUT'));
+ assert.equal(state.seriesHome,'2');
+ assert.deepEqual(state.seriesResults,['','3–2']);
+ assert.equal(state.scene,'live');
+ assert(await a.locator('#mobileFinalResult').isHidden());
+ await a.locator('#mobileNextGame').click();
+ await b.waitForFunction(()=>document.querySelector('#mobileMatchNumber').textContent==='Match 3');
+ assert.equal(state.hs,'0');assert.equal(state.as,'0');
+ assert.equal(state.seriesHome,'2');assert.deepEqual(state.seriesResults,['','3–2']);
  assert.deepEqual(errors,[]);console.log('PASS two controllers sync, scene-only RPC, scoped token, no load writes, preserved match data, mobile layout, offline/denied/expired locks');
 }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});
