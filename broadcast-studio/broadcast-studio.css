@@ -2730,6 +2730,22 @@ body[data-background="gamenight"] .background-package-layer{
   display:none!important;
 }
 
+.theme-control .scene-music-controls{
+  grid-column:1/-1;min-width:0;margin:8px 0 0;padding:8px 12px 10px;
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+  border:1px solid #304b5d;border-radius:6px;
+}
+.scene-music-controls legend{padding:0 5px;color:#f4b21b;font-size:11px;font-weight:800}
+.scene-music-controls label{margin:0;min-width:0}
+.scene-music-controls select{width:100%;min-width:0}
+.screen>.scene-music-credit{
+  position:absolute;z-index:5;left:50%;bottom:3.5%;transform:translateX(-50%);
+  padding:6px 12px;color:#eff5fa;background:#06131ce8;
+  border-bottom:1px solid #f4b21b;font-size:12px;font-weight:700;
+  white-space:nowrap;pointer-events:none;
+}
+.scene-music-credit[hidden]{display:none!important}
+
 /* A low drifting mist behind the graphics, never over the match feed. */
 body[data-background="gamenight"] .screen.arena-mist-enabled:is([data-arena-scene="opening"],[data-arena-scene="matchup"],[data-arena-scene="intermission"])>.background-package-layer::before,
 body[data-background="gamenight"] .screen.arena-mist-enabled:is([data-arena-scene="opening"],[data-arena-scene="matchup"],[data-arena-scene="intermission"])>.background-package-layer::after{

@@ -1,7 +1,7 @@
 const fs=require('node:fs'),assert=require('node:assert/strict');
 const {chromium}=require('C:/Users/TheSw/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
-(async()=>{const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});try{
+(async()=>{const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--autoplay-policy=no-user-gesture-required']});try{
  for(const lang of ['SV','en','fi','de']){
   const page=await browser.newPage({viewport:{width:1920,height:1080}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.route('**/*',r=>r.abort());
   await page.setContent('<base href="https://series.test/broadcast-studio/">'+read(lang+'/index.html').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link\b[^>]*>/g,'').replace(/<base\b[^>]*>/g,''));
@@ -27,6 +27,15 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   await page.evaluate(s=>seriesFixture.remote({...s,scene:'live',liveSeriesShow:false}),state);assert.equal(await page.locator('.live-team-strip.has-series-wins').count(),0);
   await page.evaluate(s=>{delete s.liveSeriesShow;seriesFixture.remote(s);},state);assert.equal(await page.locator('#showLiveSeries').isChecked(),false,'Old state must not enable series marks');
   assert.equal(await page.locator('#arenaMist').isChecked(),false,'Existing matches default to still background');
+  assert.deepEqual(state.sceneMusic,{opening:'off',matchup:'off',intermission:'off'});
+  await page.locator('#music-opening').selectOption('high');
+  await page.locator('#music-intermission').selectOption('low');
+  const music=await page.evaluate(()=>seriesFixture.state());
+  assert.deepEqual(music.sceneMusic,{opening:'high',matchup:'off',intermission:'low'});
+  await page.evaluate(s=>seriesFixture.remote({...s,scene:'opening'}),music);
+  assert.equal(await page.locator('.scene-music-credit').getAttribute('hidden'),null);
+  assert.equal(await page.locator('#music-intermission').inputValue(),'low');
+  assert.equal(await page.evaluate(()=>document.documentElement.dataset.sceneMusic),undefined,'Director never starts music audio');
   await page.locator('#arenaMist').check();
   assert.equal(await page.evaluate(()=>seriesFixture.state().arenaMist),true,'Checkbox serializes to OBS state');
   const mistStyle=()=>page.locator('.background-package-layer').evaluate(el=>{const style=getComputedStyle(el,'::before');return {content:style.content,animation:style.animationName,duration:style.animationDuration,opacity:Number(style.opacity)};});
@@ -46,6 +55,41 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   }
   assert.deepEqual(errors,[],lang);await page.close();
  }
+ const obs=await browser.newPage();
+ const origin='https://series.test';
+ await obs.route('**/*',r=>{
+  const url=new URL(r.request().url());
+  if(url.origin!==origin)return r.abort();
+  if(url.pathname==='/broadcast-studio/assets/aztrozmurfen-superhero.mp3')return r.fulfill({contentType:'audio/mpeg',path:__dirname+'/assets/aztrozmurfen-superhero.mp3'});
+  if(url.pathname!=='/broadcast-studio/SV/')return r.abort();
+  return r.fulfill({contentType:'text/html',body:read('SV/index.html').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link\b[^>]*>/g,'')});
+ });
+ await obs.goto(origin+'/broadcast-studio/SV/?obs=1');
+ await obs.evaluate(()=>{
+  window.EHOCKEY_CONFIG={};
+  const Audio=window.Audio;
+  window.Audio=function(src){return window.testMusicAudio=new Audio(src);};
+ });
+ await obs.addScriptTag({content:read('studio-language.js')});
+ await obs.addScriptTag({content:read('broadcast-studio.js').replace('  function studioState(){','  window.seriesFixture={state:()=>studioState(),remote:s=>applyRemoteState(s)};\n  function studioState(){')});
+ const setMusicScene=scene=>obs.evaluate(scene=>seriesFixture.remote({...seriesFixture.state(),scene,sceneMusic:{opening:'high',matchup:'off',intermission:'low',live:'high'}}),scene);
+ assert.equal(await obs.evaluate(()=>!!window.testMusicAudio),false,'Legacy output does not load the track');
+ await setMusicScene('opening');
+ await obs.waitForFunction(()=>window.testMusicAudio?.currentTime>.05);
+ assert.equal(await obs.evaluate(()=>testMusicAudio.volume),.32);
+ assert.equal(await obs.evaluate(()=>testMusicAudio.loop),true);
+ assert.equal(await obs.locator('.scene-music-credit').getAttribute('hidden'),null);
+ await setMusicScene('intermission');
+ assert.equal(await obs.evaluate(()=>testMusicAudio.volume),.10);
+ assert.equal(await obs.evaluate(()=>testMusicAudio.paused),false);
+ assert.notEqual(await obs.locator('.scene-music-credit').getAttribute('hidden'),null);
+ await setMusicScene('live');
+ assert.equal(await obs.evaluate(()=>testMusicAudio.paused),true,'Never plays during Match Live');
+ await setMusicScene('opening');
+ await obs.waitForFunction(()=>window.testMusicAudio?.currentTime>.05&&!testMusicAudio.paused);
+ await setMusicScene('matchup');
+ assert.equal(await obs.evaluate(()=>testMusicAudio.paused),true,'Off stops the track');
+ await obs.close();
  const motionPage=await browser.newPage({viewport:{width:1920,height:1080},reducedMotion:'no-preference'});
  await motionPage.setContent('<body data-background="gamenight"><div class="screen arena-mist-enabled" data-arena-scene="opening" style="position:relative;width:1000px;height:563px"><div class="background-package-layer"></div></div></body>');
  await motionPage.route('**/*',r=>r.abort());
@@ -54,5 +98,5 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
  const start=await mistX();
  await motionPage.waitForFunction(start=>{const el=document.querySelector('.background-package-layer');return Math.abs(new DOMMatrixReadOnly(getComputedStyle(el,'::before').transform).m41/el.offsetWidth-start)>.1;},start,{timeout:3000});
  await motionPage.close();
- console.log('PASS SV/EN/FI/DE: series display, OBS state, mist motion and scene restrictions. Isolated browser; no production writes.');
+ console.log('PASS SV/EN/FI/DE: series display, OBS state, mist motion and real MP3 playback with per-scene volume, credit and live silence. Isolated browser; no production writes.');
 }finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

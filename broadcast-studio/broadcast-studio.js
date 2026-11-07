@@ -66,6 +66,102 @@ window.SWNViewerBridge=(()=>{
     window.addEventListener("resize", fitObsPreview);
   }
   let activeScene = "opening", remoteApplying = false, remoteTimer = 0;
+  const musicScenes=["opening","matchup","intermission"],musicVolume={high:.32,low:.10};
+  const musicLabels={
+    sv:["Bakgrundsmusik","Opening","Matchup","Paus","Av","Låg","Hög","Musik av Aztrozmurfen"],
+    en:["Background music","Opening","Matchup","Intermission","Off","Low","High","Music by Aztrozmurfen"],
+    fi:["Taustamusiikki","Avaus","Ottelupari","Tauko","Pois","Matala","Korkea","Musiikki: Aztrozmurfen"],
+    de:["Hintergrundmusik","Eröffnung","Begegnung","Pause","Aus","Leise","Laut","Musik von Aztrozmurfen"]
+  };
+  const musicText=musicLabels[LOCALE]||musicLabels.en;
+  const musicCredit=document.createElement("div");
+  musicCredit.className="scene-music-credit";
+  musicCredit.textContent=musicText[7];
+  musicCredit.hidden=true;
+  $("#screen")?.append(musicCredit);
+  let sceneMusic={},musicAudio=null,musicStart=null,musicPlaying=false,musicViewerMuted=true;
+  function setSceneMusic(settings){
+    sceneMusic=Object.fromEntries(musicScenes.map(scene=>{
+      const mode=settings?.[scene];
+      return [scene,mode==="high"||mode==="low"?mode:"off"];
+    }));
+    for(const scene of musicScenes){
+      const select=$("#music-"+scene);
+      if(select)select.value=sceneMusic[scene];
+    }
+  }
+  function renderMusicCredit(){
+    musicCredit.hidden=activeScene!=="opening"||!musicVolume[sceneMusic.opening]||(OBS_MODE&&!PREVIEW_MODE&&!musicPlaying);
+  }
+  function syncSceneMusic(){
+    const volume=musicVolume[sceneMusic[activeScene]]||0;
+    if(!OBS_MODE||PREVIEW_MODE){renderMusicCredit();return;}
+    if(!volume||(VIEWER_MODE&&musicViewerMuted)){
+      musicPlaying=false;
+      delete document.documentElement.dataset.sceneMusic;
+      if(musicAudio){
+        musicAudio.pause();
+        if(!volume&&musicAudio.currentTime)musicAudio.currentTime=0;
+      }
+      renderMusicCredit();
+      return;
+    }
+    if(!musicAudio){
+      musicAudio=new Audio("/broadcast-studio/assets/aztrozmurfen-superhero.mp3");
+      musicAudio.loop=true;
+      musicAudio.addEventListener("playing",()=>{
+        musicPlaying=!musicAudio.paused&&!!musicVolume[sceneMusic[activeScene]]&&(!VIEWER_MODE||!musicViewerMuted);
+        if(musicPlaying)document.documentElement.dataset.sceneMusic="playing";
+        renderMusicCredit();
+      });
+      for(const event of ["pause","waiting","ended","error"])musicAudio.addEventListener(event,()=>{
+        musicPlaying=false;renderMusicCredit();
+      });
+      musicAudio.addEventListener("error",()=>{document.documentElement.dataset.sceneMusic="unavailable";});
+    }
+    musicAudio.volume=volume;
+    if(musicAudio.paused&&!musicStart){
+      musicStart=musicAudio.play().then(()=>{musicStart=null;},error=>{
+        musicStart=null;
+        if(!musicVolume[sceneMusic[activeScene]]||(VIEWER_MODE&&musicViewerMuted))return;
+        if(error.name==="AbortError"){syncSceneMusic();return;}
+        document.documentElement.dataset.sceneMusic=error.name==="NotAllowedError"?"blocked":"unavailable";
+      });
+    }
+    renderMusicCredit();
+  }
+  if(OBS_MODE&&!PREVIEW_MODE){
+    document.addEventListener("click",()=>{
+      if(document.documentElement.dataset.sceneMusic==="blocked")syncSceneMusic();
+    });
+    if(VIEWER_MODE)window.addEventListener("message",event=>{
+      if(!window.SWNViewerBridge.acceptsAudio(event))return;
+      musicViewerMuted=event.data.muted;
+      syncSceneMusic();
+    });
+  }
+  function installSceneMusic(){
+    setSceneMusic();
+    if(OBS_MODE||VIEWER_MODE)return;
+    const controls=document.createElement("fieldset"),title=document.createElement("legend");
+    controls.className="scene-music-controls";
+    title.textContent=musicText[0]+" · Superhero";
+    controls.append(title);
+    musicScenes.forEach((scene,i)=>{
+      const label=document.createElement("label"),select=document.createElement("select");
+      label.textContent=musicText[i+1];
+      select.id="music-"+scene;
+      ["off","low","high"].forEach((mode,n)=>select.add(new Option(musicText[4+n],mode)));
+      select.addEventListener("change",()=>{
+        setSceneMusic({...sceneMusic,[scene]:select.value});
+        syncSceneMusic();
+        publishState();
+      });
+      label.append(select);
+      controls.append(label);
+    });
+    $("#theme")?.closest(".theme-control")?.append(controls);
+  }
   let displayedLineupSide = "home", sceneTransitionTimer = 0, lineupTransitionTimer = 0;
   const SLOTS = ["LW", "C", "RW", "LD", "G", "RD"];
   // Editorial logo references only; statistics require a fresh SportsGamer fetch.
@@ -628,7 +724,7 @@ window.SWNViewerBridge=(()=>{
 
   function renderSeries(){const bo=Number($("#seriesFormat")?.value||5),need=Math.ceil(bo/2),hw=Math.max(0,Math.min(need,Number($("#seriesHome")?.value||0))),aw=Math.max(0,Math.min(need,Number($("#seriesAway")?.value||0))),round=($("#seriesRound")?.value||tx("playoffs")).trim().toLocaleUpperCase(LOCALE),h=selectedTeam("home"),a=selectedTeam("away");renderLiveSeries(hw,aw,need);renderRoad();$("#seriesHomeScore").textContent=hw;$("#seriesAwayScore").textContent=aw;$("#seriesKicker").textContent=round+" · "+seriesBestOf(bo);const dots=(wins)=>Array.from({length:need},(_,i)=>'<i class="'+(i<wins?"won":"")+'"></i>').join("");$("#seriesHomeDots").innerHTML=dots(hw);$("#seriesAwayDots").innerHTML=dots(aw);const done=hw===need||aw===need;$("#seriesTitle").textContent=done?(hw===need?h.team_name_in_league:a.team_name_in_league)+" "+tx("winsSeries"):tx("seriesState");$("#seriesNext").textContent=done?tx("seriesDone")+" · "+hw+"–"+aw:tx("nextMatch")+" · "+(hw+aw+1);const showResults=!!$("#seriesShowResults")?.checked,results=Array.from({length:bo},(_,i)=>($("#seriesR"+(i+1))?.value||"").trim()).map((v,i)=>v?'<span><b>M'+(i+1)+'</b> '+esc(v.replace(/\s+/g,""))+'</span>':"").filter(Boolean),resultBox=$("#seriesResults");if(resultBox){resultBox.hidden=!showResults||!results.length;$("#seriesResultsList").innerHTML=results.join("");}for(let i=1;i<=7;i++){const label=$("#seriesR"+i)?.closest("label");if(label)label.hidden=i>bo;}["seriesHome","seriesAway"].forEach(id=>{const el=$("#"+id);if(el)el.max=need;});}
 
-  function studioState(){const ls={};["home","away"].forEach(side=>{const l=lineupFor(side);ls[side]={};SLOTS.forEach(slot=>ls[side][slot]=l[slot]||"");});return {arenaMist:!!$("#arenaMist")?.checked,footerBrand,competitionProfileId:activeLeagueId,transientSource:currentSourceReference,matchName:String(window.__sehTwitchState?.matchName||""),leagueId:activeLeagueId,theme:$("#theme")?.value||"broadcast",backgroundPackage:$("#theme")?.value||"broadcast",graphicsPackage:$("#graphicsPackage")?.value||"standard",liveSeriesShow:!!$("#showLiveSeries")?.checked,seriesFormat:$("#seriesFormat")?.value||"5",seriesRound:$("#seriesRound")?.value||tx("playoffs"),seriesHome:$("#seriesHome")?.value||"0",seriesAway:$("#seriesAway")?.value||"0",seriesShowResults:!!$("#seriesShowResults")?.checked,seriesResults:Array.from({length:7},(_,i)=>$("#seriesR"+(i+1))?.value||""),scene:activeScene,lineupSide:$("#lineupSide").value,home:$("#home").value,away:$("#away").value,hs:$("#hs").value,as:$("#as").value,headline:$("#headline").value,subline:$("#subline").value,commentator1:$("#commentator1").value,commentator2:$("#commentator2").value,person:$("#person").value,role:$("#role").value,videoSource:$("#videoSource")?.value||"twitch",hlsUrl:$("#hlsUrl")?.value||"",twitchChannel:$("#twitchChannel")?.value||"",twitchShow:$("#showTwitch")?.checked!==false,twitchMute:$("#muteTwitch")?.checked!==false,liveTeamStripShow:$("#showLiveTeamStrip")?.checked!==false,liveCommentatorsShow:!!$("#showLiveCommentators")?.checked,lineups:ls};}
+  function studioState(){const ls={};["home","away"].forEach(side=>{const l=lineupFor(side);ls[side]={};SLOTS.forEach(slot=>ls[side][slot]=l[slot]||"");});return {sceneMusic:{...sceneMusic},arenaMist:!!$("#arenaMist")?.checked,footerBrand,competitionProfileId:activeLeagueId,transientSource:currentSourceReference,matchName:String(window.__sehTwitchState?.matchName||""),leagueId:activeLeagueId,theme:$("#theme")?.value||"broadcast",backgroundPackage:$("#theme")?.value||"broadcast",graphicsPackage:$("#graphicsPackage")?.value||"standard",liveSeriesShow:!!$("#showLiveSeries")?.checked,seriesFormat:$("#seriesFormat")?.value||"5",seriesRound:$("#seriesRound")?.value||tx("playoffs"),seriesHome:$("#seriesHome")?.value||"0",seriesAway:$("#seriesAway")?.value||"0",seriesShowResults:!!$("#seriesShowResults")?.checked,seriesResults:Array.from({length:7},(_,i)=>$("#seriesR"+(i+1))?.value||""),scene:activeScene,lineupSide:$("#lineupSide").value,home:$("#home").value,away:$("#away").value,hs:$("#hs").value,as:$("#as").value,headline:$("#headline").value,subline:$("#subline").value,commentator1:$("#commentator1").value,commentator2:$("#commentator2").value,person:$("#person").value,role:$("#role").value,videoSource:$("#videoSource")?.value||"twitch",hlsUrl:$("#hlsUrl")?.value||"",twitchChannel:$("#twitchChannel")?.value||"",twitchShow:$("#showTwitch")?.checked!==false,twitchMute:$("#muteTwitch")?.checked!==false,liveTeamStripShow:$("#showLiveTeamStrip")?.checked!==false,liveCommentatorsShow:!!$("#showLiveCommentators")?.checked,lineups:ls};}
   function applyScene(name,side){
     const next=name||"opening";
     const nextSide=side||$("#lineupSide").value;
@@ -644,6 +740,7 @@ window.SWNViewerBridge=(()=>{
     displayedLineupSide=next==="lineup"?nextSide:displayedLineupSide;
     document.querySelectorAll("[data-scene]").forEach(x=>x.classList.toggle("active",x.dataset.scene===next&&(!x.dataset.lineupSide||x.dataset.lineupSide===$("#lineupSide").value)));
     activeScene=next;
+    syncSceneMusic();
     if($("#screen"))$("#screen").dataset.arenaScene=next;
     document.getElementById('screen')?.classList.toggle('no-match',next==='idle'||next==='nextmatch');
     if(!target)return;
@@ -685,7 +782,7 @@ window.SWNViewerBridge=(()=>{
     },420);
   }
   let lastOutputControls=null;
-  function applyRemoteState(s){if(!s||typeof s!=="object")return;if(OBS_MODE&&window.BroadcastStatsUpdate){const signature=window.BroadcastStatsUpdate.controls(s);if(signature===lastOutputControls){if(Object.hasOwn(s,"transientSource"))void sourceProvider?.receive(s.transientSource);return;}lastOutputControls=signature;}remoteApplying=true;const incomingLeague=Number(s.leagueId||activeLeagueId);if(COMPETITIONS[incomingLeague]&&incomingLeague!==activeLeagueId){activeLeagueId=incomingLeague;if($("#tournament"))$("#tournament").value=String(activeLeagueId);applyCompetitionChrome(false);loadTournamentData();}if(Object.hasOwn(s,"transientSource"))void sourceProvider?.receive(s.transientSource);applyCompetitionChrome(false,Number(s.competitionProfileId||incomingLeague));setTheme(s.backgroundPackage||s.theme||"broadcast");setGraphicsPackage(s.graphicsPackage||"standard");setFooterBrand(s.footerBrand);if($("#videoSource")&&s.videoSource!==undefined)$("#videoSource").value=s.videoSource||"twitch";if($("#hlsUrl")&&s.hlsUrl!==undefined)$("#hlsUrl").value=s.hlsUrl||"";if($("#twitchChannel")&&s.twitchChannel!==undefined)$("#twitchChannel").value=s.twitchChannel||"";if($("#showTwitch")&&s.twitchShow!==undefined)$("#showTwitch").checked=!!s.twitchShow;if($("#muteTwitch")&&s.twitchMute!==undefined)$("#muteTwitch").checked=!!s.twitchMute;if($("#showLiveTeamStrip")&&s.liveTeamStripShow!==undefined)$("#showLiveTeamStrip").checked=!!s.liveTeamStripShow;if($("#showLiveCommentators")&&s.liveCommentatorsShow!==undefined)$("#showLiveCommentators").checked=!!s.liveCommentatorsShow;$("#screen")?.classList.toggle("live-team-strip-off",$("#showLiveTeamStrip")?.checked===false);$("#screen")?.classList.toggle("live-commentators-off",!$("#showLiveCommentators")?.checked);window.__sehTwitchState=s;["home","away"].forEach(id=>{if(s[id]!==undefined&&$("#"+id)){const el=$("#"+id),v=String(s[id]);if(v&&![...el.options].some(o=>o.value===v))el.add(new Option(tx("team"),v));el.value=v;}});["hs","as","headline","subline","commentator1","commentator2","person","role","seriesFormat","seriesRound","seriesHome","seriesAway"].forEach(id=>{if(s[id]!==undefined&&$("#"+id))$("#"+id).value=s[id];});if($("#seriesShowResults")&&s.seriesShowResults!==undefined)$("#seriesShowResults").checked=!!s.seriesShowResults;if(Array.isArray(s.seriesResults))s.seriesResults.slice(0,7).forEach((v,i)=>{const el=$("#seriesR"+(i+1));if(el)el.value=v||"";});if(s.lineups){["home","away"].forEach(side=>{if(!s.lineups[side])return;const key=side+":"+String(selectedTeam(side).sports_gamer_team_id);const next={};SLOTS.forEach(slot=>next[slot]=String(s.lineups[side][slot]||""));lineups.set(key,next);});}setArenaMist(s.arenaMist===true);applyScene(s.scene,s.lineupSide);window.dispatchEvent(new CustomEvent("seh:twitch-state",{detail:s}));renderMatch();if($("#showLiveSeries"))$("#showLiveSeries").checked=s.liveSeriesShow===true;renderSeries();renderLineup();renderStats();renderTable();renderTeamCompare();renderScorers();renderFormGuide();renderOffense();renderDefenseLeaders();renderGoalieLeaders();renderRoad();renderLeaders();renderRoleMatchups();remoteApplying=false;}
+  function applyRemoteState(s){if(!s||typeof s!=="object")return;if(OBS_MODE&&window.BroadcastStatsUpdate){const signature=window.BroadcastStatsUpdate.controls(s);if(signature===lastOutputControls){if(Object.hasOwn(s,"transientSource"))void sourceProvider?.receive(s.transientSource);return;}lastOutputControls=signature;}remoteApplying=true;const incomingLeague=Number(s.leagueId||activeLeagueId);if(COMPETITIONS[incomingLeague]&&incomingLeague!==activeLeagueId){activeLeagueId=incomingLeague;if($("#tournament"))$("#tournament").value=String(activeLeagueId);applyCompetitionChrome(false);loadTournamentData();}if(Object.hasOwn(s,"transientSource"))void sourceProvider?.receive(s.transientSource);applyCompetitionChrome(false,Number(s.competitionProfileId||incomingLeague));setTheme(s.backgroundPackage||s.theme||"broadcast");setGraphicsPackage(s.graphicsPackage||"standard");setFooterBrand(s.footerBrand);if($("#videoSource")&&s.videoSource!==undefined)$("#videoSource").value=s.videoSource||"twitch";if($("#hlsUrl")&&s.hlsUrl!==undefined)$("#hlsUrl").value=s.hlsUrl||"";if($("#twitchChannel")&&s.twitchChannel!==undefined)$("#twitchChannel").value=s.twitchChannel||"";if($("#showTwitch")&&s.twitchShow!==undefined)$("#showTwitch").checked=!!s.twitchShow;if($("#muteTwitch")&&s.twitchMute!==undefined)$("#muteTwitch").checked=!!s.twitchMute;if($("#showLiveTeamStrip")&&s.liveTeamStripShow!==undefined)$("#showLiveTeamStrip").checked=!!s.liveTeamStripShow;if($("#showLiveCommentators")&&s.liveCommentatorsShow!==undefined)$("#showLiveCommentators").checked=!!s.liveCommentatorsShow;$("#screen")?.classList.toggle("live-team-strip-off",$("#showLiveTeamStrip")?.checked===false);$("#screen")?.classList.toggle("live-commentators-off",!$("#showLiveCommentators")?.checked);window.__sehTwitchState=s;["home","away"].forEach(id=>{if(s[id]!==undefined&&$("#"+id)){const el=$("#"+id),v=String(s[id]);if(v&&![...el.options].some(o=>o.value===v))el.add(new Option(tx("team"),v));el.value=v;}});["hs","as","headline","subline","commentator1","commentator2","person","role","seriesFormat","seriesRound","seriesHome","seriesAway"].forEach(id=>{if(s[id]!==undefined&&$("#"+id))$("#"+id).value=s[id];});if($("#seriesShowResults")&&s.seriesShowResults!==undefined)$("#seriesShowResults").checked=!!s.seriesShowResults;if(Array.isArray(s.seriesResults))s.seriesResults.slice(0,7).forEach((v,i)=>{const el=$("#seriesR"+(i+1));if(el)el.value=v||"";});if(s.lineups){["home","away"].forEach(side=>{if(!s.lineups[side])return;const key=side+":"+String(selectedTeam(side).sports_gamer_team_id);const next={};SLOTS.forEach(slot=>next[slot]=String(s.lineups[side][slot]||""));lineups.set(key,next);});}setArenaMist(s.arenaMist===true);setSceneMusic(s.sceneMusic);applyScene(s.scene,s.lineupSide);window.dispatchEvent(new CustomEvent("seh:twitch-state",{detail:s}));renderMatch();if($("#showLiveSeries"))$("#showLiveSeries").checked=s.liveSeriesShow===true;renderSeries();renderLineup();renderStats();renderTable();renderTeamCompare();renderScorers();renderFormGuide();renderOffense();renderDefenseLeaders();renderGoalieLeaders();renderRoad();renderLeaders();renderRoleMatchups();remoteApplying=false;}
   async function remoteRequest(method,body){const cfg=window.EHOCKEY_CONFIG||{};if(!cfg.supabaseUrl||!cfg.supabasePublishableKey)return;const key=String(cfg.supabasePublishableKey),headers={apikey:key,Accept:"application/json","Content-Type":"application/json"};if(/^eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(key))headers.Authorization="Bearer "+key;if(method!=="GET"){const session=await window.SWNStudioAccess?.session();if(!session)throw new Error("Admininloggning krävs.");headers.Authorization="Bearer "+session.access_token;}const url=String(cfg.supabaseUrl).replace(/\/+$/,"")+"/rest/v1/broadcast_studio_state?channel=eq."+encodeURIComponent(REMOTE_CHANNEL);const res=await fetch(url,{method,headers,body:body?JSON.stringify(body):undefined,cache:"no-store"});if(!res.ok)throw new Error("Broadcast state HTTP "+res.status);return method==="GET"?res.json():null;}
   // Preparing a match must never publish its state to the program output.
   let programState=null,programHeld=true,canResumeProgram=false,takeSequence=0;
@@ -854,6 +951,7 @@ window.SWNViewerBridge=(()=>{
   for(let i=1;i<=7;i++)$("#seriesR"+i)?.addEventListener("input",()=>{renderSeries();publishState();});
   $("#seriesRound")?.addEventListener("input",()=>{renderSeries();publishState();});
   installArenaMist();
+  installSceneMusic();
   setTheme($("#theme")?.value||"broadcast");
   setGraphicsPackage($("#graphicsPackage")?.value||"standard");
   $("#lineupEditors").addEventListener("change", event => {
