@@ -20,6 +20,16 @@
 .lineup .players .player>img{transform:scale(2.22);transform-origin:center top}
 .lineup .players .player>img[src*="1DEFAULTBILDID.png" i]{transform:scale(1.62)}
 
+/* Crop within the portrait column so larger faces never overlap the stats. */
+.portrait-crop{display:block;position:relative;min-width:0;min-height:0;overflow:hidden;--portrait-zoom:1.55}
+.portrait-crop>img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+  object-position:center top;transform:scale(var(--portrait-zoom));transform-origin:center top;
+}
+:is(.scorer,.lb-player,.off-top)>.portrait-crop{--portrait-zoom:1.72}
+:is(.goalie-person,.key-person,.spotlight-player)>.portrait-crop{--portrait-zoom:1.46}
+.portrait-crop>img[src*="1DEFAULTBILDID.png" i]{transform:scale(1.12)}
+
 .lineup-title{display:flex;align-items:center;justify-content:space-between;gap:24px}.lineup-title>div{min-width:0}.lineup-title #lineupTeamLogo{width:92px;height:92px;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 7px 14px #0008)}
 
 /* Players to Watch: keep all four cards inside the 1080 composition */
@@ -54,9 +64,9 @@
 .intermission .score>span{font-size:64px;color:#607789;font-weight:300}
 .intermission .next{font-size:clamp(13px,1.15vw,19px);letter-spacing:.18em;opacity:.92}
 
-.rolematch{flex-direction:column}.role-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;flex:1;min-height:0}.role-grid.two{grid-template-rows:1fr}.role-card{display:grid;grid-template-columns:42% 58%;min-height:0;overflow:hidden;border:1px solid #ffffff24;background:linear-gradient(135deg,#123d59,#071621)}.role-card>img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 10px 14px #0008)}.role-info{padding:14px 16px;display:flex;flex-direction:column;justify-content:center;min-width:0;background:linear-gradient(90deg,#07162144,#071621 28%)}.role-team{display:flex;align-items:center;gap:8px;color:#9db0bf}.role-team img{width:34px;height:34px;object-fit:contain}.role-info>strong{font-size:clamp(15px,1.5vw,25px);margin:5px 0 8px}.role-head,.role-stat{display:grid;grid-template-columns:1fr 62px 62px;align-items:center;gap:8px}.role-head{color:#f4b21b;font-size:9px;margin-bottom:2px}.role-stat{border-top:1px solid #ffffff18;padding:4px 0}.role-stat span{font-size:10px;color:#9db0bf;font-weight:900}.role-stat b{text-align:center;font-size:clamp(12px,1.15vw,19px)}.role-card.empty{display:grid;place-items:center;color:#70808e}.role-grid.two .role-card{grid-template-columns:48% 52%}.role-grid.two .role-card>img{transform:scale(1.08);transform-origin:center bottom}
+.rolematch{flex-direction:column}.role-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;flex:1;min-height:0}.role-grid.two{grid-template-rows:1fr}.role-card{display:grid;grid-template-columns:42% 58%;min-height:0;overflow:hidden;border:1px solid #ffffff24;background:linear-gradient(135deg,#123d59,#071621)}.role-card>:is(img,.portrait-crop){width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 10px 14px #0008)}.role-info{padding:14px 16px;display:flex;flex-direction:column;justify-content:center;min-width:0;background:linear-gradient(90deg,#07162144,#071621 28%)}.role-team{display:flex;align-items:center;gap:8px;color:#9db0bf}.role-team img{width:34px;height:34px;object-fit:contain}.role-info>strong{font-size:clamp(15px,1.5vw,25px);margin:5px 0 8px}.role-head,.role-stat{display:grid;grid-template-columns:1fr 62px 62px;align-items:center;gap:8px}.role-head{color:#f4b21b;font-size:9px;margin-bottom:2px}.role-stat{border-top:1px solid #ffffff18;padding:4px 0}.role-stat span{font-size:10px;color:#9db0bf;font-weight:900}.role-stat b{text-align:center;font-size:clamp(12px,1.15vw,19px)}.role-card.empty{display:grid;place-items:center;color:#70808e}.role-grid.two .role-card{grid-template-columns:48% 52%}.role-grid.two .role-card>:is(img,.portrait-crop){transform:scale(1.08);transform-origin:center bottom}
 
-.role-grid-six{grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr}.role-grid-six .role-card{grid-template-columns:43% 57%}.role-grid-six .role-info{padding:10px}.role-grid-six .role-team img{width:26px;height:26px}.role-grid-six .role-info>strong{font-size:clamp(12px,1vw,17px)}.role-grid-six .role-head,.role-grid-six .role-stat{grid-template-columns:1fr 48px 48px}.role-grid-six .role-stat{padding:2px 0}.role-grid-six .role-stat b{font-size:clamp(10px,.85vw,14px)}.key-grid .role-card{grid-template-columns:52% 48%}.spotlight{padding:0!important}.spotlight-wrap{height:100%}.spotlight-player{height:100%;display:grid;grid-template-columns:48% 52%;align-items:end}.spotlight-player>img{width:100%;height:92%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 20px 24px #000a)}.spotlight-copy{align-self:center;padding:40px}.spotlight-team{display:flex;align-items:center;gap:14px;color:#a9bac6;font-weight:800}.spotlight-team img{width:70px;height:70px;object-fit:contain}.spotlight-copy h2{font-size:clamp(38px,4.2vw,72px);margin:10px 0 2px}.spotlight-copy h3{margin:0 0 28px;color:#f4b21b;font-size:22px}.spotlight-total{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid #ffffff25;padding-bottom:18px;margin-bottom:18px}.spotlight-total b{font-size:72px;color:#f4b21b}.spotlight-total span{font-weight:900;letter-spacing:.12em}.spotlight-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.spotlight-stats div{border-left:2px solid #f4b21b;padding-left:10px}.spotlight-stats b{display:block;font-size:30px}.spotlight-stats span{font-size:9px;color:#9db0bf;font-weight:900}
+.role-grid-six{grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr}.role-grid-six .role-card{grid-template-columns:43% 57%}.role-grid-six .role-info{padding:10px}.role-grid-six .role-team img{width:26px;height:26px}.role-grid-six .role-info>strong{font-size:clamp(12px,1vw,17px)}.role-grid-six .role-head,.role-grid-six .role-stat{grid-template-columns:1fr 48px 48px}.role-grid-six .role-stat{padding:2px 0}.role-grid-six .role-stat b{font-size:clamp(10px,.85vw,14px)}.key-grid .role-card{grid-template-columns:52% 48%}.spotlight{padding:0!important}.spotlight-wrap{height:100%}.spotlight-player{height:100%;display:grid;grid-template-columns:48% 52%;align-items:end}.spotlight-player>:is(img,.portrait-crop){width:100%;height:92%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 20px 24px #000a)}.spotlight-copy{align-self:center;padding:40px}.spotlight-team{display:flex;align-items:center;gap:14px;color:#a9bac6;font-weight:800}.spotlight-team img{width:70px;height:70px;object-fit:contain}.spotlight-copy h2{font-size:clamp(38px,4.2vw,72px);margin:10px 0 2px}.spotlight-copy h3{margin:0 0 28px;color:#f4b21b;font-size:22px}.spotlight-total{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid #ffffff25;padding-bottom:18px;margin-bottom:18px}.spotlight-total b{font-size:72px;color:#f4b21b}.spotlight-total span{font-weight:900;letter-spacing:.12em}.spotlight-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.spotlight-stats div{border-left:2px solid #f4b21b;padding-left:10px}.spotlight-stats b{display:block;font-size:30px}.spotlight-stats span{font-size:9px;color:#9db0bf;font-weight:900}
 
 /* Blue Line: keep portraits inside the assigned grid row; start stats below the name. */
 .defense .scene-title{flex:0 0 auto;margin-bottom:10px}
@@ -65,7 +75,7 @@
   grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:10px
 }
 .defense .role-card:not(.empty){grid-template-columns:minmax(0,36fr) minmax(0,64fr);grid-template-rows:minmax(0,1fr)}
-.defense .role-card>img{min-width:0;min-height:0;max-height:100%}
+.defense .role-card>:is(img,.portrait-crop){min-width:0;min-height:0;max-height:100%}
 .defense .role-card>.sil{position:relative;inset:auto;min-height:0}
 .defense .role-info{padding:8px 12px;min-height:0;justify-content:flex-start;overflow:hidden}
 .defense .role-team{gap:6px;line-height:1}
@@ -84,7 +94,7 @@
 .goalies .scene-title{margin-bottom:18px}
 .goalies #goaliesGrid.goalie-battle-grid,.goalies #goaliesGrid{width:94%;max-width:1660px;margin-inline:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(420px,.82fr) minmax(0,1fr);grid-template-rows:1fr;gap:16px;align-items:stretch}
 .goalie-person{position:relative;min-width:0;overflow:hidden;background:linear-gradient(135deg,#123d59,#071621);border:1px solid #ffffff24;display:flex;align-items:flex-end;justify-content:center}
-.goalie-person>img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 12px 18px #0009)}
+.goalie-person>:is(img,.portrait-crop){width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 12px 18px #0009)}
 .goalie-person.empty{display:grid;place-items:center;color:#70808e;font-weight:900}
 .goalie-name{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(0deg,#07131df7 58%,#07131d00)}
 .goalie-name>img{width:44px;height:44px;object-fit:contain;flex:0 0 auto}
@@ -105,7 +115,7 @@
 .keymatchup .scene-title{margin-bottom:18px}
 .keymatchup #keyGrid{width:94%;max-width:1660px;margin-inline:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(420px,.82fr) minmax(0,1fr);grid-template-rows:1fr;gap:16px;align-items:stretch}
 .key-person{position:relative;min-width:0;overflow:hidden;background:linear-gradient(135deg,#123d59,#071621);border:1px solid #ffffff24;display:flex;align-items:flex-end;justify-content:center}
-.key-person>img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 12px 18px #0009)}
+.key-person>:is(img,.portrait-crop){width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 12px 18px #0009)}
 .key-person.empty{display:grid;place-items:center;color:#70808e;font-weight:900}
 .key-name{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(0deg,#07131df7 58%,#07131d00)}
 .key-name>img{width:44px;height:44px;object-fit:contain;flex:0 0 auto}.key-name span{min-width:0}.key-name b{display:block;font-size:clamp(14px,1.25vw,21px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.key-name small{display:block;color:#9db0bf;margin-top:3px}
@@ -117,7 +127,7 @@
 
 /* Player Spotlight v45: keep full stat block inside 16:9 safe area */
 .spotlight-player{align-items:end}
-.spotlight-player>img{height:90%}
+.spotlight-player>:is(img,.portrait-crop){height:90%}
 .spotlight-copy{align-self:center;padding:18px 40px 12px;transform:translateY(-18px)}
 .spotlight-copy h2{font-size:clamp(36px,3.75vw,64px);line-height:.98;margin:8px 0 4px}
 .spotlight-copy h3{margin:0 0 14px}
@@ -130,7 +140,7 @@
 .screen>.scene.spotlight.active{display:block!important;overflow:hidden}
 .spotlight-wrap{width:100%;height:100%;min-width:0;min-height:0;overflow:hidden}
 .spotlight-player{width:100%;height:100%;min-width:0;min-height:0;grid-template-columns:minmax(0,48fr) minmax(0,52fr);grid-template-rows:minmax(0,1fr);align-items:stretch;overflow:hidden}
-.spotlight-player>img{display:block;width:100%;height:100%;max-width:100%;max-height:100%;min-width:0;min-height:0;object-fit:contain;object-position:center bottom}
+.spotlight-player>:is(img,.portrait-crop){display:block;width:100%;height:100%;max-width:100%;max-height:100%;min-width:0;min-height:0;object-fit:contain;object-position:center bottom}
 .spotlight-copy{min-width:0;min-height:0;align-self:center;padding:clamp(16px,2vw,32px);transform:none}
 .spotlight-copy h2{overflow-wrap:anywhere}
 .spotlight-stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
@@ -148,7 +158,7 @@
 .team-compare{width:92%;max-width:1580px;margin:24px auto 0;display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:16px;align-items:center}
 .tc-team{height:310px;background:#0b2d42;border:1px solid #ffffff25;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}.tc-team img{width:150px;height:150px;object-fit:contain}.tc-team b{font-size:24px}
 .tc-center{background:#07131de8;border:2px solid #ffffff35;padding:14px}.tc-cols,.tc-row{display:grid;grid-template-columns:1fr 1fr 100px 1fr 1fr;gap:7px;align-items:center;text-align:center}.tc-cols{background:#f4b21b;color:#07131d;padding:8px 0;font-size:9px;font-weight:950}.tc-row{padding:13px 0;border-bottom:1px solid #f4b21b88}.tc-row b{font-size:23px;color:#f4b21b}.tc-row span{font-size:9px;font-weight:950;color:#c3ced6}
-.scorer-grid{width:92%;max-width:1580px;margin:18px auto 0;display:grid;grid-template-columns:1fr 1fr;gap:20px}.scorer-side{background:#07131de8;border:1px solid #ffffff2b;padding:12px}.scorer-team{display:flex;align-items:center;gap:12px;padding:4px 8px 12px;border-bottom:2px solid #f4b21b}.scorer-team img{width:46px;height:46px;object-fit:contain}.scorer-team b{font-size:22px}.scorer{display:grid;grid-template-columns:34px 74px minmax(0,1fr) 60px 60px 72px;align-items:center;gap:10px;min-height:112px;border-bottom:1px solid #ffffff1c}.scorer>strong{font-size:28px;color:#f4b21b;text-align:center}.scorer>img{width:74px;height:104px;object-fit:contain;object-position:center bottom}.scorer div b{display:block;font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scorer div small{color:#9db0bf}.scorer>span{font-size:16px;font-weight:850}.scorer>em{font-style:normal;font-size:24px;font-weight:950;color:#f4b21b}
+.scorer-grid{width:92%;max-width:1580px;margin:18px auto 0;display:grid;grid-template-columns:1fr 1fr;gap:20px}.scorer-side{background:#07131de8;border:1px solid #ffffff2b;padding:12px}.scorer-team{display:flex;align-items:center;gap:12px;padding:4px 8px 12px;border-bottom:2px solid #f4b21b}.scorer-team img{width:46px;height:46px;object-fit:contain}.scorer-team b{font-size:22px}.scorer{display:grid;grid-template-columns:34px 74px minmax(0,1fr) 60px 60px 72px;align-items:center;gap:10px;min-height:112px;border-bottom:1px solid #ffffff1c}.scorer>strong{font-size:28px;color:#f4b21b;text-align:center}.scorer>:is(img,.portrait-crop){width:74px;height:104px;object-fit:contain;object-position:center bottom}.scorer div b{display:block;font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scorer div small{color:#9db0bf}.scorer>span{font-size:16px;font-weight:850}.scorer>em{font-style:normal;font-size:24px;font-weight:950;color:#f4b21b}
 
 
 /* More broadcast scenes v47 */
@@ -159,8 +169,8 @@
 .form-record{text-align:center;padding:22px 0 16px}.form-record strong{display:block;color:#f4b21b;font-size:58px;line-height:1}.form-record span,.form-stats span,.off-big span,.off-row span{font-size:9px;font-weight:950;color:#9db0bf;letter-spacing:.12em}
 .form-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form-stats div{background:#0b2d42;padding:13px;text-align:center}.form-stats b{display:block;font-size:24px}
 .off-big{text-align:center;padding:20px 0}.off-big b{display:block;font-size:58px;color:#f4b21b;line-height:1}.off-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.off-row div{text-align:center;background:#0b2d42;padding:12px}.off-row b{display:block;font-size:24px}
-.off-top{height:116px;margin-top:12px;display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:14px;border-top:1px solid #ffffff20}.off-top>img{width:90px;height:112px;object-fit:contain;object-position:center bottom}.off-top span small{display:block;color:#f4b21b;font-weight:950}.off-top span b{font-size:20px}.off-top strong{font-size:28px;color:#f4b21b}
-.lb-player{display:grid;grid-template-columns:34px 74px minmax(0,1fr) 64px 70px 72px;align-items:center;gap:10px;min-height:112px;border-bottom:1px solid #ffffff1c}.lb-player>strong{font-size:28px;color:#f4b21b;text-align:center}.lb-player>img{width:74px;height:104px;object-fit:contain;object-position:center bottom}.lb-player div b{display:block;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lb-player div small{color:#9db0bf}.lb-player>span{font-size:15px;font-weight:850;text-align:center}.lb-player>em{font-style:normal;font-size:22px;font-weight:950;color:#f4b21b;text-align:center}.goalie-lb .lb-player{grid-template-columns:34px 74px minmax(0,1fr) 66px 84px 70px}
+.off-top{height:116px;margin-top:12px;display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:14px;border-top:1px solid #ffffff20}.off-top>:is(img,.portrait-crop){width:90px;height:112px;object-fit:contain;object-position:center bottom}.off-top span small{display:block;color:#f4b21b;font-weight:950}.off-top span b{font-size:20px}.off-top strong{font-size:28px;color:#f4b21b}
+.lb-player{display:grid;grid-template-columns:34px 74px minmax(0,1fr) 64px 70px 72px;align-items:center;gap:10px;min-height:112px;border-bottom:1px solid #ffffff1c}.lb-player>strong{font-size:28px;color:#f4b21b;text-align:center}.lb-player>:is(img,.portrait-crop){width:74px;height:104px;object-fit:contain;object-position:center bottom}.lb-player div b{display:block;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lb-player div small{color:#9db0bf}.lb-player>span{font-size:15px;font-weight:850;text-align:center}.lb-player>em{font-style:normal;font-size:22px;font-weight:950;color:#f4b21b;text-align:center}.goalie-lb .lb-player{grid-template-columns:34px 74px minmax(0,1fr) 66px 84px 70px}
 
 
 /* Table scene v48: deliberate title/table split */
@@ -202,14 +212,14 @@
 .scorer-grid,.leaderboard-dual{gap:16px}
 .scorer-side,.lb-side{min-width:0;overflow:hidden}
 .scorer{grid-template-columns:30px 66px minmax(130px,1fr) 52px 52px 62px;gap:8px;min-height:98px}
-.scorer>img{width:66px;height:90px}.scorer div b{font-size:16px}.scorer>span{font-size:14px}.scorer>em{font-size:20px}
+.scorer>:is(img,.portrait-crop){width:66px;height:90px}.scorer div b{font-size:16px}.scorer>span{font-size:14px}.scorer>em{font-size:20px}
 .form-grid,.offense-grid{grid-template-columns:1fr 1fr}
 .form-card,.off-card{min-width:0}
 .form-record{padding:12px 0}.form-record strong{font-size:50px}
 .form-stats div{padding:10px}.form-stats b{font-size:21px}
-.off-big{padding:12px 0}.off-big b{font-size:50px}.off-row div{padding:10px}.off-top{height:100px}.off-top>img{height:96px}
+.off-big{padding:12px 0}.off-big b{font-size:50px}.off-row div{padding:10px}.off-top{height:100px}.off-top>:is(img,.portrait-crop){height:96px}
 .lb-player{grid-template-columns:30px 66px minmax(120px,1fr) 54px 58px 62px;gap:8px;min-height:96px}
-.lb-player>img{width:66px;height:90px}.lb-player div b{font-size:16px}.lb-player>span{font-size:13px}.lb-player>em{font-size:19px}
+.lb-player>:is(img,.portrait-crop){width:66px;height:90px}.lb-player div b{font-size:16px}.lb-player>span{font-size:13px}.lb-player>em{font-size:19px}
 .goalie-lb .lb-player{grid-template-columns:30px 66px minmax(120px,1fr) 58px 72px 58px}
 
 
@@ -302,7 +312,7 @@ body[data-background="gamenight"] .screen.arena-mist-enabled .teamcompare .tc-te
 .scorers .scorer-team b{font-size:22px}
 .scorers .scorer{grid-template-columns:34px 82px minmax(150px,1fr) 58px 58px 72px;min-height:104px;gap:10px}
 .scorers .scorer>strong{font-size:30px}
-.scorers .scorer>img{width:82px;height:98px;object-fit:contain;object-position:center bottom}
+.scorers .scorer>:is(img,.portrait-crop){width:82px;height:98px;object-fit:contain;object-position:center bottom}
 .scorers .scorer div b{font-size:17px}
 .scorers .scorer div small{font-size:10px}
 .scorers .scorer>span{font-size:15px}
@@ -314,7 +324,7 @@ body[data-background="gamenight"] .screen.arena-mist-enabled .teamcompare .tc-te
 .scorers .scorer-side{padding:14px 16px}
 .scorers .scorer{grid-template-columns:38px 94px minmax(155px,1fr) 62px 62px 78px;min-height:112px;gap:10px}
 .scorers .scorer>strong{font-size:32px}
-.scorers .scorer>img{width:94px;height:106px}
+.scorers .scorer>:is(img,.portrait-crop){width:94px;height:106px}
 .scorers .scorer div b{font-size:18px}
 .scorers .scorer div small{font-size:10px}
 .scorers .scorer>span{font-size:16px}
@@ -330,7 +340,7 @@ body[data-background="gamenight"] .screen.arena-mist-enabled .teamcompare .tc-te
 .scorers .scorer-team b{font-size:23px}
 .scorers .scorer{grid-template-columns:40px 108px minmax(160px,1fr) 64px 64px 82px;min-height:132px;gap:12px}
 .scorers .scorer>strong{font-size:34px}
-.scorers .scorer>img{width:108px;height:126px;object-fit:contain;object-position:center bottom}
+.scorers .scorer>:is(img,.portrait-crop){width:108px;height:126px;object-fit:contain;object-position:center bottom}
 .scorers .scorer div b{font-size:19px}
 .scorers .scorer div small{font-size:10px}
 .scorers .scorer>span{font-size:16px}
@@ -346,7 +356,7 @@ body[data-background="gamenight"] .screen.arena-mist-enabled .teamcompare .tc-te
 .scorers .scorer-team b{font-size:21px}
 .scorers .scorer{grid-template-columns:36px 90px minmax(155px,1fr) 60px 60px 76px;min-height:0;height:calc((100% - 66px)/3);gap:10px}
 .scorers .scorer>strong{font-size:31px}
-.scorers .scorer>img{width:90px;height:100%;max-height:112px}
+.scorers .scorer>:is(img,.portrait-crop){width:90px;height:100%;max-height:112px}
 .scorers .scorer div b{font-size:17px}
 .scorers .scorer>span{font-size:15px}
 .scorers .scorer>em{font-size:23px}
@@ -361,7 +371,7 @@ body[data-background="gamenight"] .screen.arena-mist-enabled .teamcompare .tc-te
 .defenseleaders .lb-team b{font-size:21px}
 .defenseleaders .lb-player{grid-template-columns:36px 90px minmax(155px,1fr) 60px 60px 76px;min-height:0;height:calc((100% - 66px)/3);gap:10px}
 .defenseleaders .lb-player>strong{font-size:31px}
-.defenseleaders .lb-player>img{width:90px;height:100%;max-height:112px;object-fit:contain;object-position:center bottom}
+.defenseleaders .lb-player>:is(img,.portrait-crop){width:90px;height:100%;max-height:112px;object-fit:contain;object-position:center bottom}
 .defenseleaders .lb-player div b{font-size:17px}
 .defenseleaders .lb-player div small{font-size:10px}
 .defenseleaders .lb-player>span{font-size:15px}
@@ -377,7 +387,7 @@ body[data-background="gamenight"] .screen.arena-mist-enabled .teamcompare .tc-te
 .goalieleaders .lb-team b{font-size:21px}
 .goalieleaders .lb-player{grid-template-columns:36px 90px minmax(155px,1fr) 64px 82px 68px;min-height:112px;height:auto;gap:10px}
 .goalieleaders .lb-player>strong{font-size:31px}
-.goalieleaders .lb-player>img{width:90px;height:108px;object-fit:contain;object-position:center bottom}
+.goalieleaders .lb-player>:is(img,.portrait-crop){width:90px;height:108px;object-fit:contain;object-position:center bottom}
 .goalieleaders .lb-player div b{font-size:17px}
 .goalieleaders .lb-player div small{font-size:10px}
 .goalieleaders .lb-player>span{font-size:15px}

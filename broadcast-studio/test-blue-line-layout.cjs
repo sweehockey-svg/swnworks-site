@@ -2,6 +2,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
 const {chromium}=require('C:/Users/TheSw/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
 const js=read('broadcast-studio.js');
+const imageHelper=js.slice(js.indexOf('  function image('),js.indexOf('  function playerFlag('));
 const matchupCard=js.slice(js.indexOf('  function matchupCard('),js.indexOf('  function bestLineupSkater('));
 (async()=>{
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
@@ -15,7 +16,8 @@ const matchupCard=js.slice(js.indexOf('  function matchupCard('),js.indexOf('  f
     const portrait='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="2800"><rect width="1600" height="2800" fill="navy"/></svg>');
     const selectedTeam=side=>({team_name_in_league:side==='home'?'INVICTUS AEGIS':'LättyStugan HC'});
     const lineupPlayer=(side,slot)=>({player_number:27,display_gamertag:'Kungenanton02',portrait:side==='away'&&slot==='RD'?'':portrait,regular_skater_games:14,playoff_skater_games:4,regular_penalty_minutes:12,playoff_penalty_minutes:2});
-    const playerImage=p=>p.portrait,playerFlag=()=>'',logo=()=>portrait,image=src=>src?'<img src="'+src+'">':'<div class="sil">?</div>',esc=String,stat=v=>v??'–',tx=k=>k==='group'?'GRUPPSPEL':'SLUTSPEL';
+    const playerImage=p=>p.portrait,playerFlag=()=>'',logo=()=>portrait,esc=String,stat=v=>v??'–',tx=k=>k==='group'?'GRUPPSPEL':'SLUTSPEL';
+    ${imageHelper}
     ${matchupCard}
     const screen=document.querySelector('#screen');
     document.body.replaceChildren(screen);
@@ -30,13 +32,17 @@ const matchupCard=js.slice(js.indexOf('  function matchupCard('),js.indexOf('  f
     const result=await page.locator('#defenseGrid .role-card').evaluateAll(cards=>cards.map(card=>{
      const box=card.getBoundingClientRect(),info=card.querySelector('.role-info').getBoundingClientRect(),rows=[...card.querySelectorAll('.role-stat')];
      const last=rows.at(-1).getBoundingClientRect();
-     return {rows:rows.map(row=>row.firstElementChild.textContent),pim:[...rows.at(-1).querySelectorAll('b')].map(b=>b.textContent),clearance:Math.min(info.bottom,box.bottom)-last.bottom};
+     const crop=card.querySelector('.portrait-crop'),rect=crop?.getBoundingClientRect();
+     return {rows:rows.map(row=>row.firstElementChild.textContent),pim:[...rows.at(-1).querySelectorAll('b')].map(b=>b.textContent),clearance:Math.min(info.bottom,box.bottom)-last.bottom,
+      portrait:crop?{clipped:getComputedStyle(crop).overflow==='hidden',zoom:new DOMMatrix(getComputedStyle(crop.firstElementChild).transform).a,fits:rect.height>0&&rect.right<=info.left+1}:null};
     }));
     assert.equal(result.length,4);
+    assert.equal(result.filter(card=>card.portrait).length,3);
     for(const card of result){
      assert.deepEqual(card.rows,['GP','G','A','P','PIM']);
      assert.deepEqual(card.pim,['12','2']);
      assert(card.clearance>=4,`${lang} ${width}px: last stat needs breathing room, got ${card.clearance}px`);
+     if(card.portrait)assert.deepEqual(card.portrait,{clipped:true,zoom:1.55,fits:true});
     }
    }
    await page.close();
