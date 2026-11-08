@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="ice-blue" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncR type="table" tableValues=".024 .071 .259 .616 .98"/>
+        <feFuncG type="table" tableValues=".102 .286 .545 .816 .99"/>
+        <feFuncB type="table" tableValues=".212 .502 .824 .976 1"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+</svg>

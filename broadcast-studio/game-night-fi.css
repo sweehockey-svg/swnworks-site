@@ -1,7 +1,7 @@
 /* Finnish Game Night. Keep the arena geometry and animation, and recolor
    only the backdrop layer so logos, portraits and flags retain their colors. */
 html[lang="fi"] body[data-background="gamenight"] .background-package-layer{
-  filter:grayscale(1) sepia(.38) hue-rotate(168deg) saturate(1.55);
+  filter:url("assets/game-night-fi-palette.svg?v=20261108-1#ice-blue");
 }
 html[lang="fi"] body[data-background="gamenight"] .screen.arena-mist-enabled .teamcompare .tc-team::before,
 html[lang="fi"] body[data-background="gamenight"][data-graphics="gamenight"] .arena-mist-enabled :is(.opening-match .team,.series-team):has(>img[src]:not([hidden]))::before{
