@@ -72,6 +72,11 @@ try{
  await a.waitForFunction(()=>!document.querySelector('[data-scene="groupmeetings"]').disabled);
  assert.equal(await a.locator('[data-lineup-side="home"]').textContent(),'Testlaget A');
  assert.equal(await a.locator('[data-lineup-side="away"]').textContent(),'Testlaget B');
+ assert.equal(await a.locator('#mobileHomeGoalsLabel').textContent(),'Hemmamål · Testlaget A');
+ assert.equal(await a.locator('#mobileAwayGoalsLabel').textContent(),'Bortamål · Testlaget B');
+ assert.equal(await a.locator('#seriesHomeLabel').textContent(),'Hemmavinster · Testlaget A');
+ assert.equal(await a.locator('#seriesAwayLabel').textContent(),'Bortavinster · Testlaget B');
+ assert.equal(await a.locator('#mobileFlipLiveTeams').textContent(),'Vänd lagrutan · Testlaget A överst');
  const names=state.lineupTeamNames;
  delete state.lineupTeamNames;
  await a.waitForFunction(()=>document.querySelector('[data-lineup-side="home"]').textContent==='TESTLAGET A');
@@ -137,6 +142,8 @@ try{
  const beforeFlip=structuredClone(state);
  await a.locator('#mobileFlipLiveTeams').click();
  await b.locator('#mobileFlipLiveTeams[aria-pressed="true"]').waitFor();
+ assert.equal(await b.locator('#mobileFlipLiveTeams').textContent(),'Vänd lagrutan · Testlaget B överst');
+ assert.equal(await b.locator('#mobileHomeGoalsLabel').textContent(),'Hemmamål · Testlaget A','Flipping just the live overlay does not swap the editor labels');
  assert.deepEqual(state,{...beforeFlip,liveTeamsReversed:true},'Live flip only affects the overlay');
  a.once('dialog',dialog=>dialog.accept());
  await a.locator('#mobileSwapTeams').click();
@@ -148,6 +155,11 @@ try{
  assert.equal(state.twitchChannel,beforeFlip.twitchChannel);
  assert.equal(await b.locator('[data-lineup-side="home"]').textContent(),'Testlaget B','Names follow team IDs when sides swap');
  assert.equal(await b.locator('[data-lineup-side="away"]').textContent(),'Testlaget A');
+ assert.equal(await b.locator('#mobileHomeGoalsLabel').textContent(),'Hemmamål · Testlaget B');
+ assert.equal(await b.locator('#mobileAwayGoalsLabel').textContent(),'Bortamål · Testlaget A');
+ assert.equal(await b.locator('#seriesHomeLabel').textContent(),'Hemmavinster · Testlaget B');
+ assert.equal(await b.locator('#seriesAwayLabel').textContent(),'Bortavinster · Testlaget A');
+ assert.equal(await b.locator('#mobileFlipLiveTeams').textContent(),'Vänd lagrutan · Testlaget B överst');
  state.seriesHome='1';state.seriesAway='0';state.hs='0';state.as='0';
  await a.waitForFunction(()=>document.querySelector('#seriesSummary').textContent.includes('1–0'));
  assert(await a.locator('#mobileFinalResult').isDisabled(),'Cannot finalize tied score');

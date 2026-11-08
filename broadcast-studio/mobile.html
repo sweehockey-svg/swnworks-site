@@ -45,7 +45,8 @@ button[disabled].pending{cursor:wait;opacity:1}
 .series-editor{margin:12px 0 4px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
 .series-editor summary{cursor:pointer;color:#9bafbc;font-size:12px;font-weight:800}
 .series-editor form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
-.series-editor label{display:grid;gap:4px;color:#afc2cf;font-size:12px}
+.series-editor label{display:grid;grid-template-rows:1fr auto;min-width:0;gap:4px;color:#afc2cf;font-size:12px}
+.series-editor label span{overflow-wrap:anywhere}
 .series-editor select,.series-editor input{width:100%;min-width:0;min-height:40px;padding:5px 8px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--text);font:inherit}
 .series-editor button,.series-editor [role="status"]{grid-column:1/-1}
 .series-editor button{min-height:40px}
@@ -130,5 +131,5 @@ button[disabled].pending{cursor:wait;opacity:1}
   </details>
   <div class="foot" id="footText">Hög och Låg gäller den aktiva scenen. Av ligger kvar vid scenbyte. Match Live är alltid utan musik.</div>
 </main>
-<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261108-group-meetings"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
+<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261108-team-labels"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
 

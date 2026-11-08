@@ -37,7 +37,7 @@ const I18N={
 const T=I18N[LANG];
 const labels=T.labels;
 const lineupFallback=side=>labels.lineup+" "+(side==="away"?(LANG==="sv"?"B":"A"):"H");
-function lineupTeamLabel(state,side){
+function teamLabel(state,side){
  if(!state||state.publicNoMatch||!state[side])return "";
  const names=state.lineupTeamNames;
  const id=String(state[side]);
@@ -89,8 +89,6 @@ const gameText=({
  fi:["Ottelu","Kotimaalit","Vierasmaalit","Tallenna tilanne","Tallenna lopputulos","Aloita seuraava ottelu","PÄÄTTYNYT","Tallennetaanko lopputulos ja sarjavoitto?","Tulos muuttui tai tallennus epäonnistui. Tarkista luvut.","Tallennettu lähetykseen.","Lopputulos ei voi olla tasan.","Ottelulla on jo tallennettu tulos."],
  de:["Spiel","Heimtore","Auswärtstore","Spielstand speichern","Endstand speichern","Nächstes Spiel starten","ENDE","Endstand speichern und den Sieg zur Serie zählen?","Der Spielstand hat sich geändert oder konnte nicht gespeichert werden. Prüfe die Zahlen.","In der Sendung gespeichert.","Ein Endstand kann nicht unentschieden sein.","Für dieses Spiel ist bereits ein Ergebnis gespeichert."]
 })[LANG];
-document.getElementById("mobileHomeGoalsLabel").textContent=gameText[1];
-document.getElementById("mobileAwayGoalsLabel").textContent=gameText[2];
 [gameProgress,gameFinal,gameNext].forEach((button,i)=>{button.textContent=gameText[i+3];});
 const swapTeams=document.getElementById("mobileSwapTeams"),flipLiveTeams=document.getElementById("mobileFlipLiveTeams");
 const orderText=({
@@ -99,6 +97,7 @@ const orderText=({
  fi:["Vaihda koti/vieras","Käännä livejärjestys","Koti ylimpänä","Vieras ylimpänä","Vaihdetaanko koti- ja vierasjoukkue? Tulokset, sarjavoitot ja kokoonpanot seuraavat joukkueita.","Joukkuejärjestys päivitetty.","Joukkuejärjestystä ei voitu vaihtaa. Tarkista aktiivinen ottelu."],
  de:["Heim/Gast tauschen","Live-Teamfeld umdrehen","Heim oben","Gast oben","Heim und Gast in der Sendung tauschen? Spielstand, Seriensiege und Aufstellungen bleiben bei ihren Teams.","Teamreihenfolge aktualisiert.","Teamreihenfolge konnte nicht geändert werden. Prüfe das aktive Spiel."]
 })[LANG];
+const onTop=({sv:name=>name+" överst",en:name=>name+" on top",fi:name=>name+" ylimpänä",de:name=>name+" oben"})[LANG];
 swapTeams.textContent=orderText[0];
 const seriesText=({
  sv:["Serieläge","Bäst av","Hemmavinster","Bortavinster","Spara vinstläge","Sparat i sändningen.","Kunde inte spara. Kontrollera det aktuella vinstläget och försök igen.","Vinstläget eller matchen ändrades. Kontrollera siffrorna igen."],
@@ -124,8 +123,18 @@ const seriesResetText=({
  de:["Frühere Ergebnisse löschen","Serie auf 0–0 setzen und frühere Ergebnisse löschen? Der aktuelle Spielstand bleibt unverändert."]
 })[LANG];
 const goalValue=input=>/^\d{1,2}$/.test(input.value)?Number(input.value):null;
-document.getElementById("seriesHomeLabel").textContent=seriesText[2];
-document.getElementById("seriesAwayLabel").textContent=seriesText[3];
+const teamFields=[
+ ["home","mobileHomeGoalsLabel",gameText[1]],["away","mobileAwayGoalsLabel",gameText[2]],
+ ["home","seriesHomeLabel",seriesText[2]],["away","seriesAwayLabel",seriesText[3]]
+].map(([side,id,label])=>[side,document.getElementById(id),label]);
+function renderTeamFields(state){
+ for(const [side,element,label] of teamFields){
+  const team=teamLabel(state,side);
+  const text=team?label+" · "+team:label;
+  if(element.textContent!==text)element.textContent=text;
+ }
+}
+renderTeamFields(null);
 seriesSave.textContent=seriesText[4];
 let seriesKey="",gameKey="";
 let busy=false,reading=false,revision=0,ready=false,received=null,lastReceived=0;
@@ -187,7 +196,8 @@ function controls(){
  swapTeams.disabled=locked||!orderValid(received);
  flipLiveTeams.disabled=swapTeams.disabled||scene!=="live";
  const reversed=received?.liveTeamsReversed===true;
- flipLiveTeams.textContent=orderText[1]+" · "+orderText[reversed?3:2];
+ const topTeam=teamLabel(received,reversed?"away":"home");
+ flipLiveTeams.textContent=orderText[1]+" · "+(topTeam?onTop(topTeam):orderText[reversed?3:2]);
  flipLiveTeams.setAttribute("aria-pressed",String(reversed));
  const finished=finalGame(received);
  const scoreLocked=locked||!gameKey||!!finished;
@@ -211,12 +221,12 @@ function render(state){
   b.classList.toggle("active",b.dataset.scene===scene&&(scene!=="lineup"||(b.dataset.lineupSide||"home")===side));
   b.classList.remove("pending");
   if(b.dataset.scene==="lineup"){
-   const team=lineupTeamLabel(state,b.dataset.lineupSide),fallback=lineupFallback(b.dataset.lineupSide);
+   const team=teamLabel(state,b.dataset.lineupSide),fallback=lineupFallback(b.dataset.lineupSide);
    b.textContent=team||fallback;
    b.setAttribute("aria-label",team?fallback+" · "+team:fallback);
   }
  });
- const lineupName=scene==="lineup"?lineupTeamLabel(state,side):"";
+ const lineupName=scene==="lineup"?teamLabel(state,side):"";
  current.textContent=scene==="lineup"?(lineupName?labels.lineup+" · "+lineupName:lineupFallback(side)):(labels[scene]||scene||"Ingen scen");
  const reason=!state||!Object.keys(state).length?"missing":state.publicNoMatch?"idle":Number.isFinite(expires)?"expired":"missing";
  const messages={
@@ -226,6 +236,7 @@ function render(state){
   de:{missing:"Keine Spieldaten auf Sendung. Daten abrufen und das vorbereitete Spiel im Hauptstudio live schalten.",idle:"Der Wartebildschirm ist aktiv. Setze die Sendung im Hauptstudio fort.",expired:"Die Spieldaten sind abgelaufen. Aktualisiere und bestätige die Statistik im Hauptstudio."}
  };
  matchStatus.textContent=ready?(state.subline||state.headline||"Aktiv sändning"):messages[LANG][reason];
+ renderTeamFields(state);
  renderSeriesEditor(state);
  renderMatchEditor(state);
  controls();
