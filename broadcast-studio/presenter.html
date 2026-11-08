@@ -101,14 +101,20 @@
   const seriesTitles={sv:"Serieläge",en:"Series score",fi:"Sarjatilanne",de:"Serienstand"};
   mountControls("seriesPicker",seriesTitles[lang],"series");
   const toolsLabels={
-    sv:["Fler studioverktyg","Separat arbetsyta för att förbereda matchen och styra sändningen. Kräver studioadmin."],
+    sv:["Fler studioverktyg","Förbered matchen och styr sändningen. Kräver behörighet för SV-studion."],
     en:["More studio tools","Separate workspace for preparing matches and running the broadcast. Studio admin access required."],
     fi:["Lisää studiotyökaluja","Erillinen työtila ottelun valmisteluun ja lähetyksen ohjaukseen. Vaatii studion ylläpitäjän oikeudet."],
     de:["Weitere Studiowerkzeuge","Separater Arbeitsbereich für Spielvorbereitung und Sendungssteuerung. Studio-Adminrechte erforderlich."]
   };
   const [toolsTitle,toolsHint]=toolsLabels[lang];
   document.getElementById("studioToolsTitle").textContent=toolsTitle;
-  document.getElementById("studioToolsHint").textContent=toolsHint;
+  const hint=document.getElementById("studioToolsHint");
+  hint.textContent=toolsHint;
+  if(lang==="sv"){
+    const mobile=document.createElement("a");mobile.href="mobile.html?lang=sv";mobile.target="_blank";mobile.rel="noopener";
+    mobile.textContent="Mobil scenväljare ↗";mobile.style.color="#ffdc77";
+    hint.append(" · ",mobile);
+  }
   const tools=document.getElementById("studioTools"),toolsFrame=document.getElementById("studioToolsFrame");
   toolsFrame.title=toolsTitle;
   let toolSize,toolStatus;
@@ -126,7 +132,7 @@
     toolStatus=new MutationObserver(fit);toolStatus.observe(doc.documentElement,{attributes:true,attributeFilter:["data-tools-ready","data-studio-locked"]});
     fit();
   });
-  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261109-tools-dashboard";};
+  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261109-sv-operator";};
   tools.addEventListener("toggle",loadTools);
   loadTools();
 })();

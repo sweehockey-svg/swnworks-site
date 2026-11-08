@@ -5,6 +5,8 @@
   const languageStudio = /^\/broadcast-studio\/(SV|en|fi|de)\/$/i.test(location.pathname);
   const params = new URLSearchParams(location.search);
   const sceneController = location.pathname === '/broadcast-studio/mobile.html';
+  const svTools = /^\/broadcast-studio\/sv\/$/i.test(location.pathname) && params.get('panel') === 'tools' && params.get('obs') !== '1';
+  const emailLogin = sceneController || svTools;
   const sceneChannel = ({sv:'sec21-bronze-test',en:'broadcast-en',fi:'broadcast-fi',de:'broadcast-de'}[(params.get('lang')||'sv').toLowerCase()]||'sec21-bronze-test');
   const output = languageStudio && params.get('obs') === '1';
   let client, started = false, checking = false;
@@ -33,10 +35,10 @@
   panel.innerHTML = '<div class="studio-login-card"><div class="studio-login-brand">SWNWORKS · ADMIN</div><h1>Logga in i SWNWORKS</h1><p>Endast ditt admin-konto har tillgång till SWNWORKS adminverktyg.</p><form><label>Inloggningsnamn<input name="username" value="eSwahn" autocomplete="username" required spellcheck="false"></label><label>Lösenord<input name="password" type="password" autocomplete="current-password" required></label><button type="submit">Logga in</button></form><p id="studio-login-status" role="status" aria-live="polite">Kontrollerar inloggningen…</p><a href="/">Till SWNWORKS</a></div>';
   document.body.appendChild(panel);
   const passwordForm = panel.querySelector('form');
-  if(sceneController){
-    panel.querySelector('.studio-login-brand').textContent='SWNWORKS · SCENSTYRNING';
-    panel.querySelector('h1').textContent='Logga in i scenväljaren';
-    panel.querySelector('p').textContent='Använd ditt eget konto med godkänd scenbehörighet. Du får inte tillgång till övriga adminverktyg.';
+  if(emailLogin){
+    panel.querySelector('.studio-login-brand').textContent=svTools?'SWNWORKS · SV-STUDION':'SWNWORKS · SCENSTYRNING';
+    panel.querySelector('h1').textContent=svTools?'Logga in i studioverktygen':'Logga in i scenväljaren';
+    panel.querySelector('p').textContent=svTools?'Använd ditt eget konto med behörighet att förbereda och sända matcher i SV-studion.':'Använd ditt eget konto med godkänd scenbehörighet. Du får inte tillgång till övriga adminverktyg.';
     panel.querySelector('[name="username"]').value='';
     panel.querySelector('[name="username"]').placeholder='Ditt användarnamn';
     const emailForm=document.createElement('form');
@@ -51,9 +53,10 @@
       event.preventDefault();if(!client)return;
       const button=emailForm.querySelector('button');button.disabled=true;message('Skickar inloggningslänk…');
       try{
-        const result=await client.auth.signInWithOtp({email:emailForm.querySelector('[name="email"]').value.trim().toLowerCase(),options:{shouldCreateUser:false,emailRedirectTo:location.origin+location.pathname+(sceneChannel==='sec21-bronze-test'?'':location.search)}});
+        const redirect=svTools?'/broadcast-studio/mobile.html':location.pathname+(sceneChannel==='sec21-bronze-test'?'':location.search);
+        const result=await client.auth.signInWithOtp({email:emailForm.querySelector('[name="email"]').value.trim().toLowerCase(),options:{shouldCreateUser:false,emailRedirectTo:location.origin+redirect}});
         if(result.error)throw result.error;
-        message('Inloggningslänk skickad. Öppna mejlet på samma mobil eller dator. Kontrollera även skräpposten.');
+        message('Inloggningslänk skickad. Öppna mejlet i samma webbläsare. '+(svTools?'Gå sedan tillbaka till presentatörsvyn.':'Kontrollera även skräpposten.'));
       }catch{message('Kunde inte skicka länken. Kontrollera adressen och att ditt konto är tillagt. Försök igen om en stund.');}
       finally{button.disabled=false;}
     };
@@ -67,17 +70,21 @@
     try {
       const { data, error } = await client.auth.getSession();
       if (error) throw error;
-      if (!data.session) { message(sceneController?'Logga in med ditt konto med godkänd scenbehörighet.':'Använd samma admininloggning som på Svensk eHockey.'); return false; }
+      if (!data.session) { message(emailLogin?'Logga in med ditt godkända konto.':'Använd samma admininloggning som på Svensk eHockey.'); return false; }
       const verified = await client.auth.getUser();
       if (verified.error || !verified.data.user) throw new Error('Inloggningen kunde inte verifieras. Logga in igen.');
       const access = sceneController ? await client.rpc('swn_studio_scene_access',{p_channel:sceneChannel}) : await client.rpc('swn_studio_admin_access');
-      if (access.error) throw new Error('Kunde inte kontrollera adminbehörigheten. Försök igen.');
-      if (access.data !== true) { message(sceneController?'Det här kontot saknar scenbehörighet för vald sändning. Kontakta SWNWORKS.':'Det här kontot har inte tillgång till studiorna. Logga in med ditt admin-konto.'); return false; }
+      if (access.error) throw new Error('Kunde inte kontrollera behörigheten. Försök igen.');
+      const operator=svTools&&access.data!==true?await client.rpc('swn_studio_sv_operator_access'):null;
+      if (operator?.error) throw new Error('Kunde inte kontrollera SV-behörigheten. Försök igen.');
+      if (access.data !== true && operator?.data !== true) { message(svTools?'Det här kontot saknar behörighet för SV-studions verktyg.':sceneController?'Det här kontot saknar scenbehörighet för vald sändning. Kontakta SWNWORKS.':'Det här kontot har inte tillgång till studiorna. Logga in med ditt admin-konto.'); return false; }
+      if(operator?.data===true)document.documentElement.setAttribute('data-sv-studio-operator','');
       await startScripts();
       const bar = document.createElement('div');
       bar.id = 'studio-session';
       bar.innerHTML = '<span>ADMIN · eSwahn</span><button type="button">Logga ut</button>';
       if(sceneController)bar.querySelector('span').textContent='SCENSTYRNING · '+(verified.data.user.email||'Inloggad').split('@')[0];
+      if(operator?.data===true)bar.querySelector('span').textContent='SV-STUDION · '+(verified.data.user.email||'Inloggad').split('@')[0];
       bar.querySelector('button').onclick = async () => {
         const result = await client.auth.signOut({ scope: 'local' });
         if (!result.error) location.reload();

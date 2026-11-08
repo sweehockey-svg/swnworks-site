@@ -79,6 +79,7 @@ html[data-tools-ready] body:not(.obs-preview)>main>:is(aside,.workspace){display
 html[data-tools-ready] main>.workspace>.stream-dock:empty{display:none}
 html[data-tools-ready] #studio-session{position:static;width:max-content;max-width:100%;margin:0 10px 10px auto;box-shadow:none}
 .presenter-tools-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:10px}
+html[data-sv-studio-operator] .presenter-tools-nav{grid-template-columns:repeat(3,minmax(0,1fr))}
 .presenter-tools-nav button{min-height:38px;padding:6px 10px;border:1px solid #2d4658;border-radius:6px;background:#0b1924;color:#b7ccdb;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
 .presenter-tools-nav button[aria-pressed="true"]{border-color:#f4c955;background:#222216;color:#ffdc77}
 .presenter-tools-nav button:focus-visible{outline:2px solid #f4c955;outline-offset:2px}

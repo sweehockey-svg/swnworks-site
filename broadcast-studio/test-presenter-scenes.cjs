@@ -4,7 +4,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
 (async()=>{
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
  try{
-  for(const mode of ['signed-out','denied','allowed']){
+  for(const mode of ['signed-out','denied','allowed','operator']){
    const origin='https://presenter.test',base=origin+'/broadcast-studio/',writes=[],errors=[];
    let toolsLoads=0;
    const page=await browser.newPage({viewport:{width:1280,height:800}});
@@ -16,13 +16,13 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     const session=mode==='signed-out'?null:{access_token:'fixture-token'};
     if(url.hostname==='cdn.jsdelivr.net')return route.fulfill({contentType:'application/javascript',body:`window.supabase={createClient:()=>({
       auth:{onAuthStateChange(){},getSession:async()=>({data:{session:${JSON.stringify(session)}}}),getUser:async()=>({data:{user:{email:"fixture@example.test"}}})},
-      rpc:async(name,args)=>({data:name==="swn_studio_scene_access"&&args.p_channel==="sec21-bronze-test"&&${mode==='allowed'}})
+      rpc:async(name,args)=>({data:(name==="swn_studio_scene_access"&&args.p_channel==="sec21-bronze-test"&&${['allowed','operator'].includes(mode)})||(name==="swn_studio_sv_operator_access"&&${mode==='operator'})})
     })};`});
     if(url.origin!==origin)return route.abort();
     if(file==='presenter.html'||file==='mobile.html')return route.fulfill({contentType:'text/html',body:read(file)});
-    if(url.searchParams.get('panel')==='tools'){
+    if(url.searchParams.get('panel')==='tools'||url.searchParams.has('scope-test')){
      toolsLoads++;
-     return route.fulfill({contentType:'text/html',body:'<!doctype html><html data-studio-locked><head><link rel="stylesheet" href="/studio-access.css"></head><body><main>Admin tools</main><script src="../broadcast-config.js"></script><script src="https://cdn.jsdelivr.net/mock-supabase.js"></script><script src="/studio-access.js"></script></body></html>'});
+     return route.fulfill({contentType:'text/html; charset=utf-8',body:'<!doctype html><html data-studio-locked><head><link rel="stylesheet" href="/studio-access.css"></head><body><main>Admin tools</main><script src="../broadcast-config.js"></script><script src="https://cdn.jsdelivr.net/mock-supabase.js"></script><script src="/studio-access.js"></script></body></html>'});
     }
     if(file==='studio-access.js'||file==='studio-access.css')return route.fulfill({contentType:file.endsWith('.css')?'text/css':'application/javascript',body:read('../'+file)});
     if(file==='broadcast-config.js')return route.fulfill({contentType:'application/javascript',body:`window.EHOCKEY_CONFIG={supabaseUrl:${JSON.stringify(origin)},supabasePublishableKey:"fixture"};`});
@@ -72,7 +72,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    const tools=page.locator('#studioToolsFrame');
    assert.equal(await tools.getAttribute('src'),null);
    assert.equal(await tools.isVisible(),false);
-   if(mode!=='allowed'){
+   if(!['allowed','operator'].includes(mode)){
     await frame.locator('#compactLoginLink').waitFor({state:'visible'});
     assert.equal(await frame.locator('#compactLoginLink').getAttribute('href'),'mobile.html?lang=sv');
     assert.equal(await frame.locator('[data-scene="live"]').isVisible(),false);
@@ -133,12 +133,25 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    }
    await page.locator('#studioToolsTitle').click();
    const toolsPage=page.frameLocator('#studioToolsFrame');
-   await toolsPage.locator('#studio-login').waitFor({state:'visible'});
+   if(mode==='operator'){
+    await toolsPage.locator('main').waitFor({state:'visible'});
+    assert.match(await toolsPage.locator('#studio-session').innerText(),/SV-STUDION/);
+    assert.equal(await toolsPage.locator('html[data-sv-studio-operator]').count(),1);
+   }else{
+    await toolsPage.locator('#studio-login').waitFor({state:'visible'});
+    assert.equal(await toolsPage.locator('main').isVisible(),false,'Scene access does not unlock full studio tools');
+   }
    assert.match(await tools.getAttribute('src'),/SV\/\?panel=tools/);
-   assert.equal(await toolsPage.locator('main').isVisible(),false,'Scene access does not unlock full studio tools');
    const toolsBox=await tools.boundingBox(),workBox=await page.locator('.commentator-workspace').boundingBox();
    assert(toolsBox.width>=workBox.width-24,'Advanced section spans both presenter columns');
    assert.equal(toolsLoads,1);
+   if(mode==='operator')for(const restricted of ['SV/?scope-test=1','fi/?panel=tools','en/?panel=tools','de/?panel=tools']){
+    await page.goto(base+restricted);
+    await page.locator('#studio-login').waitFor();
+    await page.waitForFunction(()=>document.querySelector('#studio-login-status')?.textContent!=='Kontrollerar inloggningen…',null,{timeout:5000});
+    assert.match(await page.locator('#studio-login-status').textContent(),/saknar behörighet|har inte tillgång/,restricted);
+    assert.equal(await page.locator('main').isVisible(),false);
+   }
    assert.deepEqual(errors,[]);
    await page.close();
   }

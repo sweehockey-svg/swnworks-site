@@ -225,6 +225,7 @@ const setupDirectorLayout=()=>{
    const broadcastControls=column(work.querySelector('.scene-dock'),work.querySelector('.preview-toolbar'),folded('.next-controls'));
    card('broadcast',names[2],work,column(quick),broadcastControls);
    const audio=card('audio',names[3],work,work.querySelector('.commentary-duo'),recordFold);
+   if(document.documentElement.hasAttribute('data-sv-studio-operator'))panels.at(-1).button.hidden=true;
    if(!audio.querySelector('.commentary-duo')){
     const waitForAudio=new MutationObserver(()=>{
      const group=broadcastControls.querySelector('.commentary-duo');
