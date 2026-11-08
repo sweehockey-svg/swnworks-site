@@ -1024,7 +1024,11 @@
   }
 
   function personName(id) { return peopleById().get(id)?.canonical_name || 'Okänd person'; }
-  function releaseBand(releaseId) { const rb = state.releaseBands.find(x => x.release_id === releaseId); return rb ? bandsById().get(rb.band_id) : null; }
+  function releaseBand(releaseId) {
+    // Samlingsskivor har flera medverkande band. Välj inte ett godtyckligt band.
+    const links = state.releaseBands.filter(x => x.release_id === releaseId);
+    return links.length === 1 ? bandsById().get(links[0].band_id) : null;
+  }
   function membershipsForBand(id) { return state.memberships.filter(x => x.band_id === id); }
   function membershipsForPerson(id) { return state.memberships.filter(x => x.person_id === id); }
   function isUppsalaBand(b) {
@@ -1794,7 +1798,7 @@
       const bandIds = [...new Set(links.filter(link => link.entity_type === 'band').map(link => link.entity_id))].filter(id => bands.has(id));
       const curatedInfo = curatedById.get(parsed.id);
       const records = releaseIds.length
-        ? releaseIds.map(releaseId => ({ releaseId, bandId:releaseBands.get(releaseId) || bandIds[0] || null }))
+        ? releaseIds.map(releaseId => ({ releaseId, bandId:bandIds[0] || releaseBands.get(releaseId) || null }))
         : bandIds.map(bandId => ({ releaseId:null, bandId }));
       for (const record of records) {
         const band = bands.get(record.bandId);
@@ -2676,7 +2680,7 @@
       return current?.dataset.releaseId === String(releaseId) ? current : null;
     };
     try {
-      const query = `${cfg.supabaseUrl}/rest/v1/release_tracks?select=id,disc_number,track_number,title,duration_seconds,source_id,notes&release_id=eq.${encodeURIComponent(releaseId)}&order=disc_number.asc,track_number.asc`;
+      const query = `${cfg.supabaseUrl}/rest/v1/release_tracks?select=id,disc_number,track_number,title,duration_seconds,source_id,notes,credited_band_id&release_id=eq.${encodeURIComponent(releaseId)}&order=disc_number.asc,track_number.asc`;
       const headers = {apikey: cfg.publishableKey, Accept: 'application/json'};
       const res = await fetch(query, {headers});
       if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -2717,6 +2721,10 @@
           const name = credit.credited_as || person?.canonical_name || 'Okänd';
           return `${escapeHtml(name)} · ${escapeHtml(roleSv(credit.role || ''))}`;
         }).join(' · ');
+        const performer = bandsById().get(track.credited_band_id);
+        const performerHtml = performer
+          ? '<span class="release-track-performer">Artist: <a href="' + escapeHtml(bandHref(performer)) + '">' + escapeHtml(performer.canonical_name) + '</a></span>'
+          : '';
         const note = String(track.notes || '').trim();
         const notes = note && noteGroups.get(note).length === 1 ? `<span class="release-track-note">${escapeHtml(note)}</span>` : '';
         return `<li class="release-track">
@@ -2726,6 +2734,7 @@
               ${youtubeTrackLink(releaseId, track.title)}
               ${displayCredits || notes ? `<button class="release-track-toggle" type="button" aria-expanded="false" aria-controls="track-info-${escapeHtml(releaseId)}-${escapeHtml(track.id)}" aria-label="Mer info om ${escapeHtml(track.title)}">Mer info</button>` : ''}
             </div></div>
+            ${performerHtml}
             ${displayCredits || notes ? `<div class="release-track-info-body" id="track-info-${escapeHtml(releaseId)}-${escapeHtml(track.id)}" hidden>
               ${displayCredits ? `<span class="release-track-credit">${displayCredits}</span>` : ''}
               ${notes}
@@ -2778,12 +2787,14 @@
   }
 
   function renderReleaseDetail(r) {
-    const band = releaseBand(r.id);
+    const linkedBands = state.releaseBands.filter(link => link.release_id === r.id)
+      .map(link => bandsById().get(link.band_id)).filter(Boolean);
+    const band = linkedBands.length === 1 ? linkedBands[0] : null;
     const credits = creditsForRelease(r.id);
     const claims = claimsForEntity('release', r.id);
     const sources = sourcesForClaims(claims);
     const gallery = releaseGallery(r);
-    const meta = [r.release_year || 'Årtal söks', r.release_type, r.format, band?.canonical_name].filter(Boolean).map(x => `<span>${escapeHtml(x)}</span>`).join('');
+    const meta = [r.release_year || 'Årtal söks', r.release_type, r.format, linkedBands.length > 1 ? 'Samlingsalbum · ' + linkedBands.map(b => b.canonical_name).join(', ') : band?.canonical_name].filter(Boolean).map(x => `<span>${escapeHtml(x)}</span>`).join('');
     app.innerHTML = `${breadcrumbs([{label:'Utgåvor',href:'#/utgavor'},{label:r.title}])}${pageHeader('UTGÅVA / ARKIVPOST',escapeHtml(r.title),'',meta)}
       <section class="section detail-layout first-section">
         <aside class="detail-aside">${releaseMedia(r) ? `<figure class="detail-media release-artwork"><img src="${releaseMedia(r)}" alt="${escapeHtml(r.title)}"></figure>${externalMediaCredit(releaseMedia(r))}` : ''}${spotifyLink(band, r.id)}<div class="aside-label">Utgåva</div><p>${escapeHtml(r.description || `En ${r.release_type || 'utgåva'} från ${r.release_year || 'okänt år'} i arkivet.`)}</p>${band ? `<a class="button button-ghost aside-button" href="${bandHref(band)}">Öppna ${escapeHtml(band.canonical_name)}</a>` : ''}</aside>
