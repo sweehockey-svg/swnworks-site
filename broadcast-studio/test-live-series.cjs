@@ -226,9 +226,22 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   await groupScores.first().locator('.group-meeting-scorers').first().waitFor({state:'visible'});
   assert.match(await groupScores.first().locator('.group-meeting-side').first().innerText(),/Jordan NHL ×2/);
   assert.equal(await groupScores.nth(1).locator('.group-meeting-scorers').count(),0,'Scores stay when no report is available');
+  const summary=page.locator('.group-meeting-summary'),summaryText=await summary.innerText();
+  assert.match(summaryText,/9–6/,lang+' summary adds the two results');
+  if(lang==='SV')assert.match(summaryText,/^En seger var · Totalt 9–6 till /);
+  for(const width of [1920,1280]){
+   await page.setViewportSize({width,height:width*9/16});
+   const diffs=await groupScores.evaluateAll(rows=>rows.map(row=>{
+    const [left,dash,right]=row.querySelectorAll('.group-meeting-side>b,.group-meeting-divider>b');
+    return Math.max(Math.abs(left.getBoundingClientRect().top-dash.getBoundingClientRect().top),
+     Math.abs(right.getBoundingClientRect().top-dash.getBoundingClientRect().top));
+   }));
+   assert(diffs.every(d=>d<1),lang+' dash must align with the scores, not the scorers');
+  }
   await page.evaluate(()=>seriesFixture.remote({...seriesFixture.state(),scene:'groupmeetings',home:'7103',away:'6709'}));
   assert.deepEqual(await totals.allTextContents(),['2','6','4','3'],lang+' results follow the displayed teams');
   assert.match(await groupScores.first().locator('.group-meeting-side').first().innerText(),/Oscar Tkaczyk ×2/);
+  assert.equal(await summary.innerText(),summaryText,'Aggregate winner and totals stay the same after reversing sides');
   assert.deepEqual(errors,[],lang);await page.close();
  }
  const obs=await browser.newPage();

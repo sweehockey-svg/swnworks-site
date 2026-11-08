@@ -310,8 +310,22 @@ window.SWNViewerBridge=(()=>{
       esc(names.get(Number(p.id))||p.name)+(p.goals>1?' ×'+Number(p.goals):'')).join(' · ');
     const renderScore=(score,scorers)=>'<div class="group-meeting-side"><b>'+score+'</b>'+
       (scorers?'<div class="group-meeting-scorers"><small>'+esc(groupMeetings.scorerLabel[LOCALE]||groupMeetings.scorerLabel.en)+'</small> '+scorers+'</div>':'')+'</div>';
+    const summaryLabels={
+      sv:["En seger var","Vinster","Totalt"," till "],
+      en:["One win each","Wins","Total"," to "],
+      fi:["Yksi voitto kummallekin","Voitot","Yhteensä"," · "],
+      de:["Je ein Sieg","Siege","Gesamt"," für "]
+    };
+    const [oneEach,winsLabel,totalLabel,forTeam]=summaryLabels[LOCALE]||summaryLabels.en;
+    const totals=rows.reduce((a,m)=>({
+      home:a.home+m.home,away:a.away+m.away,hw:a.hw+Number(m.home>m.away),aw:a.aw+Number(m.away>m.home)
+    }),{home:0,away:0,hw:0,aw:0});
+    const wins=totals.hw===1&&totals.aw===1?oneEach:winsLabel+" "+totals.hw+"–"+totals.aw;
+    const total=totalLabel+" "+Math.max(totals.home,totals.away)+"–"+Math.min(totals.home,totals.away)+
+      (totals.home===totals.away?"":forTeam+(totals.home>totals.away?home.team_name_in_league:away.team_name_in_league));
+    const summary=rows.length>1?'<p class="group-meeting-summary">'+esc(wins)+' <span aria-hidden="true">·</span> '+esc(total)+'</p>':'';
     panel.innerHTML='<div class="group-meeting-teams">'+side(home)+side(away)+'</div><div class="group-meeting-scores">'+rows.map(m=>
-      '<div>'+renderScore(m.home,scorerText(m,home,m.home))+'<span>–'+(m.overtime?'<small>OT</small>':'')+'</span>'+renderScore(m.away,scorerText(m,away,m.away))+'</div>').join('')+'</div>';
+      '<div>'+renderScore(m.home,scorerText(m,home,m.home))+'<span class="group-meeting-divider"><b>–</b>'+(m.overtime?'<small>OT</small>':'')+'</span>'+renderScore(m.away,scorerText(m,away,m.away))+'</div>').join('')+'</div>'+summary;
   }
   function renderMatch() {
     fill(".homeTeam", selectedTeam("home"));
