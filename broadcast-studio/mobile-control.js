@@ -172,6 +172,7 @@ function renderSeriesEditor(state){
  seriesStatus.textContent=edited?seriesText[7]:"";
 }
 function controls(){
+ if(document.documentElement.hasAttribute("data-compact-scenes"))document.documentElement.toggleAttribute("data-compact-scene-ready",ready);
  const locked=busy||!ready||Date.now()-lastReceived>10000||document.hidden;
  buttons.forEach(b=>{
   const rows=b.dataset.scene==="groupmeetings"?groupRows():null;

@@ -12,6 +12,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#06111a">
 <title>Mobil scenväljare · SWNWORKS</title><link rel="stylesheet" href="/studio-access.css?v=20261010-admin1">
+<script>if(new URLSearchParams(location.search).get("compact")==="1")document.documentElement.setAttribute("data-compact-scenes","");</script>
 <style>
 :root{color-scheme:dark;--bg:#06111a;--panel:#091722;--line:#20313e;--text:#f5f8fa;--muted:#718697;--yellow:#f4b21b;--green:#51d88a}
 *{box-sizing:border-box}
@@ -55,9 +56,25 @@ button[disabled].pending{cursor:wait;opacity:1}
 .match-result h3{grid-column:1/-1;margin:0;color:#afc2cf;font-size:12px}
 .match-result [hidden]{display:none}
 @media(min-width:560px) and (orientation:landscape){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}button{min-height:54px}}
+#compactLogin,#compactScenes{display:none}
+html[data-compact-scenes],html[data-compact-scenes] body{min-height:0}
+html[data-compact-scenes] body{padding:0}
+html[data-compact-scenes] header,html[data-compact-scenes] #studio-session,html[data-compact-scenes] #studio-login{display:none!important}
+html[data-compact-scenes] main{max-width:none;padding:0}
+html[data-compact-scenes] main>:not(#compactScenes):not(#broadcastStatus){display:none}
+html[data-compact-scenes] #broadcastStatus{margin:5px 0 0;font-size:11px!important}
+html[data-compact-scenes][data-compact-scene-ready] #broadcastStatus{display:none}
+html[data-compact-scenes][data-studio-locked] body>#compactLogin{display:block!important;padding:5px 1px;font-size:12px}
+#compactLogin a{color:#c2d8e9}
+html[data-compact-scenes] #compactScenes{display:flex;flex-wrap:wrap;align-items:flex-start;gap:5px}
+#compactScenes button,#compactExtra summary{min-height:30px;max-width:165px;padding:5px 8px;border:1px solid #2a3d4c;border-radius:5px;font-size:11px;line-height:1.2;overflow-wrap:anywhere}
+#compactExtra summary{display:list-item;box-sizing:border-box;align-content:center;cursor:pointer;color:#b7cad7;background:#0b1924}
+#compactExtra[open]{flex:1 1 100%}
+#compactExtra .compact-extra-buttons{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
 </style>
 </head>
 <body>
+<div id="compactLogin"><a id="compactLoginLink" target="_blank" rel="noopener" href="mobile.html?lang=sv">Logga in för scenval ↗</a></div>
 <header>
   <div class="brand"><div class="logo">SWN</div><div><b id="brandName">SWNWORKS</b><small id="brandSub">MOBIL SCENSTYRNING</small></div></div>
   <div class="statusbar">
@@ -65,7 +82,7 @@ button[disabled].pending{cursor:wait;opacity:1}
     <div class="connection" id="connection"><i></i><span id="connectionText">ANSLUTER</span></div>
   </div>
 </header>
-<main><p style="font-size:12px;color:#9bafbc">SWNWORKS · <a href="SV/" id="studioLink" style="color:#f4b21b">Öppna huvudstudion ↗</a></p><p id="broadcastStatus" role="status" style="font-size:12px;line-height:1.5;color:#9bafbc">Läser sändningsläget…</p>
+<main><div id="compactScenes" role="group"><details id="compactExtra"><summary>Fler scener</summary><div class="compact-extra-buttons"></div></details></div><p style="font-size:12px;color:#9bafbc">SWNWORKS · <a href="SV/" id="studioLink" style="color:#f4b21b">Öppna huvudstudion ↗</a></p><p id="broadcastStatus" role="status" style="font-size:12px;line-height:1.5;color:#9bafbc">Läser sändningsläget…</p>
   <section class="group" aria-labelledby="musicHeading"><h2 id="musicHeading">MUSIK · AKTIV SCEN</h2><div class="music-grid">
     <button type="button" data-music="high" aria-pressed="false" disabled>Hög</button>
     <button type="button" data-music="low" aria-pressed="false" disabled>Låg</button>
@@ -131,5 +148,27 @@ button[disabled].pending{cursor:wait;opacity:1}
   </details>
   <div class="foot" id="footText">Hög och Låg gäller den aktiva scenen. Av ligger kvar vid scenbyte. Match Live är alltid utan musik.</div>
 </main>
-<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261108-team-labels"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
+<script>
+(() => {
+  if(!document.documentElement.hasAttribute("data-compact-scenes"))return;
+  const language=new URLSearchParams(location.search).get("lang")?.toLowerCase();
+  const words={sv:["Scenval","Logga in för scenval ↗","Fler scener"],en:["Scene controls","Sign in for scene controls ↗","More scenes"],fi:["Näkymän valinta","Kirjaudu vaihtaaksesi näkymää ↗","Lisää näkymiä"],de:["Szenensteuerung","Zur Szenensteuerung anmelden ↗","Weitere Szenen"]};
+  const lang=Object.hasOwn(words,language)?language:"sv";
+  const [label,signIn,more]=words[lang];
+  document.documentElement.lang=lang;
+  const link=document.getElementById("compactLoginLink");
+  link.href="mobile.html?lang="+lang;
+  link.textContent=signIn;
+  const strip=document.getElementById("compactScenes"),extra=document.getElementById("compactExtra");
+  strip.setAttribute("aria-label",label);
+  extra.querySelector("summary").textContent=more;
+  const quick=new Set(["opening","live","lineup","intermission","series"]);
+  for(const button of document.querySelectorAll("[data-scene]")){
+    button.disabled=true;
+    if(quick.has(button.dataset.scene))strip.insertBefore(button,extra);
+    else extra.querySelector(".compact-extra-buttons").append(button);
+  }
+})();
+</script>
+<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261108-compact-scenes"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
 
