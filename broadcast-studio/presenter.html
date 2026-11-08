@@ -16,6 +16,9 @@
     #broadcast{width:100%;aspect-ratio:16/9;border:1px solid #345166;border-radius:10px;background:#000;display:block}
     #scenePicker,#seriesPicker{display:block;width:100%;height:32px;border:0}
     #scenePicker{margin-top:5px}
+    .original-feed{width:min(100%,210px);margin:0;min-width:0}
+    .original-feed figcaption{margin:0 0 3px;color:#aac1d0;font-size:11px;font-weight:800}
+    #originalFeed{box-sizing:border-box;display:block;width:100%;aspect-ratio:16/9;border:1px solid #345166;border-radius:6px;background:#030b12}
     @media(min-width:880px){
       .commentator-workspace:has(.presenter-sidebar>#privateNotes[open]:not([hidden])){grid-template-columns:minmax(0,1fr) clamp(230px,21vw,330px)}
     }
@@ -39,6 +42,10 @@
       <p class="notes-status" role="status"></p>
     </details>
     <iframe id="seriesPicker" title="Serieläge" loading="lazy"></iframe>
+    <figure class="original-feed">
+      <figcaption id="originalFeedLabel">Originalstream · utan ljud</figcaption>
+      <iframe id="originalFeed" title="Originalstream" loading="lazy" allow="autoplay"></iframe>
+    </figure>
     </aside>
   </div>
 </main>
@@ -58,6 +65,10 @@
   const frame=document.getElementById("broadcast");
   frame.title=title;
   frame.src=path+"/?obs=1&viewer=1";
+  const originalTitles={sv:"Originalstream · utan ljud",en:"Original feed · muted",fi:"Alkuperäinen striimi · mykistetty",de:"Originalstream · stumm"};
+  const original=document.getElementById("originalFeed");
+  original.title=document.getElementById("originalFeedLabel").textContent=originalTitles[lang];
+  original.src=path+"/?obs=1&viewer=1&feed=1&v=20261108-raw-feed";
   function mountControls(id,title,mode){
     const picker=document.getElementById(id);
     picker.title=title;

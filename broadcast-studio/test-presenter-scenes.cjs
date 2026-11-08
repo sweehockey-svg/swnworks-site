@@ -47,6 +47,9 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    const noteBox=await page.locator('#privateNotes').boundingBox(),seriesBox=await page.locator('#seriesPicker').boundingBox(),matchBox=await page.locator('#broadcast').boundingBox();
    assert(matchBox.y<=6&&matchBox.x<=8,'Match is close to the top and left edges');
    assert(seriesBox.y>=noteBox.y+noteBox.height,'Series controls sit under the notes');
+   const original=page.locator('#originalFeed'),rawBox=await original.boundingBox();
+   assert(rawBox.y>=seriesBox.y+seriesBox.height&&rawBox.width<=210,'Small original feed sits under the series editor');
+   assert.match(await original.getAttribute('src'),/obs=1&viewer=1&feed=1/);
    if(mode!=='allowed'){
     await frame.locator('#compactLoginLink').waitFor({state:'visible'});
     assert.equal(await frame.locator('#compactLoginLink').getAttribute('href'),'mobile.html?lang=sv');

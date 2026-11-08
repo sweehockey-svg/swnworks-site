@@ -43,6 +43,42 @@ window.SWNViewerBridge=(()=>{
   const OBS_MODE = pageParams.get("obs") === "1";
   const VIEWER_MODE = pageParams.get("viewer") === "1";
   const PREVIEW_MODE = pageParams.get("preview") === "1";
+  if(OBS_MODE&&VIEWER_MODE&&!PREVIEW_MODE&&pageParams.get("feed")==="1"){
+    const layer=$("#twitchLayer");
+    if(!layer)return;
+    const message=document.createElement("p");
+    message.id="rawFeedStatus";message.setAttribute("role","status");
+    const words=({
+      sv:["Ansluter till studion…","Ingen aktiv match eller stream","Kontakten med studion bröts"],
+      en:["Connecting to the studio…","No active match or stream","Studio connection lost"],
+      fi:["Yhdistetään studioon…","Ei aktiivista ottelua tai striimiä","Yhteys studioon katkesi"],
+      de:["Verbindung zum Studio…","Kein aktives Spiel oder Stream","Studioverbindung unterbrochen"]
+    })[LOCALE]||["Connecting to the studio…","No active match or stream","Studio connection lost"];
+    message.textContent=words[0];
+    document.documentElement.classList.add("raw-feed-preview");
+    document.body.append(layer,message);
+    layer.querySelector(".stream-empty")?.remove();
+    let reading=false,signature=null;
+    const update=(state,label)=>{
+      const active=state&&!state.publicNoMatch&&state.scene!=="idle"&&state.scene!=="nextmatch";
+      const source=active?{videoSource:state.videoSource,hlsUrl:state.hlsUrl,twitchChannel:state.twitchChannel}:null;
+      const next=JSON.stringify([source,label]);
+      if(next===signature)return;
+      signature=next;
+      window.dispatchEvent(new CustomEvent("seh:twitch-state",{detail:{...source,rawFeedStatus:label}}));
+    };
+    async function poll(){
+      if(reading||document.hidden)return;
+      reading=true;
+      try{const rows=await remoteRequest("GET");update(rows?.[0]?.state,words[1]);}
+      catch{update(null,words[2]);}
+      finally{reading=false;}
+    }
+    void poll();
+    setInterval(poll,4000);
+    document.addEventListener("visibilitychange",poll);
+    return;
+  }
   document.documentElement.classList.toggle("obs-arena-motion",OBS_MODE&&!VIEWER_MODE&&!PREVIEW_MODE&&pageParams.get("motion")==="on");
   const previewChannel=PREVIEW_MODE&&window.BroadcastChannel?new BroadcastChannel('swn-studio-preview-'+LOCALE):null;
   let publicNoMatch=true;
@@ -1220,6 +1256,7 @@ window.SWNViewerBridge=(()=>{
  const OBS_MODE_LOCAL=new URLSearchParams(location.search).get("obs")==="1";
  const RECORDING_OUTPUT=OBS_MODE_LOCAL&&new URLSearchParams(location.search).get("recording")==="1";
  const VIEWER_MODE_LOCAL=new URLSearchParams(location.search).get("viewer")==="1";
+ const RAW_FEED=document.documentElement.classList.contains("raw-feed-preview");
  const DIRECTOR_MODE=!OBS_MODE_LOCAL&&!VIEWER_MODE_LOCAL;
  let viewerMuted=true;
  const $id=id=>document.getElementById(id);
@@ -1232,10 +1269,10 @@ window.SWNViewerBridge=(()=>{
  function syncMatchAudio(){
    if(!video)return;
    const requestedMuted=RECORDING_OUTPUT?false:VIEWER_MODE_LOCAL?viewerMuted:OBS_MODE_LOCAL?false:mute?.checked!==false;
-   video.muted=!matchAudioVisible||requestedMuted;
+   video.muted=RAW_FEED||!matchAudioVisible||requestedMuted;
  }
  window.__sehSyncMatchAudio=syncMatchAudio;
- const playbackActive=()=>DIRECTOR_MODE||RECORDING_OUTPUT||screen?.classList.contains("live-mode");
+ const playbackActive=()=>RAW_FEED||DIRECTOR_MODE||RECORDING_OUTPUT||screen?.classList.contains("live-mode");
  let monitorStatus=null;
  if(DIRECTOR_MODE){
    const shell=document.querySelector('.preview-shell');
@@ -1261,7 +1298,7 @@ window.SWNViewerBridge=(()=>{
 
  const parseTwitch=raw=>{let v=String(raw||"").trim();if(!v)return "";try{if(/^https?:\/\//i.test(v)){const u=new URL(v);return u.pathname.split("/").filter(Boolean)[0]||""}}catch(e){}return v.replace(/^@/,"").replace(/^www\.twitch\.tv\//i,"").replace(/^twitch\.tv\//i,"").split(/[/?#]/)[0].trim()};
  let statusMatchName='',lastStatusText='',lastStatusOk=false;
- const setStatus=(t,ok=false)=>{lastStatusText=t;lastStatusOk=ok;const label=statusMatchName&&playbackActive()?statusMatchName+' · '+t:t;if(monitorStatus)monitorStatus.textContent=label;if(VIEWER_MODE_LOCAL)window.SWNViewerBridge.postStatus({type:'seh-tv-status',text:label,playing:ok});if(OBS_MODE_LOCAL){document.documentElement.dataset.playback=label;console.info("[SEH Video]",label)}if(status){status.classList.toggle("ready",ok);const x=status.querySelector("span");if(x)x.textContent=label}};
+ const setStatus=(t,ok=false)=>{lastStatusText=t;lastStatusOk=ok;const label=statusMatchName&&playbackActive()?statusMatchName+' · '+t:t;if(RAW_FEED){const message=$id("rawFeedStatus");message.textContent=t;message.hidden=ok&&directPlaying;return}if(monitorStatus)monitorStatus.textContent=label;if(VIEWER_MODE_LOCAL)window.SWNViewerBridge.postStatus({type:'seh-tv-status',text:label,playing:ok});if(OBS_MODE_LOCAL){document.documentElement.dataset.playback=label;console.info("[SEH Video]",label)}if(status){status.classList.toggle("ready",ok);const x=status.querySelector("span");if(x)x.textContent=label}};
  const obsBoot=()=>{};
  const obsPlaying=()=>{};
 
@@ -1279,6 +1316,7 @@ window.SWNViewerBridge=(()=>{
  };
 
  let twitchResolveTimer=0,twitchResolveSeq=0,lastTwitchRaw="";
+ const retryRawTwitch=raw=>{if(RAW_FEED)twitchResolveTimer=setTimeout(()=>void resolveTwitchHls(raw,true),8000);};
  const resolveTwitchHls=async(raw,muted=true)=>{
    const channel=parseTwitch(raw);
    if(!channel){destroy();setStatus(tx("invalidTwitch"));return false}
@@ -1299,6 +1337,7 @@ window.SWNViewerBridge=(()=>{
      pendingTwitchChannel='';
      if(VIEWER_MODE_LOCAL&&(!res.ok||!data.hlsUrl))twitchResolveTimer=setTimeout(()=>{if(screen?.classList.contains('live-mode'))void resolveTwitchHls(raw,viewerMuted);},30000);
      if(!res.ok||!data?.hlsUrl){
+       retryRawTwitch(raw);
        setStatus(data?.detail?("TWITCH RESOLVER · "+String(data.detail).slice(0,90)):tx("twitchFetchFail"));
        return false;
      }
@@ -1312,7 +1351,9 @@ window.SWNViewerBridge=(()=>{
      }
      return ok;
    }catch(e){
-     if(seq===twitchResolveSeq)pendingTwitchChannel="";
+     if(seq!==twitchResolveSeq)return false;
+     pendingTwitchChannel="";
+     retryRawTwitch(raw);
      setStatus(tx("twitchNetwork"));
      console.error("[SEH Video] Twitch resolver",e);
      return false;
@@ -1330,7 +1371,7 @@ window.SWNViewerBridge=(()=>{
    const key=(meta.kind||"direct")+":"+url;if(key===mountedKey&&video&&!video.hidden)return true;
    destroy();obsBoot();
    video.hidden=false;
-   video.autoplay=true;video.playsInline=true;video.preload="auto";video.controls=VIEWER_MODE_LOCAL;
+   video.autoplay=true;video.playsInline=true;video.preload="auto";video.controls=VIEWER_MODE_LOCAL&&!RAW_FEED;
    syncMatchAudio();
    const onPlaying=()=>{directPlaying=true;lastVideoTime=video.currentTime||0;lastVideoProgressAt=Date.now();obsPlaying();setStatus((meta.label||tx("directVideo"))+" "+tx("playing"),true)};
    const onPause=()=>{directPlaying=false;if(playbackActive())setTimeout(tryDirectPlay,150)};
@@ -1345,10 +1386,11 @@ window.SWNViewerBridge=(()=>{
      hls.on(Hls.Events.MANIFEST_PARSED,()=>{
        let qualityLabel="";
        if(Array.isArray(hls.levels)&&hls.levels.length){
-         const candidates=hls.levels.map((level,index)=>({index,height:Number(level.height||0),width:Number(level.width||0),bitrate:Number(level.bitrate||0)}))
+         const levels=hls.levels.map((level,index)=>({index,height:Number(level.height||0),width:Number(level.width||0),bitrate:Number(level.bitrate||0)}));
+         const candidates=levels
            .filter(x=>x.height>0&&x.height<=720&&(!x.width||x.width<=1280));
-         const chosen=(candidates.length?candidates:hls.levels.map((level,index)=>({index,height:Number(level.height||0),width:Number(level.width||0),bitrate:Number(level.bitrate||0)})))
-           .sort((a,b)=>(b.height-a.height)||(b.bitrate-a.bitrate))[0];
+         const chosen=RAW_FEED?levels.sort((a,b)=>(a.bitrate-b.bitrate)||(a.height-b.height))[0]:
+           (candidates.length?candidates:levels).sort((a,b)=>(b.height-a.height)||(b.bitrate-a.bitrate))[0];
          if(chosen){
            hls.autoLevelCapping=chosen.index;
            hls.startLevel=chosen.index;
@@ -1423,6 +1465,13 @@ window.SWNViewerBridge=(()=>{
 
  const apply=s=>{
    if(!s)return;
+   if(RAW_FEED){
+     const direct=s.videoSource==="direct",value=String((direct?s.hlsUrl:s.twitchChannel)||"").trim();
+     if(!value){destroy();layer?.classList.add("is-hidden");setStatus(s.rawFeedStatus);return;}
+     layer?.classList.remove("is-hidden");
+     if(direct)mountDirect(value,true);else mountTwitch(value,true);
+     return;
+   }
    statusMatchName=String(s.matchName||'').trim().slice(0,120);
    if(lastStatusText)setStatus(lastStatusText,lastStatusOk);
    if(source&&s.videoSource!==undefined)source.value=s.videoSource||"twitch";
@@ -1450,7 +1499,7 @@ window.SWNViewerBridge=(()=>{
  mute?.addEventListener("change",()=>{if(video&&!video.hidden)syncMatchAudio();window.__sehPublishBroadcastState?.()});
 
  window.addEventListener("seh:twitch-state",e=>apply(e.detail));
- if(VIEWER_MODE_LOCAL){
+ if(VIEWER_MODE_LOCAL&&!RAW_FEED){
    window.addEventListener('message',e=>{
      if(!window.SWNViewerBridge.acceptsAudio(e))return;
      viewerMuted=!!e.data.muted;
