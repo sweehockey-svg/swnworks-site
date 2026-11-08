@@ -1215,11 +1215,22 @@ html.obs-preview.obs-twitch-playing body #screen>.twitch-layer #directVideo{
 }
 
 /* v115: Twitch resolver status/UI */
-/* Advanced studio panel inside the presenter: keep preparation tools, not duplicate scene buttons. */
+/* Advanced studio panel inside the presenter: the program and original feed are already above it. */
 html.presenter-studio-tools body>header,
+html.presenter-studio-tools .control-hero,
+html.presenter-studio-tools .director-monitors,
+html.presenter-studio-tools .workspace>.hint,
+html.presenter-studio-tools .preview-toolbar>div,
+html.presenter-studio-tools .preview-toolbar a[href^="mobile.html"],
+html.presenter-studio-tools .scene-quick-toggles label:has(#muteTwitch),
 html.presenter-studio-tools .scene-dock :is(.scene-grid,.more-scenes){display:none!important}
+html.presenter-studio-tools .presenter-tools-card{min-width:0;margin-bottom:12px;padding:12px;border:1px solid #2d4658;border-radius:8px;background:#0b151f}
+html.presenter-studio-tools .presenter-tools-card>h2{margin:0 0 12px;color:#e5f2fb;font-size:15px}
+html.presenter-studio-tools .presenter-tools-card>.block:last-child{margin-bottom:0}
+html.presenter-studio-tools .presenter-tools-card .preview-toolbar{margin-bottom:0;justify-content:flex-start}
 @media(min-width:901px){
-  html.presenter-studio-tools body:not(.obs-preview)>main{height:100vh;grid-template-columns:minmax(370px,42%) minmax(0,1fr)}
+  html.presenter-studio-tools body:not(.obs-preview)>main{height:100vh;grid-template-columns:minmax(370px,50%) minmax(0,1fr)}
+  html.presenter-studio-tools body:not(.obs-preview) :is(aside,.workspace){padding:12px 14px 44px}
 }
 html.raw-feed-preview,html.raw-feed-preview body{margin:0!important;width:100%;height:100%;overflow:hidden;background:#030b12!important}
 html.raw-feed-preview body>:not(#twitchLayer):not(#rawFeedStatus){display:none!important}

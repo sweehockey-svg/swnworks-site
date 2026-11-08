@@ -130,7 +130,9 @@
 
 /* Keep preparation and transmission controls together without changing program state. */
 const setupDirectorLayout=()=>{
- if(new URLSearchParams(location.search).get('obs')==='1')return;
+ const params=new URLSearchParams(location.search);
+ if(params.get('obs')==='1')return;
+ const tools=params.get('panel')==='tools';
  const aside=document.querySelector('aside'),work=document.querySelector('.workspace');
  if(!aside||!work)return;
  const fold=(node,title)=>{
@@ -167,7 +169,7 @@ const setupDirectorLayout=()=>{
  const next=document.querySelector('.next-controls');
  if(next){aside.append(next);fold(next,'Vänteskärm · nästa match');}
  const dock=document.querySelector('.stream-dock');
- if(dock&&!dock.children.length)dock.remove();
+ if(dock&&!dock.children.length&&!tools)dock.remove();
  const grid=document.querySelector('.scene-grid');
  if(grid){
   const common=new Set(['opening','live','lineup','table','teamcompare']);
@@ -186,6 +188,34 @@ const setupDirectorLayout=()=>{
   aside.addEventListener('change',sync);
   new MutationObserver(sync).observe(document.getElementById('deskMatchSelect'),{childList:true});
   sync();
+ }
+ if(tools){
+  const organize=()=>{
+   const names={
+    sv:['Förbered match','Grafik och lag','Sändning','Ljud och inspelning','Spela in matchen'],
+    en:['Match preparation','Graphics and teams','Broadcast','Audio and recording','Record match'],
+    fi:['Ottelun valmistelu','Grafiikka ja joukkueet','Lähetys','Ääni ja tallennus','Tallenna ottelu'],
+    de:['Spielvorbereitung','Grafik und Teams','Sendung','Ton und Aufzeichnung','Spiel aufzeichnen']
+   }[(document.documentElement.lang||'sv').slice(0,2)]||['Match preparation','Graphics and teams','Broadcast','Audio and recording','Record match'];
+   const folded=(selector)=>{const node=document.querySelector(selector);return node?.closest('details.director-fold')||node;};
+   const card=(id,title,parent,nodes)=>{
+    const section=document.createElement('section'),heading=document.createElement('h2');
+    section.className='presenter-tools-card';section.dataset.toolsGroup=id;heading.textContent=title;
+    section.append(heading,...nodes.filter(Boolean));parent.append(section);
+   };
+   const recorder=document.querySelector('.recorder-panel');
+   const recordFold=recorder&&(recorder.closest('details.director-fold')||fold(recorder,names[4]));
+   card('prepare',names[0],aside,[picker,aside.querySelector('#tournament')?.closest('.block'),desk]);
+   card('graphics',names[1],aside,[folded('.theme-control'),folded('.series-control'),folded('.lineup-control'),folded('#commentator1')]);
+   card('broadcast',names[2],work,[quick,folded('.next-controls'),work.querySelector('.scene-dock'),work.querySelector('.preview-toolbar')]);
+   card('audio',names[3],work,[work.querySelector('.commentary-duo'),recordFold]);
+  };
+  if(document.documentElement.hasAttribute('data-studio-locked')){
+   const wait=new MutationObserver(()=>{
+    if(!document.documentElement.hasAttribute('data-studio-locked')){wait.disconnect();organize();}
+   });
+   wait.observe(document.documentElement,{attributes:true,attributeFilter:['data-studio-locked']});
+  }else organize();
  }
 };
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setupDirectorLayout,{once:true});else setupDirectorLayout();

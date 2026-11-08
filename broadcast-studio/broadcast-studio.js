@@ -1258,6 +1258,7 @@ window.SWNViewerBridge=(()=>{
  const RECORDING_OUTPUT=OBS_MODE_LOCAL&&new URLSearchParams(location.search).get("recording")==="1";
  const VIEWER_MODE_LOCAL=new URLSearchParams(location.search).get("viewer")==="1";
  const RAW_FEED=document.documentElement.classList.contains("raw-feed-preview");
+ const TOOLS_ONLY=document.documentElement.classList.contains("presenter-studio-tools");
  const DIRECTOR_MODE=!OBS_MODE_LOCAL&&!VIEWER_MODE_LOCAL;
  let viewerMuted=true;
  const $id=id=>document.getElementById(id);
@@ -1270,7 +1271,7 @@ window.SWNViewerBridge=(()=>{
  function syncMatchAudio(){
    if(!video)return;
    const requestedMuted=RECORDING_OUTPUT?false:VIEWER_MODE_LOCAL?viewerMuted:OBS_MODE_LOCAL?false:mute?.checked!==false;
-   video.muted=RAW_FEED||!matchAudioVisible||requestedMuted;
+   video.muted=RAW_FEED||TOOLS_ONLY||!matchAudioVisible||requestedMuted;
  }
  window.__sehSyncMatchAudio=syncMatchAudio;
  const playbackActive=()=>RAW_FEED||DIRECTOR_MODE||RECORDING_OUTPUT||screen?.classList.contains("live-mode");
@@ -1283,7 +1284,7 @@ window.SWNViewerBridge=(()=>{
      monitor.innerHTML='<h3>MATCHFEED · UTAN GRAFIK</h3><canvas width="640" height="360" aria-label="Vald matchstream, oberoende av grafikscen"></canvas><p role="status">Ladda en stream nedan för att följa matchen.</p><small>Visas bara i studion · fortsätter vid scenbyte · ljud av som standard</small>';
      pair.prepend(monitor);monitorStatus=monitor.querySelector('p');
      const canvas=monitor.querySelector('canvas'),ctx=canvas.getContext('2d');
-     setInterval(()=>{
+     if(!TOOLS_ONLY)setInterval(()=>{
        if(document.hidden)return;
        ctx.fillStyle='#030b12';ctx.fillRect(0,0,640,360);
        if(video&&!video.hidden&&video.readyState>=2&&video.videoWidth){
