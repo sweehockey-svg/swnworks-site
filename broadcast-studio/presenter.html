@@ -19,6 +19,10 @@
     .original-feed{width:min(100%,210px);margin:0;min-width:0}
     .original-feed figcaption{margin:0 0 3px;color:#aac1d0;font-size:11px;font-weight:800}
     #originalFeed{box-sizing:border-box;display:block;width:100%;aspect-ratio:16/9;border:1px solid #345166;border-radius:6px;background:#030b12}
+    #studioTools{margin:20px 0 0;padding:8px 10px;border:1px solid #345166;border-radius:8px;background:#091923}
+    #studioTools>summary{cursor:pointer;color:#dcecf6;font-size:13px;font-weight:800}
+    #studioToolsHint{margin:8px 0;color:#aac1d0;font-size:12px}
+    #studioToolsFrame{box-sizing:border-box;display:block;width:100%;height:clamp(500px,82svh,1000px);border:1px solid #345166;border-radius:6px;background:#06111a}
     @media(min-width:880px){
       .commentator-workspace:has(.presenter-sidebar>#privateNotes[open]:not([hidden])){
         --notes-width:clamp(245px,22vw,410px);
@@ -52,6 +56,11 @@
     </figure>
     </aside>
   </div>
+  <details id="studioTools">
+    <summary id="studioToolsTitle">Fler studioverktyg</summary>
+    <p id="studioToolsHint">Separat arbetsyta för att förbereda matchen och styra sändningen. Kräver studioadmin.</p>
+    <iframe id="studioToolsFrame" title="Fler studioverktyg" allow="autoplay; fullscreen; microphone; display-capture" allowfullscreen></iframe>
+  </details>
 </main>
 <script>
 (() => {
@@ -91,6 +100,20 @@
   mountControls("scenePicker",sceneTitle,"1");
   const seriesTitles={sv:"Serieläge",en:"Series score",fi:"Sarjatilanne",de:"Serienstand"};
   mountControls("seriesPicker",seriesTitles[lang],"series");
+  const toolsLabels={
+    sv:["Fler studioverktyg","Separat arbetsyta för att förbereda matchen och styra sändningen. Kräver studioadmin."],
+    en:["More studio tools","Separate workspace for preparing matches and running the broadcast. Studio admin access required."],
+    fi:["Lisää studiotyökaluja","Erillinen työtila ottelun valmisteluun ja lähetyksen ohjaukseen. Vaatii studion ylläpitäjän oikeudet."],
+    de:["Weitere Studiowerkzeuge","Separater Arbeitsbereich für Spielvorbereitung und Sendungssteuerung. Studio-Adminrechte erforderlich."]
+  };
+  const [toolsTitle,toolsHint]=toolsLabels[lang];
+  document.getElementById("studioToolsTitle").textContent=toolsTitle;
+  document.getElementById("studioToolsHint").textContent=toolsHint;
+  const tools=document.getElementById("studioTools"),toolsFrame=document.getElementById("studioToolsFrame");
+  toolsFrame.title=toolsTitle;
+  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261108-presenter-tools";};
+  tools.addEventListener("toggle",loadTools);
+  loadTools();
 })();
 </script>
 <script src="commentator-notes.js?v=20261108-2"></script>

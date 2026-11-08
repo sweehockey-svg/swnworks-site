@@ -6,6 +6,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
  try{
   for(const mode of ['signed-out','denied','allowed']){
    const origin='https://presenter.test',base=origin+'/broadcast-studio/',writes=[],errors=[];
+   let toolsLoads=0;
    const page=await browser.newPage({viewport:{width:1280,height:800}});
    page.on('pageerror',error=>errors.push(error.message));
    let state={leagueId:527,scene:'live',home:'111',away:'222',hs:3,as:2,lineupTeamNames:{111:'Testlaget A',222:'Testlaget B'},
@@ -19,6 +20,10 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     })};`});
     if(url.origin!==origin)return route.abort();
     if(file==='presenter.html'||file==='mobile.html')return route.fulfill({contentType:'text/html',body:read(file)});
+    if(url.searchParams.get('panel')==='tools'){
+     toolsLoads++;
+     return route.fulfill({contentType:'text/html',body:'<!doctype html><html data-studio-locked><head><link rel="stylesheet" href="/studio-access.css"></head><body><main>Admin tools</main><script src="../broadcast-config.js"></script><script src="https://cdn.jsdelivr.net/mock-supabase.js"></script><script src="/studio-access.js"></script></body></html>'});
+    }
     if(file==='studio-access.js'||file==='studio-access.css')return route.fulfill({contentType:file.endsWith('.css')?'text/css':'application/javascript',body:read('../'+file)});
     if(file==='broadcast-config.js')return route.fulfill({contentType:'application/javascript',body:`window.EHOCKEY_CONFIG={supabaseUrl:${JSON.stringify(origin)},supabasePublishableKey:"fixture"};`});
     if(['mobile-control.js','commentator-notes.js','group-meetings.js','commentator-notes.css'].includes(file))return route.fulfill({contentType:file.endsWith('.css')?'text/css':'application/javascript',body:read(file)});
@@ -63,6 +68,10 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    const original=page.locator('#originalFeed'),rawBox=await original.boundingBox();
    assert(rawBox.y>=seriesBox.y+seriesBox.height&&rawBox.width<=210,'Small original feed sits under the series editor');
    assert.match(await original.getAttribute('src'),/obs=1&viewer=1&feed=1/);
+   assert.equal(toolsLoads,0);
+   const tools=page.locator('#studioToolsFrame');
+   assert.equal(await tools.getAttribute('src'),null);
+   assert.equal(await tools.isVisible(),false);
    if(mode!=='allowed'){
     await frame.locator('#compactLoginLink').waitFor({state:'visible'});
     assert.equal(await frame.locator('#compactLoginLink').getAttribute('href'),'mobile.html?lang=sv');
@@ -119,6 +128,14 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     assert.match(await frame.locator('#mobileFlipLiveTeams').textContent(),/Testlaget B överst/);
     assert.deepEqual([state.home,state.away,state.hs,state.as],['111','222','4','2']);
    }
+   await page.locator('#studioToolsTitle').click();
+   const toolsPage=page.frameLocator('#studioToolsFrame');
+   await toolsPage.locator('#studio-login').waitFor({state:'visible'});
+   assert.match(await tools.getAttribute('src'),/SV\/\?panel=tools/);
+   assert.equal(await toolsPage.locator('main').isVisible(),false,'Scene access does not unlock full studio tools');
+   const toolsBox=await tools.boundingBox(),workBox=await page.locator('.commentator-workspace').boundingBox();
+   assert(toolsBox.width>=workBox.width-24,'Advanced section spans both presenter columns');
+   assert.equal(toolsLoads,1);
    assert.deepEqual(errors,[]);
    await page.close();
   }

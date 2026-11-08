@@ -43,6 +43,7 @@ window.SWNViewerBridge=(()=>{
   const OBS_MODE = pageParams.get("obs") === "1";
   const VIEWER_MODE = pageParams.get("viewer") === "1";
   const PREVIEW_MODE = pageParams.get("preview") === "1";
+  document.documentElement.classList.toggle("presenter-studio-tools",!OBS_MODE&&!VIEWER_MODE&&pageParams.get("panel")==="tools");
   if(OBS_MODE&&VIEWER_MODE&&!PREVIEW_MODE&&pageParams.get("feed")==="1"){
     const layer=$("#twitchLayer");
     if(!layer)return;
