@@ -70,11 +70,16 @@ const invitation=(slot,seat)=>Buffer.from(JSON.stringify({room,slot,publicKey:{x
    await standalone.setViewportSize({width,height});
    const frameBox=await pos(standaloneFrame),noteBox=await pos(standalone.locator('#privateNotes'));
    assert(frameBox.width>=width*.75,'Video gets at least three quarters of the desktop viewport');
-   assert(noteBox.x>=frameBox.x+frameBox.width-1,'Notes stay alongside video on desktop');
+   assert(Math.abs(noteBox.x-frameBox.x-frameBox.width-8)<1,'Notes stay directly alongside video on desktop');
+   assert(noteBox.width>width*.21,'The notes panel is wider than before');
    await standalone.locator('#privateNotes summary').click();
    assert((await pos(standaloneFrame)).width>frameBox.width,'Closing notes further enlarges video');
    await standalone.locator('#privateNotes summary').click();
   }
+  await standalone.setViewportSize({width:1920,height:800});
+  const shortVideo=await pos(standaloneFrame),shortNotes=await pos(standalone.locator('#privateNotes'));
+  assert(Math.abs(shortNotes.x-shortVideo.x-shortVideo.width-8)<1,'The sidebar uses the space left by the height-limited video');
+  assert(shortNotes.width>500,'Notes expand into the former gap on a wide, short display');
   await standalone.setViewportSize({width:390,height:844});
   const standaloneVideoBox=await pos(standaloneFrame);
   assert(standaloneVideoBox.width>=360,'Video fills the available width on mobile');

@@ -20,10 +20,14 @@
     .original-feed figcaption{margin:0 0 3px;color:#aac1d0;font-size:11px;font-weight:800}
     #originalFeed{box-sizing:border-box;display:block;width:100%;aspect-ratio:16/9;border:1px solid #345166;border-radius:6px;background:#030b12}
     @media(min-width:880px){
-      .commentator-workspace:has(.presenter-sidebar>#privateNotes[open]:not([hidden])){grid-template-columns:minmax(0,1fr) clamp(230px,21vw,330px)}
+      .commentator-workspace:has(.presenter-sidebar>#privateNotes[open]:not([hidden])){
+        --notes-width:clamp(245px,22vw,410px);
+        grid-template-columns:minmax(0,min(calc(100% - var(--notes-width) - 8px),var(--match-width,100%))) minmax(var(--notes-width),1fr);
+      }
     }
     @media(min-width:880px) and (min-height:500px){
-      #broadcast,#scenePicker{width:min(100%,calc((100svh - 72px)*16 / 9))}
+      .commentator-workspace{--match-width:calc((100svh - 72px)*16 / 9)}
+      #broadcast,#scenePicker{width:min(100%,var(--match-width))}
     }
   </style>
 </head>
