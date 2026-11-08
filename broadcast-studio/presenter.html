@@ -9,15 +9,18 @@
   <link rel="stylesheet" href="commentator-notes.css?v=20261108-1">
   <style>
     body{margin:0;background:#06111a;color:#eef7ff;font:16px/1.5 Arial,sans-serif}
-    main,main:has(.commentator-workspace>#privateNotes[open]:not([hidden])){max-width:1920px;margin:auto;padding:clamp(10px,1.15vw,20px)}
-    .commentator-workspace{gap:12px}
+    main{margin:0;padding:4px clamp(10px,1.15vw,20px) 10px 6px}
+    .commentator-workspace{gap:8px}
+    .presenter-sidebar{display:grid;min-width:0;gap:6px}
+    .presenter-sidebar #privateNotes textarea{min-height:150px;height:clamp(150px,31vh,340px)}
     #broadcast{width:100%;aspect-ratio:16/9;border:1px solid #345166;border-radius:10px;background:#000;display:block}
-    #scenePicker{display:block;width:100%;height:38px;margin:6px auto 0;border:0}
+    #scenePicker,#seriesPicker{display:block;width:100%;height:32px;border:0}
+    #scenePicker{margin-top:5px}
     @media(min-width:880px){
-      .commentator-workspace:has(>#privateNotes[open]:not([hidden])){grid-template-columns:minmax(0,1fr) clamp(230px,21vw,330px)}
+      .commentator-workspace:has(.presenter-sidebar>#privateNotes[open]:not([hidden])){grid-template-columns:minmax(0,1fr) clamp(230px,21vw,330px)}
     }
     @media(min-width:880px) and (min-height:500px){
-      #broadcast,#scenePicker{width:min(100%,calc((100svh - 72px)*16 / 9));margin-inline:auto}
+      #broadcast,#scenePicker{width:min(100%,calc((100svh - 72px)*16 / 9))}
     }
   </style>
 </head>
@@ -28,12 +31,15 @@
       <iframe id="broadcast" title="Matchbild från studion" allow="fullscreen" allowfullscreen></iframe>
       <iframe id="scenePicker" title="Scenval" loading="lazy"></iframe>
     </section>
+    <aside class="presenter-sidebar">
     <details id="privateNotes" open hidden>
       <summary>Egna anteckningar</summary>
       <p class="notes-hint" id="privateNotesHint"></p>
       <textarea maxlength="12000" autocomplete="off" spellcheck="false" aria-describedby="privateNotesHint"></textarea>
       <p class="notes-status" role="status"></p>
     </details>
+    <iframe id="seriesPicker" title="Serieläge" loading="lazy"></iframe>
+    </aside>
   </div>
 </main>
 <script>
@@ -52,19 +58,24 @@
   const frame=document.getElementById("broadcast");
   frame.title=title;
   frame.src=path+"/?obs=1&viewer=1";
-  const scenePicker=document.getElementById("scenePicker");
-  scenePicker.title=sceneTitle;
-  let resize;
-  scenePicker.addEventListener("load",()=>{
-    resize?.disconnect();
-    const body=scenePicker.contentDocument?.body;
-    if(!body)return;
-    const fit=()=>{scenePicker.style.height=Math.max(26,Math.ceil(body.getBoundingClientRect().height)+2)+"px";};
-    resize=new ResizeObserver(fit);
-    resize.observe(body);
-    fit();
-  });
-  scenePicker.src="mobile.html?lang="+lang+"&compact=1&v=20261108-quick-scenes";
+  function mountControls(id,title,mode){
+    const picker=document.getElementById(id);
+    picker.title=title;
+    let resize;
+    picker.addEventListener("load",()=>{
+      resize?.disconnect();
+      const body=picker.contentDocument?.body;
+      if(!body)return;
+      const fit=()=>{picker.style.height=Math.max(26,Math.ceil(body.getBoundingClientRect().height)+2)+"px";};
+      resize=new ResizeObserver(fit);
+      resize.observe(body);
+      fit();
+    });
+    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261108-compact-series";
+  }
+  mountControls("scenePicker",sceneTitle,"1");
+  const seriesTitles={sv:"Serieläge",en:"Series score",fi:"Sarjatilanne",de:"Serienstand"};
+  mountControls("seriesPicker",seriesTitles[lang],"series");
 })();
 </script>
 <script src="commentator-notes.js?v=20261108-2"></script>

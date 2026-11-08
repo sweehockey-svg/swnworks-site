@@ -214,7 +214,7 @@ function render(state){
  received=state;lastReceived=Date.now();
  const expires=Date.parse(state?.transientSource?.expires_at||"");
  ready=Boolean(state&&!state.publicNoMatch&&Number.isFinite(expires)&&expires>Date.now());
- if(ready&&meetings&&Number(state.home)>0&&Number(state.away)>0&&!pendingMeetings){
+ if(ready&&meetings&&document.documentElement.getAttribute("data-compact-scenes")!=="series"&&Number(state.home)>0&&Number(state.away)>0&&!pendingMeetings){
   pendingMeetings=meetings.load(state.leagueId).finally(()=>{pendingMeetings=null;controls();});
  }
  const scene=state?.scene==="stats"?"teamcompare":state?.scene==="lowerthird"?"matchup":state?.scene||"",side=state?.lineupSide||"home";

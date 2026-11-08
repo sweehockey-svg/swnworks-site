@@ -28,6 +28,12 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
      state={...state,scene:payload.p_scene};
      return route.fulfill({json:state});
     }
+    if(url.pathname.endsWith('/rpc/broadcast_studio_set_match_result')){
+     assert.equal(req.headers().authorization,'Bearer fixture-token');
+     const payload=req.postDataJSON();writes.push(payload);
+     state={...state,hs:String(payload.p_home),as:String(payload.p_away)};
+     return route.fulfill({json:state});
+    }
     if(url.pathname.endsWith('/broadcast_studio_state'))return route.fulfill({json:[{state}]});
     if(url.pathname.endsWith('/graphics-schedule'))return route.fulfill({json:{matches:[]}});
     if(url.searchParams.get('obs')==='1')return route.fulfill({contentType:'text/html',body:'<main>Match picture</main>'});
@@ -37,10 +43,17 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    assert.equal(await page.locator('h1,.intro').count(),0);
    await page.locator('#privateNotes textarea').waitFor({state:'visible'});
    const frame=page.frameLocator('#scenePicker');
+   const series=page.frameLocator('#seriesPicker');
+   const noteBox=await page.locator('#privateNotes').boundingBox(),seriesBox=await page.locator('#seriesPicker').boundingBox(),matchBox=await page.locator('#broadcast').boundingBox();
+   assert(matchBox.y<=6&&matchBox.x<=8,'Match is close to the top and left edges');
+   assert(seriesBox.y>=noteBox.y+noteBox.height,'Series controls sit under the notes');
    if(mode!=='allowed'){
     await frame.locator('#compactLoginLink').waitFor({state:'visible'});
     assert.equal(await frame.locator('#compactLoginLink').getAttribute('href'),'mobile.html?lang=sv');
     assert.equal(await frame.locator('[data-scene="live"]').isVisible(),false);
+    await series.locator('#compactLoginLink').waitFor({state:'visible'});
+    assert.match(await series.locator('#compactLoginLink').innerText(),/serieläge/i);
+    assert.equal(await series.locator('#seriesSummary').isVisible(),false);
     assert.equal(writes.length,0);
    }else{
     const live=frame.locator('[data-scene="live"].active');
@@ -60,6 +73,14 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await frame.locator('#compactExtra summary').click();
     await frame.locator('#compactExtra [data-scene="matchup"]').waitFor({state:'visible'});
     await page.waitForFunction(initial=>document.getElementById('scenePicker').getBoundingClientRect().height>initial,initial);
+    await series.locator('#seriesSummary').click();
+    await series.locator('#mobileHomeGoals').fill('4');
+    await series.locator('#mobileProgressResult').click();
+    await series.locator('#mobileMatchResultStatus').getByText('Sparat i sändningen.').waitFor();
+    assert.equal(writes[1].p_channel,'sec21-bronze-test');
+    assert.equal(writes[1].p_home,4);
+    assert.equal(state.scene,'intermission','Series editor leaves the live scene alone');
+    assert.equal(await series.locator('#compactScenes').isVisible(),false);
    }
    assert.deepEqual(errors,[]);
    await page.close();
