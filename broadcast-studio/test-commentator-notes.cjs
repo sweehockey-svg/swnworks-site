@@ -14,6 +14,7 @@ const invitation=(slot,seat)=>Buffer.from(JSON.stringify({room,slot,publicKey:{x
    if(r.request().method()!=='GET')writes.push(r.request().method());
    if(url.origin!==origin)return r.abort();
    if(url.pathname.endsWith('/'+pagePath))return r.fulfill({contentType:'text/html',body:read(pagePath)});
+   if(url.pathname.endsWith('/presenter.html'))return r.fulfill({contentType:'text/html',body:read('presenter.html')});
    const file=url.pathname.split('/').pop();
    if(file==='commentator-notes.js'||file==='studio-language.js')return r.fulfill({contentType:'application/javascript',body:read(file)});
    if(file==='commentator-notes.css'||file==='commentary.css')return r.fulfill({contentType:'text/css',body:read(file)});
@@ -56,10 +57,26 @@ const invitation=(slot,seat)=>Buffer.from(JSON.stringify({room,slot,publicKey:{x
   const direct=await context.newPage();
   await direct.goto(base+pagePath);
   assert.equal(await direct.locator('#privateNotes').isVisible(),false);
+  const standalone=await context.newPage();
+  standalone.on('pageerror',e=>errors.push(e.message));
+  await standalone.goto(base+'presenter.html?lang=sv');
+  const standaloneNotes=standalone.locator('#privateNotes textarea');
+  await standaloneNotes.waitFor({state:'visible'});
+  assert.equal(await standaloneNotes.inputValue(),'','OBS presenter notes are separate from private microphone links');
+  assert.equal(await standalone.locator('#broadcast').getAttribute('src'),'SV/?obs=1&viewer=1');
+  assert.equal(await standalone.locator('script[src*="commentary-engine"],#commentatorControls').count(),0,'No microphone controls or engine');
+  await standaloneNotes.fill('OBS-stödord');
+  await standalone.reload();
+  assert.equal(await standaloneNotes.inputValue(),'OBS-stödord');
+  assert.equal(await first.locator('#privateNotes textarea').inputValue(),note);
+  const fiPresenter=await context.newPage();
+  await fiPresenter.goto(base+'presenter.html?lang=fi');
+  assert.equal(await fiPresenter.locator('#broadcast').getAttribute('src'),'fi/?obs=1&viewer=1');
+  assert.equal(await fiPresenter.locator('#privateNotes textarea').inputValue(),'');
   const obs=await context.newPage();
   await obs.goto(base+'SV/?obs=1');
   assert.equal(await obs.locator('#privateNotes').count(),0);
-  assert(urls.every(url=>!decodeURIComponent(url).includes(note)));
+  assert(urls.every(url=>![note,'OBS-stödord'].some(text=>decodeURIComponent(url).includes(text))));
   assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);
   console.log('PASS local notes persist across reloads, are isolated by link, and stay out of the match iframe and OBS.');
  }finally{await browser.close();}

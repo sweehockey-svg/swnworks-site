@@ -10,6 +10,8 @@
 
 På den privata kommentatorsidan finns **Egna anteckningar** bredvid matchbilden på dator och under den på mobil. Anteckningarna sparas i samma webbläsare för samma länk, även efter omladdning. De skickas inte till kollegan, studion eller OBS. Använd den separata OBS-källan för sändningen; fånga inte kommentatorns fönster eller hela skärm.
 
+Kommentatorer som använder sin egen mikrofon i OBS kan i stället öppna [Presentatörsvyn](https://swnworks.se/broadcast-studio/presenter.html?lang=sv) i en vanlig webbläsare. Den kräver ingen kommentatorslänk och startar inget ljud eller mikrofon. Anteckningarna sparas lokalt i den webbläsaren och är separata från anteckningar i kommentatorslänkar.
+
 ## Viktigt
 
 - Detta skickar kommentatorsljud till **Match-TV**. OBS/Twitchs vanliga mikrofonkanaler ändras inte. Skicka inte samma röst via både matchstreamen och den separata kommenteringen; det kan ge dubbelt ljud.
