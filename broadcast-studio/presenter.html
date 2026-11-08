@@ -9,10 +9,17 @@
   <link rel="stylesheet" href="commentator-notes.css?v=20261108-1">
   <style>
     body{margin:0;background:#06111a;color:#eef7ff;font:16px/1.5 Arial,sans-serif}
-    main{max-width:1100px;margin:auto;padding:clamp(12px,2.5vw,26px)}
+    main,main:has(.commentator-workspace>#privateNotes[open]:not([hidden])){max-width:1920px;margin:auto;padding:clamp(10px,1.15vw,20px)}
     h1{margin:0;font-size:clamp(22px,3vw,32px)}
-    .intro{margin:6px 0 20px;color:#aac1d0}
+    .intro{margin:4px 0 12px;color:#aac1d0;font-size:14px}
+    .commentator-workspace{gap:12px}
     #broadcast{width:100%;aspect-ratio:16/9;border:1px solid #345166;border-radius:10px;background:#000;display:block}
+    @media(min-width:880px){
+      .commentator-workspace:has(>#privateNotes[open]:not([hidden])){grid-template-columns:minmax(0,1fr) clamp(230px,21vw,330px)}
+    }
+    @media(min-width:880px) and (min-height:500px){
+      #broadcast{width:min(100%,calc((100svh - 96px)*16 / 9));margin-inline:auto}
+    }
   </style>
 </head>
 <body data-commentary-role="obs-presenter">

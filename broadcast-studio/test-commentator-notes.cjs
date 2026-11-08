@@ -65,6 +65,20 @@ const invitation=(slot,seat)=>Buffer.from(JSON.stringify({room,slot,publicKey:{x
   assert.equal(await standaloneNotes.inputValue(),'','OBS presenter notes are separate from private microphone links');
   assert.equal(await standalone.locator('#broadcast').getAttribute('src'),'SV/?obs=1&viewer=1');
   assert.equal(await standalone.locator('script[src*="commentary-engine"],#commentatorControls').count(),0,'No microphone controls or engine');
+  const standaloneFrame=standalone.locator('#broadcast');
+  for(const [width,height] of [[1280,800],[1920,1080]]){
+   await standalone.setViewportSize({width,height});
+   const frameBox=await pos(standaloneFrame),noteBox=await pos(standalone.locator('#privateNotes'));
+   assert(frameBox.width>=width*.75,'Video gets at least three quarters of the desktop viewport');
+   assert(noteBox.x>=frameBox.x+frameBox.width-1,'Notes stay alongside video on desktop');
+   await standalone.locator('#privateNotes summary').click();
+   assert((await pos(standaloneFrame)).width>frameBox.width,'Closing notes further enlarges video');
+   await standalone.locator('#privateNotes summary').click();
+  }
+  await standalone.setViewportSize({width:390,height:844});
+  const standaloneVideoBox=await pos(standaloneFrame);
+  assert(standaloneVideoBox.width>=360,'Video fills the available width on mobile');
+  assert((await pos(standaloneNotes)).y>standaloneVideoBox.y+standaloneVideoBox.height);
   await standaloneNotes.fill('OBS-stödord');
   await standalone.reload();
   assert.equal(await standaloneNotes.inputValue(),'OBS-stödord');
