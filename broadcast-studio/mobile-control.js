@@ -45,6 +45,10 @@ function lineupTeamLabel(state,side){
  const pair=String(state.subline||"").split(/\s+(?:vs\.?|–|—)\s+/i).map(name=>name.trim());
  return pair.length===2&&pair.every(Boolean)?pair[side==="away"?1:0]:"";
 }
+const meetings=window.BroadcastGroupMeetings,meetingsLabel=meetings?.label[LANG];
+if(meetingsLabel)labels.groupmeetings=meetingsLabel[0];
+let pendingMeetings=null;
+const groupRows=()=>meetings?.cached(received?.leagueId,received?.home,received?.away);
 const buttons=[...document.querySelectorAll("[data-scene]")];
 const musicButtons=[...document.querySelectorAll("[data-music]")];
 const musicEnabled=scene=>scene!=="live"&&Object.hasOwn(labels,scene);
@@ -160,7 +164,12 @@ function renderSeriesEditor(state){
 }
 function controls(){
  const locked=busy||!ready||Date.now()-lastReceived>10000||document.hidden;
- buttons.forEach(b=>{b.disabled=locked;b.title=locked&&!busy?matchStatus.textContent:(b.dataset.shortcut||"");});
+ buttons.forEach(b=>{
+  const rows=b.dataset.scene==="groupmeetings"?groupRows():null;
+  const unavailable=b.dataset.scene==="groupmeetings"&&!rows?.length;
+  b.disabled=locked||unavailable;
+  b.title=locked&&!busy?matchStatus.textContent:unavailable?(meetingsLabel?.[rows===null?meetings.status(received?.leagueId):1]||""):(b.dataset.shortcut||"");
+ });
  const scene=received?.scene,saved=received?.sceneMusic?.[scene];
  const enabled=musicEnabled(scene);
  const mode=!enabled||received?.sceneMusic?.muted===true?"off":["high","low","off"].includes(saved)?saved:scene==="opening"?"high":"low";
@@ -194,6 +203,9 @@ function render(state){
  received=state;lastReceived=Date.now();
  const expires=Date.parse(state?.transientSource?.expires_at||"");
  ready=Boolean(state&&!state.publicNoMatch&&Number.isFinite(expires)&&expires>Date.now());
+ if(ready&&meetings&&Number(state.home)>0&&Number(state.away)>0&&!pendingMeetings){
+  pendingMeetings=meetings.load(state.leagueId).finally(()=>{pendingMeetings=null;controls();});
+ }
  const scene=state?.scene==="stats"?"teamcompare":state?.scene==="lowerthird"?"matchup":state?.scene||"",side=state?.lineupSide||"home";
  buttons.forEach(b=>{
   b.classList.toggle("active",b.dataset.scene===scene&&(scene!=="lineup"||(b.dataset.lineupSide||"home")===side));
@@ -233,7 +245,7 @@ async function pull(){
  finally{reading=false;}
 }
 async function changeProgram(button,music=false){
- if(busy||!ready||document.hidden||Date.now()-lastReceived>10000)return;
+ if(button.disabled||busy||!ready||document.hidden||Date.now()-lastReceived>10000)return;
  const scene=received?.scene;
  if(music&&!musicEnabled(scene))return;
  busy=true;revision++;controls();button.classList.add("pending");setConnection(T.sending,"busy");

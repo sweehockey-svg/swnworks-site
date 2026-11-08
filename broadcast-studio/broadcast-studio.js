@@ -272,6 +272,37 @@ window.SWNViewerBridge=(()=>{
     ).join("");
   }
 
+  const groupMeetings=window.BroadcastGroupMeetings;
+  const groupMeetingLabel=groupMeetings?.label[LOCALE]||groupMeetings?.label.en;
+  let groupLoad=null,programGroupLoad=null;
+  function groupResults(state){
+    return groupMeetings?.cached(state.leagueId,state.home,state.away);
+  }
+  function renderGroupMeetings(){
+    const panel=$("#groupMeetings");
+    if(!panel||!groupMeetings)return;
+    const home=selectedTeam("home"),away=selectedTeam("away"),league=activeLeagueId;
+    const key=String(league)+":"+home.sports_gamer_team_id+":"+away.sports_gamer_team_id;
+    const pair={leagueId:league,home:home.sports_gamer_team_id,away:away.sports_gamer_team_id};
+    const hasTeams=Number(pair.home)>0&&Number(pair.away)>0&&pair.home!==pair.away;
+    const rows=groupResults(pair);
+    if(hasTeams&&groupLoad!==key){
+      groupLoad=key;
+      void groupMeetings.load(league).then(()=>{if(groupLoad===key)renderGroupMeetings();});
+    }
+    const held=!OBS_MODE&&!PREVIEW_MODE&&programHeld&&programState&&!publicNoMatch?programState:null;
+    const heldKey=held?JSON.stringify([held.leagueId,held.home,held.away]):null;
+    if(heldKey&&programGroupLoad!==heldKey){
+      programGroupLoad=heldKey;
+      void groupMeetings.load(held.leagueId).then(()=>{if(programGroupLoad===heldKey)renderGroupMeetings();});
+    }else if(!heldKey)programGroupLoad=null;
+    const button=$('[data-scene="groupmeetings"]'),available=(held?groupResults(held):rows)?.length>0;
+    if(button){button.disabled=!available;button.title=available?"":groupMeetingLabel[hasTeams&&rows===null?groupMeetings.status(league):1];}
+    const side=t=>'<div>'+(logo(t)?'<img src="'+esc(logo(t))+'" alt="">':'')+'<b>'+esc(t.team_name_in_league)+'</b></div>';
+    if(!rows?.length){panel.textContent=groupMeetingLabel[hasTeams&&rows===null?groupMeetings.status(league):1];return;}
+    panel.innerHTML='<div class="group-meeting-teams">'+side(home)+side(away)+'</div><div class="group-meeting-scores">'+rows.map(m=>
+      '<div><b>'+m.home+'</b><span>–</span><b>'+m.away+'</b>'+(m.overtime?'<small>OT</small>':'')+'</div>').join('')+'</div>';
+  }
   function renderMatch() {
     fill(".homeTeam", selectedTeam("home"));
     fill(".awayTeam", selectedTeam("away"));
@@ -280,6 +311,7 @@ window.SWNViewerBridge=(()=>{
     $("#homeScore").textContent = $("#hs").value || "0";
     $("#awayScore").textContent = $("#as").value || "0";
     renderCommentators();
+    renderGroupMeetings();
   }
 
   function lineupFor(side) {
@@ -999,6 +1031,7 @@ window.SWNViewerBridge=(()=>{
 
   // Controls are installed synchronously, before any data request starts.
   function selectProgramScene(name,side){
+    if(name==="groupmeetings"&&$('[data-scene="groupmeetings"]')?.disabled)return;
     applyScene(name,side);
     // Live scene selection must not take any prepared match fields.
     if(programHeld&&programState)programState={...programState,scene:activeScene,lineupSide:$("#lineupSide").value};

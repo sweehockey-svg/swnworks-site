@@ -7,6 +7,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   await page.setContent('<base href="https://series.test/broadcast-studio/">'+read(lang+'/index.html').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link\b[^>]*>/g,'').replace(/<base\b[^>]*>/g,''));
   await page.addStyleTag({content:read('broadcast-studio.css')});await page.evaluate(()=>{window.EHOCKEY_CONFIG={};});
   await page.addScriptTag({content:read('studio-language.js')});
+  await page.addScriptTag({content:read('group-meetings.js')});
   await page.addScriptTag({content:read('broadcast-studio.js').replace('  function studioState(){','  window.seriesFixture={state:()=>studioState(),remote:s=>applyRemoteState(s),compare:teams=>{const prior=data.teams;data.teams=teams;renderTeamCompare();data.teams=prior;}};\n  function studioState(){')});
   await page.evaluate(()=>seriesFixture.remote({...seriesFixture.state(),scene:'lineup'}));
   await page.locator('.lineup .players').evaluate(grid=>{
@@ -190,7 +191,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert.equal(mist.display,'block',lang+' '+scene);
    const lights=await edgeLight();
    assert.equal(lights.display,'block');
-   assert.deepEqual(lights.animations,Array(6).fill('arena-edge-pulse'));
+   assert.deepEqual(lights.animations,['arena-edge-pulse','arena-edge-pulse','arena-inner-edge-pulse','arena-edge-pulse','arena-edge-pulse','arena-edge-pulse']);
    assert.equal(new Set(lights.timings).size,6,'Edge pulses are staggered');
    assert.deepEqual(await centerLight(),{display:'block',animation:'arena-center-shimmer'});
   }
@@ -207,6 +208,19 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert.equal((await centerLight()).display,'none','Center shimmer also stays off');
    if(scene==='live')assert.equal(mist.display,'none','Live never displays the background layer');
   }
+  await page.route('https://series.test/functions/v1/graphics-schedule?league=527',r=>r.fulfill({json:{matches:[
+   {id:135997,stage:'regular',homeId:7103,awayId:6709,homeScore:4,awayScore:3,date:'2026-10-06'},
+   {id:136003,stage:'regular',homeId:6709,awayId:7103,homeScore:6,awayScore:2,date:'2026-10-07'}
+  ]}}));
+  await page.evaluate(()=>{
+   window.EHOCKEY_CONFIG={supabaseUrl:'https://series.test',supabasePublishableKey:'fixture'};
+   seriesFixture.remote({...seriesFixture.state(),scene:'groupmeetings',leagueId:527,home:'6709',away:'7103'});
+  });
+  const groupScores=page.locator('#groupMeetings .group-meeting-scores>div');
+  await groupScores.nth(1).waitFor({state:'visible'});
+  assert.deepEqual(await groupScores.allTextContents(),['6–2','3–4'],lang+' group-stage results');
+  await page.evaluate(()=>seriesFixture.remote({...seriesFixture.state(),scene:'groupmeetings',home:'7103',away:'6709'}));
+  assert.deepEqual(await groupScores.allTextContents(),['2–6','4–3'],lang+' results follow the displayed teams');
   assert.deepEqual(errors,[],lang);await page.close();
  }
  const obs=await browser.newPage();

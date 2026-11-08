@@ -4,11 +4,12 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
 const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
 try{
  const context=await browser.newContext({viewport:{width:390,height:844}}),errors=[];
- const state={scene:'live',lineupSide:'home',home:'111',away:'222',lineupTeamNames:{111:'Testlaget A',222:'Testlaget B'},hs:3,as:2,subline:'TESTLAGET A – TESTLAGET B',twitchChannel:'unchanged',lineups:{home:{G:'333'}},seriesFormat:'5',seriesHome:'0',seriesAway:'0',transientSource:{ticket:'fixture.ticket',expires_at:new Date(Date.now()+3600000).toISOString()}};
+ const state={scene:'live',lineupSide:'home',leagueId:527,home:'111',away:'222',lineupTeamNames:{111:'Testlaget A',222:'Testlaget B'},hs:3,as:2,subline:'TESTLAGET A – TESTLAGET B',twitchChannel:'unchanged',lineups:{home:{G:'333'}},seriesFormat:'5',seriesHome:'0',seriesAway:'0',transientSource:{ticket:'fixture.ticket',expires_at:new Date(Date.now()+3600000).toISOString()}};
  const original=structuredClone(state),writes=[];let offline=false,deny=false;
  const html=fs.readFileSync(__dirname+'/mobile.html','utf8').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link[^>]*>/g,'').replace(' data-studio-locked','');
  await context.route('https://fixture.invalid/**',async route=>{
   const req=route.request();
+  if(req.url().includes('/functions/v1/graphics-schedule'))return route.fulfill({json:{matches:[{id:1,stage:'regular',homeId:111,awayId:222,homeScore:2,awayScore:3,date:'2026-10-06'},{id:2,stage:'playoffs',homeId:111,awayId:444,homeScore:5,awayScore:1,date:'2026-10-30'}]}});
   if(req.url().includes('/rpc/')){
    const body=req.postDataJSON();writes.push(body);
    assert.equal(req.headers().authorization,'Bearer fixture-token');
@@ -59,11 +60,16 @@ try{
   if(req.url().includes('/rest/'))return route.fulfill({status:offline?503:200,contentType:'application/json',body:JSON.stringify([{state}])});
   return route.fulfill({contentType:'text/html',body:html});
  });
- async function open(){const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto('https://fixture.invalid/mobile.html');await page.evaluate(()=>{window.EHOCKEY_CONFIG={supabaseUrl:'https://fixture.invalid',supabasePublishableKey:'fixture-key'};window.SWNStudioAccess={session:async()=>({access_token:'fixture-token'})};});await page.addScriptTag({content:fs.readFileSync(__dirname+'/mobile-control.js','utf8')});await page.waitForFunction(()=>document.querySelector('[data-scene="live"]').disabled===false);return page;}
+ async function open(){const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto('https://fixture.invalid/mobile.html');await page.evaluate(()=>{window.EHOCKEY_CONFIG={supabaseUrl:'https://fixture.invalid',supabasePublishableKey:'fixture-key'};window.SWNStudioAccess={session:async()=>({access_token:'fixture-token'})};});for(const file of ['group-meetings.js','mobile-control.js'])await page.addScriptTag({content:fs.readFileSync(__dirname+'/'+file,'utf8')});await page.waitForFunction(()=>document.querySelector('[data-scene="live"]').disabled===false);return page;}
  const a=await open(),b=await open();assert.equal(writes.length,0,'opening never changes program');
  assert.equal(await a.locator('[data-scene="stats"]').count(),0);
  assert.equal(await a.locator('[data-scene="matchup"]').count(),1);
  assert.equal(await a.locator('[data-scene="teamcompare"]').count(),1);
+ await a.waitForFunction(()=>!document.querySelector('[data-scene="groupmeetings"]').disabled);
+ state.away='444';
+ await a.waitForFunction(()=>document.querySelector('[data-scene="groupmeetings"]').disabled);
+ state.away='222';
+ await a.waitForFunction(()=>!document.querySelector('[data-scene="groupmeetings"]').disabled);
  assert.equal(await a.locator('[data-lineup-side="home"]').textContent(),'Testlaget A');
  assert.equal(await a.locator('[data-lineup-side="away"]').textContent(),'Testlaget B');
  const names=state.lineupTeamNames;
@@ -169,6 +175,10 @@ try{
  await b.waitForFunction(()=>document.querySelector('#mobileSeriesSave').textContent==='Spara vinstläge');
  assert.deepEqual(state.seriesResults,[]);
  assert.equal(state.seriesHome,'0');assert.equal(state.hs,'2');assert.equal(state.as,'1');
+ const beforeGroupScene=structuredClone(state);
+ await a.locator('[data-scene="groupmeetings"]').click();
+ await b.waitForFunction(()=>document.querySelector('[data-scene="groupmeetings"]').classList.contains('active'));
+ assert.deepEqual(state,{...beforeGroupScene,scene:'groupmeetings'});
  assert.deepEqual(errors,[]);console.log('PASS two controllers sync, scene-only RPC, scoped token, no load writes, preserved match data, mobile layout, offline/denied/expired locks');
 }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});
