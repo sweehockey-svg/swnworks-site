@@ -162,11 +162,14 @@ html[data-compact-scenes] #compactScenes{display:flex;flex-wrap:wrap;align-items
   const strip=document.getElementById("compactScenes"),extra=document.getElementById("compactExtra");
   strip.setAttribute("aria-label",label);
   extra.querySelector("summary").textContent=more;
-  const quick=new Set(["opening","live","lineup","intermission","series"]);
-  for(const button of document.querySelectorAll("[data-scene]")){
+  const quick=["opening","live","lineup","intermission","series","table","teamcompare","formguide","forwards","defense","goalies"];
+  const buttons=[...document.querySelectorAll("[data-scene]")];
+  for(const button of buttons){
     button.disabled=true;
-    if(quick.has(button.dataset.scene))strip.insertBefore(button,extra);
-    else extra.querySelector(".compact-extra-buttons").append(button);
+    if(!quick.includes(button.dataset.scene))extra.querySelector(".compact-extra-buttons").append(button);
+  }
+  for(const scene of quick){
+    for(const button of buttons.filter(b=>b.dataset.scene===scene))strip.insertBefore(button,extra);
   }
 })();
 </script>
