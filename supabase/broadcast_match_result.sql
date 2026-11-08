@@ -21,7 +21,7 @@ begin
   if auth.uid() is null or not coalesce(public.swn_studio_scene_access(p_channel), false) then
     raise exception 'Scene access required' using errcode = '42501';
   end if;
-  if p_action is null or p_action not in ('progress','final','next')
+  if p_action is null or p_action not in ('progress','final','next','reset')
     or p_home is null or p_home not between 0 and 99
     or p_away is null or p_away not between 0 and 99
     or coalesce(p_expected->>'ticket','') = ''
@@ -45,6 +45,16 @@ begin
 
   if current_state is null then
     raise exception 'Match or result changed' using errcode = 'P0002';
+  end if;
+  if p_action = 'reset' then
+    if p_home <> 0 or p_away <> 0 then
+      raise exception 'Series reset requires 0–0' using errcode = '22023';
+    end if;
+    update public.broadcast_studio_state
+    set state = current_state || '{"seriesHome":"0","seriesAway":"0","seriesResults":[],"seriesGameFinal":null}'::jsonb,
+        updated_at = clock_timestamp()
+    where channel = p_channel returning state into current_state;
+    return current_state;
   end if;
   is_final := coalesce(current_state->>'seriesGameFinal','') ~ '^[1-7]$';
   if (p_action = 'next') <> is_final then

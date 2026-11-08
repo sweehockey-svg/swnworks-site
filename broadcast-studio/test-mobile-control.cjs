@@ -17,7 +17,8 @@ try{
     assert.equal(body.p_expected.hs,String(state.hs));
     assert.equal(body.p_expected.as,String(state.as));
     const i=Number(state.seriesHome)+Number(state.seriesAway);
-    if(body.p_action==='next'){state.seriesGameFinal=null;state.hs=state.as='0';}
+    if(body.p_action==='reset'){state.seriesGameFinal=null;state.seriesHome=state.seriesAway='0';state.seriesResults=[];}
+    else if(body.p_action==='next'){state.seriesGameFinal=null;state.hs=state.as='0';}
     else{
      state.hs=String(body.p_home);state.as=String(body.p_away);
      if(body.p_action==='final'){
@@ -161,6 +162,13 @@ try{
  await b.waitForFunction(()=>document.querySelector('#mobileMatchNumber').textContent==='Match 3');
  assert.equal(state.hs,'0');assert.equal(state.as,'0');
  assert.equal(state.seriesHome,'2');assert.deepEqual(state.seriesResults,['','3–2']);
+ state.seriesHome='0';state.hs='2';state.as='1';
+ await a.waitForFunction(()=>document.querySelector('#mobileSeriesSave').textContent==='Rensa tidigare resultat');
+ a.once('dialog',dialog=>dialog.accept());
+ await a.locator('#mobileSeriesSave').click();
+ await b.waitForFunction(()=>document.querySelector('#mobileSeriesSave').textContent==='Spara vinstläge');
+ assert.deepEqual(state.seriesResults,[]);
+ assert.equal(state.seriesHome,'0');assert.equal(state.hs,'2');assert.equal(state.as,'1');
  assert.deepEqual(errors,[]);console.log('PASS two controllers sync, scene-only RPC, scoped token, no load writes, preserved match data, mobile layout, offline/denied/expired locks');
 }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});

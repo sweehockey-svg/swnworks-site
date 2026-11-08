@@ -112,6 +112,13 @@ const orderExpected=s=>({leagueId:s.leagueId??null,home:s.home,away:s.away,match
  teamOrderRevision:s.teamOrderRevision??null,liveTeamsReversed:s.liveTeamsReversed===true});
 const gameExpected=s=>({...seriesExpected(s),hs:s?.hs??null,as:s?.as??null,seriesResults:s?.seriesResults??null,seriesGameFinal:s?.seriesGameFinal??null});
 const finalGame=s=>/^[1-7]$/.test(String(s?.seriesGameFinal??""))?Number(s.seriesGameFinal):0;
+const savedSeriesResults=s=>!!finalGame(s)||(Array.isArray(s?.seriesResults)&&s.seriesResults.some(result=>String(result??"").trim()));
+const seriesResetText=({
+ sv:["Rensa tidigare resultat","Nollställa serien till 0–0 och rensa tidigare matchresultat? Målen i den pågående matchen ändras inte."],
+ en:["Clear previous results","Reset the series to 0–0 and clear previous game results? The current game score stays unchanged."],
+ fi:["Tyhjennä aiemmat tulokset","Nollataanko sarja ja poistetaanko aiemmat tulokset? Käynnissä olevan ottelun tilanne ei muutu."],
+ de:["Frühere Ergebnisse löschen","Serie auf 0–0 setzen und frühere Ergebnisse löschen? Der aktuelle Spielstand bleibt unverändert."]
+})[LANG];
 const goalValue=input=>/^\d{1,2}$/.test(input.value)?Number(input.value):null;
 document.getElementById("seriesHomeLabel").textContent=seriesText[2];
 document.getElementById("seriesAwayLabel").textContent=seriesText[3];
@@ -164,8 +171,10 @@ function controls(){
  });
  seriesHome.disabled=seriesAway.disabled=locked||!seriesKey;
  const h=Number(seriesHome.value),a=Number(seriesAway.value),limit=seriesLimit(received);
- seriesSave.disabled=seriesHome.disabled||(h===limit&&a===limit)||
-  (h===seriesWins(received?.seriesHome,received)&&a===seriesWins(received?.seriesAway,received));
+ const reset=h===0&&a===0&&savedSeriesResults(received);
+ const unchanged=h===seriesWins(received?.seriesHome,received)&&a===seriesWins(received?.seriesAway,received);
+ seriesSave.textContent=reset&&unchanged?seriesResetText[0]:seriesText[4];
+ seriesSave.disabled=seriesHome.disabled||(h===limit&&a===limit)||(unchanged&&!reset);
  swapTeams.disabled=locked||!orderValid(received);
  flipLiveTeams.disabled=swapTeams.disabled||scene!=="live";
  const reversed=received?.liveTeamsReversed===true;
@@ -275,9 +284,11 @@ gameForm.addEventListener("input",()=>{
 async function saveMatchResult(action,button){
  controls();
  if(button.disabled)return;
+ const reset=action==="reset",zero=reset||action==="next";
  const args={p_channel:CHANNEL,p_expected:gameExpected(received),p_action:action,
-  p_home:action==="next"?0:goalValue(homeGoals),p_away:action==="next"?0:goalValue(awayGoals)};
+  p_home:zero?0:goalValue(homeGoals),p_away:zero?0:goalValue(awayGoals)};
  if(action==="final"&&!window.confirm(gameText[7]))return;
+ if(reset&&!window.confirm(seriesResetText[1]))return;
  busy=true;revision++;controls();setConnection(T.sending,"busy");
  try{
   const session=await window.SWNStudioAccess.session();
@@ -285,9 +296,10 @@ async function saveMatchResult(action,button){
   if(!res.ok)throw new Error("HTTP "+res.status);
   const state=await res.json();
   if(!state||typeof state!=="object"||Array.isArray(state))throw new Error("No program state");
-  render(state);gameStatus.textContent=gameText[9];setConnection(T.sent,"ok");
+  if(reset)seriesForm.dataset.dirty="false";
+  render(state);(reset?seriesStatus:gameStatus).textContent=gameText[9];setConnection(T.sent,"ok");
  }catch{
-  ready=false;gameKey="";gameStatus.textContent=gameText[8];setConnection(T.error);
+  ready=false;gameKey="";(reset?seriesStatus:gameStatus).textContent=gameText[8];setConnection(T.error);
  }finally{busy=false;controls();}
 }
 [[gameProgress,"progress"],[gameFinal,"final"],[gameNext,"next"]].forEach(([button,action])=>{
@@ -298,6 +310,10 @@ seriesForm.addEventListener("submit",async event=>{
  event.preventDefault();
  controls();
  if(seriesSave.disabled)return;
+ if(Number(seriesHome.value)===0&&Number(seriesAway.value)===0&&savedSeriesResults(received)){
+  await saveMatchResult("reset",seriesSave);
+  return;
+ }
  const args={p_channel:CHANNEL,p_expected:seriesExpected(received),p_home:Number(seriesHome.value),p_away:Number(seriesAway.value)};
  busy=true;revision++;controls();setConnection(T.sending,"busy");
  try{

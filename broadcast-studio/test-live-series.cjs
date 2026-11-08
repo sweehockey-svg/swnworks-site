@@ -46,6 +46,13 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    assert.equal(await page.locator('.live-team-strip .awayTeam .live-series-wins .won').count(),1);
   }
   const state=await page.evaluate(()=>seriesFixture.state());assert.equal(state.liveSeriesShow,true);
+  const seriesHistory=(wins,results)=>page.evaluate(({s,wins,results})=>seriesFixture.remote({...s,scene:'series',seriesFormat:'5',seriesHome:wins,seriesAway:'0',seriesShowResults:true,seriesResults:results}),{s:state,wins,results});
+  await seriesHistory('1',['3–1']);
+  assert.equal(await page.locator('#seriesResultsList span').count(),1);
+  await seriesHistory('0',['3–1']);
+  assert.notEqual(await page.locator('#seriesResults').getAttribute('hidden'),null,'Old history does not show at 0–0');
+  await seriesHistory('0',[]);
+  assert.equal(await page.locator('#seriesR1').inputValue(),'','A reset clears the saved score field');
   const openingRound=page.locator('.opening-round');
   await page.evaluate(s=>seriesFixture.remote({...s,scene:'opening',seriesRound:'SLUTSPEL'}),state);
   assert.notEqual(await openingRound.getAttribute('hidden'),null,'Generic playoff default stays hidden');
