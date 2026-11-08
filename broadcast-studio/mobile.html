@@ -72,6 +72,9 @@ html[data-compact-scenes="1"] #compactScenes{display:flex;flex-wrap:wrap;align-i
 #compactExtra summary{display:list-item;box-sizing:border-box;align-content:center;cursor:pointer;color:#b7cad7;background:#0b1924}
 #compactExtra[open]{flex:1 1 100%}
 #compactExtra .compact-extra-buttons{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+#compactScenes .compact-music{display:flex;gap:4px;align-items:center;color:#b7cad7;font-size:11px}
+#compactScenes .compact-music>span{padding-inline:3px}
+#compactScenes #mobileFlipLiveTeams{max-width:240px}
 html[data-compact-scenes="series"] .series-editor{margin:0;padding:7px 8px}
 html[data-compact-scenes="series"] .series-editor form{gap:5px;margin-top:7px}
 html[data-compact-scenes="series"] .series-editor .match-result{padding-bottom:6px}
@@ -161,9 +164,9 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
   if(!document.documentElement.hasAttribute("data-compact-scenes"))return;
   const seriesOnly=document.documentElement.getAttribute("data-compact-scenes")==="series";
   const language=new URLSearchParams(location.search).get("lang")?.toLowerCase();
-  const words={sv:["Scenval","Logga in för scenval ↗","Fler scener"],en:["Scene controls","Sign in for scene controls ↗","More scenes"],fi:["Näkymän valinta","Kirjaudu vaihtaaksesi näkymää ↗","Lisää näkymiä"],de:["Szenensteuerung","Zur Szenensteuerung anmelden ↗","Weitere Szenen"]};
+  const words={sv:["Scenval","Logga in för scenval ↗","Fler scener","Musik"],en:["Scene controls","Sign in for scene controls ↗","More scenes","Music"],fi:["Näkymän valinta","Kirjaudu vaihtaaksesi näkymää ↗","Lisää näkymiä","Musiikki"],de:["Szenensteuerung","Zur Szenensteuerung anmelden ↗","Weitere Szenen","Musik"]};
   const lang=Object.hasOwn(words,language)?language:"sv";
-  const [label,signIn,more]=words[lang];
+  const [label,signIn,more,musicLabel]=words[lang];
   document.documentElement.lang=lang;
   const link=document.getElementById("compactLoginLink");
   link.href="mobile.html?lang="+lang;
@@ -182,6 +185,14 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
   for(const scene of quick){
     for(const button of buttons.filter(b=>b.dataset.scene===scene))strip.insertBefore(button,extra);
   }
+  const music=document.createElement("div"),caption=document.createElement("span");
+  music.className="compact-music";
+  music.setAttribute("role","group");
+  music.setAttribute("aria-label",musicLabel);
+  caption.textContent=musicLabel;
+  music.append(caption,...document.querySelectorAll("[data-music]"));
+  strip.insertBefore(music,extra);
+  strip.insertBefore(document.getElementById("mobileFlipLiveTeams"),extra);
 })();
 </script>
 <script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261108-compact-series"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>

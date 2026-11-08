@@ -34,6 +34,19 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
      state={...state,hs:String(payload.p_home),as:String(payload.p_away)};
      return route.fulfill({json:state});
     }
+    if(url.pathname.endsWith('/rpc/broadcast_studio_set_music')){
+     assert.equal(req.headers().authorization,'Bearer fixture-token');
+     const payload=req.postDataJSON();writes.push(payload);
+     state={...state,sceneMusic:{...state.sceneMusic,muted:payload.p_mode==='off',[payload.p_scene]:payload.p_mode}};
+     return route.fulfill({json:state});
+    }
+    if(url.pathname.endsWith('/rpc/broadcast_studio_set_team_order')){
+     assert.equal(req.headers().authorization,'Bearer fixture-token');
+     const payload=req.postDataJSON();writes.push(payload);
+     assert.equal(payload.p_action,'live');
+     state={...state,liveTeamsReversed:!state.liveTeamsReversed};
+     return route.fulfill({json:state});
+    }
     if(url.pathname.endsWith('/broadcast_studio_state'))return route.fulfill({json:[{state}]});
     if(url.pathname.endsWith('/graphics-schedule'))return route.fulfill({json:{matches:[]}});
     if(url.searchParams.get('obs')==='1')return route.fulfill({contentType:'text/html',body:'<main>Match picture</main>'});
@@ -67,7 +80,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await page.setViewportSize({width:1920,height:1080});
     await page.waitForFunction(()=>document.getElementById('scenePicker').getBoundingClientRect().height<=40);
     await page.setViewportSize({width:1280,height:800});
-    assert.deepEqual(await frame.locator('#compactScenes > button').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
+    assert.deepEqual(await frame.locator('#compactScenes > button[data-scene]').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
      ['opening','live','lineup','lineup','intermission','series','table','teamcompare','formguide','forwards','defense','goalies']);
     await frame.locator('[data-scene="intermission"]').click();
     await frame.locator('[data-scene="intermission"].active').waitFor();
@@ -84,6 +97,21 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     assert.equal(writes[1].p_home,4);
     assert.equal(state.scene,'intermission','Series editor leaves the live scene alone');
     assert.equal(await series.locator('#compactScenes').isVisible(),false);
+    const music=frame.locator('.compact-music');
+    assert.deepEqual(await music.locator('button').allTextContents(),['Hög','Låg','Av']);
+    await music.locator('[data-music="high"]').click();
+    await music.locator('[data-music="high"][aria-pressed="true"]').waitFor();
+    assert.deepEqual(writes[2],{p_channel:'sec21-bronze-test',p_scene:'intermission',p_mode:'high'});
+    await music.locator('[data-music="off"]').click();
+    await music.locator('[data-music="off"][aria-pressed="true"]').waitFor();
+    assert.equal(state.sceneMusic.muted,true);
+    await frame.locator('[data-scene="live"]').click();
+    await frame.locator('[data-scene="live"].active').waitFor();
+    assert(await music.locator('[data-music="high"]').isDisabled());
+    await frame.locator('#mobileFlipLiveTeams').click();
+    await frame.locator('#mobileFlipLiveTeams[aria-pressed="true"]').waitFor();
+    assert.match(await frame.locator('#mobileFlipLiveTeams').textContent(),/Testlaget B överst/);
+    assert.deepEqual([state.home,state.away,state.hs,state.as],['111','222','4','2']);
    }
    assert.deepEqual(errors,[]);
    await page.close();
