@@ -8,6 +8,8 @@
 6. Tittarna kan välja **Lyssna på båda kommentatorerna** och justera röstvolym och eventuell fördröjning per röst. Rösterna blandas med gemensam dynamikbegränsning.
 7. **Stoppa** i en studiopanel avslutar bara den platsen och återkallar länken. **Avsluta sändning** avslutar båda. Kommentatorsidor kontrollerar återkallade platser var tredje sekund. Länkar gäller i högst sex timmar.
 
+På den privata kommentatorsidan finns **Egna anteckningar** bredvid matchbilden på dator och under den på mobil. Anteckningarna sparas i samma webbläsare för samma länk, även efter omladdning. De skickas inte till kollegan, studion eller OBS. Använd den separata OBS-källan för sändningen; fånga inte kommentatorns fönster eller hela skärm.
+
 ## Viktigt
 
 - Detta skickar kommentatorsljud till **Match-TV**. OBS/Twitchs vanliga mikrofonkanaler ändras inte. Skicka inte samma röst via både matchstreamen och den separata kommenteringen; det kan ge dubbelt ljud.

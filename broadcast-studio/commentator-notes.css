@@ -1,0 +1,21 @@
+/* The monitor is a separate iframe; the scratchpad lives in its parent only. */
+main:has(.commentator-workspace>#privateNotes[open]:not([hidden])){max-width:1500px}
+.commentator-workspace{display:grid;gap:16px;align-items:start}
+.commentator-match{min-width:0}
+.commentator-match iframe{box-sizing:border-box}
+#privateNotes{min-width:0;padding:14px;border:1px solid #345166;border-radius:10px;background:#091923}
+#privateNotes[hidden]{display:none}
+#privateNotes summary{cursor:pointer;color:#eef7ff;font-size:16px;font-weight:800}
+#privateNotes summary:focus-visible,#privateNotes textarea:focus-visible{outline:3px solid #ffd33d;outline-offset:3px}
+.notes-hint,.notes-status{margin:8px 0;color:#aac1d0;font-size:12px;line-height:1.45}
+#privateNotes textarea{
+  box-sizing:border-box;display:block;width:100%;min-height:220px;height:clamp(220px,42vh,490px);
+  resize:vertical;padding:12px;border:1px solid #45657a;border-radius:7px;background:#06111a;
+  color:#eef7ff;font:inherit;line-height:1.45;
+}
+.notes-status{min-height:1.45em;margin-bottom:0}
+@media(min-width:880px){
+  .commentator-workspace:has(>#privateNotes[open]:not([hidden])){
+    grid-template-columns:minmax(0,1fr) minmax(260px,.42fr);
+  }
+}
