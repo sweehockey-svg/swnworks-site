@@ -5,7 +5,13 @@ const matches=[match,{...match,id:136003,homeId:6709,awayId:7103,homeScore:6,awa
   {...match,id:137001,stage:'playoffs'}, {...match,id:137002,homeScore:null}, {...match,id:137003,awayId:55}, match];
 let requests=0;
 const ctx={window:{EHOCKEY_CONFIG:{supabaseUrl:'https://fixture.invalid',supabasePublishableKey:'fixture'}},AbortSignal,
-  fetch:async url=>{assert.match(url,/graphics-schedule\?league=527$/);requests++;return {ok:true,json:async()=>({matches})};}};
+  fetch:async url=>{
+    if(url.includes('&goals=')){
+      assert.match(url,/&goals=135997,136003$/);
+      return {ok:true,json:async()=>({scorers:{135997:{7103:[{id:2,name:'Test',goals:4}],6709:[{id:3,name:'Bad total',goals:2}]}}})};
+    }
+    assert.match(url,/graphics-schedule\?league=527$/);requests++;return {ok:true,json:async()=>({matches})};
+  }};
 vm.runInNewContext(fs.readFileSync(__dirname+'/group-meetings.js','utf8'),ctx);
 const helper=ctx.window.BroadcastGroupMeetings,plain=x=>JSON.parse(JSON.stringify(x));
 (async()=>{
@@ -16,5 +22,9 @@ const helper=ctx.window.BroadcastGroupMeetings,plain=x=>JSON.parse(JSON.stringif
   assert.deepEqual(plain(helper.cached(527,7103,6709)).map(x=>[x.home,x.away]),[[2,6],[4,3]]);
   assert.deepEqual(plain(helper.cached(527,6709,55)),[]);
   assert.equal(helper.cached(520,6709,7103),null);
+  await helper.loadScorers(527,helper.cached(527,6709,7103));
+  assert.deepEqual(plain(helper.scorers(527,135997,7103,4)),[{id:2,name:'Test',goals:4}]);
+  assert.deepEqual(plain(helper.scorers(527,135997,6709,3)),[]);
+  assert.deepEqual(plain(helper.scorers(527,136003,6709,6)),[]);
   console.log('PASS verified group games only; duplicate, missing and playoff results excluded; order follows the current teams');
 })().catch(error=>{console.error(error);process.exitCode=1;});

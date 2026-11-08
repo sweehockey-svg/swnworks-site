@@ -212,15 +212,23 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    {id:135997,stage:'regular',homeId:7103,awayId:6709,homeScore:4,awayScore:3,date:'2026-10-06'},
    {id:136003,stage:'regular',homeId:6709,awayId:7103,homeScore:6,awayScore:2,date:'2026-10-07'}
   ]}}));
+  await page.route('https://series.test/functions/v1/graphics-schedule?league=527&goals=135997,136003',r=>r.fulfill({json:{scorers:{
+   136003:{6709:[{id:12593,name:'Jordan NHL',goals:2},{id:15085,name:'Dan Larsson',goals:4}],7103:[{id:16128,name:'Oscar Tkaczyk',goals:2}]}
+  }}}));
   await page.evaluate(()=>{
    window.EHOCKEY_CONFIG={supabaseUrl:'https://series.test',supabasePublishableKey:'fixture'};
    seriesFixture.remote({...seriesFixture.state(),scene:'groupmeetings',leagueId:527,home:'6709',away:'7103'});
   });
   const groupScores=page.locator('#groupMeetings .group-meeting-scores>div');
   await groupScores.nth(1).waitFor({state:'visible'});
-  assert.deepEqual(await groupScores.allTextContents(),['6–2','3–4'],lang+' group-stage results');
+  const totals=page.locator('#groupMeetings .group-meeting-side>b');
+  assert.deepEqual(await totals.allTextContents(),['6','2','3','4'],lang+' group-stage results');
+  await groupScores.first().locator('.group-meeting-scorers').first().waitFor({state:'visible'});
+  assert.match(await groupScores.first().locator('.group-meeting-side').first().innerText(),/Jordan NHL ×2/);
+  assert.equal(await groupScores.nth(1).locator('.group-meeting-scorers').count(),0,'Scores stay when no report is available');
   await page.evaluate(()=>seriesFixture.remote({...seriesFixture.state(),scene:'groupmeetings',home:'7103',away:'6709'}));
-  assert.deepEqual(await groupScores.allTextContents(),['2–6','4–3'],lang+' results follow the displayed teams');
+  assert.deepEqual(await totals.allTextContents(),['2','6','4','3'],lang+' results follow the displayed teams');
+  assert.match(await groupScores.first().locator('.group-meeting-side').first().innerText(),/Oscar Tkaczyk ×2/);
   assert.deepEqual(errors,[],lang);await page.close();
  }
  const obs=await browser.newPage();

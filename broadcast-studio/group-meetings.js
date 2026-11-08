@@ -1,6 +1,8 @@
 (() => {
   "use strict";
   const leagues=new Set([520,523,524,525,526,527,529,532]), cache=new Map(), pending=new Map();
+  const scorerCache=new Map(),scorerPending=new Map();
+  const scorerLabel={sv:"Målskyttar",en:"Goal scorers",fi:"Maalintekijät",de:"Torschützen"};
   const label={
     sv:["Inbördes möten","Inga verifierade gruppspelsmöten","Hämtar gruppspelsresultat…","Gruppspelsresultat kunde inte hämtas"],
     en:["Head-to-head","No verified group-stage meetings","Loading group-stage results…","Could not load group-stage results"],
@@ -46,5 +48,32 @@
     return task;
   }
   const status=league=>pending.has(Number(league))?2:cache.has(Number(league))?3:1;
-  window.BroadcastGroupMeetings={select,cached,load,status,label};
+  function loadScorers(league,rows){
+    const cfg=window.EHOCKEY_CONFIG||{};
+    if(!leagues.has(Number(league))||!cfg.supabaseUrl||!cfg.supabasePublishableKey)return Promise.resolve();
+    const ids=[...new Set(rows.map(m=>m.id))].filter(id=>positive(id)&&!scorerCache.has(league+":"+id)).slice(0,8).sort((a,b)=>a-b);
+    if(!ids.length)return Promise.resolve();
+    const key=league+":"+ids.join(",");
+    if(scorerPending.has(key))return scorerPending.get(key);
+    const task=(async()=>{
+      try{
+        const url=String(cfg.supabaseUrl).replace(/\/+$/,"")+"/functions/v1/graphics-schedule?league="+league+"&goals="+ids.join(",");
+        const response=await fetch(url,{headers:{apikey:cfg.supabasePublishableKey},signal:AbortSignal.timeout(19000)});
+        const body=await response.json();
+        if(!response.ok||!body.scorers||typeof body.scorers!=="object")return;
+        for(const id of ids){
+          if(scorerCache.size>=128)scorerCache.delete(scorerCache.keys().next().value);
+          scorerCache.set(league+":"+id,body.scorers[id]||null);
+        }
+      }catch{/* Scores are independent of the optional match details. */}
+    })().finally(()=>scorerPending.delete(key));
+    scorerPending.set(key,task);
+    return task;
+  }
+  function scorers(league,id,team,goals){
+    const entries=scorerCache.get(league+":"+id)?.[team];
+    if(!Array.isArray(entries)||entries.length>99||entries.some(x=>!positive(x?.id)||!positive(x?.goals)||typeof x?.name!=="string"||!x.name.trim()||x.name.length>80))return [];
+    return entries.reduce((n,x)=>n+Number(x.goals),0)===goals?entries:[];
+  }
+  window.BroadcastGroupMeetings={select,cached,load,status,label,loadScorers,scorers,scorerLabel};
 })();

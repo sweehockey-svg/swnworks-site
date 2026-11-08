@@ -274,7 +274,7 @@ window.SWNViewerBridge=(()=>{
 
   const groupMeetings=window.BroadcastGroupMeetings;
   const groupMeetingLabel=groupMeetings?.label[LOCALE]||groupMeetings?.label.en;
-  let groupLoad=null,programGroupLoad=null;
+  let groupLoad=null,programGroupLoad=null,groupScorerLoad=null;
   function groupResults(state){
     return groupMeetings?.cached(state.leagueId,state.home,state.away);
   }
@@ -299,9 +299,19 @@ window.SWNViewerBridge=(()=>{
     const button=$('[data-scene="groupmeetings"]'),available=(held?groupResults(held):rows)?.length>0;
     if(button){button.disabled=!available;button.title=available?"":groupMeetingLabel[hasTeams&&rows===null?groupMeetings.status(league):1];}
     const side=t=>'<div>'+(logo(t)?'<img src="'+esc(logo(t))+'" alt="">':'')+'<b>'+esc(t.team_name_in_league)+'</b></div>';
-    if(!rows?.length){panel.textContent=groupMeetingLabel[hasTeams&&rows===null?groupMeetings.status(league):1];return;}
+    if(!rows?.length){groupScorerLoad=null;panel.textContent=groupMeetingLabel[hasTeams&&rows===null?groupMeetings.status(league):1];return;}
+    const scorerKey=key+":"+rows.map(m=>m.id).join(",");
+    if(groupScorerLoad!==scorerKey){
+      groupScorerLoad=scorerKey;
+      void groupMeetings.loadScorers(league,rows).then(()=>{if(groupScorerLoad===scorerKey)renderGroupMeetings();});
+    }
+    const names=new Map(data.players.map(p=>[Number(p.sports_gamer_player_id),p.display_gamertag]));
+    const scorerText=(m,t,score)=>groupMeetings.scorers(league,m.id,t.sports_gamer_team_id,score).map(p=>
+      esc(names.get(Number(p.id))||p.name)+(p.goals>1?' ×'+Number(p.goals):'')).join(' · ');
+    const renderScore=(score,scorers)=>'<div class="group-meeting-side"><b>'+score+'</b>'+
+      (scorers?'<div class="group-meeting-scorers"><small>'+esc(groupMeetings.scorerLabel[LOCALE]||groupMeetings.scorerLabel.en)+'</small> '+scorers+'</div>':'')+'</div>';
     panel.innerHTML='<div class="group-meeting-teams">'+side(home)+side(away)+'</div><div class="group-meeting-scores">'+rows.map(m=>
-      '<div><b>'+m.home+'</b><span>–</span><b>'+m.away+'</b>'+(m.overtime?'<small>OT</small>':'')+'</div>').join('')+'</div>';
+      '<div>'+renderScore(m.home,scorerText(m,home,m.home))+'<span>–'+(m.overtime?'<small>OT</small>':'')+'</span>'+renderScore(m.away,scorerText(m,away,m.away))+'</div>').join('')+'</div>';
   }
   function renderMatch() {
     fill(".homeTeam", selectedTeam("home"));
