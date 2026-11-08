@@ -67,14 +67,12 @@ html[data-compact-scenes] #broadcastStatus{margin:5px 0 0;font-size:11px!importa
 html[data-compact-scenes][data-compact-scene-ready] #broadcastStatus{display:none}
 html[data-compact-scenes][data-studio-locked] body>#compactLogin{display:block!important;padding:5px 1px;font-size:12px}
 #compactLogin a{color:#c2d8e9}
-html[data-compact-scenes="1"] #compactScenes{display:flex;flex-wrap:wrap;align-items:flex-start;gap:5px}
-#compactScenes button,#compactExtra summary{min-height:30px;max-width:165px;padding:5px 8px;border:1px solid #2a3d4c;border-radius:5px;font-size:11px;line-height:1.2;overflow-wrap:anywhere}
-#compactExtra summary{display:list-item;box-sizing:border-box;align-content:center;cursor:pointer;color:#b7cad7;background:#0b1924}
-#compactExtra[open]{flex:1 1 100%}
-#compactExtra .compact-extra-buttons{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+html[data-compact-scenes="1"] #compactScenes{display:grid;gap:5px}
+#compactScenes .compact-row{display:flex;flex-wrap:wrap;align-items:center;gap:5px;min-width:0}
+#compactScenes button{box-sizing:border-box;height:30px;min-height:30px;max-width:165px;padding:5px 8px;border:1px solid #2a3d4c;border-radius:5px;font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #compactScenes .compact-music{display:flex;gap:4px;align-items:center;color:#b7cad7;font-size:11px}
 #compactScenes .compact-music>span{padding-inline:3px}
-#compactScenes #mobileFlipLiveTeams{max-width:240px}
+#compactScenes #mobileFlipLiveTeams{max-width:min(240px,100%)}
 html[data-compact-scenes="series"] .series-editor{margin:0;padding:5px 7px}
 html[data-compact-scenes="series"] .series-editor form{gap:4px;margin-top:5px}
 html[data-compact-scenes="series"] .series-editor .match-result{padding-bottom:4px}
@@ -99,7 +97,7 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
     <div class="connection" id="connection"><i></i><span id="connectionText">ANSLUTER</span></div>
   </div>
 </header>
-<main><div id="compactScenes" role="group"><details id="compactExtra"><summary>Fler scener</summary><div class="compact-extra-buttons"></div></details></div><p style="font-size:12px;color:#9bafbc">SWNWORKS · <a href="SV/" id="studioLink" style="color:#f4b21b">Öppna huvudstudion ↗</a></p><p id="broadcastStatus" role="status" style="font-size:12px;line-height:1.5;color:#9bafbc">Läser sändningsläget…</p>
+<main><div id="compactScenes" role="group"><div id="compactPrimary" class="compact-row"></div><div id="compactSecondary" class="compact-row"></div></div><p style="font-size:12px;color:#9bafbc">SWNWORKS · <a href="SV/" id="studioLink" style="color:#f4b21b">Öppna huvudstudion ↗</a></p><p id="broadcastStatus" role="status" style="font-size:12px;line-height:1.5;color:#9bafbc">Läser sändningsläget…</p>
   <section class="group" aria-labelledby="musicHeading"><h2 id="musicHeading">MUSIK · AKTIV SCEN</h2><div class="music-grid">
     <button type="button" data-music="high" aria-pressed="false" disabled>Hög</button>
     <button type="button" data-music="low" aria-pressed="false" disabled>Låg</button>
@@ -170,26 +168,25 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
   if(!document.documentElement.hasAttribute("data-compact-scenes"))return;
   const seriesOnly=document.documentElement.getAttribute("data-compact-scenes")==="series";
   const language=new URLSearchParams(location.search).get("lang")?.toLowerCase();
-  const words={sv:["Scenval","Logga in för scenval ↗","Fler scener","Musik"],en:["Scene controls","Sign in for scene controls ↗","More scenes","Music"],fi:["Näkymän valinta","Kirjaudu vaihtaaksesi näkymää ↗","Lisää näkymiä","Musiikki"],de:["Szenensteuerung","Zur Szenensteuerung anmelden ↗","Weitere Szenen","Musik"]};
+  const words={sv:["Scenval","Logga in för scenval ↗","Musik"],en:["Scene controls","Sign in for scene controls ↗","Music"],fi:["Näkymän valinta","Kirjaudu vaihtaaksesi näkymää ↗","Musiikki"],de:["Szenensteuerung","Zur Szenensteuerung anmelden ↗","Musik"]};
   const lang=Object.hasOwn(words,language)?language:"sv";
-  const [label,signIn,more,musicLabel]=words[lang];
+  const [label,signIn,musicLabel]=words[lang];
   document.documentElement.lang=lang;
   const link=document.getElementById("compactLoginLink");
   link.href="mobile.html?lang="+lang;
   const seriesSignIn={sv:"Logga in för serieläge ↗",en:"Sign in for series controls ↗",fi:"Kirjaudu muokataksesi sarjatilannetta ↗",de:"Für den Serienstand anmelden ↗"};
   link.textContent=seriesOnly?seriesSignIn[lang]:signIn;
   if(seriesOnly)return;
-  const strip=document.getElementById("compactScenes"),extra=document.getElementById("compactExtra");
+  const strip=document.getElementById("compactScenes"),primary=document.getElementById("compactPrimary"),secondary=document.getElementById("compactSecondary");
   strip.setAttribute("aria-label",label);
-  extra.querySelector("summary").textContent=more;
   const quick=["opening","live","lineup","intermission","series","table","teamcompare","formguide","forwards","defense","goalies"];
   const buttons=[...document.querySelectorAll("[data-scene]")];
   for(const button of buttons){
     button.disabled=true;
-    if(!quick.includes(button.dataset.scene))extra.querySelector(".compact-extra-buttons").append(button);
+    if(!quick.includes(button.dataset.scene))secondary.append(button);
   }
   for(const scene of quick){
-    for(const button of buttons.filter(b=>b.dataset.scene===scene))strip.insertBefore(button,extra);
+    for(const button of buttons.filter(b=>b.dataset.scene===scene))primary.append(button);
   }
   const music=document.createElement("div"),caption=document.createElement("span");
   music.className="compact-music";
@@ -197,9 +194,8 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
   music.setAttribute("aria-label",musicLabel);
   caption.textContent=musicLabel;
   music.append(caption,...document.querySelectorAll("[data-music]"));
-  strip.insertBefore(music,extra);
-  strip.insertBefore(document.getElementById("mobileFlipLiveTeams"),extra);
+  secondary.append(music,document.getElementById("mobileFlipLiveTeams"));
 })();
 </script>
-<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261108-compact-series"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
+<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261109-scene-rows"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
 

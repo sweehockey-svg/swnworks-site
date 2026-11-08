@@ -15,7 +15,7 @@
     .presenter-sidebar #privateNotes textarea{min-height:150px;height:clamp(150px,31vh,340px)}
     #broadcast{width:100%;aspect-ratio:16/9;border:1px solid #345166;border-radius:10px;background:#000;display:block}
     #scenePicker,#seriesPicker{display:block;width:100%;height:32px;border:0}
-    #scenePicker{margin-top:5px}
+    #scenePicker{margin-top:5px;height:67px}
     .original-feed{width:min(100%,210px);margin:0;min-width:0}
     .original-feed figcaption{margin:0 0 3px;color:#aac1d0;font-size:11px;font-weight:800}
     #originalFeed{box-sizing:border-box;display:block;width:100%;aspect-ratio:16/9;border:1px solid #345166;border-radius:6px;background:#030b12}
@@ -30,7 +30,7 @@
       }
     }
     @media(min-width:880px) and (min-height:500px){
-      .commentator-workspace{--match-width:calc((100svh - 72px)*16 / 9)}
+      .commentator-workspace{--match-width:calc((100svh - 96px)*16 / 9)}
       #broadcast,#scenePicker{width:min(100%,var(--match-width))}
     }
   </style>
@@ -95,7 +95,7 @@
       resize.observe(body);
       fit();
     });
-    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261108-short-series";
+    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261109-scene-rows";
   }
   mountControls("scenePicker",sceneTitle,"1");
   const seriesTitles={sv:"Serieläge",en:"Series score",fi:"Sarjatilanne",de:"Serienstand"};

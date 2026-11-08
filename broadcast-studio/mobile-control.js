@@ -199,6 +199,7 @@ function controls(){
  const reversed=received?.liveTeamsReversed===true;
  const topTeam=teamLabel(received,reversed?"away":"home");
  flipLiveTeams.textContent=orderText[1]+" · "+(topTeam?onTop(topTeam):orderText[reversed?3:2]);
+ if(document.documentElement.getAttribute("data-compact-scenes")==="1")flipLiveTeams.title=flipLiveTeams.textContent;
  flipLiveTeams.setAttribute("aria-pressed",String(reversed));
  const finished=finalGame(received);
  const scoreLocked=locked||!gameKey||!!finished;

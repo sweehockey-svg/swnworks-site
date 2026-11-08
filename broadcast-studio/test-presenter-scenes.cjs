@@ -84,20 +84,23 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     const live=frame.locator('[data-scene="live"].active');
     await live.waitFor({state:'visible'});
     assert.equal(await live.isEnabled(),true);
-    const bar=page.locator('#scenePicker'),initial=(await bar.boundingBox()).height;
-    assert(initial<=72,'Quick controls fit within two compact rows on a laptop');
-    await page.setViewportSize({width:1920,height:1080});
-    await page.waitForFunction(()=>document.getElementById('scenePicker').getBoundingClientRect().height<=40);
-    await page.setViewportSize({width:1280,height:800});
-    assert.deepEqual(await frame.locator('#compactScenes > button[data-scene]').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
+    await page.setViewportSize({width:1906,height:900});
+    await page.waitForFunction(()=>document.getElementById('scenePicker').getBoundingClientRect().height===67);
+    assert.deepEqual(await frame.locator('#compactPrimary > button[data-scene]').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
      ['opening','live','lineup','lineup','intermission','series','table','teamcompare','formguide','forwards','defense','goalies']);
+    assert.deepEqual(await frame.locator('#compactSecondary > button[data-scene]').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
+     ['matchup','groupmeetings','road','scorers','offense','defenseleaders','goalieleaders','keymatchup','spotlight','leaders']);
+    assert.equal(await frame.locator('#compactScenes details').count(),0);
+    await frame.locator('#compactSecondary [data-scene="matchup"]').waitFor({state:'visible'});
+    const flipBox=await frame.locator('#mobileFlipLiveTeams').boundingBox(),liveBox=await live.boundingBox();
+    assert.equal(flipBox.height,liveBox.height,'Flip and scene buttons have the same height');
+    const desktopStrip=await page.locator('#scenePicker').boundingBox();
+    assert(desktopStrip.y+desktopStrip.height<=900,'Both rows fit below the video on desktop');
+    await page.setViewportSize({width:1280,height:800});
     await frame.locator('[data-scene="intermission"]').click();
     await frame.locator('[data-scene="intermission"].active').waitFor();
     assert.deepEqual(writes,[{p_channel:'sec21-bronze-test',p_scene:'intermission',p_lineup_side:null}]);
     assert.equal(state.hs,3);assert.equal(state.as,2);
-    await frame.locator('#compactExtra summary').click();
-    await frame.locator('#compactExtra [data-scene="matchup"]').waitFor({state:'visible'});
-    await page.waitForFunction(initial=>document.getElementById('scenePicker').getBoundingClientRect().height>initial,initial);
     await page.setViewportSize({width:1920,height:1080});
     await series.locator('#seriesSummary').click();
     const editor=series.locator('.series-editor');
