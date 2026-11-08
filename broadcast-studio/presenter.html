@@ -111,7 +111,22 @@
   document.getElementById("studioToolsHint").textContent=toolsHint;
   const tools=document.getElementById("studioTools"),toolsFrame=document.getElementById("studioToolsFrame");
   toolsFrame.title=toolsTitle;
-  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261109-organized-tools";};
+  let toolSize,toolStatus;
+  toolsFrame.addEventListener("load",()=>{
+    toolSize?.disconnect();toolStatus?.disconnect();
+    const doc=toolsFrame.contentDocument;
+    if(!doc?.body){toolsFrame.style.removeProperty("height");return;}
+    const fit=()=>{
+      if(!tools.open)return;
+      const ready=doc.documentElement.hasAttribute("data-tools-ready")&&!doc.documentElement.hasAttribute("data-studio-locked");
+      if(ready)toolsFrame.style.height=Math.ceil(doc.body.getBoundingClientRect().height+2)+"px";
+      else toolsFrame.style.removeProperty("height");
+    };
+    toolSize=new ResizeObserver(fit);toolSize.observe(doc.body);
+    toolStatus=new MutationObserver(fit);toolStatus.observe(doc.documentElement,{attributes:true,attributeFilter:["data-tools-ready","data-studio-locked"]});
+    fit();
+  });
+  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261109-tools-dashboard";};
   tools.addEventListener("toggle",loadTools);
   loadTools();
 })();

@@ -192,23 +192,47 @@ const setupDirectorLayout=()=>{
  if(tools){
   const organize=()=>{
    const names={
-    sv:['Förbered match','Grafik och lag','Sändning','Ljud och inspelning','Spela in matchen'],
-    en:['Match preparation','Graphics and teams','Broadcast','Audio and recording','Record match'],
-    fi:['Ottelun valmistelu','Grafiikka ja joukkueet','Lähetys','Ääni ja tallennus','Tallenna ottelu'],
-    de:['Spielvorbereitung','Grafik und Teams','Sendung','Ton und Aufzeichnung','Spiel aufzeichnen']
-   }[(document.documentElement.lang||'sv').slice(0,2)]||['Match preparation','Graphics and teams','Broadcast','Audio and recording','Record match'];
+    sv:['Förbered match','Grafik och lag','Sändning','Ljud och inspelning','Spela in matchen','Statistik och tabell','Studioverktyg'],
+    en:['Match preparation','Graphics and teams','Broadcast','Audio and recording','Record match','Statistics and standings','Studio tools'],
+    fi:['Ottelun valmistelu','Grafiikka ja joukkueet','Lähetys','Ääni ja tallennus','Tallenna ottelu','Tilastot ja sarjataulukko','Studiotyökalut'],
+    de:['Spielvorbereitung','Grafik und Teams','Sendung','Ton und Aufzeichnung','Spiel aufzeichnen','Statistik und Tabelle','Studiowerkzeuge']
+   }[(document.documentElement.lang||'sv').slice(0,2)]||['Match preparation','Graphics and teams','Broadcast','Audio and recording','Record match','Statistics and standings','Studio tools'];
+   const main=aside.parentElement,nav=document.createElement('div'),panels=[];
+   nav.className='presenter-tools-nav';nav.setAttribute('role','group');nav.setAttribute('aria-label',names[6]);
+   main.prepend(nav);
    const folded=(selector)=>{const node=document.querySelector(selector);return node?.closest('details.director-fold')||node;};
-   const card=(id,title,parent,nodes)=>{
-    const section=document.createElement('section'),heading=document.createElement('h2');
-    section.className='presenter-tools-card';section.dataset.toolsGroup=id;heading.textContent=title;
-    section.append(heading,...nodes.filter(Boolean));parent.append(section);
+   const column=(...nodes)=>{
+    const el=document.createElement('div');el.className='presenter-tools-column';el.append(...nodes.filter(Boolean));return el;
    };
+   const show=(id)=>panels.forEach(({section,button})=>{
+    const active=section.dataset.toolsGroup===id;
+    section.hidden=!active;button.setAttribute('aria-pressed',String(active));
+   });
+   const card=(id,title,parent,...nodes)=>{
+    const section=document.createElement('section'),button=document.createElement('button');
+    section.className='presenter-tools-card';section.dataset.toolsGroup=id;section.id='studio-tools-'+id;
+    button.type='button';button.id=section.id+'-button';button.textContent=title;button.setAttribute('aria-controls',section.id);
+    section.setAttribute('aria-labelledby',button.id);
+    section.append(...nodes.filter(Boolean));parent.append(section);nav.append(button);
+    panels.push({section,button});button.onclick=()=>show(id);return section;
+   };
+   const stats=document.querySelector('.stats-refresh');
+   const statsFold=stats&&fold(stats,names[5]);
    const recorder=document.querySelector('.recorder-panel');
    const recordFold=recorder&&(recorder.closest('details.director-fold')||fold(recorder,names[4]));
-   card('prepare',names[0],aside,[picker,aside.querySelector('#tournament')?.closest('.block'),desk]);
-   card('graphics',names[1],aside,[folded('.theme-control'),folded('.series-control'),folded('.lineup-control'),folded('#commentator1')]);
-   card('broadcast',names[2],work,[quick,folded('.next-controls'),work.querySelector('.scene-dock'),work.querySelector('.preview-toolbar')]);
-   card('audio',names[3],work,[work.querySelector('.commentary-duo'),recordFold]);
+   card('prepare',names[0],aside,column(picker,aside.querySelector('#tournament')?.closest('.block')),column(desk,statsFold));
+   card('graphics',names[1],aside,column(folded('.theme-control'),folded('.series-control')),column(folded('.lineup-control'),folded('#commentator1')));
+   const broadcastControls=column(work.querySelector('.scene-dock'),work.querySelector('.preview-toolbar'),folded('.next-controls'));
+   card('broadcast',names[2],work,column(quick),broadcastControls);
+   const audio=card('audio',names[3],work,work.querySelector('.commentary-duo'),recordFold);
+   if(!audio.querySelector('.commentary-duo')){
+    const waitForAudio=new MutationObserver(()=>{
+     const group=broadcastControls.querySelector('.commentary-duo');
+     if(group){waitForAudio.disconnect();audio.prepend(group);}
+    });
+    waitForAudio.observe(broadcastControls,{childList:true});
+   }
+   show('prepare');document.documentElement.setAttribute('data-tools-ready','');
   };
   if(document.documentElement.hasAttribute('data-studio-locked')){
    const wait=new MutationObserver(()=>{

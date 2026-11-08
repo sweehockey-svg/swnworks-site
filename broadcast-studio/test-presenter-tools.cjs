@@ -16,7 +16,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    await page.addScriptTag({content:read('broadcast-studio.js')});
    await page.addScriptTag({content:read('match-desk.js')});
    await page.evaluate(()=>{
-    document.querySelector('.scene-dock').insertAdjacentHTML('afterend','<section class="commentary-duo">Audio fixture</section>');
+    document.querySelector('#tournament').closest('.block').insertAdjacentHTML('beforeend','<section class="stats-refresh"><button>Stats fixture</button></section>');
     document.querySelector('.stream-dock')?.insertAdjacentHTML('beforeend','<section class="recorder-panel">Recording fixture</section>');
     document.documentElement.removeAttribute('data-studio-locked');
    });
@@ -24,15 +24,45 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    assert.equal(await page.locator('.preview-shell').isVisible(),!panel);
    if(panel){
     const groups=page.locator('[data-tools-group]');
-    await groups.last().waitFor();
-    assert.deepEqual(await groups.locator('h2').allTextContents(),['Förbered match','Grafik och lag','Sändning','Ljud och inspelning']);
-    for(const [group,control] of [['prepare','#deskMatchSelect'],['prepare','#loadTwitch'],['graphics','#theme'],['graphics','#lineupEditors'],['broadcast','#deskTake'],['broadcast','#deskEnd'],['audio','.commentary-duo'],['audio','.recorder-panel']]){
+    await groups.first().waitFor();
+    await page.locator('.scene-dock').evaluate(el=>el.insertAdjacentHTML('afterend','<section class="commentary-duo">Audio fixture</section>'));
+    const tabs=page.locator('.presenter-tools-nav button');
+    assert.deepEqual(await tabs.allTextContents(),['Förbered match','Grafik och lag','Sändning','Ljud och inspelning']);
+    assert.equal(await page.locator('#studio-tools-prepare-button').getAttribute('aria-pressed'),'true');
+    assert.equal(await page.locator('#deskEnd').isVisible(),false);
+    assert.equal(await page.locator('.stats-refresh').isVisible(),false);
+    await page.getByText('Statistik och tabell',{exact:true}).click();
+    assert.equal(await page.locator('.stats-refresh').isVisible(),true);
+    for(const [group,control] of [['prepare','#deskMatchSelect'],['prepare','#loadTwitch'],['prepare','.stats-refresh'],['graphics','#theme'],['graphics','#lineupEditors'],['broadcast','#deskTake'],['broadcast','#deskEnd'],['audio','.commentary-duo'],['audio','.recorder-panel']]){
      assert.equal(await page.locator(`[data-tools-group="${group}"] ${control}`).count(),1);
     }
+    await page.locator('#twitchChannel').fill('fixture-channel');
+    for(const group of ['broadcast','audio','graphics','prepare']){
+     await page.locator(`#studio-tools-${group}-button`).click();
+     assert.deepEqual(await groups.filter({visible:true}).evaluateAll(els=>els.map(el=>el.dataset.toolsGroup)),[group]);
+    }
+    assert.equal(await page.locator('#twitchChannel').inputValue(),'fixture-channel');
+    assert.deepEqual(await page.locator('main>aside,main>.workspace').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).display)),['contents','contents']);
+    await page.setViewportSize({width:550,height:750});
+    assert.equal(await page.locator('#studio-tools-prepare').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),1);
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Tools fit the narrow viewport');
    }else assert.equal(await page.locator('[data-tools-group]').count(),0);
    assert.deepEqual(errors,[]);
    await page.close();
   }
-  console.log('PASS the presenter tools hide both video previews and group the remaining tools; the main studio is unchanged.');
+  const presenter=await browser.newPage({viewport:{width:1400,height:900}});
+  await presenter.route('https://tools.test/**',route=>{
+   const url=new URL(route.request().url());
+   if(url.pathname.endsWith('presenter.html'))return route.fulfill({contentType:'text/html',body:read('presenter.html')});
+   if(url.searchParams.get('panel')==='tools')return route.fulfill({contentType:'text/html',body:'<!doctype html><html data-tools-ready><body style="margin:0"><div style="height:240px" id="fixture">Tools</div></body></html>'});
+   return route.abort();
+  });
+  await presenter.goto('https://tools.test/broadcast-studio/presenter.html');
+  await presenter.locator('#studioToolsTitle').click();
+  await presenter.waitForFunction(()=>document.querySelector('#studioToolsFrame').clientHeight===240);
+  await presenter.frameLocator('#studioToolsFrame').locator('#fixture').evaluate(el=>el.style.height='480px');
+  await presenter.waitForFunction(()=>document.querySelector('#studioToolsFrame').clientHeight===480);
+  await presenter.close();
+  console.log('PASS presenter tools switch sections, preserve inputs, resize without extra scrollbars, and leave the main studio unchanged.');
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
