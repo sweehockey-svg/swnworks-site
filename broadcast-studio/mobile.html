@@ -75,13 +75,19 @@ html[data-compact-scenes="1"] #compactScenes{display:flex;flex-wrap:wrap;align-i
 #compactScenes .compact-music{display:flex;gap:4px;align-items:center;color:#b7cad7;font-size:11px}
 #compactScenes .compact-music>span{padding-inline:3px}
 #compactScenes #mobileFlipLiveTeams{max-width:240px}
-html[data-compact-scenes="series"] .series-editor{margin:0;padding:7px 8px}
-html[data-compact-scenes="series"] .series-editor form{gap:5px;margin-top:7px}
-html[data-compact-scenes="series"] .series-editor .match-result{padding-bottom:6px}
-html[data-compact-scenes="series"] .series-editor label{font-size:11px;gap:3px}
-html[data-compact-scenes="series"] .series-editor :is(input,select,button){min-height:30px;padding:4px 6px;font-size:11px}
+html[data-compact-scenes="series"] .series-editor{margin:0;padding:5px 7px}
+html[data-compact-scenes="series"] .series-editor form{gap:4px;margin-top:5px}
+html[data-compact-scenes="series"] .series-editor .match-result{padding-bottom:4px}
+html[data-compact-scenes="series"] .series-editor label{font-size:11px;line-height:1.15;gap:2px}
+html[data-compact-scenes="series"] .series-editor :is(input,select,button){min-height:25px;padding:3px 5px;font-size:11px}
 html[data-compact-scenes="series"] .series-editor :is(#mobileProgressResult,#mobileFinalResult,#mobileSeriesSave,#mobileSwapTeams){grid-column:auto}
 html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:none}
+@media(min-width:360px){
+ html[data-compact-scenes="series"] .series-editor label{grid-template:1fr / minmax(0,1fr) 46px;align-items:center;gap:4px}
+}
+@media(pointer:coarse){
+ html[data-compact-scenes="series"] .series-editor :is(input,select,button){min-height:32px}
+}
 </style>
 </head>
 <body>
