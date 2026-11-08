@@ -1,0 +1,66 @@
+/* Finnish Game Night. Keep the arena geometry and animation, and recolor
+   only the backdrop layer so logos, portraits and flags retain their colors. */
+html[lang="fi"] body[data-background="gamenight"] .background-package-layer{
+  filter:grayscale(1) sepia(.38) hue-rotate(168deg) saturate(1.55);
+}
+html[lang="fi"] body[data-background="gamenight"] .screen.arena-mist-enabled .teamcompare .tc-team::before,
+html[lang="fi"] body[data-background="gamenight"][data-graphics="gamenight"] .arena-mist-enabled :is(.opening-match .team,.series-team):has(>img[src]:not([hidden]))::before{
+  background:radial-gradient(ellipse at center,#7ab9ff59,#2a79cf2e 36%,transparent 68%);
+}
+
+html[lang="fi"] body[data-graphics="gamenight"] .screen{
+  --theme-accent:#9cd0ff;
+  --theme-line:#78b4fa9e;
+  --fi-rule:#78b4fa66;
+  --fi-glow:#6dadf45e;
+  --fi-ice:#f0f8ff;
+}
+html[lang="fi"] body[data-graphics="gamenight"] .opening h1 span{
+  color:transparent!important;
+  background:linear-gradient(180deg,#e8f6ff 0%,#a6d6ff 40%,#5b9ce8 100%);
+  background-clip:text;
+  filter:drop-shadow(0 0 11px #6dadf458);
+}
+html[lang="fi"] body[data-graphics="gamenight"] :is(.top-round,.opening-round,.opening-match em,.vs strong,.scene-title small,.series-kicker,.series-next,.opening-commentator small,.live-commentator small,.live-team-strip .live-team-row>b,.player>span,.role-head,.road-step strong,.leader-card span,.statrows b,.spotlight-total b,.spotlight-copy h3,.period,.lower small,.group-meeting-side>b,.group-meeting-summary span){
+  color:var(--theme-accent)!important;
+}
+html[lang="fi"] body[data-graphics="gamenight"] :is(.opening-match em,.vs strong){
+  text-shadow:0 0 14px var(--fi-glow),0 5px 8px #000;
+}
+html[lang="fi"] body[data-graphics="gamenight"] .top::after{
+  background:linear-gradient(90deg,var(--fi-ice),var(--fi-rule) 42%,transparent 88%);
+  box-shadow:0 0 10px var(--fi-glow);
+}
+html[lang="fi"] body[data-graphics="gamenight"] :is(.top .event-logo,.opening-commentator,.live-commentator,.lower){
+  border-left-color:var(--theme-accent)!important;
+}
+html[lang="fi"] body[data-graphics="gamenight"] .bug{
+  border-color:var(--fi-rule)!important;
+  border-right-color:var(--theme-accent)!important;
+}
+html[lang="fi"] body[data-graphics="gamenight"] :is(.opening-match .team,.series-team)>b{
+  border-top-color:var(--fi-rule);
+  border-bottom-color:var(--theme-accent);
+}
+html[lang="fi"] body[data-graphics="gamenight"] :is(.onair,.scene-title,.player,.player-info,.road-card,.leader-card,.scorer-side,.lb-side,.form-card,.role-card,.tc-team,.goalie-person,.key-person,.spotlight-player,.statrows,.statrows>div,.broadcast-table,.bt-panel,.bt-row,.opening-commentator,.live-commentator,.live-team-strip,.live-team-strip .live-team-row+.live-team-row,.lower,.group-meeting-teams,.group-meeting-scores>div,.group-meeting-summary,.scene-music-credit){
+  border-color:var(--fi-rule)!important;
+}
+html[lang="fi"] body[data-graphics="gamenight"] :is(.player,.road-card,.leader-card,.scorer-side,.lb-side,.form-card,.role-card,.tc-team,.goalie-person,.key-person,.spotlight-player){
+  box-shadow:inset 0 -2px 0 #78b4fa38,0 8px 22px #0004;
+}
+html[lang="fi"] body[data-graphics="gamenight"] :is(.bt-head,.bt-panel-title,.tc-cols,.key-columns,.goalie-columns){
+  background:linear-gradient(90deg,#e3f1ff,#83b8f4)!important;
+  color:#07192d!important;
+}
+html[lang="fi"] body[data-graphics="gamenight"] :is(.versus .side img,.stat-head img,.road-team img,.opening-match .team>img,.series-team>img){
+  filter:drop-shadow(0 0 9px #6dadf442) drop-shadow(0 9px 13px #0009);
+}
+html[lang="fi"] body[data-graphics="gamenight"] .live-team-strip{
+  box-shadow:0 4px 16px #0007,0 0 10px #6dadf425!important;
+}
+html[lang="fi"] body[data-graphics="gamenight"] .live-series-wins i.won{
+  background:var(--theme-accent);border-color:var(--theme-accent);box-shadow:0 0 5px var(--fi-glow);
+}
+html[lang="fi"] body[data-graphics="gamenight"] .screen.scene-switching::after{
+  background:linear-gradient(110deg,transparent 0 42%,#83b8f448 48%,#e8f6ff29 50%,transparent 58%)!important;
+}
