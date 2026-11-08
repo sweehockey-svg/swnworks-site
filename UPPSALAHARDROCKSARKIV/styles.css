@@ -869,6 +869,9 @@ body.network-body-fullscreen { overflow:hidden; }
 .release-track-main { display:flex; flex-direction:column; min-width:0; gap:5px; }
 .release-track-main strong { color:var(--ink); font:600 20px var(--condensed); line-height:1.15; }
 .release-track-credit, .release-track-note { color:var(--muted); font-size:12px; line-height:1.5; }
+.release-track-performer { color:var(--muted); font-size:12px; line-height:1.45; }
+.release-track-performer a { color:var(--acid); text-decoration:none; }
+.release-track-performer a:hover { text-decoration:underline; }
 .release-track-note { color:var(--muted-2); }
 .release-track-duration { color:var(--muted); font:500 14px var(--condensed); text-align:right; font-variant-numeric:tabular-nums; }
 @media (max-width:560px) {
