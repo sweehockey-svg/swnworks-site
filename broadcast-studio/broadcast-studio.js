@@ -39,9 +39,11 @@ window.SWNViewerBridge=(()=>{
   window.__sehBroadcastTx = tx;
   const seriesBestOf = bo => LOCALE === "fi" ? "PARAS " + bo + ":STÄ" : LOCALE === "de" ? "BEST-OF-" + bo : LOCALE === "sv" ? "BÄST AV " + bo : "BEST OF " + bo;
   const REMOTE_CHANNEL = ({sv:"sec21-bronze-test",en:"broadcast-en",fi:"broadcast-fi",de:"broadcast-de"}[LOCALE] || "sec21-bronze-test");
-  const OBS_MODE = new URLSearchParams(location.search).get("obs") === "1";
-  const VIEWER_MODE = new URLSearchParams(location.search).get("viewer") === "1";
-  const PREVIEW_MODE = new URLSearchParams(location.search).get('preview')==='1';
+  const pageParams=new URLSearchParams(location.search);
+  const OBS_MODE = pageParams.get("obs") === "1";
+  const VIEWER_MODE = pageParams.get("viewer") === "1";
+  const PREVIEW_MODE = pageParams.get("preview") === "1";
+  document.documentElement.classList.toggle("obs-arena-motion",OBS_MODE&&!VIEWER_MODE&&!PREVIEW_MODE&&pageParams.get("motion")==="on");
   const previewChannel=PREVIEW_MODE&&window.BroadcastChannel?new BroadcastChannel('swn-studio-preview-'+LOCALE):null;
   let publicNoMatch=true;
   let publicNextMatch=null;

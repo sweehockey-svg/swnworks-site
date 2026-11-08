@@ -2891,9 +2891,9 @@ body[data-background="gamenight"] .screen.arena-mist-enabled:not(.live-mode) .ar
   72%,100%{background-position:center -65%;opacity:0}
 }
 @media(prefers-reduced-motion:reduce){
-  body[data-background="gamenight"] .screen.arena-mist-enabled>.background-package-layer::before,
-  body[data-background="gamenight"] .screen.arena-mist-enabled>.background-package-layer::after{animation:none!important}
-  body[data-background="gamenight"] .screen.arena-mist-enabled:not(.live-mode) :is(.arena-edge-lights,.arena-center-light){display:none}
+  :where(html:not(.obs-arena-motion)) body[data-background="gamenight"] .screen.arena-mist-enabled>.background-package-layer::before,
+  :where(html:not(.obs-arena-motion)) body[data-background="gamenight"] .screen.arena-mist-enabled>.background-package-layer::after{animation:none!important}
+  :where(html:not(.obs-arena-motion)) body[data-background="gamenight"] .screen.arena-mist-enabled:not(.live-mode) :is(.arena-edge-lights,.arena-center-light){display:none}
 }
 .screen>.texture,
 .screen>.top,
