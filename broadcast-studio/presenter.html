@@ -12,6 +12,9 @@
     main{margin:0;padding:4px clamp(10px,1.15vw,20px) 10px 6px}
     .commentator-workspace{gap:8px}
     .presenter-sidebar{display:grid;min-width:0;gap:6px}
+    .presenter-audio{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;color:#aac1d0;font-size:11px}
+    .presenter-audio button{padding:5px 9px;border:1px solid #345166;border-radius:5px;background:#0d1e2a;color:#eef7ff;font:700 12px Arial,sans-serif;cursor:pointer}
+    .presenter-audio button[aria-pressed="true"]{border-color:#eac75f;color:#ffe079;background:#262215}
     .presenter-sidebar #privateNotes textarea{min-height:110px;height:clamp(110px,16vh,240px)}
     #presenterLineups{min-width:0;padding:7px 8px;border:1px solid #345166;border-radius:8px;background:#091923}
     #presenterLineups summary{cursor:pointer;color:#e5f2fb;font-size:13px;font-weight:800}
@@ -55,10 +58,14 @@
 <main>
   <div class="commentator-workspace">
     <section class="commentator-match">
-      <iframe id="broadcast" title="Matchbild från studion" allow="fullscreen" allowfullscreen></iframe>
+      <iframe id="broadcast" title="Matchbild från studion" allow="autoplay; fullscreen" allowfullscreen></iframe>
       <iframe id="scenePicker" title="Scenval" loading="lazy"></iframe>
     </section>
     <aside class="presenter-sidebar">
+    <div class="presenter-audio">
+      <button type="button" id="presenterAudio" aria-pressed="false" aria-describedby="presenterAudioHint">Lyssna här</button>
+      <span id="presenterAudioHint">Bara i den här fliken · påverkar inte OBS</span>
+    </div>
     <details id="presenterLineups" open>
       <summary>Laguppställningar</summary>
       <p id="presenterLineupStatus">Ingen aktiv laguppställning ännu.</p>
@@ -98,6 +105,14 @@
   document.title=heading+" · SWNWORKS";
   const frame=document.getElementById("broadcast");
   frame.title=title;
+  const audioLabels={sv:["Lyssna här","Bara i den här fliken · påverkar inte OBS"],en:["Listen here","This tab only · does not affect OBS"],fi:["Kuuntele tässä","Vain tässä välilehdessä · ei vaikuta OBS:ään"],de:["Hier mithören","Nur dieser Tab · kein Einfluss auf OBS"]};
+  const audioButton=document.getElementById("presenterAudio");
+  audioButton.textContent=audioLabels[lang][0];
+  document.getElementById("presenterAudioHint").textContent=audioLabels[lang][1];
+  let localAudio=false;
+  const updateLocalAudio=()=>frame.contentWindow?.postMessage({type:"seh-tv-audio",muted:!localAudio},location.origin);
+  audioButton.onclick=()=>{localAudio=!localAudio;audioButton.setAttribute("aria-pressed",String(localAudio));updateLocalAudio();};
+  frame.addEventListener("load",updateLocalAudio);
   const lineupLabels={sv:["Laguppställningar","Ingen aktiv laguppställning ännu."],en:["Starting lineups","No active lineup yet."],fi:["Kokoonpanot","Ei aktiivista kokoonpanoa."],de:["Aufstellungen","Noch keine aktive Aufstellung."]};
   const lineupPanel=document.getElementById("presenterLineups"),lineupStatus=document.getElementById("presenterLineupStatus"),lineupTeams=document.getElementById("presenterLineupTeams");
   lineupPanel.querySelector("summary").textContent=lineupLabels[lang][0];
@@ -122,7 +137,7 @@
     });
     lineupTeams.replaceChildren(...sections);lineupStatus.hidden=true;
   });
-  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261109-presenter-lineups";
+  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261109-presenter-audio";
   const originalTitles={sv:"Originalstream · utan ljud",en:"Original feed · muted",fi:"Alkuperäinen striimi · mykistetty",de:"Originalstream · stumm"};
   const original=document.getElementById("originalFeed");
   original.title=document.getElementById("originalFeedLabel").textContent=originalTitles[lang];
