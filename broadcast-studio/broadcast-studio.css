@@ -922,14 +922,25 @@ body.obs-preview[data-theme="impact"] .screen{background:
 .champion-portrait img[src*="1DEFAULTBILDID.png" i]{width:min(77%,124px);height:100%;margin-inline:auto;object-fit:fill;transform:none}
 .champion-portrait img[hidden]{display:none}
 .champion-player>b{padding:4px 2px;background:#080d16ed;color:#fff4d1;font-size:clamp(10px,1.25vw,15px);font-weight:900;line-height:1.1;overflow-wrap:anywhere;text-shadow:0 2px 4px #000}
-.champion-confetti{position:absolute;z-index:-1;inset:-18px -4% 0;overflow:hidden;pointer-events:none}
-.champion-confetti>i{position:absolute;top:0;left:var(--x);width:var(--size);height:calc(var(--size) * 1.65);background:var(--gold);border-radius:1px;opacity:0}
-.scene.series.active .series-champion:not([hidden]) .champion-confetti>i{animation:champion-confetti-fall var(--duration) ease-out var(--delay) both}
+.champion-confetti{position:absolute;z-index:-1;inset:-24px -8% -16px;overflow:hidden;pointer-events:none}
+.champion-confetti>i{position:absolute;top:0;left:var(--x);width:var(--size);height:calc(var(--size) * 1.55);background:var(--color);border-radius:1px;opacity:0}
+.champion-confetti>i:nth-child(5n){height:var(--size);border-radius:50%}
+.champion-confetti>i:nth-child(7n){width:calc(var(--size) * .6);height:calc(var(--size) * 2.6)}
+.champion-confetti>i.confetti-burst{top:38%}
+.scene.series.active .series-champion:not([hidden]) .champion-confetti>i{animation:champion-confetti-fall var(--duration) linear var(--delay) both}
+.scene.series.active .series-champion:not([hidden]) .champion-confetti>.confetti-burst{animation-name:champion-confetti-burst;animation-timing-function:cubic-bezier(.18,.65,.46,1)}
 @keyframes champion-confetti-fall{
   0%{opacity:0;transform:translate3d(0,-20px,0) rotate(0)}
-  12%{opacity:.84}
-  65%{opacity:.6}
-  100%{opacity:0;transform:translate3d(var(--drift),480px,0) rotate(var(--spin))}
+  9%{opacity:.92}
+  68%{opacity:.78}
+  100%{opacity:0;transform:translate3d(var(--drift),570px,0) rotate(var(--spin))}
+}
+@keyframes champion-confetti-burst{
+  0%{opacity:0;transform:translate3d(0,35px,0) rotate(0)}
+  10%{opacity:.96}
+  38%{transform:translate3d(calc(var(--drift) * .64),var(--rise),0) rotate(calc(var(--spin) * .42))}
+  73%{opacity:.78}
+  100%{opacity:0;transform:translate3d(var(--drift),225px,0) rotate(var(--spin))}
 }
 .scene.series.active .series-champion:not([hidden]){animation:champion-reveal .65s ease-out both}
 @keyframes champion-reveal{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}

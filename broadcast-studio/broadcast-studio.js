@@ -882,16 +882,18 @@ window.SWNViewerBridge=(()=>{
   $('.scene.series')?.append(championCard);
   const championConfetti=document.createElement('div');
   championConfetti.className='champion-confetti';championConfetti.setAttribute('aria-hidden','true');
-  const confettiColors=['#ffc653','#ffe3a1','#f2f4f8','#e2b253'];
-  for(let i=0;i<44;i++){
+  const confettiColors=['#ffc653','#ffe3a1','#f2f4f8','#e2b253','#d7e0ed'];
+  for(let i=0;i<148;i++){
     const piece=document.createElement('i');
-    piece.style.setProperty('--x',`${3+((i*47)%94)}%`);
-    piece.style.setProperty('--drift',`${((i*31)%121)-60}px`);
-    piece.style.setProperty('--spin',`${(i%2?-1:1)*(210+(i*53)%510)}deg`);
-    piece.style.setProperty('--delay',`${(i*83)%1450}ms`);
-    piece.style.setProperty('--duration',`${2200+(i*149)%1300}ms`);
-    piece.style.setProperty('--size',`${4+i%5}px`);
-    piece.style.setProperty('--gold',confettiColors[i%confettiColors.length]);
+    const burst=i>=108,side=i%2?-1:1;
+    piece.style.setProperty('--x',burst?(side===1?'3%':'97%'):`${(3+94*((i*61)%109)/108).toFixed(2)}%`);
+    piece.style.setProperty('--drift',`${burst?side*(110+(i*29)%310):((i*37)%151)-75}px`);
+    piece.style.setProperty('--spin',`${side*(270+(i*53)%690)}deg`);
+    piece.style.setProperty('--delay',`${burst?(i*71)%450:(i*137)%2450}ms`);
+    piece.style.setProperty('--duration',`${burst?2200+(i*131)%900:3500+(i*149)%1650}ms`);
+    piece.style.setProperty('--size',`${5+(i*7)%6}px`);
+    piece.style.setProperty('--color',confettiColors[i%confettiColors.length]);
+    if(burst){piece.className='confetti-burst';piece.style.setProperty('--rise',`${-55-(i*43)%115}px`);}
     championConfetti.append(piece);
   }
   championCard.prepend(championConfetti);
