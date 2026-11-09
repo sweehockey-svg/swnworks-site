@@ -945,7 +945,7 @@ body.obs-preview[data-theme="impact"] .screen{background:
 }
 @keyframes champion-confetti-ambient{
   0%{opacity:0;transform:translate3d(0,-20px,0) rotate(0)}
-  15%,65%{opacity:.42}
+  15%,65%{opacity:.58}
   100%{opacity:0;transform:translate3d(var(--drift),570px,0) rotate(var(--spin))}
 }
 .scene.series.active .series-champion:not([hidden]){animation:champion-reveal .65s ease-out both}

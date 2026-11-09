@@ -119,7 +119,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   assert(await champion.isVisible());
   assert.equal(await champion.locator('.champion-team').textContent(),'Fixture Home');
   assert.equal(await champion.locator('.champion-result b').textContent(),'3–1');
-  assert.equal(await confetti.locator('i').count(),166);
+  assert.equal(await confetti.locator('i').count(),184);
   const rainStarts=await confetti.locator('i:not(.confetti-burst,.confetti-ambient)').evaluateAll(pieces=>pieces.map(piece=>parseFloat(piece.style.getPropertyValue('--x'))));
   assert.equal(new Set(rainStarts).size,108,'The rain has no repeating vertical lanes');
   assert(Math.min(...rainStarts)<5&&Math.max(...rainStarts)>95,'The rain covers both sides of the scene');
@@ -129,7 +129,8 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   assert.equal(await burst.first().evaluate(el=>getComputedStyle(el).animationName),'champion-confetti-burst');
   assert.equal(await burst.first().evaluate(el=>getComputedStyle(el).animationIterationCount),'1');
   const ambient=confetti.locator('.confetti-ambient');
-  assert.equal(await ambient.count(),18);
+  assert.equal(await ambient.count(),36);
+  assert.equal(await ambient.evaluateAll(pieces=>new Set(pieces.map(piece=>piece.style.getPropertyValue('--x'))).size),36,'Looping rain is distributed across separate positions');
   assert.deepEqual(await ambient.first().evaluate(el=>{const css=getComputedStyle(el);return [css.animationName,css.animationIterationCount,css.animationDelay];}),['champion-confetti-ambient','infinite','6s']);
   const effect=await confetti.locator('i').first().evaluate(el=>{
    const style=getComputedStyle(el);return [style.animationName,style.animationIterationCount,style.animationFillMode];
