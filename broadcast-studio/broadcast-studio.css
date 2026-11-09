@@ -894,6 +894,24 @@ body.obs-preview[data-theme="impact"] .screen{background:
 
 
 /* v97: optional individual game results in series scene */
+.series-champion[hidden],.scene.series.has-champion>:not(.series-champion){display:none!important}
+.series-champion{position:relative;isolation:isolate;width:min(100%,960px);display:grid;justify-items:center;gap:12px;padding:14px 30px 16px;color:#fff6dd;text-align:center}
+.series-champion::before{content:"";position:absolute;z-index:-1;inset:-6% -8%;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,#201807b8 0%,#090c12b8 40%,transparent 72%)}
+.champion-kicker{font-size:15px;font-weight:950;letter-spacing:.22em;text-transform:uppercase;color:#fff0c2}
+.champion-title{margin:0;font-size:clamp(54px,7.3vw,102px);font-weight:1000;line-height:.9;letter-spacing:-.055em;color:#ffd765;text-shadow:0 3px 0 #7b4d10,0 8px 28px #000}
+.champion-crest{position:relative;display:grid;place-items:center;width:188px;height:188px;margin:2px 0;color:#ffe18a}
+.champion-crest::before{content:"";position:absolute;z-index:-1;inset:5%;border-radius:50%;border:1px solid #f6c54f65;box-shadow:0 0 0 10px #e8b64416,0 0 45px #e8b6445c,inset 0 0 35px #e8b64426}
+.champion-crest img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 12px 10px #000b)}
+.champion-crest img[hidden]{display:none}
+.champion-crest img:not([hidden])+svg{display:none}
+.champion-crest svg{width:110px;height:110px}
+.champion-team{display:block;max-width:100%;font-size:clamp(28px,4.1vw,58px);font-weight:1000;line-height:1.03;text-transform:uppercase;text-shadow:0 4px 14px #000;overflow-wrap:anywhere}
+.champion-result{display:flex;gap:16px;align-items:center;padding:7px 18px;background:#080d16e8;border:1px solid #f6c54f78;border-radius:4px}
+.champion-result span{font-size:12px;font-weight:900;letter-spacing:.14em}
+.champion-result b{font-size:25px;font-weight:1000;line-height:1;color:#ffdb78;font-variant-numeric:tabular-nums}
+.scene.series.active .series-champion:not([hidden]){animation:champion-reveal .65s ease-out both}
+@keyframes champion-reveal{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.scene.series.active .series-champion:not([hidden]){animation:none}}
 .series-results{margin-top:22px;text-align:center;min-height:45px}
 .series-results[hidden]{display:none!important}
 .series-results>small{display:block;font-size:9px;font-weight:900;letter-spacing:.2em;color:#8fa6b7;margin-bottom:8px}
