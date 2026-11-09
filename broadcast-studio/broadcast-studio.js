@@ -880,6 +880,21 @@ window.SWNViewerBridge=(()=>{
   championCard.className='series-champion';championCard.hidden=true;
   championCard.innerHTML='<div class="champion-kicker"></div><div class="champion-title"></div><div class="champion-crest"><img alt="" hidden><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M21 12H43V27A11 11 0 0 1 21 27ZM21 16H12V22Q12 32 23 32M43 16H52V22Q52 32 41 32M32 38V50M23 52H41" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><strong class="champion-team"></strong><div class="champion-result"><span></span><b></b></div>';
   $('.scene.series')?.append(championCard);
+  const championConfetti=document.createElement('div');
+  championConfetti.className='champion-confetti';championConfetti.setAttribute('aria-hidden','true');
+  const confettiColors=['#ffc653','#ffe3a1','#f2f4f8','#e2b253'];
+  for(let i=0;i<44;i++){
+    const piece=document.createElement('i');
+    piece.style.setProperty('--x',`${3+((i*47)%94)}%`);
+    piece.style.setProperty('--drift',`${((i*31)%121)-60}px`);
+    piece.style.setProperty('--spin',`${(i%2?-1:1)*(210+(i*53)%510)}deg`);
+    piece.style.setProperty('--delay',`${(i*83)%1450}ms`);
+    piece.style.setProperty('--duration',`${2200+(i*149)%1300}ms`);
+    piece.style.setProperty('--size',`${4+i%5}px`);
+    piece.style.setProperty('--gold',confettiColors[i%confettiColors.length]);
+    championConfetti.append(piece);
+  }
+  championCard.prepend(championConfetti);
   const championRoster=document.createElement('div');championRoster.className='champion-roster';championRoster.hidden=true;
   const championResult=championCard.querySelector('.champion-result');
   championResult.before(championRoster);

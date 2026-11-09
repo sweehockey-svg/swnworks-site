@@ -112,11 +112,21 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   assert.equal(await champion.isVisible(),false,'Winning the bronze match does not make a champion');
   await championship('live',finalRound,'3','1');
   assert.equal(await champion.isVisible(),false,'Clinching does not change the active live scene');
+  const confetti=champion.locator('.champion-confetti');
+  assert.equal(await confetti.locator('i').first().evaluate(el=>getComputedStyle(el).animationName),'none','No celebration while the live scene is on air');
   assert.equal(await page.evaluate(()=>seriesFixture.state().scene),'live');
   await championship('series',finalRound,'3','1');
   assert(await champion.isVisible());
   assert.equal(await champion.locator('.champion-team').textContent(),'Fixture Home');
   assert.equal(await champion.locator('.champion-result b').textContent(),'3–1');
+  assert.equal(await confetti.locator('i').count(),44);
+  const effect=await confetti.locator('i').first().evaluate(el=>{
+   const style=getComputedStyle(el);return [style.animationName,style.animationIterationCount,style.animationFillMode];
+  });
+  assert.deepEqual(effect,['champion-confetti-fall','1','both']);
+  await page.emulateMedia({reducedMotion:'reduce'});
+  assert.equal(await confetti.isVisible(),false,'Respect reduced motion');
+  await page.emulateMedia({reducedMotion:'no-preference'});
   assert.equal(await page.locator('.series-board').isVisible(),false);
   const rosterRows=[
    {sports_gamer_team_id:111,sports_gamer_player_id:1,display_gamertag:'Regular only',regular_skater_games:'4',player_image:'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22150%22/%3E'},
