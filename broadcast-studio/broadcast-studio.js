@@ -119,8 +119,8 @@ window.SWNViewerBridge=(()=>{
   musicCredit.textContent=musicText[6];
   musicCredit.hidden=true;
   $("#screen")?.append(musicCredit);
-  let sceneMusic={},musicAudio=null,musicStart=null,musicPlaying=false,musicViewerMuted=true;
-  let championSound=null,championSoundShown=false;
+  let sceneMusic={},musicAudio=null,musicSource='',musicStart=null,musicPlaying=false,musicViewerMuted=true;
+  let championSound=null,championSoundShown=false,championMusicWait=false,championWaitTimer=0,championIntroToken=0;
   const musicMode=(scene,settings=sceneMusic)=>settings.muted===true||!musicScenes.includes(scene)?"off":
     ["high","low","off"].includes(settings?.[scene])?settings[scene]:scene==="opening"?"high":"low";
   function createChampionSound(){
@@ -146,24 +146,32 @@ window.SWNViewerBridge=(()=>{
     }
     const url=URL.createObjectURL(new Blob([wav.buffer],{type:'audio/wav'}));
     window.addEventListener('pagehide',()=>URL.revokeObjectURL(url),{once:true});
-    return new Audio(url);
+    const audio=new Audio(url);
+    audio.addEventListener('ended',()=>{if(audio.ended)finishChampionIntro();});
+    return audio;
   }
-  function syncChampionSound(visible){
-    if(!OBS_MODE||PREVIEW_MODE)return;
-    if(activeScene!=='series'||visible===false){
+  function clearChampionIntro(){clearTimeout(championWaitTimer);championMusicWait=false;championIntroToken++;}
+  function finishChampionIntro(){if(championMusicWait){clearChampionIntro();syncSceneMusic();}}
+  function syncChampionSound(visible,volume){
+    if(!visible){
       championSoundShown=false;
+      clearChampionIntro();
       if(championSound){championSound.pause();if(championSound.currentTime)championSound.currentTime=0;}
       return;
     }
     const mode=musicMode('series');
-    const volume=VIEWER_MODE&&musicViewerMuted?0:mode==='high'?.42:mode==='low'?.16:0;
-    if(championSound){if(!volume)championSound.pause();else championSound.volume=volume;}
-    if(visible!==true||championSoundShown)return;
+    const popVolume=volume?(mode==='high'?.42:.16):0;
+    if(championSound){if(!popVolume){championSound.pause();clearChampionIntro();}else championSound.volume=popVolume;}
+    if(championSoundShown)return;
     championSoundShown=true;
-    if(!volume)return;
+    if(!popVolume)return;
     championSound??=createChampionSound();
-    championSound.volume=volume;championSound.currentTime=0;
-    void championSound.play().catch(()=>{});
+    championSound.volume=popVolume;championSound.currentTime=0;
+    championMusicWait=true;
+    const token=++championIntroToken;
+    const done=()=>{if(token===championIntroToken)finishChampionIntro();};
+    championWaitTimer=setTimeout(done,1200);
+    void championSound.play().catch(done);
   }
   function setSceneMusic(settings){
     sceneMusic=Object.fromEntries(musicScenes.filter(scene=>["high","low","off"].includes(settings?.[scene])).map(scene=>[scene,settings[scene]]));
@@ -180,10 +188,16 @@ window.SWNViewerBridge=(()=>{
     musicCredit.hidden=activeScene!=="opening"||musicMode("opening")==="off"||(OBS_MODE&&!PREVIEW_MODE&&!musicPlaying);
   }
   function syncSceneMusic(){
-    syncChampionSound();
     const volume=musicVolume[musicMode(activeScene)]||0;
     if(!OBS_MODE||PREVIEW_MODE){renderMusicCredit();return;}
-    if(!volume||(VIEWER_MODE&&musicViewerMuted)){
+    const audible=!!volume&&(!VIEWER_MODE||!musicViewerMuted);
+    const celebrating=activeScene==='series'&&!!championOutcome();
+    const source=celebrating?'/broadcast-studio/assets/champion-music-all-night.mp3':'/broadcast-studio/assets/aztrozmurfen-superhero-in-the-game.mp3';
+    if(musicAudio&&musicSource!==source){
+      musicAudio.pause();musicAudio.src=source;musicSource=source;
+    }
+    syncChampionSound(celebrating,audible?volume:0);
+    if(!audible||championMusicWait){
       musicPlaying=false;
       delete document.documentElement.dataset.sceneMusic;
       if(musicAudio){
@@ -194,7 +208,7 @@ window.SWNViewerBridge=(()=>{
       return;
     }
     if(!musicAudio){
-      musicAudio=new Audio("/broadcast-studio/assets/aztrozmurfen-superhero-in-the-game.mp3");
+      musicAudio=new Audio(source);musicSource=source;
       musicAudio.loop=true;
       musicAudio.addEventListener("playing",()=>{
         musicPlaying=!musicAudio.paused&&musicMode(activeScene)!=="off"&&(!VIEWER_MODE||!musicViewerMuted);
@@ -981,18 +995,22 @@ window.SWNViewerBridge=(()=>{
       name.textContent=player.name;portrait.append(image);tile.append(portrait,name);return tile;
     }));
   }
-  function renderChampion(){
+  function championOutcome(){
     const round=String($('#seriesRound')?.value||'').trim().toLocaleUpperCase(LOCALE).split(/\s*[·:–—]\s*/,1)[0];
     const bo=Number($('#seriesFormat')?.value),hw=Number($('#seriesHome')?.value),aw=Number($('#seriesAway')?.value),need=Math.ceil(bo/2);
     const scoresValid=[3,5,7].includes(bo)&&[hw,aw].every(w=>Number.isInteger(w)&&w>=0&&w<=need)&&((hw===need)!==(aw===need));
     const side=hw>aw?'home':'away',id=$('#'+side)?.value,other=$('#'+(side==='home'?'away':'home'))?.value;
     const winner=data.teams.find(t=>same(t.sports_gamer_team_id,id));
     const name=winner?.team_name_in_league||window.__sehTwitchState?.lineupTeamNames?.[id];
-    const show=championshipRounds.has(round)&&scoresValid&&Number(id)>0&&Number(other)>0&&id!==other&&!!name;
+    return championshipRounds.has(round)&&scoresValid&&Number(id)>0&&Number(other)>0&&id!==other&&name?{round,hw,aw,id,winner,name}:null;
+  }
+  function renderChampion(){
+    const outcome=championOutcome(),show=!!outcome;
     championCard.hidden=!show;
     championCard.parentElement?.classList.toggle('has-champion',show);
-    syncChampionSound(show);
+    if(activeScene==='series'&&OBS_MODE&&!PREVIEW_MODE)syncSceneMusic();
     if(!show)return;
+    const {round,hw,aw,id,winner,name}=outcome;
     const [title,result]=championLabels[LOCALE]||championLabels.en,crest=championCard.querySelector('img');
     const crestUrl=winner?logo(winner):'';
     if(crest.getAttribute('src')!==(crestUrl||null)){
