@@ -440,6 +440,26 @@ window.SWNViewerBridge=(()=>{
     });
   }
   function scheduleLineupFit(){cancelAnimationFrame(lineupFitFrame);lineupFitFrame=requestAnimationFrame(fitLineupGamertags);}
+  let lastPresenterLineups='';
+  function postPresenterLineups(){
+    if(!OBS_MODE||!VIEWER_MODE||pageParams.get('presenter')!=='1'||parent===window||window.SWNViewerBridge.origin!==location.origin)return;
+    const teams=['away','home'].map(side=>{
+      const id=$("#"+side).value;
+      const team=data.teams.find(t=>same(t.sports_gamer_team_id,id));
+      const name=team?.team_name_in_league||window.__sehTwitchState?.lineupTeamNames?.[id];
+      const selected=lineupFor(side),playersForTeam=team?roster(team):[];
+      const players=Object.fromEntries(SLOTS.map(slot=>{
+        const player=playersForTeam.find(p=>same(p.sports_gamer_player_id,selected[slot]));
+        return [slot,player?{gt:String(player.display_gamertag||''),number:String(player.player_number??'')}:null];
+      }));
+      return {side,name,players};
+    });
+    const lineups=activeScene==='idle'||activeScene==='nextmatch'||teams.some(t=>!t.name)?null:teams;
+    const signature=JSON.stringify(lineups);
+    if(signature===lastPresenterLineups)return;
+    lastPresenterLineups=signature;
+    window.SWNViewerBridge.postStatus({type:'seh-presenter-lineups',lineups});
+  }
   function renderLineup() {
     renderLineupEditors();
     const side = $("#lineupSide").value;
@@ -460,6 +480,7 @@ window.SWNViewerBridge=(()=>{
       return '<div class="player"><span>' + slot + '</span>' + image(playerImage(p)) + '<div class="player-info lineup-stage-info"><strong><span class="lineup-meta">#' + esc(p.player_number ?? "") + ' ' + playerFlag(p) + '</span><span class="lineup-gt">'+esc(p.display_gamertag)+'</span></strong><small>'+summary+'</small></div></div>';
     }).join("");
     scheduleLineupFit();
+    postPresenterLineups();
   }
 
   function lineupStageSummary(p,goalie){
