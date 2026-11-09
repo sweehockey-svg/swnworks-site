@@ -20,8 +20,14 @@
     .presenter-lineup-team+.presenter-lineup-team{padding-top:5px;border-top:1px dashed #456579}
     .presenter-lineup-team h3{margin:0 0 3px;color:#b7ccda;font-size:11px;line-height:1.2;overflow-wrap:anywhere}
     .presenter-lineup-team ul{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin:0;padding:0;list-style:none}
-    .presenter-lineup-team li{min-width:0;padding:3px 4px;border-radius:4px;background:#102534;line-height:1.2}
-    .presenter-lineup-team li small{display:block;color:#eac75f;font-size:9px;font-weight:800}
+    .presenter-lineup-team li{min-width:0;padding:3px 4px 3px 7px;border-radius:4px;background:#102534;box-shadow:inset 2px 0 var(--chel-position,#eac75f);line-height:1.2}
+    .presenter-lineup-team li[data-position="LW"]{--chel-position:#79df72}
+    .presenter-lineup-team li[data-position="C"]{--chel-position:#ff7676}
+    .presenter-lineup-team li[data-position="RW"]{--chel-position:#7fb9ff}
+    .presenter-lineup-team li[data-position="LD"]{--chel-position:#58ddda}
+    .presenter-lineup-team li[data-position="G"]{--chel-position:#cf9dff}
+    .presenter-lineup-team li[data-position="RD"]{--chel-position:#ffda55}
+    .presenter-lineup-team li small{display:block;color:var(--chel-position,#eac75f);font-size:9px;font-weight:800}
     .presenter-lineup-team li span{display:block;color:#eef7ff;font-size:11px;font-weight:700;overflow-wrap:anywhere}
     #broadcast{width:100%;aspect-ratio:16/9;border:1px solid #345166;border-radius:10px;background:#000;display:block}
     #scenePicker,#seriesPicker{display:block;width:100%;height:32px;border:0}
@@ -107,6 +113,7 @@
       section.className="presenter-lineup-team";name.textContent=team.name;
       for(const position of positions[team.side]){
         const player=team.players[position],cell=document.createElement("li"),meta=document.createElement("small"),gt=document.createElement("span");
+        cell.dataset.position=position;
         meta.textContent=position+(player?.number?" · #"+player.number:"");
         gt.textContent=player?.gt||"–";
         cell.append(meta,gt);list.append(cell);
