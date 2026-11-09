@@ -8,7 +8,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   await page.addStyleTag({content:read('broadcast-studio.css')});await page.evaluate(()=>{window.EHOCKEY_CONFIG={};});
   await page.addScriptTag({content:read('studio-language.js')});
   await page.addScriptTag({content:read('group-meetings.js')});
-  await page.addScriptTag({content:read('broadcast-studio.js').replace('  function studioState(){','  window.seriesFixture={state:()=>studioState(),remote:s=>applyRemoteState(s),compare:teams=>{const prior=data.teams;data.teams=teams;renderTeamCompare();data.teams=prior;}};\n  function studioState(){')});
+  await page.addScriptTag({content:read('broadcast-studio.js').replace('  function studioState(){','  window.seriesFixture={state:()=>studioState(),remote:s=>applyRemoteState(s),seedPlayers:players=>{data.players=players;renderSeries();},compare:teams=>{const prior=data.teams;data.teams=teams;renderTeamCompare();data.teams=prior;}};\n  function studioState(){')});
   await page.evaluate(()=>seriesFixture.remote({...seriesFixture.state(),scene:'lineup'}));
   await page.locator('.lineup .players').evaluate(grid=>{
    const card=document.createElement('div');
@@ -118,12 +118,34 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   assert.equal(await champion.locator('.champion-team').textContent(),'Fixture Home');
   assert.equal(await champion.locator('.champion-result b').textContent(),'3–1');
   assert.equal(await page.locator('.series-board').isVisible(),false);
+  const rosterRows=[
+   {sports_gamer_team_id:111,sports_gamer_player_id:1,display_gamertag:'Regular only',regular_skater_games:'4'},
+   {sports_gamer_team_id:111,sports_gamer_player_id:1,display_gamertag:'Regular only',regular_skater_games:'2'},
+   {sports_gamer_team_id:111,sports_gamer_player_id:2,display_gamertag:'Playoff only',playoff_skater_games:3},
+   {sports_gamer_team_id:111,sports_gamer_player_id:3,display_gamertag:'Goalie only',regular_goalie_games:2},
+   {sports_gamer_team_id:111,sports_gamer_player_id:4,display_gamertag:'No appearances',regular_skater_games:0},
+   {sports_gamer_team_id:222,sports_gamer_player_id:5,display_gamertag:'Opponent',playoff_goalie_games:1},
+   ...Array.from({length:12},(_,i)=>({sports_gamer_team_id:111,sports_gamer_player_id:100+i,display_gamertag:'Teammate_'+i,playoff_goalie_games:1}))
+  ];
+  await page.evaluate(players=>seriesFixture.seedPlayers(players),rosterRows);
+  const names=await champion.locator('.champion-player>b').allTextContents();
+  assert.equal(names.length,15,'All participants fit without cutting the roster');
+  assert.deepEqual(names.slice(0,3),['Regular only','Playoff only','Goalie only']);
+  assert.equal(await champion.locator('.champion-portrait img').count(),15,'Every participant gets a portrait slot');
+  const fits=await champion.evaluate(card=>{
+   const scene=card.parentElement.getBoundingClientRect(),last=card.querySelector('.champion-result').getBoundingClientRect();
+   const rows=new Set([...card.querySelectorAll('.champion-player')].map(p=>Math.round(p.getBoundingClientRect().y)));
+   return rows.size===2&&last.bottom<=scene.bottom;
+  });
+  assert(fits,'Larger roster wraps to two rows inside the scene');
   await championship('series',finalRound,'2','4','7');
   assert.equal(await champion.locator('.champion-team').textContent(),'Fixture Away');
   assert.equal(await champion.locator('.champion-result b').textContent(),'4–2');
+  assert.deepEqual(await champion.locator('.champion-player>b').allTextContents(),['Opponent'],'A different winner only shows their own team');
   await championship('series',finalRound,'3','3');
   assert.equal(await champion.isVisible(),false,'Impossible results must not crown either team');
   assert(await page.locator('.series-board').isVisible());
+  await page.evaluate(()=>seriesFixture.seedPlayers([]));
   await page.evaluate(s=>{
    seriesFixture.remote({...s,scene:'opening',graphicsPackage:'gamenight',backgroundPackage:'gamenight',arenaMist:true});
    const logo=document.querySelector('.opening-match .homeTeam>img');

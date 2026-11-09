@@ -880,6 +880,35 @@ window.SWNViewerBridge=(()=>{
   championCard.className='series-champion';championCard.hidden=true;
   championCard.innerHTML='<div class="champion-kicker"></div><div class="champion-title"></div><div class="champion-crest"><img alt="" hidden><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M21 12H43V27A11 11 0 0 1 21 27ZM21 16H12V22Q12 32 23 32M43 16H52V22Q52 32 41 32M32 38V50M23 52H41" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><strong class="champion-team"></strong><div class="champion-result"><span></span><b></b></div>';
   $('.scene.series')?.append(championCard);
+  const championRoster=document.createElement('div');championRoster.className='champion-roster';championRoster.hidden=true;
+  const championResult=championCard.querySelector('.champion-result');
+  championResult.before(championRoster);
+  let championRosterKey='';
+  function renderChampionRoster(id){
+    const stageGames=(player,stage)=>Math.max(0,number(player[stage+'_skater_games'])??0,number(player[stage+'_goalie_games'])??0);
+    const participants=new Map();
+    for(const player of roster({sports_gamer_team_id:id})){
+      const key=String(player.sports_gamer_player_id||''),name=String(player.display_gamertag||'').trim();
+      const games=stageGames(player,'regular')+stageGames(player,'playoff');
+      if(!key||!name||games<=0||(participants.get(key)?.games??0)>=games)continue;
+      participants.set(key,{name,games,portrait:playerImage(player)});
+    }
+    const players=[...participants.values()].sort((a,b)=>b.games-a.games||a.name.localeCompare(b.name,LOCALE));
+    const signature=JSON.stringify(players);
+    if(signature===championRosterKey)return;
+    championRosterKey=signature;
+    championRoster.hidden=!players.length;
+    championCard.classList.toggle('has-roster',!!players.length);
+    const rows=Math.ceil(players.length/10),columns=Math.max(1,Math.ceil(players.length/Math.max(1,rows)));
+    championRoster.style.setProperty('--champion-columns',columns);
+    championRoster.style.setProperty('--champion-rows',Math.max(1,rows));
+    championRoster.replaceChildren(...players.map(player=>{
+      const tile=document.createElement('div'),portrait=document.createElement('div'),image=document.createElement('img'),name=document.createElement('b');
+      tile.className='champion-player';portrait.className='champion-portrait';image.alt='';
+      image.onerror=()=>{image.hidden=true;};image.src=player.portrait;
+      name.textContent=player.name;portrait.append(image);tile.append(portrait,name);return tile;
+    }));
+  }
   function renderChampion(){
     const round=String($('#seriesRound')?.value||'').trim().toLocaleUpperCase(LOCALE).split(/\s*[·:–—]\s*/,1)[0];
     const bo=Number($('#seriesFormat')?.value),hw=Number($('#seriesHome')?.value),aw=Number($('#seriesAway')?.value),need=Math.ceil(bo/2);
@@ -904,6 +933,7 @@ window.SWNViewerBridge=(()=>{
     championCard.querySelector('.champion-team').textContent=name;
     championCard.querySelector('.champion-result span').textContent=result;
     championCard.querySelector('.champion-result b').textContent=Math.max(hw,aw)+'–'+Math.min(hw,aw);
+    renderChampionRoster(id);
   }
   function renderSeriesDots(box,wins,need,teamId,round){
     const key=JSON.stringify([activeLeagueId,window.__sehTwitchState?.matchName||"",teamId,need,round]);
