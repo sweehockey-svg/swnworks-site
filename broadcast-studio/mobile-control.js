@@ -36,6 +36,7 @@ const I18N={
 };
 const T=I18N[LANG];
 const labels=T.labels;
+labels.duallineup=({sv:'Båda lagen',en:'Both lineups',fi:'Molemmat joukkueet',de:'Beide Aufstellungen'})[LANG];
 const lineupFallback=side=>labels.lineup+" "+(side==="away"?(LANG==="sv"?"B":"A"):"H");
 function teamLabel(state,side){
  if(!state||state.publicNoMatch||!state[side])return "";

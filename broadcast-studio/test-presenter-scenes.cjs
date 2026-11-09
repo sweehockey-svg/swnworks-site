@@ -89,7 +89,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     assert.deepEqual(await frame.locator('#compactPrimary > button[data-scene]').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
      ['opening','live','lineup','lineup','intermission','series','table','teamcompare','formguide','forwards','defense','goalies']);
     assert.deepEqual(await frame.locator('#compactSecondary > button[data-scene]').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
-     ['matchup','groupmeetings','road','scorers','offense','defenseleaders','goalieleaders','keymatchup','spotlight','leaders']);
+     ['duallineup','matchup','groupmeetings','road','scorers','offense','defenseleaders','goalieleaders','keymatchup','spotlight','leaders']);
     assert.equal(await frame.locator('#compactScenes details').count(),0);
     await frame.locator('#compactSecondary [data-scene="matchup"]').waitFor({state:'visible'});
     const flipBox=await frame.locator('#mobileFlipLiveTeams').boundingBox(),liveBox=await live.boundingBox();
@@ -135,6 +135,9 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await frame.locator('#mobileFlipLiveTeams[aria-pressed="true"]').waitFor();
     assert.match(await frame.locator('#mobileFlipLiveTeams').textContent(),/Testlaget B överst/);
     assert.deepEqual([state.home,state.away,state.hs,state.as],['111','222','4','2']);
+    await frame.getByRole('button',{name:'Båda lagen',exact:true}).click();
+    await frame.locator('[data-scene="duallineup"].active').waitFor();
+    assert.deepEqual(writes.at(-1),{p_channel:'sec21-bronze-test',p_scene:'duallineup',p_lineup_side:null});
    }
    await page.locator('#studioToolsTitle').click();
    const toolsPage=page.frameLocator('#studioToolsFrame');

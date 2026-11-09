@@ -137,7 +137,7 @@
     });
     lineupTeams.replaceChildren(...sections);lineupStatus.hidden=true;
   });
-  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261109-presenter-audio";
+  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261109-dual-lineups";
   const originalTitles={sv:"Originalstream · utan ljud",en:"Original feed · muted",fi:"Alkuperäinen striimi · mykistetty",de:"Originalstream · stumm"};
   const original=document.getElementById("originalFeed");
   original.title=document.getElementById("originalFeedLabel").textContent=originalTitles[lang];
@@ -155,7 +155,7 @@
       resize.observe(body);
       fit();
     });
-    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261109-controls-upper-row";
+    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261109-dual-lineups";
   }
   mountControls("scenePicker",sceneTitle,"1");
   const seriesTitles={sv:"Serieläge",en:"Series score",fi:"Sarjatilanne",de:"Serienstand"};

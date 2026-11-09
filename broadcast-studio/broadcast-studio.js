@@ -105,6 +105,17 @@ window.SWNViewerBridge=(()=>{
     window.addEventListener("resize", fitObsPreview);
   }
   let activeScene = "opening", remoteApplying = false, remoteTimer = 0;
+  const dualLineupLabel=({sv:'Båda lagen',en:'Both lineups',fi:'Molemmat joukkueet',de:'Beide Aufstellungen'})[LOCALE]||'Both lineups';
+  const dualLineupScene=document.createElement('div');
+  dualLineupScene.className='scene duallineup';
+  dualLineupScene.innerHTML='<div class="dual-lineup-heading"></div><div class="dual-lineup-board"><section class="dual-lineup-team" data-side="home"></section><div class="dual-lineup-vs" aria-hidden="true">VS</div><section class="dual-lineup-team" data-side="away"></section></div>';
+  dualLineupScene.querySelector('.dual-lineup-heading').textContent=dualLineupLabel;
+  $('#screen')?.append(dualLineupScene);
+  const lastLineupButton=$('[data-scene="lineup"][data-lineup-side="away"]');
+  if(lastLineupButton){
+    const button=document.createElement('button');button.type='button';button.dataset.scene='duallineup';button.textContent=dualLineupLabel;
+    lastLineupButton.after(button);
+  }
   const musicScenes=[...new Set($$("[data-scene]").map(button=>button.dataset.scene))].filter(scene=>scene!=="live");
   const musicVolume={high:.32,low:.10};
   const musicLabels={
@@ -539,6 +550,26 @@ window.SWNViewerBridge=(()=>{
     }).join("");
     scheduleLineupFit();
     postPresenterLineups();
+    if(activeScene==='duallineup')renderDualLineup();
+  }
+
+  function renderDualLineup(){
+    for(const panel of dualLineupScene.querySelectorAll('.dual-lineup-team')){
+      const side=panel.dataset.side,team=selectedTeam(side),players=roster(team),slots=lineupFor(side);
+      const name=window.__sehTwitchState?.lineupTeamNames?.[team.sports_gamer_team_id]||team.team_name_in_league;
+      const crest=logo(team);
+      const header='<div class="dual-lineup-team-name">'+(crest?'<img src="'+esc(crest)+'" alt="">':'')+'<strong>'+esc(name)+'</strong></div>';
+      const cards=['LW','C','RW','LD','RD','G'].map(position=>{
+        const player=players.find(p=>same(p.sports_gamer_player_id,slots[position]));
+        const portrait=player?'<img src="'+esc(playerImage(player))+'" alt="">':'';
+        const number=player?.player_number!=null&&player.player_number!==''?'#'+player.player_number:position;
+        const tag=player?.display_gamertag||tx('notSelected');
+        return '<div class="dual-lineup-player" data-position="'+position+'"><div class="dual-lineup-portrait">'+portrait+'</div><div class="dual-lineup-tag"><span title="'+position+'">'+esc(number)+'</span><b>'+esc(tag)+'</b></div></div>';
+      }).join('');
+      const html=header+'<div class="dual-lineup-formation">'+cards+'</div>';
+      if(panel.__renderedLineup===html)continue;
+      panel.__renderedLineup=html;panel.innerHTML=html;
+    }
   }
 
   function lineupStageSummary(p,goalie){
@@ -1060,6 +1091,7 @@ window.SWNViewerBridge=(()=>{
     const oldLineup=sideChanged&&current===target?target.cloneNode(true):null;
     if(side)$("#lineupSide").value=side;
     if(next==="lineup")renderLineup();
+    if(next==='duallineup')renderDualLineup();
     displayedLineupSide=next==="lineup"?nextSide:displayedLineupSide;
     document.querySelectorAll("[data-scene]").forEach(x=>x.classList.toggle("active",x.dataset.scene===next&&(!x.dataset.lineupSide||x.dataset.lineupSide===$("#lineupSide").value)));
     activeScene=next;

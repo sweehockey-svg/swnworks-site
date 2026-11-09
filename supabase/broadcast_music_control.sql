@@ -11,7 +11,7 @@ begin
     raise exception 'Scene access required' using errcode = '42501';
   end if;
   if p_scene is null or p_scene not in (
-    'opening','matchup','series','lineup','stats','table','teamcompare','scorers','formguide',
+    'opening','matchup','series','lineup','duallineup','stats','table','teamcompare','scorers','formguide',
     'offense','defenseleaders','goalieleaders','road','leaders','intermission','lowerthird',
     'forwards','defense','goalies','keymatchup','spotlight','groupmeetings'
   ) or p_mode is null or p_mode not in ('high','low','off') then
