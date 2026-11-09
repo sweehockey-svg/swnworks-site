@@ -120,8 +120,51 @@ window.SWNViewerBridge=(()=>{
   musicCredit.hidden=true;
   $("#screen")?.append(musicCredit);
   let sceneMusic={},musicAudio=null,musicStart=null,musicPlaying=false,musicViewerMuted=true;
+  let championSound=null,championSoundShown=false;
   const musicMode=(scene,settings=sceneMusic)=>settings.muted===true||!musicScenes.includes(scene)?"off":
     ["high","low","off"].includes(settings?.[scene])?settings[scene]:scene==="opening"?"high":"low";
+  function createChampionSound(){
+    const rate=22050,length=Math.floor(rate*.46),wav=new DataView(new ArrayBuffer(44+length*2));
+    const tag=(offset,value)=>{for(let i=0;i<value.length;i++)wav.setUint8(offset+i,value.charCodeAt(i));};
+    const u16=(offset,value)=>wav.setUint16(offset,value,true),u32=(offset,value)=>wav.setUint32(offset,value,true);
+    tag(0,'RIFF');u32(4,36+length*2);tag(8,'WAVE');tag(12,'fmt ');u32(16,16);u16(20,1);u16(22,1);
+    u32(24,rate);u32(28,rate*2);u16(32,2);u16(34,16);tag(36,'data');u32(40,length*2);
+    let random=57423,filtered=0;
+    for(let i=0;i<length;i++){
+      random=(Math.imul(random,1664525)+1013904223)>>>0;
+      const noise=(random/4294967296)*2-1,t=i/rate;
+      filtered+=.35*(noise-filtered);
+      const burst=(start,level)=>{
+        const age=t-start;if(age<0)return 0;
+        const attack=Math.min(1,age/.003);
+        const thump=Math.sin(2*Math.PI*(119*age-65*age*age))*Math.exp(-age*26)*.44;
+        const crack=(noise-filtered*.65)*(.52*Math.exp(-age*41)+.12*Math.exp(-age*12));
+        return level*attack*(thump+crack);
+      };
+      const sample=(burst(0,1)+burst(.055,.48))*Math.min(1,(.46-t)*25);
+      wav.setInt16(44+i*2,Math.round(Math.max(-1,Math.min(1,sample))*32767),true);
+    }
+    const url=URL.createObjectURL(new Blob([wav.buffer],{type:'audio/wav'}));
+    window.addEventListener('pagehide',()=>URL.revokeObjectURL(url),{once:true});
+    return new Audio(url);
+  }
+  function syncChampionSound(visible){
+    if(!OBS_MODE||PREVIEW_MODE)return;
+    if(activeScene!=='series'||visible===false){
+      championSoundShown=false;
+      if(championSound){championSound.pause();if(championSound.currentTime)championSound.currentTime=0;}
+      return;
+    }
+    const mode=musicMode('series');
+    const volume=VIEWER_MODE&&musicViewerMuted?0:mode==='high'?.42:mode==='low'?.16:0;
+    if(championSound){if(!volume)championSound.pause();else championSound.volume=volume;}
+    if(visible!==true||championSoundShown)return;
+    championSoundShown=true;
+    if(!volume)return;
+    championSound??=createChampionSound();
+    championSound.volume=volume;championSound.currentTime=0;
+    void championSound.play().catch(()=>{});
+  }
   function setSceneMusic(settings){
     sceneMusic=Object.fromEntries(musicScenes.filter(scene=>["high","low","off"].includes(settings?.[scene])).map(scene=>[scene,settings[scene]]));
     if(settings?.muted===true)sceneMusic.muted=true;
@@ -137,6 +180,7 @@ window.SWNViewerBridge=(()=>{
     musicCredit.hidden=activeScene!=="opening"||musicMode("opening")==="off"||(OBS_MODE&&!PREVIEW_MODE&&!musicPlaying);
   }
   function syncSceneMusic(){
+    syncChampionSound();
     const volume=musicVolume[musicMode(activeScene)]||0;
     if(!OBS_MODE||PREVIEW_MODE){renderMusicCredit();return;}
     if(!volume||(VIEWER_MODE&&musicViewerMuted)){
@@ -947,6 +991,7 @@ window.SWNViewerBridge=(()=>{
     const show=championshipRounds.has(round)&&scoresValid&&Number(id)>0&&Number(other)>0&&id!==other&&!!name;
     championCard.hidden=!show;
     championCard.parentElement?.classList.toggle('has-champion',show);
+    syncChampionSound(show);
     if(!show)return;
     const [title,result]=championLabels[LOCALE]||championLabels.en,crest=championCard.querySelector('img');
     const crestUrl=winner?logo(winner):'';
