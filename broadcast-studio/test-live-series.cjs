@@ -119,7 +119,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   assert.equal(await champion.locator('.champion-result b').textContent(),'3–1');
   assert.equal(await page.locator('.series-board').isVisible(),false);
   const rosterRows=[
-   {sports_gamer_team_id:111,sports_gamer_player_id:1,display_gamertag:'Regular only',regular_skater_games:'4'},
+   {sports_gamer_team_id:111,sports_gamer_player_id:1,display_gamertag:'Regular only',regular_skater_games:'4',player_image:'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22150%22/%3E'},
    {sports_gamer_team_id:111,sports_gamer_player_id:1,display_gamertag:'Regular only',regular_skater_games:'2'},
    {sports_gamer_team_id:111,sports_gamer_player_id:2,display_gamertag:'Playoff only',playoff_skater_games:3},
    {sports_gamer_team_id:111,sports_gamer_player_id:3,display_gamertag:'Goalie only',regular_goalie_games:2},
@@ -135,9 +135,21 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   const fits=await champion.evaluate(card=>{
    const scene=card.parentElement.getBoundingClientRect(),last=card.querySelector('.champion-result').getBoundingClientRect();
    const rows=new Set([...card.querySelectorAll('.champion-player')].map(p=>Math.round(p.getBoundingClientRect().y)));
-   return rows.size===2&&last.bottom<=scene.bottom;
+   return {rows:rows.size,bottom:last.bottom,limit:scene.bottom};
   });
-  assert(fits,'Larger roster wraps to two rows inside the scene');
+  assert(fits.rows===2&&fits.bottom<=fits.limit,'Larger roster wraps to two rows inside the scene: '+JSON.stringify(fits));
+  await page.evaluate(players=>seriesFixture.seedPlayers(players),rosterRows.slice(0,-2));
+  const composition=await champion.evaluate(card=>{
+   const tiles=[...card.querySelectorAll('.champion-player')],rows={};
+   for(const tile of tiles){const y=Math.round(tile.getBoundingClientRect().y);rows[y]=(rows[y]||0)+1;}
+   const avatar=card.querySelector('.champion-portrait img[src*="1DEFAULTBILDID.png"]');
+   const photo=card.querySelector('.champion-portrait img[src^="data:"]');
+   return {rows:Object.values(rows),tileHeight:tiles[0].offsetHeight,avatarTransform:getComputedStyle(avatar).transform,photoTransform:getComputedStyle(photo).transform};
+  });
+  assert.deepEqual(composition.rows,[7,6]);
+  assert(composition.tileHeight>=171,'Portraits use more of the available height');
+  assert.equal(composition.avatarTransform,'none');
+  assert.notEqual(composition.photoTransform,'none','Real photos keep their own crop');
   await championship('series',finalRound,'2','4','7');
   assert.equal(await champion.locator('.champion-team').textContent(),'Fixture Away');
   assert.equal(await champion.locator('.champion-result b').textContent(),'4–2');

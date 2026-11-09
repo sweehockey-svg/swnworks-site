@@ -909,15 +909,17 @@ body.obs-preview[data-theme="impact"] .screen{background:
 .champion-result{display:flex;gap:16px;align-items:center;padding:7px 18px;background:#080d16e8;border:1px solid #f6c54f78;border-radius:4px}
 .champion-result span{font-size:12px;font-weight:900;letter-spacing:.14em}
 .champion-result b{font-size:25px;font-weight:1000;line-height:1;color:#ffdb78;font-variant-numeric:tabular-nums}
+.screen>.scene.series.has-champion:has(>.series-champion.has-roster){bottom:4%}
 .series-champion.has-roster{width:min(100%,1120px);gap:8px;padding:8px 4px 10px}
 .series-champion.has-roster .champion-title{font-size:clamp(45px,5.5vw,74px)}
 .series-champion.has-roster .champion-team{font-size:clamp(24px,3.1vw,42px)}
 .series-champion.has-roster .champion-crest{position:absolute;z-index:-1;left:50%;top:51%;transform:translate(-50%,-42%);width:292px;height:292px;opacity:.28}
 .champion-roster[hidden]{display:none!important}
 .champion-roster{--champion-gap:4px;display:flex;flex-wrap:wrap;justify-content:center;gap:var(--champion-gap);width:100%;max-width:calc(var(--champion-columns) * 178px);margin:4px 0 2px}
-.champion-player{position:relative;display:grid;grid-template-rows:minmax(0,1fr) auto;flex:0 0 calc((100% - (var(--champion-columns) - 1) * var(--champion-gap))/var(--champion-columns));min-width:0;height:min(226px,calc(306px / var(--champion-rows)));border-bottom:2px solid #ffc758;overflow:hidden;background:linear-gradient(0deg,#122330d9,transparent 78%)}
-.champion-portrait{overflow:hidden}
-.champion-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 8%;transform:scale(1.35);transform-origin:50% 8%}
+.champion-player{position:relative;display:grid;grid-template-rows:minmax(0,1fr) auto;flex:0 0 calc((100% - (var(--champion-columns) - 1) * var(--champion-gap))/var(--champion-columns));min-width:0;height:min(250px,calc(342px / var(--champion-rows)));border-bottom:2px solid #ffc758;overflow:hidden;background:linear-gradient(0deg,#122330d9,transparent 78%)}
+.champion-portrait{overflow:hidden;padding-top:4px}
+.champion-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;transform:scale(1.22);transform-origin:50% 0}
+.champion-portrait img[src*="1DEFAULTBILDID.png" i]{width:min(77%,124px);height:100%;margin-inline:auto;object-fit:fill;transform:none}
 .champion-portrait img[hidden]{display:none}
 .champion-player>b{padding:4px 2px;background:#080d16ed;color:#fff4d1;font-size:clamp(10px,1.25vw,15px);font-weight:900;line-height:1.1;overflow-wrap:anywhere;text-shadow:0 2px 4px #000}
 .scene.series.active .series-champion:not([hidden]){animation:champion-reveal .65s ease-out both}
