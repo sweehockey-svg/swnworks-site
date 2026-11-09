@@ -896,6 +896,17 @@ window.SWNViewerBridge=(()=>{
     if(burst){piece.className='confetti-burst';piece.style.setProperty('--rise',`${-55-(i*43)%115}px`);}
     championConfetti.append(piece);
   }
+  for(let i=0;i<18;i++){
+    const piece=document.createElement('i');piece.className='confetti-ambient';
+    piece.style.setProperty('--x',`${5+((i*31)%91)}%`);
+    piece.style.setProperty('--drift',`${((i*29)%85)-42}px`);
+    piece.style.setProperty('--spin',`${(i%2?-1:1)*(180+i*19)}deg`);
+    piece.style.setProperty('--delay',`${6000+i*175}ms`);
+    piece.style.setProperty('--duration',`${5800+(i*379)%2550}ms`);
+    piece.style.setProperty('--size',`${4+i%4}px`);
+    piece.style.setProperty('--color',confettiColors[i%confettiColors.length]);
+    championConfetti.append(piece);
+  }
   championCard.prepend(championConfetti);
   const championRoster=document.createElement('div');championRoster.className='champion-roster';championRoster.hidden=true;
   const championResult=championCard.querySelector('.champion-result');
