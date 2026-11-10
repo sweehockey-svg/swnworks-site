@@ -33,7 +33,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   const state={home:'11',away:'22',scene:'opening',lineups:{home:{LW:'111'},away:{RD:'221'}}};
   const frame=page.frame({url:/\/SV\/\?obs=1&viewer=1&presenter=1/});
   await frame.waitForFunction(()=>!!window.lineupFixture);
-  const commentators=[['phyreon3429','Alexander “Phyreon3429” Sundman','3429'],['troublemakingswe','Alex “troublemakingswe” Rautiainen','2807']];
+  const commentators=[['phyreon3429','Alexander “Phyreon” Sundman','3429'],['troublemakingswe','Alex “troublemakingswe” Rautiainen','2807']];
   for(const selector of ['#commentator1','#commentator2']){
    const options=await frame.locator(selector+' option').evaluateAll(rows=>rows.map(o=>[o.value,o.textContent]));
    for(const [key,name] of commentators)assert(options.some(row=>row[0]===key&&row[1]===name),key+' is available in both slots');

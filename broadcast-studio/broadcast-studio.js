@@ -287,7 +287,7 @@ window.SWNViewerBridge=(()=>{
     mkine: { name: 'Marko “mkine” Mäkinen', image: '' },
     flacken: { name: 'Peter “Flacken” Novara', image: 'https://www.svenskehockey.se/players/flacken.png' },
     wizrob: { name: 'Robert “Wizrob” Olovsson', image: 'https://www.svenskehockey.se/players/Wizrob.png' },
-    phyreon3429: { name: 'Alexander “Phyreon3429” Sundman', playerId: 3429, portraitWidth: 175 },
+    phyreon3429: { name: 'Alexander “Phyreon” Sundman', playerId: 3429, portraitWidth: 175 },
     troublemakingswe: { name: 'Alex “troublemakingswe” Rautiainen', playerId: 2807, portraitWidth: 110 }
   };
   for(const id of ["commentator1","commentator2"]){
