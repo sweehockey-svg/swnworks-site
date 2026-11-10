@@ -2654,8 +2654,6 @@
         const shared = showAll ? item.bandEvidence : item.bandEvidence.filter(x => x.confirmed);
         const bandMarkup = shared.map(x => '<div class="colleague-band">'
           + '<a href="' + bandHref(x.band) + '">' + escapeHtml(x.band.canonical_name) + '</a>'
-          + (x.evidence ? '<small>' + escapeHtml(x.evidence) + '</small>'
-            : '<small>Gemensamt band, samarbete inte verifierat</small>')
           + '</div>').join('');
         return '<div class="colleague-item">'
           + '<a href="' + personHref(item.person) + '"><strong>' + escapeHtml(personDisplayName(item.person)) + '</strong></a>'
