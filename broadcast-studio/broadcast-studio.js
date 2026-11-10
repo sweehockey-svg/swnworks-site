@@ -122,21 +122,41 @@ window.SWNViewerBridge=(()=>{
     de:'In der Sendung zeigen: '
   })[LOCALE];
   let lineupPlayerEnabled=false;
+  function playerShortcutAttributes(player){
+    if(!PRESENTER_VIEW||!player?.sports_gamer_player_id||!player.sports_gamer_team_id||!player.display_gamertag)return {};
+    return {'data-lineup-player':String(player.sports_gamer_player_id),'data-lineup-team':String(player.sports_gamer_team_id),
+      role:'button',tabindex:lineupPlayerEnabled?'0':'-1','aria-disabled':String(!lineupPlayerEnabled),'aria-label':lineupPlayerAction+player.display_gamertag};
+  }
+  function playerShortcutHtml(player){
+    return Object.entries(playerShortcutAttributes(player)).map(([key,value])=>' '+key+'="'+esc(value)+'"').join('');
+  }
   if(PRESENTER_VIEW){
+    const screen=$('#screen');
     window.addEventListener('message',event=>{
       if(event.source!==parent||event.origin!==location.origin||event.data?.type!=='seh-presenter-lineup-control')return;
       const enabled=event.data.enabled===true;
       if(enabled===lineupPlayerEnabled)return;
       lineupPlayerEnabled=enabled;
-      if(activeScene==='duallineup')renderDualLineup();
+      screen.querySelectorAll('[data-lineup-player]').forEach(card=>{
+        card.tabIndex=enabled?0:-1;
+        card.setAttribute('aria-disabled',String(!enabled));
+      });
     });
-    dualLineupScene.addEventListener('click',event=>{
-      const button=event.target.closest('button[data-lineup-player]');
-      if(!button||button.disabled||!lineupPlayerEnabled||activeScene!=='duallineup')return;
-      const side=button.closest('.dual-lineup-team').dataset.side;
-      const state=window.__sehTwitchState,ticket=state?.transientSource?.ticket,team=selectedTeam(side),id=button.dataset.lineupPlayer;
+    const presentPlayer=event=>{
+      const card=event.target.closest('[data-lineup-player]');
+      const scene=card?.closest('.scene.active:not(.scene-leave):not(.lineup-transition-old)');
+      if(!scene?.classList.contains(activeScene)||!lineupPlayerEnabled)return;
+      const {lineupPlayer:id,lineupTeam:teamId}=card.dataset;
+      const side=['home','away'].find(side=>same($('#'+side).value,teamId));
+      if(!side)return;
+      const state=window.__sehTwitchState,ticket=state?.transientSource?.ticket,team=selectedTeam(side);
       if(!ticket||ticket!==currentSourceReference?.ticket||!roster(team).some(p=>same(p.sports_gamer_player_id,id)))return;
+      event.preventDefault();
       window.SWNViewerBridge.postStatus({type:'seh-presenter-lineup-player',ticket,team:String(team.sports_gamer_team_id),id});
+    };
+    screen.addEventListener('click',presentPlayer);
+    screen.addEventListener('keydown',event=>{
+      if(!event.repeat&&(event.key==='Enter'||event.key===' '))presentPlayer(event);
     });
   }
   const lastLineupButton=$('[data-scene="lineup"][data-lineup-side="away"]');
@@ -519,8 +539,11 @@ window.SWNViewerBridge=(()=>{
       void groupMeetings.loadScorers(league,rows).then(()=>{if(groupScorerLoad===scorerKey)renderGroupMeetings();});
     }
     const names=new Map(data.players.map(p=>[Number(p.sports_gamer_player_id),p.display_gamertag]));
-    const scorerText=(m,t,score)=>groupMeetings.scorers(league,m.id,t.sports_gamer_team_id,score).map(p=>
-      esc(names.get(Number(p.id))||p.name)+(p.goals>1?' ×'+Number(p.goals):'')).join(' · ');
+    const scorerText=(m,t,score)=>groupMeetings.scorers(league,m.id,t.sports_gamer_team_id,score).map(p=>{
+      const label=esc(names.get(Number(p.id))||p.name)+(p.goals>1?' ×'+Number(p.goals):'');
+      const attrs=PRESENTER_VIEW?playerShortcutHtml(roster(t).find(player=>same(player.sports_gamer_player_id,p.id))):'';
+      return attrs?'<span'+attrs+'>'+label+'</span>':label;
+    }).join(' · ');
     const renderScore=(score,scorers)=>'<div class="group-meeting-side"><b>'+score+'</b>'+
       (scorers?'<div class="group-meeting-scorers"><small>'+esc(groupMeetings.scorerLabel[LOCALE]||groupMeetings.scorerLabel.en)+'</small> '+scorers+'</div>':'')+'</div>';
     const summaryLabels={
@@ -659,7 +682,7 @@ window.SWNViewerBridge=(()=>{
       if (!p) return '<div class="player empty"><span>' + slot + '</span><div class="sil">?</div><b>'+esc(tx("notSelected"))+'</b></div>';
       const goalie=slot==='G';
       const summary=lineupStageSummary(p,goalie);
-      return '<div class="player"><span>' + slot + '</span>' + image(playerImage(p)) + '<div class="player-info lineup-stage-info"><strong><span class="lineup-meta">#' + esc(p.player_number ?? "") + ' ' + playerFlag(p) + '</span><span class="lineup-gt">'+esc(p.display_gamertag)+'</span></strong><small>'+summary+'</small></div></div>';
+      return '<div class="player"'+playerShortcutHtml(p)+'><span>' + slot + '</span>' + image(playerImage(p)) + '<div class="player-info lineup-stage-info"><strong><span class="lineup-meta">#' + esc(p.player_number ?? "") + ' ' + playerFlag(p) + '</span><span class="lineup-gt">'+esc(p.display_gamertag)+'</span></strong><small>'+summary+'</small></div></div>';
     }).join("");
     scheduleLineupFit();
     postPresenterLineups();
@@ -678,8 +701,7 @@ window.SWNViewerBridge=(()=>{
         const number=player?.player_number!=null&&player.player_number!==''?'#'+player.player_number:position;
         const tag=player?.display_gamertag||tx('notSelected');
         const attrs=' class="dual-lineup-player" data-position="'+position+'"';
-        if(PRESENTER_VIEW&&player)return '<button type="button"'+attrs+' data-lineup-player="'+esc(player.sports_gamer_player_id)+'"'+(lineupPlayerEnabled?'':' disabled')+' aria-label="'+esc(lineupPlayerAction+tag)+'"><span class="dual-lineup-portrait">'+portrait+'</span><span class="dual-lineup-tag"><span title="'+position+'">'+esc(number)+'</span><b>'+esc(tag)+'</b></span></button>';
-        return '<div'+attrs+'><div class="dual-lineup-portrait">'+portrait+'</div><div class="dual-lineup-tag"><span title="'+position+'">'+esc(number)+'</span><b>'+esc(tag)+'</b></div></div>';
+        return '<div'+attrs+playerShortcutHtml(player)+'><div class="dual-lineup-portrait">'+portrait+'</div><div class="dual-lineup-tag"><span title="'+position+'">'+esc(number)+'</span><b>'+esc(tag)+'</b></div></div>';
       }).join('');
       const html=header+'<div class="dual-lineup-formation">'+cards+'</div>';
       if(panel.__renderedLineup===html)continue;
@@ -776,7 +798,7 @@ window.SWNViewerBridge=(()=>{
   }
   function renderScorers() {
     const card=side=>{const t=selectedTeam(side), ps=roster(t).filter(p=>(total(p.regular_skater_games,p.playoff_skater_games)??0)>0).sort((a,b)=>(total(b.regular_points,b.playoff_points)??0)-(total(a.regular_points,a.playoff_points)??0)).slice(0,3);
-      return '<div class="scorer-side"><div class="scorer-team">'+(logo(t)?'<img src="'+esc(logo(t))+'" alt="">':"")+'<b>'+esc(t.team_name_in_league)+'</b></div>'+ps.map((p,i)=>'<div class="scorer"><strong>'+(i+1)+'</strong>'+image(playerImage(p),true)+'<div><b>'+playerFlag(p)+esc(p.display_gamertag)+'</b><small>'+esc(position(p)||"")+' · #'+esc(p.player_number??"")+'</small></div><span>'+stat(total(p.regular_goals,p.playoff_goals))+' G</span><span>'+stat(total(p.regular_assists,p.playoff_assists))+' A</span><em>'+stat(total(p.regular_points,p.playoff_points))+' P</em></div>').join("")+'</div>'};
+      return '<div class="scorer-side"><div class="scorer-team">'+(logo(t)?'<img src="'+esc(logo(t))+'" alt="">':"")+'<b>'+esc(t.team_name_in_league)+'</b></div>'+ps.map((p,i)=>'<div class="scorer"'+playerShortcutHtml(p)+'><strong>'+(i+1)+'</strong>'+image(playerImage(p),true)+'<div><b>'+playerFlag(p)+esc(p.display_gamertag)+'</b><small>'+esc(position(p)||"")+' · #'+esc(p.player_number??"")+'</small></div><span>'+stat(total(p.regular_goals,p.playoff_goals))+' G</span><span>'+stat(total(p.regular_assists,p.playoff_assists))+' A</span><em>'+stat(total(p.regular_points,p.playoff_points))+' P</em></div>').join("")+'</div>'};
     $("#scorerGrid").innerHTML=card("home")+card("away");
   }
 
@@ -793,17 +815,17 @@ window.SWNViewerBridge=(()=>{
     const card=side=>{const t=selectedTeam(side),ps=roster(t).filter(p=>(total(p.regular_skater_games,p.playoff_skater_games)??0)>0),x=teamTotals(t);
       const goals=ps.reduce((s,p)=>s+(total(p.regular_goals,p.playoff_goals)??0),0), assists=ps.reduce((s,p)=>s+(total(p.regular_assists,p.playoff_assists)??0),0);
       const top=[...ps].sort((a,b)=>(total(b.regular_goals,b.playoff_goals)??0)-(total(a.regular_goals,a.playoff_goals)??0))[0];
-      return '<div class="off-card"><div class="off-team">'+(logo(t)?'<img src="'+esc(logo(t))+'" alt="">':"")+'<b>'+esc(t.team_name_in_league)+'</b></div><div class="off-big"><b>'+rate(x.gf,x.gp)+'</b><span>'+tx("goalsPerGame")+'</span></div><div class="off-row"><div><b>'+x.gf+'</b><span>'+tx("teamGoals")+'</span></div><div><b>'+goals+'</b><span>'+tx("playerGoals")+'</span></div><div><b>'+assists+'</b><span>ASSISTS</span></div></div>'+(top?'<div class="off-top">'+image(playerImage(top),true)+'<span><small>'+tx("mostGoals")+'</small><b>'+playerFlag(top)+esc(top.display_gamertag)+'</b></span><strong>'+stat(total(top.regular_goals,top.playoff_goals))+' G</strong></div>':"")+'</div>'};
+      return '<div class="off-card"><div class="off-team">'+(logo(t)?'<img src="'+esc(logo(t))+'" alt="">':"")+'<b>'+esc(t.team_name_in_league)+'</b></div><div class="off-big"><b>'+rate(x.gf,x.gp)+'</b><span>'+tx("goalsPerGame")+'</span></div><div class="off-row"><div><b>'+x.gf+'</b><span>'+tx("teamGoals")+'</span></div><div><b>'+goals+'</b><span>'+tx("playerGoals")+'</span></div><div><b>'+assists+'</b><span>ASSISTS</span></div></div>'+(top?'<div class="off-top"'+playerShortcutHtml(top)+'>'+image(playerImage(top),true)+'<span><small>'+tx("mostGoals")+'</small><b>'+playerFlag(top)+esc(top.display_gamertag)+'</b></span><strong>'+stat(total(top.regular_goals,top.playoff_goals))+' G</strong></div>':"")+'</div>'};
     $("#offenseGrid").innerHTML=card("home")+card("away");
   }
   function renderDefenseLeaders() {
     const card=side=>{const t=selectedTeam(side),ps=roster(t).filter(p=>/^(LD|RD|D)$/i.test(position(p))).sort((a,b)=>(total(b.regular_points,b.playoff_points)??0)-(total(a.regular_points,a.playoff_points)??0)).slice(0,3);
-      return '<div class="lb-side"><div class="lb-team">'+(logo(t)?'<img src="'+esc(logo(t))+'" alt="">':"")+'<b>'+esc(t.team_name_in_league)+'</b></div>'+ps.map((p,i)=>'<div class="lb-player"><strong>'+(i+1)+'</strong>'+image(playerImage(p),true)+'<div><b>'+playerFlag(p)+esc(p.display_gamertag)+'</b><small>'+esc(position(p))+' · #'+esc(p.player_number??"")+'</small></div><span>'+stat(total(p.regular_goals,p.playoff_goals))+' G</span><span>'+stat(total(p.regular_assists,p.playoff_assists))+' A</span><em>'+stat(total(p.regular_points,p.playoff_points))+' P</em></div>').join("")+'</div>'};
+      return '<div class="lb-side"><div class="lb-team">'+(logo(t)?'<img src="'+esc(logo(t))+'" alt="">':"")+'<b>'+esc(t.team_name_in_league)+'</b></div>'+ps.map((p,i)=>'<div class="lb-player"'+playerShortcutHtml(p)+'><strong>'+(i+1)+'</strong>'+image(playerImage(p),true)+'<div><b>'+playerFlag(p)+esc(p.display_gamertag)+'</b><small>'+esc(position(p))+' · #'+esc(p.player_number??"")+'</small></div><span>'+stat(total(p.regular_goals,p.playoff_goals))+' G</span><span>'+stat(total(p.regular_assists,p.playoff_assists))+' A</span><em>'+stat(total(p.regular_points,p.playoff_points))+' P</em></div>').join("")+'</div>'};
     $("#defenseLeaderGrid").innerHTML=card("home")+card("away");
   }
   function renderGoalieLeaders() {
     const card=side=>{const t=selectedTeam(side),ps=roster(t).filter(p=>(total(p.regular_goalie_games,p.playoff_goalie_games)??0)>0).sort((a,b)=>(total(b.regular_goalie_games,b.playoff_goalie_games)??0)-(total(a.regular_goalie_games,a.playoff_goalie_games)??0)).slice(0,3);
-      return '<div class="lb-side goalie-lb"><div class="lb-team">'+(logo(t)?'<img src="'+esc(logo(t))+'" alt="">':"")+'<b>'+esc(t.team_name_in_league)+'</b></div>'+ps.map((p,i)=>{const rg=number(p.regular_goalie_games)??0,pg=number(p.playoff_goalie_games)??0,rs=number(p.regular_goalie_save_percentage),psv=number(p.playoff_goalie_save_percentage),den=rg+pg,sv=den&&((rs!==null?rs*rg:0)+(psv!==null?psv*pg:0))/den;return '<div class="lb-player"><strong>'+(i+1)+'</strong>'+image(playerImage(p),true)+'<div><b>'+playerFlag(p)+esc(p.display_gamertag)+'</b><small>G · #'+esc(p.player_number??"")+'</small></div><span>'+stat(den)+' GP</span><span>'+goaliePct(sv)+' SV%</span><em>'+stat(total(p.regular_goalie_shutouts,p.playoff_goalie_shutouts))+' SO</em></div>'}).join("")+'</div>'};
+      return '<div class="lb-side goalie-lb"><div class="lb-team">'+(logo(t)?'<img src="'+esc(logo(t))+'" alt="">':"")+'<b>'+esc(t.team_name_in_league)+'</b></div>'+ps.map((p,i)=>{const rg=number(p.regular_goalie_games)??0,pg=number(p.playoff_goalie_games)??0,rs=number(p.regular_goalie_save_percentage),psv=number(p.playoff_goalie_save_percentage),den=rg+pg,sv=den&&((rs!==null?rs*rg:0)+(psv!==null?psv*pg:0))/den;return '<div class="lb-player"'+playerShortcutHtml(p)+'><strong>'+(i+1)+'</strong>'+image(playerImage(p),true)+'<div><b>'+playerFlag(p)+esc(p.display_gamertag)+'</b><small>G · #'+esc(p.player_number??"")+'</small></div><span>'+stat(den)+' GP</span><span>'+goaliePct(sv)+' SV%</span><em>'+stat(total(p.regular_goalie_shutouts,p.playoff_goalie_shutouts))+' SO</em></div>'}).join("")+'</div>'};
     $("#goalieLeaderGrid").innerHTML=card("home")+card("away");
   }
 
@@ -868,7 +890,7 @@ window.SWNViewerBridge=(()=>{
       const detail = isGoalie ? stat(goalieGames(p)) + " " + tx("gamesLower") : tx("group") + " " + stat(p.regular_points) + " · " + tx("playoffs") + " " + stat(p.playoff_points);
       const team = SEC_MATCH_TEAMS.find(t => same(t.sports_gamer_team_id, p.sports_gamer_team_id)) || {};
       const teamLogo = logo(team);
-      return '<div class="leader-card">' + image(playerImage(p)) + '<div class="leader-copy">' + (teamLogo ? '<img class="leader-team-logo" src="' + esc(teamLogo) + '" alt="">' : '') + '<small>' + esc(p.team_name_in_league) + ' · ' + esc(p.watch_reason) + '</small><b>' + playerFlag(p) + esc(p.display_gamertag) + '</b><span>' + main + '</span><em>' + detail + '</em></div></div>';
+      return '<div class="leader-card"'+playerShortcutHtml(p)+'>' + image(playerImage(p)) + '<div class="leader-copy">' + (teamLogo ? '<img class="leader-team-logo" src="' + esc(teamLogo) + '" alt="">' : '') + '<small>' + esc(p.team_name_in_league) + ' · ' + esc(p.watch_reason) + '</small><b>' + playerFlag(p) + esc(p.display_gamertag) + '</b><span>' + main + '</span><em>' + detail + '</em></div></div>';
     }).join("") : '<p>'+tx("rosterPlayers")+': '+tx("empty")+'.</p>';
   }
 
@@ -908,7 +930,7 @@ window.SWNViewerBridge=(()=>{
       if (kind === "center") rows.push(["FO%",faceoffPct(p,"regular"),faceoffPct(p,"playoff")]);
       rows.push(["G",stat(p.regular_goals),stat(p.playoff_goals)],["A",stat(p.regular_assists),stat(p.playoff_assists)],["P",stat(p.regular_points),stat(p.playoff_points)],["PIM",stat(p.regular_penalty_minutes),stat(p.playoff_penalty_minutes)]);
     }
-    return '<div class="role-card">' + image(playerImage(p),true) + '<div class="role-info"><div class="role-team">' + (logo(t)?'<img src="'+esc(logo(t))+'" alt="">':"") + '<small>'+esc(t.team_name_in_league)+'</small></div><strong>'+slot+' #'+esc(p.player_number ?? "")+' · '+playerFlag(p)+esc(p.display_gamertag)+'</strong><div class="role-head"><i></i><b>'+tx("group")+'</b><b>'+tx("playoffs")+'</b></div>'+rows.map(r=>'<div class="role-stat"><span>'+r[0]+'</span><b>'+r[1]+'</b><b>'+r[2]+'</b></div>').join("")+'</div></div>';
+    return '<div class="role-card"'+playerShortcutHtml(p)+'>' + image(playerImage(p),true) + '<div class="role-info"><div class="role-team">' + (logo(t)?'<img src="'+esc(logo(t))+'" alt="">':"") + '<small>'+esc(t.team_name_in_league)+'</small></div><strong>'+slot+' #'+esc(p.player_number ?? "")+' · '+playerFlag(p)+esc(p.display_gamertag)+'</strong><div class="role-head"><i></i><b>'+tx("group")+'</b><b>'+tx("playoffs")+'</b></div>'+rows.map(r=>'<div class="role-stat"><span>'+r[0]+'</span><b>'+r[1]+'</b><b>'+r[2]+'</b></div>').join("")+'</div></div>';
   }
   function bestLineupSkater(side) {
     return ["LW","C","RW","LD","RD"].map(slot => ({slot,p:lineupPlayer(side,slot)})).filter(x=>x.p)
@@ -945,7 +967,7 @@ window.SWNViewerBridge=(()=>{
     };
     const gh = goalieSide("home"), ga = goalieSide("away");
     const goalieVal = (x, key) => !x.p?"–":key==="sv"||key==="psv"?goalieStageValue(x.p,key==="sv"?"regular":"playoff","sv"):key.endsWith("goals_against_average")?goalieStageValue(x.p,key.startsWith("regular_")?"regular":"playoff","gaa"):stat(x.p[key]);
-    const goaliePortrait = x => x.p ? '<div class="goalie-person goalie-'+x.side+'">'+image(playerImage(x.p),true)+'<div class="goalie-name">'+(logo(x.t)?'<img src="'+esc(logo(x.t))+'" alt="">':"")+'<span><b>'+playerFlag(x.p)+esc(x.p.display_gamertag)+'</b><small>G'+(x.p.player_number!=null&&String(x.p.player_number)!==''?' #'+esc(x.p.player_number):'')+' · '+esc(x.t.team_name_in_league)+'</small></span></div></div>' : '<div class="goalie-person empty"><span>'+esc(tx("noGoalie"))+'</span></div>';
+    const goaliePortrait = x => x.p ? '<div class="goalie-person goalie-'+x.side+'"'+playerShortcutHtml(x.p)+'>'+image(playerImage(x.p),true)+'<div class="goalie-name">'+(logo(x.t)?'<img src="'+esc(logo(x.t))+'" alt="">':"")+'<span><b>'+playerFlag(x.p)+esc(x.p.display_gamertag)+'</b><small>G'+(x.p.player_number!=null&&String(x.p.player_number)!==''?' #'+esc(x.p.player_number):'')+' · '+esc(x.t.team_name_in_league)+'</small></span></div></div>' : '<div class="goalie-person empty"><span>'+esc(tx("noGoalie"))+'</span></div>';
     const goalieRows = [
       ["GP","regular_goalie_games","playoff_goalie_games"],
       ["SV%","sv","psv"],
@@ -956,7 +978,7 @@ window.SWNViewerBridge=(()=>{
     const kh=bestLineupSkater("home"), ka=bestLineupSkater("away");
     const keySide=(side,x)=>({side,t:selectedTeam(side),slot:x?.slot||"",p:x?.p||null});
     const kHome=keySide("home",kh), kAway=keySide("away",ka);
-    const keyPortrait=x=>x.p?'<div class="key-person key-'+x.side+'">'+image(playerImage(x.p),true)+'<div class="key-name">'+(logo(x.t)?'<img src="'+esc(logo(x.t))+'" alt="">':"")+'<span><b>'+esc(x.slot)+' #'+esc(x.p.player_number??"")+' · '+playerFlag(x.p)+esc(x.p.display_gamertag)+'</b><small>'+esc(x.t.team_name_in_league)+'</small></span></div></div>':'<div class="key-person empty"><span>'+esc(tx("noPlayer"))+'</span></div>';
+    const keyPortrait=x=>x.p?'<div class="key-person key-'+x.side+'"'+playerShortcutHtml(x.p)+'>'+image(playerImage(x.p),true)+'<div class="key-name">'+(logo(x.t)?'<img src="'+esc(logo(x.t))+'" alt="">':"")+'<span><b>'+esc(x.slot)+' #'+esc(x.p.player_number??"")+' · '+playerFlag(x.p)+esc(x.p.display_gamertag)+'</b><small>'+esc(x.t.team_name_in_league)+'</small></span></div></div>':'<div class="key-person empty"><span>'+esc(tx("noPlayer"))+'</span></div>';
     const keyValue=(x,key,stageName)=>{if(!x.p)return "–";if(key==="FO%")return x.slot==="C"?faceoffPct(x.p,stageName):"–";const prefix=stageName==="regular"?"regular_":"playoff_";return stat(x.p[prefix+key]);};
     const keyRows=[["GP","skater_games"],["FO%","FO%"],["G","goals"],["A","assists"],["P","points"]];
     $("#keyGrid").innerHTML=keyPortrait(kHome)+'<div class="key-center"><div class="key-center-title">KEY MATCHUP</div><div class="key-columns"><span>'+esc(tx("group"))+'</span><span>'+esc(tx("playoffs"))+'</span><i></i><span>'+esc(tx("group"))+'</span><span>'+esc(tx("playoffs"))+'</span></div>'+keyRows.map(r=>'<div class="key-row"><b>'+keyValue(kHome,r[1],"regular")+'</b><b>'+keyValue(kHome,r[1],"playoff")+'</b><span>'+r[0]+'</span><b>'+keyValue(kAway,r[1],"regular")+'</b><b>'+keyValue(kAway,r[1],"playoff")+'</b></div>').join("")+'</div>'+keyPortrait(kAway);
@@ -1132,7 +1154,7 @@ window.SWNViewerBridge=(()=>{
       const key=String(player.sports_gamer_player_id||''),name=String(player.display_gamertag||'').trim();
       const games=stageGames(player,'regular')+stageGames(player,'playoff');
       if(!key||!name||games<=0||(participants.get(key)?.games??0)>=games)continue;
-      participants.set(key,{name,games,portrait:playerImage(player)});
+      participants.set(key,{id:key,team:id,name,games,portrait:playerImage(player)});
     }
     const players=[...participants.values()].sort((a,b)=>b.games-a.games||a.name.localeCompare(b.name,LOCALE));
     const signature=JSON.stringify(players);
@@ -1146,6 +1168,7 @@ window.SWNViewerBridge=(()=>{
     championRoster.replaceChildren(...players.map(player=>{
       const tile=document.createElement('div'),portrait=document.createElement('div'),image=document.createElement('img'),name=document.createElement('b');
       tile.className='champion-player';portrait.className='champion-portrait';image.alt='';
+      for(const [key,value] of Object.entries(playerShortcutAttributes({sports_gamer_player_id:player.id,sports_gamer_team_id:player.team,display_gamertag:player.name})))tile.setAttribute(key,value);
       image.onerror=()=>{image.hidden=true;};image.src=player.portrait;
       name.textContent=player.name;portrait.append(image);tile.append(portrait,name);return tile;
     }));
@@ -1237,6 +1260,7 @@ window.SWNViewerBridge=(()=>{
     screen.classList.remove("scene-switching","lineup-side-switching");
     if(sideChanged&&oldLineup){
       oldLineup.classList.add("lineup-transition-old","scene-leave","active");
+      if(PRESENTER_VIEW)oldLineup.inert=true;
       // Keep the outgoing logo constrained exactly like the live lineup logo.
       const oldLogo=oldLineup.querySelector("#lineupTeamLogo");
       if(oldLogo) oldLogo.classList.add("lineup-team-logo-snapshot");

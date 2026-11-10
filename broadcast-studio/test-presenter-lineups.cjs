@@ -107,7 +107,8 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   await frame.waitForFunction(()=>document.documentElement.dataset.sceneMusic===undefined);
   assert.equal(await frame.evaluate(()=>testPop.paused),true);
   const slots=['LW','C','RW','LD','RD','G'];
-  const all=teams.flatMap((team,i)=>slots.map((slot,j)=>({sports_gamer_team_id:team.sports_gamer_team_id,sports_gamer_player_id:100*i+j+1,display_gamertag:`Team${i+1}_${slot}_LongName`,player_number:j+1,roster_preferred_position_abbreviation:slot})));
+  const all=teams.flatMap((team,i)=>slots.map((slot,j)=>({sports_gamer_team_id:team.sports_gamer_team_id,sports_gamer_player_id:100*i+j+1,display_gamertag:`Team${i+1}_${slot}_LongName`,player_number:j+1,roster_preferred_position_abbreviation:slot,
+   ...(slot==='G'?{regular_goalie_games:4,regular_goalie_save_percentage:.88}:{regular_skater_games:5,regular_goals:7-j,regular_points:12-j})})));
   const setup=Object.fromEntries(['home','away'].map((side,i)=>[side,Object.fromEntries(slots.map((slot,j)=>[slot,String(100*i+j+1)]))]));
   const both={scene:'duallineup',home:'11',away:'22',lineups:setup,transientSource:{ticket:'fixture.ticket'}};
   const complete=await frame.evaluate(({teams,all,both})=>{
@@ -133,6 +134,22 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   await clickableCard.click();
   await page.waitForFunction(()=>!!window.testPlayerClick);
   assert.deepEqual(await page.evaluate(()=>window.testPlayerClick),{type:'seh-presenter-lineup-player',ticket:'fixture.ticket',team:'22',id:'106'});
+  const cases=[
+   ['lineup','away','RW',103],['lineup','home','C',2],['scorers','home','LW',1],['offense','away','LW',101],
+   ['defenseleaders','away','RD',105],['goalieleaders','home','G',6],['leaders','home','LW',1],
+   ['forwards','away','RW',103],['defense','home','LD',4],['goalies','away','G',106],['keymatchup','home','LW',1],
+   ['series','home','C',2]
+  ];
+  for(const [scene,side,slot,id] of cases){
+   await page.evaluate(()=>{window.testPlayerClick=null;});
+   await frame.evaluate(s=>lineupFixture.apply(s),{...both,scene,lineupSide:side,seriesRound:'Final',seriesHome:'3',seriesAway:'0'});
+   const label='Visa i sändningen: Team'+(side==='home'?1:2)+'_'+slot+'_LongName';
+   const target=frame.locator('.scene.'+scene+'.active:not(.scene-leave)').getByRole('button',{name:label});
+   if(scene==='leaders')await target.press('Enter');
+   else await target.click();
+   await page.waitForFunction(()=>!!window.testPlayerClick);
+   assert.deepEqual(await page.evaluate(()=>window.testPlayerClick),{type:'seh-presenter-lineup-player',ticket:'fixture.ticket',team:side==='home'?'11':'22',id:String(id)},scene);
+  }
   assert.deepEqual(writes,[],'The renderer sends the request to the presenter, never directly to the broadcast API');
   await page.evaluate(()=>{
    const obs=document.createElement('iframe');obs.id='separateObs';obs.src='SV/?obs=1';document.body.append(obs);
@@ -142,7 +159,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   await obs.waitForFunction(()=>!!window.lineupFixture);
   await obs.evaluate(({teams,all,both})=>{lineupFixture.seed(teams,all);lineupFixture.apply(both);},{teams,all,both});
   assert.equal(await obs.locator('.scene.duallineup.active img').count(),12);
-  assert.equal(await obs.locator('[data-lineup-player],.dual-lineup-player:is(button)').count(),0,'Separate OBS output has no clickable cards');
+  assert.equal(await obs.locator('[data-lineup-player],.dual-lineup-player:is(button)').count(),0,'Separate OBS output has no clickable cards in any rendered scene');
   await obs.evaluate(s=>lineupFixture.apply({...s,scene:'spotlight',presentedPlayer:{team:'22',id:'106'}}),both);
   assert.match(await obs.locator('.scene.spotlight.active').textContent(),/Team2_G_LongName.*SV%/is);
   await frame.evaluate(s=>lineupFixture.apply({...s,publicNoMatch:true}),state);
