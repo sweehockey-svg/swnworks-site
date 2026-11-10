@@ -203,7 +203,7 @@ window.SWNViewerBridge=(()=>{
     if(!OBS_MODE||PREVIEW_MODE){renderMusicCredit();return;}
     const audible=!!volume&&(!VIEWER_MODE||!musicViewerMuted);
     const celebrating=activeScene==='series'&&!!championOutcome();
-    const source=celebrating?'/broadcast-studio/assets/champion-music-all-night.mp3':'/broadcast-studio/assets/aztrozmurfen-superhero-in-the-game.mp3';
+    const source=celebrating?'/broadcast-studio/assets/champion.mp3':'/broadcast-studio/assets/aztrozmurfen-superhero-in-the-game.mp3';
     if(musicAudio&&musicSource!==source){
       musicAudio.pause();musicAudio.src=source;musicSource=source;
     }
