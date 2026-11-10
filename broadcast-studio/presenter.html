@@ -54,6 +54,13 @@
       .commentator-workspace{--match-width:calc((100svh - 96px)*16 / 9)}
       #broadcast,#scenePicker{width:min(100%,var(--match-width))}
     }
+    /* Leave the control column and sidebar alone; only the video gives up space. */
+    @media (max-height:800px){
+      #broadcast{max-width:max(220px,calc((100svh - 144px)*16 / 9))}
+    }
+    @media (min-width:880px) and (max-width:1440px){
+      #broadcast{max-width:min(94%,max(220px,calc((100svh - 144px)*16 / 9)))}
+    }
   </style>
 </head>
 <body data-commentary-role="obs-presenter">
