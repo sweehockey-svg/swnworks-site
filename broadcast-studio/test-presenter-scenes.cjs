@@ -49,7 +49,11 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     if(url.pathname.endsWith('/rpc/broadcast_studio_set_team_order')){
      assert.equal(req.headers().authorization,'Bearer fixture-token');
      const payload=req.postDataJSON();writes.push(payload);
-     if(payload.p_action==='stream-away'){
+     if(payload.p_action==='team-strip'||payload.p_action==='commentators'){
+      const field=payload.p_action==='team-strip'?'liveTeamStripShow':'liveCommentatorsShow';
+      assert.equal(payload.p_expected.overlayVisible,field==='liveTeamStripShow'?state[field]!==false:state[field]===true);
+      state={...state,[field]:!payload.p_expected.overlayVisible};
+     }else if(payload.p_action==='stream-away'){
       assert.equal(payload.p_expected.twitchChannel,'test_home');
       state={...state,twitchChannel:'test_away',liveTeamsReversed:true};
      }else{
@@ -109,6 +113,12 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     assert(goaliesBox.x+goaliesBox.width<=musicBox.x&&musicBox.x+musicBox.width<=flipBox.x,'Music and flip sit to the right of Goalies');
     const desktopStrip=await page.locator('#scenePicker').boundingBox();
     assert(desktopStrip.y+desktopStrip.height<=900,'Both rows fit below the video on desktop');
+    const stripToggle=frame.getByRole('button',{name:'Visa lagruta',exact:true});
+    const commentatorToggle=frame.getByRole('button',{name:'Visa kommentatorer',exact:true});
+    const [stripBox,commentatorBox]=await Promise.all([stripToggle.boundingBox(),commentatorToggle.boundingBox()]);
+    assert(stripBox.y>=flipBox.y+flipBox.height&&commentatorBox.y===stripBox.y,'Overlay toggles sit directly below the flip button');
+    assert.equal(await stripToggle.getAttribute('aria-pressed'),'true');
+    assert.equal(await commentatorToggle.getAttribute('aria-pressed'),'false');
     const desktopPicture=await page.locator('#broadcast').boundingBox();
     assert(Math.abs(desktopPicture.width-desktopStrip.width)<1,'Large screens keep the existing full-width preview');
     await page.setViewportSize({width:1366,height:720});
@@ -161,6 +171,12 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await frame.getByRole('button',{name:'Båda lagen',exact:true}).click();
     await frame.locator('[data-scene="duallineup"].active').waitFor();
     assert.deepEqual(writes.at(-1),{p_channel:'sec21-bronze-test',p_scene:'duallineup',p_lineup_side:null});
+    const beforeOverlays=structuredClone(state);
+    await stripToggle.click();
+    await frame.locator('[data-overlay="team-strip"][aria-pressed="false"]').waitFor();
+    await commentatorToggle.click();
+    await frame.locator('[data-overlay="commentators"][aria-pressed="true"]').waitFor();
+    assert.deepEqual(state,{...beforeOverlays,liveTeamStripShow:false,liveCommentatorsShow:true});
     const awayStream=streams.getByRole('button',{name:'Testlaget B',exact:true});
     await awayStream.waitFor();
     const [feedDesktop,pickerDesktop]=await Promise.all([original.boundingBox(),streamPanel.boundingBox()]);

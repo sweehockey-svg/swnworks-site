@@ -170,7 +170,7 @@
       resize.observe(body);
       fit();
     });
-    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261110-feed-layout";
+    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261110-overlay-shortcuts";
   }
   mountControls("scenePicker",sceneTitle,"1");
   const seriesTitles={sv:"Serieläge",en:"Series score",fi:"Sarjatilanne",de:"Serienstand"};
@@ -209,7 +209,7 @@
     toolStatus=new MutationObserver(fit);toolStatus.observe(doc.documentElement,{attributes:true,attributeFilter:["data-tools-ready","data-studio-locked"]});
     fit();
   });
-  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261110-video-default";};
+  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261110-overlay-shortcuts";};
   tools.addEventListener("toggle",loadTools);
   loadTools();
 })();

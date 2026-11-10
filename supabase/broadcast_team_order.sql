@@ -1,4 +1,4 @@
--- Swap the on-air sides, flip just the live overlay, or select a preconfigured team feed.
+-- Match-scoped team order, team feed, and overlay controls.
 create or replace function broadcast_control.set_team_order(
   p_channel text, p_expected jsonb, p_action text
 )
@@ -7,24 +7,27 @@ language plpgsql
 security definer
 set search_path = ''
 as $function$
-declare result jsonb;
+declare result jsonb; overlay_key text;
 begin
   if auth.uid() is null or not coalesce(public.swn_studio_scene_access(p_channel), false) then
     raise exception 'Scene access required' using errcode = '42501';
   end if;
-  if p_action is null or p_action not in ('swap','live','stream-home','stream-away')
+  if p_action is null or p_action not in ('swap','live','stream-home','stream-away','team-strip','commentators')
     or coalesce(p_expected->>'ticket','') = ''
     or coalesce(p_expected->>'home','') = '' or coalesce(p_expected->>'away','') = ''
     or p_expected->>'home' = p_expected->>'away' then
     raise exception 'Invalid team order' using errcode = '22023';
   end if;
+  overlay_key := case p_action when 'team-strip' then 'liveTeamStripShow' when 'commentators' then 'liveCommentatorsShow' end;
 
   update public.broadcast_studio_state
   set state = state
     || case when p_action in ('stream-home','stream-away') then jsonb_build_object(
       'twitchChannel',state->'twitchTeamChannels'->(state->>substring(p_action from 8)),
       'liveTeamsReversed',p_action = 'stream-away'
-    ) else jsonb_build_object('liveTeamsReversed', (state->'liveTeamsReversed') is distinct from 'true'::jsonb) end
+    ) when overlay_key is not null then jsonb_build_object(overlay_key, not (case when overlay_key = 'liveTeamStripShow'
+      then (state->overlay_key) is distinct from 'false'::jsonb else coalesce(state->overlay_key = 'true'::jsonb,false) end))
+    else jsonb_build_object('liveTeamsReversed', (state->'liveTeamsReversed') is distinct from 'true'::jsonb) end
     || case when p_action = 'swap' then jsonb_build_object(
       'home',state->'away', 'away',state->'home',
       'hs',state->'as', 'as',state->'hs',
@@ -51,7 +54,9 @@ begin
       'liveTeamsReversed',coalesce(state->'liveTeamsReversed' = 'true'::jsonb,false)
     ) || case when p_action in ('stream-home','stream-away') then jsonb_build_object(
       'twitchChannel',state->'twitchChannel','twitchTeamChannels',state->'twitchTeamChannels'
-    ) else '{}'::jsonb end)
+    ) when overlay_key is not null then jsonb_build_object('overlayVisible',case when overlay_key = 'liveTeamStripShow'
+      then (state->overlay_key) is distinct from 'false'::jsonb else coalesce(state->overlay_key = 'true'::jsonb,false) end)
+    else '{}'::jsonb end)
   returning state into result;
 
   if result is null then

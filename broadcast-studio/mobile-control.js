@@ -92,6 +92,15 @@ const gameText=({
 })[LANG];
 [gameProgress,gameFinal,gameNext].forEach((button,i)=>{button.textContent=gameText[i+3];});
 const swapTeams=document.getElementById("mobileSwapTeams"),flipLiveTeams=document.getElementById("mobileFlipLiveTeams");
+const overlayButtons=[...document.querySelectorAll("[data-overlay]")];
+const overlayText=({
+ sv:["Visa lagruta","Visa kommentatorer","Kunde inte ändra grafiken. Kontrollera den aktiva matchen och försök igen."],
+ en:["Show team strip","Show commentators","Could not change the overlay. Check the active match and try again."],
+ fi:["Näytä joukkueruutu","Näytä selostajat","Grafiikkaa ei voitu muuttaa. Tarkista aktiivinen ottelu."],
+ de:["Teamleiste anzeigen","Kommentatoren anzeigen","Grafik konnte nicht geändert werden. Prüfe das aktive Spiel."]
+})[LANG];
+const overlayVisible=(state,action)=>action==="team-strip"?state?.liveTeamStripShow!==false:state?.liveCommentatorsShow===true;
+overlayButtons.forEach((button,i)=>{button.textContent=overlayText[i];});
 const streamPanel=document.getElementById("teamStreamSwitch"),streamStatus=document.getElementById("teamStreamStatus");
 const streamButtons=[...document.querySelectorAll("[data-team-stream]")];
 const streamText=({
@@ -215,6 +224,12 @@ function controls(){
  flipLiveTeams.textContent=orderText[1]+" · "+(topTeam?onTop(topTeam):orderText[reversed?3:2]);
  if(document.documentElement.getAttribute("data-compact-scenes")==="1")flipLiveTeams.title=flipLiveTeams.textContent;
  flipLiveTeams.setAttribute("aria-pressed",String(reversed));
+ overlayButtons.forEach(button=>{
+  const visible=ready&&overlayVisible(received,button.dataset.overlay);
+  button.disabled=locked||!orderValid(received);
+  button.classList.toggle("active",visible);
+  button.setAttribute("aria-pressed",String(visible));
+ });
  if(streamPanel){
   streamPanel.hidden=!ready||!streamButtons.some(b=>teamStream(received,b.dataset.teamStream));
   streamButtons.forEach((button,i)=>{
@@ -302,9 +317,11 @@ musicButtons.forEach(b=>b.addEventListener("click",()=>void changeProgram(b,true
 async function changeTeamOrder(action){
  controls();
  const switching=action.startsWith("stream-");
- const button=switching?streamButtons.find(b=>b.dataset.teamStream===action.slice(7)):action==="swap"?swapTeams:flipLiveTeams;
- if(button.disabled)return;
+ const overlay=overlayButtons.find(b=>b.dataset.overlay===action);
+ const button=overlay||(switching?streamButtons.find(b=>b.dataset.teamStream===action.slice(7)):action==="swap"?swapTeams:flipLiveTeams);
+ if(!button||button.disabled)return;
  const expected=orderExpected(received);
+ if(overlay)expected.overlayVisible=overlayVisible(received,action);
  if(switching){
   expected.twitchChannel=received.twitchChannel??null;expected.twitchTeamChannels=received.twitchTeamChannels;
   streamStatus.textContent="";
@@ -323,13 +340,14 @@ async function changeTeamOrder(action){
   setConnection(T.sent,"ok");
  }catch{
   if(switching)streamStatus.textContent=streamText[3];
-  else{ready=false;(action==="swap"?seriesStatus:matchStatus).textContent=orderText[6];}
+  else{ready=false;(action==="swap"?seriesStatus:matchStatus).textContent=overlay?overlayText[2]:orderText[6];}
   setConnection(T.error);
  }finally{busy=false;controls();}
 }
 swapTeams.addEventListener("click",()=>void changeTeamOrder("swap"));
 flipLiveTeams.addEventListener("click",()=>void changeTeamOrder("live"));
 streamButtons.forEach(button=>button.addEventListener("click",()=>void changeTeamOrder("stream-"+button.dataset.teamStream)));
+overlayButtons.forEach(button=>button.addEventListener("click",()=>void changeTeamOrder(button.dataset.overlay)));
 gameForm.addEventListener("submit",event=>event.preventDefault());
 gameForm.addEventListener("input",()=>{
  const h=goalValue(homeGoals),a=goalValue(awayGoals);

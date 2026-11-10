@@ -84,6 +84,13 @@ html[data-compact-scenes="1"] #compactScenes{display:grid;gap:5px}
 #compactScenes .compact-music{display:flex;gap:4px;align-items:center;color:#b7cad7;font-size:11px}
 #compactScenes .compact-music>span{padding-inline:3px}
 #compactScenes #mobileFlipLiveTeams{max-width:min(240px,100%)}
+#compactOverlays{display:grid;gap:5px;justify-items:start;min-width:0}
+#compactOverlays>div{display:flex;flex-wrap:wrap;gap:5px}
+@media(min-width:1200px){
+ html[data-compact-scenes="1"] #compactScenes{grid-template-columns:minmax(0,1fr) max-content;align-items:start}
+ #compactPrimary,#compactSecondary{grid-column:1}
+ #compactOverlays{grid-area:1/2/span 2/3}
+}
 html[data-compact-scenes="series"] .series-editor{margin:0;padding:5px 7px}
 html[data-compact-scenes="series"] .series-editor form{gap:4px;margin-top:5px}
 html[data-compact-scenes="series"] .series-editor .match-result{padding-bottom:4px}
@@ -213,8 +220,16 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
   music.setAttribute("aria-label",musicLabel);
   caption.textContent=musicLabel;
   music.append(caption,...document.querySelectorAll("[data-music]"));
-  primary.append(music,document.getElementById("mobileFlipLiveTeams"));
+  primary.append(music);
+  const overlays=document.createElement("div"),toggles=document.createElement("div");
+  overlays.id="compactOverlays";
+  for(const action of ["team-strip","commentators"]){
+    const button=document.createElement("button");
+    button.type="button";button.dataset.overlay=action;button.disabled=true;button.setAttribute("aria-pressed","false");toggles.append(button);
+  }
+  overlays.append(document.getElementById("mobileFlipLiveTeams"),toggles);
+  strip.append(overlays);
 })();
 </script>
-<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261110-feed-layout"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
+<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261110-overlay-shortcuts"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
 

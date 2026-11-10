@@ -1145,7 +1145,7 @@ window.SWNViewerBridge=(()=>{
   // Preparing a match must never publish its state to the program output.
   let programState=null,programHeld=true,canResumeProgram=false,takeSequence=0;
   let directorSceneKey='',directorRevision=0,directorWrites=0,directorReading=false,directorRestoring=false;
-  const sceneKey=s=>JSON.stringify([s.scene,s.videoSource,s.twitchChannel,s.twitchTeamChannels,s.lineupSide||'home',!!s.publicNoMatch,s.publicNextMatch||null,s.sceneMusic||{},s.seriesHome,s.seriesAway,s.liveTeamsReversed===true,s.teamOrderRevision??null,s.hs,s.as,s.seriesGameFinal,s.seriesResults,s.seriesShowResults]);
+  const sceneKey=s=>JSON.stringify([s.scene,s.videoSource,s.twitchChannel,s.twitchTeamChannels,s.lineupSide||'home',!!s.publicNoMatch,s.publicNextMatch||null,s.sceneMusic||{},s.seriesHome,s.seriesAway,s.liveTeamsReversed===true,s.teamOrderRevision??null,s.hs,s.as,s.seriesGameFinal,s.seriesResults,s.seriesShowResults,s.liveTeamStripShow!==false,s.liveCommentatorsShow===true]);
   function holdProgram(){
     takeSequence++;
     if(!programHeld)programState=structuredClone(studioState());
@@ -1265,7 +1265,8 @@ window.SWNViewerBridge=(()=>{
         const streamChanged=programState.videoSource!==state.videoSource||programState.twitchChannel!==state.twitchChannel||
           JSON.stringify(programState.twitchTeamChannels||{})!==JSON.stringify(state.twitchTeamChannels||{});
         const streamPatch=streamChanged?{videoSource:state.videoSource,twitchChannel:state.twitchChannel,hlsUrl:state.hlsUrl,twitchTeamChannels:state.twitchTeamChannels||{}}:{};
-        const controls={...orderPatch,...scores,...streamPatch,scene:state.scene,lineupSide:side,sceneMusic:state.sceneMusic||{},seriesHome:state.seriesHome,seriesAway:state.seriesAway,liveTeamsReversed:state.liveTeamsReversed===true};
+        const overlays={liveTeamStripShow:state.liveTeamStripShow!==false,liveCommentatorsShow:state.liveCommentatorsShow===true};
+        const controls={...orderPatch,...scores,...streamPatch,...overlays,scene:state.scene,lineupSide:side,sceneMusic:state.sceneMusic||{},seriesHome:state.seriesHome,seriesAway:state.seriesAway,liveTeamsReversed:state.liveTeamsReversed===true};
         programState={...programState,...controls};
         if(!programHeld&&(swapped||streamChanged)){
           // The director mirrors on-air controls only when not editing a separate draft.
@@ -1273,6 +1274,10 @@ window.SWNViewerBridge=(()=>{
         }else{
           if(!programHeld){
             setLiveTeamOrder(state.liveTeamsReversed);
+            if($("#showLiveTeamStrip"))$("#showLiveTeamStrip").checked=overlays.liveTeamStripShow;
+            if($("#showLiveCommentators"))$("#showLiveCommentators").checked=overlays.liveCommentatorsShow;
+            $("#screen")?.classList.toggle("live-team-strip-off",!overlays.liveTeamStripShow);
+            $("#screen")?.classList.toggle("live-commentators-off",!overlays.liveCommentatorsShow);
             setSceneMusic(state.sceneMusic);
             seriesGameFinal=scores.seriesGameFinal;
             let scoreChanged=false;
