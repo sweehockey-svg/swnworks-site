@@ -92,6 +92,19 @@ const gameText=({
 })[LANG];
 [gameProgress,gameFinal,gameNext].forEach((button,i)=>{button.textContent=gameText[i+3];});
 const swapTeams=document.getElementById("mobileSwapTeams"),flipLiveTeams=document.getElementById("mobileFlipLiveTeams");
+const streamPanel=document.getElementById("teamStreamSwitch"),streamStatus=document.getElementById("teamStreamStatus");
+const streamButtons=[...document.querySelectorAll("[data-team-stream]")];
+const streamText=({
+ sv:["Byt matchstream","Hemmastream","Bortastream","Kunde inte byta stream. Kontrollera den aktiva matchen och försök igen."],
+ en:["Switch match feed","Home stream","Away stream","Could not switch feeds. Check the active match and try again."],
+ fi:["Vaihda ottelustriimi","Kotistriimi","Vierasstriimi","Striimin vaihto epäonnistui. Tarkista aktiivinen ottelu."],
+ de:["Spielstream wechseln","Heimstream","Gaststream","Streamwechsel fehlgeschlagen. Prüfe das aktive Spiel."]
+})[LANG];
+if(streamPanel)document.getElementById("teamStreamHeading").textContent=streamText[0];
+const teamStream=(state,side)=>{
+ const value=state?.videoSource==="twitch"&&state?.twitchTeamChannels?.[state[side]];
+ return typeof value==="string"&&/^[a-z0-9_]{1,25}$/.test(value)?value:"";
+};
 const orderText=({
  sv:["Byt hemma/borta","Vänd lagrutan","Hemma överst","Borta överst","Byta plats på hemma och borta i sändningen? Resultat, serievinst­er och uppställningar följer lagen.","Lagordningen uppdaterades.","Kunde inte ändra lagordningen. Kontrollera vilken match som är aktiv och försök igen."],
  en:["Swap home/away","Flip live teams","Home on top","Away on top","Swap home and away in the broadcast? Scores, series wins and lineups stay with each team.","Team order updated.","Could not change team order. Check the active match and try again."],
@@ -202,6 +215,15 @@ function controls(){
  flipLiveTeams.textContent=orderText[1]+" · "+(topTeam?onTop(topTeam):orderText[reversed?3:2]);
  if(document.documentElement.getAttribute("data-compact-scenes")==="1")flipLiveTeams.title=flipLiveTeams.textContent;
  flipLiveTeams.setAttribute("aria-pressed",String(reversed));
+ if(streamPanel){
+  streamPanel.hidden=!ready||!streamButtons.some(b=>teamStream(received,b.dataset.teamStream));
+  streamButtons.forEach((button,i)=>{
+   const side=button.dataset.teamStream,channel=teamStream(received,side),selected=!!channel&&received.twitchChannel===channel;
+   button.hidden=!channel;button.disabled=locked||!orderValid(received)||!channel||selected;
+   button.classList.toggle("active",selected);button.setAttribute("aria-pressed",String(selected));
+   button.textContent=teamLabel(received,side)||streamText[i+1];button.title=channel?streamText[i+1]+" · "+channel:"";
+  });
+ }
  const finished=finalGame(received);
  const scoreLocked=locked||!gameKey||!!finished;
  homeGoals.disabled=awayGoals.disabled=scoreLocked;
@@ -279,9 +301,15 @@ buttons.forEach(b=>{b.disabled=true;b.addEventListener("click",()=>void setScene
 musicButtons.forEach(b=>b.addEventListener("click",()=>void changeProgram(b,true)));
 async function changeTeamOrder(action){
  controls();
- const button=action==="swap"?swapTeams:flipLiveTeams;
+ const switching=action.startsWith("stream-");
+ const button=switching?streamButtons.find(b=>b.dataset.teamStream===action.slice(7)):action==="swap"?swapTeams:flipLiveTeams;
  if(button.disabled)return;
- const args={p_channel:CHANNEL,p_expected:orderExpected(received),p_action:action};
+ const expected=orderExpected(received);
+ if(switching){
+  expected.twitchChannel=received.twitchChannel??null;expected.twitchTeamChannels=received.twitchTeamChannels;
+  streamStatus.textContent="";
+ }
+ const args={p_channel:CHANNEL,p_expected:expected,p_action:action};
  if(action==="swap"&&!window.confirm(orderText[4]))return;
  busy=true;revision++;controls();setConnection(T.sending,"busy");
  try{
@@ -294,13 +322,14 @@ async function changeTeamOrder(action){
   if(action==="swap")seriesStatus.textContent=orderText[5];
   setConnection(T.sent,"ok");
  }catch{
-  ready=false;
-  (action==="swap"?seriesStatus:matchStatus).textContent=orderText[6];
+  if(switching)streamStatus.textContent=streamText[3];
+  else{ready=false;(action==="swap"?seriesStatus:matchStatus).textContent=orderText[6];}
   setConnection(T.error);
  }finally{busy=false;controls();}
 }
 swapTeams.addEventListener("click",()=>void changeTeamOrder("swap"));
 flipLiveTeams.addEventListener("click",()=>void changeTeamOrder("live"));
+streamButtons.forEach(button=>button.addEventListener("click",()=>void changeTeamOrder("stream-"+button.dataset.teamStream)));
 gameForm.addEventListener("submit",event=>event.preventDefault());
 gameForm.addEventListener("input",()=>{
  const h=goalValue(homeGoals),a=goalValue(awayGoals);

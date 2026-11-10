@@ -1,4 +1,4 @@
--- Swap the on-air sides atomically, or change only the two-row live overlay.
+-- Swap the on-air sides, flip just the live overlay, or select a preconfigured team feed.
 create or replace function broadcast_control.set_team_order(
   p_channel text, p_expected jsonb, p_action text
 )
@@ -12,7 +12,7 @@ begin
   if auth.uid() is null or not coalesce(public.swn_studio_scene_access(p_channel), false) then
     raise exception 'Scene access required' using errcode = '42501';
   end if;
-  if p_action is null or p_action not in ('swap','live')
+  if p_action is null or p_action not in ('swap','live','stream-home','stream-away')
     or coalesce(p_expected->>'ticket','') = ''
     or coalesce(p_expected->>'home','') = '' or coalesce(p_expected->>'away','') = ''
     or p_expected->>'home' = p_expected->>'away' then
@@ -21,7 +21,10 @@ begin
 
   update public.broadcast_studio_state
   set state = state
-    || jsonb_build_object('liveTeamsReversed', (state->'liveTeamsReversed') is distinct from 'true'::jsonb)
+    || case when p_action in ('stream-home','stream-away') then jsonb_build_object(
+      'twitchChannel',state->'twitchTeamChannels'->(state->>substring(p_action from 8)),
+      'liveTeamsReversed',p_action = 'stream-away'
+    ) else jsonb_build_object('liveTeamsReversed', (state->'liveTeamsReversed') is distinct from 'true'::jsonb) end
     || case when p_action = 'swap' then jsonb_build_object(
       'home',state->'away', 'away',state->'home',
       'hs',state->'as', 'as',state->'hs',
@@ -36,12 +39,19 @@ begin
     and (state->'publicNoMatch') is distinct from 'true'::jsonb
     and (state#>>'{transientSource,expires_at}')::timestamptz > clock_timestamp()
     and (p_action <> 'live' or state->>'scene' = 'live')
-    and p_expected = jsonb_build_object(
+    and (p_action not in ('stream-home','stream-away') or (
+      state->>'videoSource' = 'twitch'
+      and state->'twitchTeamChannels'->>(state->>substring(p_action from 8)) ~ '^[a-z0-9_]{1,25}$'
+      and state->'twitchTeamChannels'->>(state->>substring(p_action from 8)) is distinct from state->>'twitchChannel'
+    ))
+    and p_expected = (jsonb_build_object(
       'leagueId',state->'leagueId','home',state->'home','away',state->'away',
       'matchName',state->'matchName','ticket',state#>'{transientSource,ticket}',
       'teamOrderRevision',state->'teamOrderRevision',
       'liveTeamsReversed',coalesce(state->'liveTeamsReversed' = 'true'::jsonb,false)
-    )
+    ) || case when p_action in ('stream-home','stream-away') then jsonb_build_object(
+      'twitchChannel',state->'twitchChannel','twitchTeamChannels',state->'twitchTeamChannels'
+    ) else '{}'::jsonb end)
   returning state into result;
 
   if result is null then

@@ -117,16 +117,16 @@
   const lineupPanel=document.getElementById("presenterLineups"),lineupStatus=document.getElementById("presenterLineupStatus"),lineupTeams=document.getElementById("presenterLineupTeams");
   lineupPanel.querySelector("summary").textContent=lineupLabels[lang][0];
   lineupStatus.textContent=lineupLabels[lang][1];
-  const positions={away:["RD","G","LD","RW","C","LW"],home:["LW","C","RW","LD","G","RD"]};
+  const positions=[["RD","G","LD","RW","C","LW"],["LW","C","RW","LD","G","RD"]];
   window.addEventListener("message",event=>{
     if(event.origin!==location.origin||event.source!==frame.contentWindow||event.data?.type!=="seh-presenter-lineups")return;
     const teams=event.data.lineups;
     if(teams===null){lineupStatus.hidden=false;lineupTeams.replaceChildren();return;}
-    if(!Array.isArray(teams)||teams.length!==2||teams.some((team,i)=>team?.side!==["away","home"][i]||typeof team.name!=="string"||!team.players))return;
-    const sections=teams.map(team=>{
+    if(!Array.isArray(teams)||teams.length!==2||teams.some(team=>!["away","home"].includes(team?.side)||typeof team.name!=="string"||!team.players)||teams[0].side===teams[1].side)return;
+    const sections=teams.map((team,i)=>{
       const section=document.createElement("section"),name=document.createElement("h3"),list=document.createElement("ul");
       section.className="presenter-lineup-team";name.textContent=team.name;
-      for(const position of positions[team.side]){
+      for(const position of positions[i]){
         const player=team.players[position],cell=document.createElement("li"),meta=document.createElement("small"),gt=document.createElement("span");
         cell.dataset.position=position;
         meta.textContent=position+(player?.number?" · #"+player.number:"");
@@ -137,11 +137,11 @@
     });
     lineupTeams.replaceChildren(...sections);lineupStatus.hidden=true;
   });
-  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261109-dual-lineups";
+  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261110-team-feeds";
   const originalTitles={sv:"Originalstream · utan ljud",en:"Original feed · muted",fi:"Alkuperäinen striimi · mykistetty",de:"Originalstream · stumm"};
   const original=document.getElementById("originalFeed");
   original.title=document.getElementById("originalFeedLabel").textContent=originalTitles[lang];
-  original.src=path+"/?obs=1&viewer=1&feed=1&v=20261108-raw-feed";
+  original.src=path+"/?obs=1&viewer=1&feed=1&v=20261110-team-feeds";
   function mountControls(id,title,mode){
     const picker=document.getElementById(id);
     picker.title=title;
@@ -155,7 +155,7 @@
       resize.observe(body);
       fit();
     });
-    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261109-dual-lineups";
+    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261110-team-feeds";
   }
   mountControls("scenePicker",sceneTitle,"1");
   const seriesTitles={sv:"Serieläge",en:"Series score",fi:"Sarjatilanne",de:"Serienstand"};
@@ -192,7 +192,7 @@
     toolStatus=new MutationObserver(fit);toolStatus.observe(doc.documentElement,{attributes:true,attributeFilter:["data-tools-ready","data-studio-locked"]});
     fit();
   });
-  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261109-sv-operator";};
+  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261110-team-feeds";};
   tools.addEventListener("toggle",loadTools);
   loadTools();
 })();

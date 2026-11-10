@@ -512,7 +512,9 @@ window.SWNViewerBridge=(()=>{
   let lastPresenterLineups='';
   function postPresenterLineups(){
     if(!OBS_MODE||!VIEWER_MODE||pageParams.get('presenter')!=='1'||parent===window||window.SWNViewerBridge.origin!==location.origin)return;
-    const teams=['away','home'].map(side=>{
+    const state=window.__sehTwitchState,channels=state?.twitchTeamChannels;
+    const awayPerspective=state?.videoSource==='twitch'&&!!state.twitchChannel&&channels?.[$("#away").value]===state.twitchChannel;
+    const teams=(awayPerspective?['home','away']:['away','home']).map(side=>{
       const id=$("#"+side).value;
       const team=data.teams.find(t=>same(t.sports_gamer_team_id,id));
       const name=team?.team_name_in_league||window.__sehTwitchState?.lineupTeamNames?.[id];
@@ -1078,7 +1080,7 @@ window.SWNViewerBridge=(()=>{
 
   function renderSeries(){renderOpeningRound();renderChampion();const bo=Number($("#seriesFormat")?.value||5),need=Math.ceil(bo/2),hw=Math.max(0,Math.min(need,Number($("#seriesHome")?.value||0))),aw=Math.max(0,Math.min(need,Number($("#seriesAway")?.value||0))),round=($("#seriesRound")?.value||tx("playoffs")).trim().toLocaleUpperCase(LOCALE),h=selectedTeam("home"),a=selectedTeam("away");renderLiveSeries(hw,aw,need);renderRoad();$("#seriesHomeScore").textContent=hw;$("#seriesAwayScore").textContent=aw;$("#seriesKicker").textContent=round+" · "+seriesBestOf(bo);renderSeriesDots($("#seriesHomeDots"),hw,need,h.sports_gamer_team_id,round);renderSeriesDots($("#seriesAwayDots"),aw,need,a.sports_gamer_team_id,round);const done=hw===need||aw===need;$("#seriesTitle").textContent=done?(hw===need?h.team_name_in_league:a.team_name_in_league)+" "+tx("winsSeries"):tx("seriesState");$("#seriesNext").textContent=done?tx("seriesDone")+" · "+hw+"–"+aw:tx("nextMatch")+" · "+(hw+aw+1);const showResults=!!$("#seriesShowResults")?.checked,results=Array.from({length:Math.min(bo,hw+aw)},(_,i)=>($("#seriesR"+(i+1))?.value||"").trim()).map((v,i)=>v?'<span><b>M'+(i+1)+'</b> '+esc(v.replace(/\s+/g,""))+'</span>':"").filter(Boolean),resultBox=$("#seriesResults");if(resultBox){resultBox.hidden=!showResults||!results.length;$("#seriesResultsList").innerHTML=results.join("");}for(let i=1;i<=7;i++){const label=$("#seriesR"+i)?.closest("label");if(label)label.hidden=i>bo;}["seriesHome","seriesAway"].forEach(id=>{const el=$("#"+id);if(el)el.max=need;});}
 
-  function studioState(){const ls={};["home","away"].forEach(side=>{const l=lineupFor(side);ls[side]={};SLOTS.forEach(slot=>ls[side][slot]=l[slot]||"");});return {seriesGameFinal,lineupTeamNames:lineupTeamNames(),liveTeamsReversed,teamOrderRevision,sceneMusic:{...sceneMusic},arenaMist:!!$("#arenaMist")?.checked,footerBrand,competitionProfileId:activeLeagueId,transientSource:currentSourceReference,matchName:String(window.__sehTwitchState?.matchName||""),leagueId:activeLeagueId,theme:$("#theme")?.value||"broadcast",backgroundPackage:$("#theme")?.value||"broadcast",graphicsPackage:$("#graphicsPackage")?.value||"standard",liveSeriesShow:!!$("#showLiveSeries")?.checked,seriesFormat:$("#seriesFormat")?.value||"5",seriesRound:$("#seriesRound")?.value||tx("playoffs"),seriesHome:$("#seriesHome")?.value||"0",seriesAway:$("#seriesAway")?.value||"0",seriesShowResults:!!$("#seriesShowResults")?.checked,seriesResults:Array.from({length:7},(_,i)=>$("#seriesR"+(i+1))?.value||""),scene:activeScene,lineupSide:$("#lineupSide").value,home:$("#home").value,away:$("#away").value,hs:$("#hs").value,as:$("#as").value,headline:$("#headline").value,subline:$("#subline").value,commentator1:$("#commentator1").value,commentator2:$("#commentator2").value,videoSource:$("#videoSource")?.value||"twitch",hlsUrl:$("#hlsUrl")?.value||"",twitchChannel:$("#twitchChannel")?.value||"",twitchShow:$("#showTwitch")?.checked!==false,twitchMute:$("#muteTwitch")?.checked!==false,liveTeamStripShow:$("#showLiveTeamStrip")?.checked!==false,liveCommentatorsShow:!!$("#showLiveCommentators")?.checked,lineups:ls};}
+  function studioState(){const ls={};["home","away"].forEach(side=>{const l=lineupFor(side);ls[side]={};SLOTS.forEach(slot=>ls[side][slot]=l[slot]||"");});const twitchTeamChannels=Object.fromEntries(['home','away'].map(side=>[$('#'+side).value,window.__sehTwitchState?.twitchTeamChannels?.[$('#'+side).value]]).filter(([id,channel])=>id&&channel));return {twitchTeamChannels,seriesGameFinal,lineupTeamNames:lineupTeamNames(),liveTeamsReversed,teamOrderRevision,sceneMusic:{...sceneMusic},arenaMist:!!$("#arenaMist")?.checked,footerBrand,competitionProfileId:activeLeagueId,transientSource:currentSourceReference,matchName:String(window.__sehTwitchState?.matchName||""),leagueId:activeLeagueId,theme:$("#theme")?.value||"broadcast",backgroundPackage:$("#theme")?.value||"broadcast",graphicsPackage:$("#graphicsPackage")?.value||"standard",liveSeriesShow:!!$("#showLiveSeries")?.checked,seriesFormat:$("#seriesFormat")?.value||"5",seriesRound:$("#seriesRound")?.value||tx("playoffs"),seriesHome:$("#seriesHome")?.value||"0",seriesAway:$("#seriesAway")?.value||"0",seriesShowResults:!!$("#seriesShowResults")?.checked,seriesResults:Array.from({length:7},(_,i)=>$("#seriesR"+(i+1))?.value||""),scene:activeScene,lineupSide:$("#lineupSide").value,home:$("#home").value,away:$("#away").value,hs:$("#hs").value,as:$("#as").value,headline:$("#headline").value,subline:$("#subline").value,commentator1:$("#commentator1").value,commentator2:$("#commentator2").value,videoSource:$("#videoSource")?.value||"twitch",hlsUrl:$("#hlsUrl")?.value||"",twitchChannel:$("#twitchChannel")?.value||"",twitchShow:$("#showTwitch")?.checked!==false,twitchMute:$("#muteTwitch")?.checked!==false,liveTeamStripShow:$("#showLiveTeamStrip")?.checked!==false,liveCommentatorsShow:!!$("#showLiveCommentators")?.checked,lineups:ls};}
   function applyScene(name,side){
     const next=name==="stats"?"teamcompare":name==="lowerthird"?"matchup":name||"opening";
     const nextSide=side||$("#lineupSide").value;
@@ -1143,7 +1145,7 @@ window.SWNViewerBridge=(()=>{
   // Preparing a match must never publish its state to the program output.
   let programState=null,programHeld=true,canResumeProgram=false,takeSequence=0;
   let directorSceneKey='',directorRevision=0,directorWrites=0,directorReading=false,directorRestoring=false;
-  const sceneKey=s=>JSON.stringify([s.scene,s.lineupSide||'home',!!s.publicNoMatch,s.publicNextMatch||null,s.sceneMusic||{},s.seriesHome,s.seriesAway,s.liveTeamsReversed===true,s.teamOrderRevision??null,s.hs,s.as,s.seriesGameFinal,s.seriesResults,s.seriesShowResults]);
+  const sceneKey=s=>JSON.stringify([s.scene,s.videoSource,s.twitchChannel,s.twitchTeamChannels,s.lineupSide||'home',!!s.publicNoMatch,s.publicNextMatch||null,s.sceneMusic||{},s.seriesHome,s.seriesAway,s.liveTeamsReversed===true,s.teamOrderRevision??null,s.hs,s.as,s.seriesGameFinal,s.seriesResults,s.seriesShowResults]);
   function holdProgram(){
     takeSequence++;
     if(!programHeld)programState=structuredClone(studioState());
@@ -1251,10 +1253,13 @@ window.SWNViewerBridge=(()=>{
         const swapped=!!state.teamOrderRevision&&programState.teamOrderRevision!==state.teamOrderRevision;
         const orderPatch=swapped?{home:state.home,away:state.away,subline:state.subline,lineups:state.lineups,teamOrderRevision:state.teamOrderRevision}:{};
         const scores={hs:state.hs,as:state.as,seriesGameFinal:state.seriesGameFinal??null,seriesResults:state.seriesResults,seriesShowResults:state.seriesShowResults};
-        const controls={...orderPatch,...scores,scene:state.scene,lineupSide:side,sceneMusic:state.sceneMusic||{},seriesHome:state.seriesHome,seriesAway:state.seriesAway,liveTeamsReversed:state.liveTeamsReversed===true};
+        const streamChanged=programState.videoSource!==state.videoSource||programState.twitchChannel!==state.twitchChannel||
+          JSON.stringify(programState.twitchTeamChannels||{})!==JSON.stringify(state.twitchTeamChannels||{});
+        const streamPatch=streamChanged?{videoSource:state.videoSource,twitchChannel:state.twitchChannel,hlsUrl:state.hlsUrl,twitchTeamChannels:state.twitchTeamChannels||{}}:{};
+        const controls={...orderPatch,...scores,...streamPatch,scene:state.scene,lineupSide:side,sceneMusic:state.sceneMusic||{},seriesHome:state.seriesHome,seriesAway:state.seriesAway,liveTeamsReversed:state.liveTeamsReversed===true};
         programState={...programState,...controls};
-        if(!programHeld&&swapped){
-          // Keep the local draft's video/design/statistics; only overlay the mobile controls.
+        if(!programHeld&&(swapped||streamChanged)){
+          // The director mirrors on-air controls only when not editing a separate draft.
           applyRemoteState({...studioState(),...controls});
         }else{
           if(!programHeld){

@@ -35,12 +35,17 @@ try{
     assert.equal(body.p_expected.home,state.home);
     assert.equal(body.p_expected.away,state.away);
     assert.equal(body.p_expected.liveTeamsReversed,state.liveTeamsReversed===true);
-    state.liveTeamsReversed=!state.liveTeamsReversed;
+    if(body.p_action.startsWith('stream-')){
+     assert.equal(body.p_expected.twitchChannel,state.twitchChannel);
+     assert.deepEqual(body.p_expected.twitchTeamChannels,state.twitchTeamChannels);
+     state.twitchChannel=state.twitchTeamChannels[state[body.p_action.slice(7)]];
+     state.liveTeamsReversed=body.p_action==='stream-away';
+    }else state.liveTeamsReversed=!state.liveTeamsReversed;
     if(body.p_action==='swap'){
      [state.home,state.away]=[state.away,state.home];
      [state.seriesHome,state.seriesAway]=[state.seriesAway,state.seriesHome];
      [state.hs,state.as]=[state.as,state.hs];
-    }else assert.equal(body.p_action,'live');
+    }else assert(['live','stream-home','stream-away'].includes(body.p_action));
    }else if(req.url().endsWith('broadcast_studio_set_series_wins')){
     assert.deepEqual(Object.keys(body).sort(),['p_away','p_channel','p_expected','p_home']);
     assert.equal(body.p_expected.seriesFormat,'5');
@@ -191,6 +196,16 @@ try{
  await a.locator('[data-scene="groupmeetings"]').click();
  await b.waitForFunction(()=>document.querySelector('[data-scene="groupmeetings"]').classList.contains('active'));
  assert.deepEqual(state,{...beforeGroupScene,scene:'groupmeetings'});
+ assert(await a.locator('#teamStreamSwitch').isHidden(),'Legacy matches have no team feed picker');
+ Object.assign(state,{videoSource:'twitch',twitchChannel:'team_b',twitchTeamChannels:{111:'team_a',222:'team_b'}});
+ const beforeStream=structuredClone(state);
+ await a.locator('[data-team-stream="away"]').click();
+ await b.locator('[data-team-stream="away"][aria-pressed="true"]').waitFor();
+ assert.equal(await b.locator('[data-team-stream="home"]').textContent(),'Testlaget B','Feed ownership follows team IDs after a real home/away swap');
+ assert.deepEqual(state,{...beforeStream,twitchChannel:'team_a',liveTeamsReversed:true},'Switching from a graphics scene keeps the scene and match data');
+ await b.locator('[data-team-stream="home"]').click();
+ await a.locator('[data-team-stream="home"][aria-pressed="true"]').waitFor();
+ assert.deepEqual(state,{...beforeStream,liveTeamsReversed:false});
  assert.deepEqual(errors,[]);console.log('PASS two controllers sync, scene-only RPC, scoped token, no load writes, preserved match data, mobile layout, offline/denied/expired locks');
 }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});

@@ -35,21 +35,82 @@
   nextControls.innerHTML='<h3>NÄSTA MATCH · ENDAST MATCH-TV</h3><label>HEMMALAG<select id="nextHome"></select></label><label>BORTALAG<select id="nextAway"></select></label><label>DATUM<input id="nextDate" type="date" required></label><label>STARTTID · SVENSK TID<input id="nextTime" type="time" required></label><button id="deskNext">Visa Nästa match på Match-TV</button><p>Preview fortsätter vara fritt att ändra. Detta startar inte sändningen automatiskt.</p>';
   document.querySelector('.stream-dock')?.append(nextControls);
   const get=id=>document.getElementById(id);
+  const streamCopy={
+    sv:['Lagets Twitch-streamar','Hemmastream','Bortastream','Ange en Twitch-kanal eller länk per lag. Källan kan sedan bytas i presentatörsvyn utan att byta scen.','Ange två olika, giltiga Twitch-kanaler och välj lagen först.'],
+    en:['Team Twitch feeds','Home stream','Away stream','Enter a Twitch channel or link for each team. Switch feeds in the presenter without changing scenes.','Select the teams first and use distinct, valid Twitch channels.'],
+    fi:['Joukkueiden Twitch-striimit','Kotijoukkueen striimi','Vierasjoukkueen striimi','Anna joukkueen Twitch-kanava tai linkki. Striimiä voi vaihtaa vaihtamatta näkymää.','Valitse joukkueet ja anna eri Twitch-kanavat.'],
+    de:['Twitch-Streams der Teams','Heimstream','Gaststream','Gib je Team einen Twitch-Kanal oder Link ein. Der Stream kann ohne Szenenwechsel gewechselt werden.','Wähle die Teams und gib unterschiedliche gültige Twitch-Kanäle ein.']
+  };
+  const streamWords=streamCopy[deskLocale]||streamCopy.en;
+  const previewLabel=({sv:'Förhandsvisa',en:'Preview',fi:'Esikatsele',de:'Vorschau'})[deskLocale]||'Preview';
+  const teamSources=document.createElement('details');teamSources.className='desk-alternatives';
+  const streamSummary=document.createElement('summary');streamSummary.textContent=streamWords[0];teamSources.append(streamSummary);
+  const streamFields=['home','away'].map((side,i)=>{
+    const label=document.createElement('label'),caption=document.createElement('span'),input=document.createElement('input'),row=document.createElement('div'),preview=document.createElement('button');
+    row.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:6px';
+    preview.type='button';preview.textContent=previewLabel;
+    input.placeholder='twitch.tv/…';input.autocomplete='off';input.spellcheck=false;label.append(caption,input);row.append(label,preview);teamSources.append(row);
+    return {side,caption,input,preview,title:streamWords[i+1]};
+  });
+  const streamHint=document.createElement('small');streamHint.textContent=streamWords[3];teamSources.append(streamHint);
+  source.after(teamSources);
+  const channelName=value=>{
+    let channel=String(value||'').trim().toLowerCase().replace(/^@/,'');
+    if(/^(?:(?:https?:\/\/)?(?:www\.)?twitch\.tv\/)/.test(channel))channel=channel.replace(/^(?:https?:\/\/)?(?:www\.)?twitch\.tv\//,'').split(/[/?#]/)[0];
+    return /^[a-z0-9_]{1,25}$/.test(channel)?channel:'';
+  };
+  let draftChannels={};
+  const syncStreamFields=()=>{
+    for(const {side,caption,input,preview,title} of streamFields){
+      const team=get(side),id=team.value;
+      caption.textContent=title+(id?' · '+team.selectedOptions[0]?.textContent:'');
+      const value=draftChannels[id]||'';
+      if(input.value!==value)input.value=value;
+      input.disabled=!id;preview.disabled=!id||!channelName(value);preview.setAttribute('aria-label',previewLabel+' · '+caption.textContent);
+    }
+    teamSources.hidden=get('videoSource')?.value==='direct';
+  };
+  for(const {side,input,preview} of streamFields){
+    input.addEventListener('input',()=>{const id=get(side).value;if(id)draftChannels[id]=input.value;preview.disabled=!id||!channelName(input.value);});
+    get(side).addEventListener('change',syncStreamFields);
+    new MutationObserver(syncStreamFields).observe(get(side),{childList:true});
+  }
+  get('videoSource')?.addEventListener('change',syncStreamFields);
+  const loadStreams=state=>{draftChannels={...state?.twitchTeamChannels};syncStreamFields();};
+  const teamSnapshot=(state,chooseDefault=true)=>{
+    const {home,away}=state,channels={};
+    if(state.videoSource==='twitch')for(const id of [home,away]){
+      const raw=String(draftChannels[id]||'').trim(),value=channelName(raw);
+      if(raw&&!value)return null;
+      if(id&&value)channels[id]=value;
+    }
+    if(channels[home]&&channels[home]===channels[away])return null;
+    const current=channelName(state.twitchChannel);
+    const selected=current|| (chooseDefault?(channels[home]||channels[away]):'');
+    const perspective=selected&&selected===channels[away]?'away':selected&&selected===channels[home]?'home':'';
+    return {...state,twitchTeamChannels:channels,...(perspective?{twitchChannel:selected,liveTeamsReversed:perspective==='away'}:{})};
+  };
+  for(const {input,preview} of streamFields)preview.onclick=()=>{
+    const state=teamSnapshot({...window.__sehStudioSnapshot(),videoSource:'twitch',twitchChannel:channelName(input.value)});
+    if(!state){get('deskMessage').textContent=streamWords[4];return;}
+    window.__sehStudioRestore(state);
+  };
+  syncStreamFields();
   const picker=document.createElement('section');picker.className='block match-desk saved-match-picker';
   picker.innerHTML='<h3>SPARADE MATCHER</h3><label>FÖRBERED MATCH<select id="deskMatchSelect"><option value="">Ny match</option></select></label><button id="deskNewMatch" type="button">Förbered ny match</button><small>Valet här ändrar bara förhandsvisningen. Matchen i sändning ligger kvar tills du klickar Visa i sändning.</small>';
   document.querySelector('.theme-control')?.after(picker);
   const selectMatch=m=>{
     remember();active=m.id;get('deskName').value=m.name;get('deskStreams').value=m.streams.join('\n');
-    m.state={...m.state,matchName:m.name};window.__sehStudioRestore(m.state);persist();render();get('deskMessage').textContent='Redigerar '+m.name+'. Sändningen påverkas inte.';
+    m.state={...m.state,matchName:m.name};window.__sehStudioRestore(m.state);loadStreams(m.state);persist();render();get('deskMessage').textContent='Redigerar '+m.name+'. Sändningen påverkas inte.';
   };
   const newMatch=()=>{
-    window.__sehStudioHoldOutput();remember();persist();window.__sehStudioNewBroadcast();active='';get('deskName').value='';get('deskStreams').value='';
+    window.__sehStudioHoldOutput();remember();persist();window.__sehStudioNewBroadcast();active='';get('deskName').value='';get('deskStreams').value='';loadStreams(null);
     render();get('deskMessage').textContent='Ny match: ställ in lag, namn och stream. Klicka sedan Spara som ny match.';
     get('deskName').focus();
   };
   get('deskMatchSelect').onchange=()=>{const m=matches.find(m=>m.id===get('deskMatchSelect').value);if(m)selectMatch(m);else newMatch();};
   get('deskNewMatch').onclick=newMatch;
-  window.addEventListener('seh:studio-resumed',event=>{get('deskName').value=event.detail.matchName||'';get('deskMessage').textContent='Pågående sändning återställd. Kontrollera när statistiken hämtades eller hämta på nytt.';});
+  window.addEventListener('seh:studio-resumed',event=>{loadStreams(event.detail);get('deskName').value=event.detail.matchName||'';get('deskMessage').textContent='Pågående sändning återställd. Kontrollera när statistiken hämtades eller hämta på nytt.';});
 
   const fillTeams=()=>['Home','Away'].forEach(side=>{const select=get('next'+side),value=select.value||get(side.toLowerCase()).value;select.replaceChildren(...[...get(side.toLowerCase()).options].map(o=>new Option(o.text,o.value)));select.value=value;});
   nextControls.addEventListener('focusin',e=>{if(e.target.tagName==='SELECT')fillTeams();});
@@ -62,7 +123,7 @@
     window.__sehStudioNext(next);noMatch=true;updateIdle();get('deskIdle').textContent='Nästa match · PÅ – klicka för att visa preview';get('deskMessage').textContent='Match-TV visar nästa match '+next.date+' kl. '+next.time+'. Preview påverkas inte.';
   };
   const persist=()=>{try{localStorage.setItem(key,JSON.stringify({matches}));}catch{get('deskMessage').textContent='Webbläsaren kunde inte spara matchlistan.';}};
-  const remember=()=>{const m=matches.find(m=>m.id===active);if(m)m.state=window.__sehStudioSnapshot();};
+  const remember=()=>{const m=matches.find(m=>m.id===active);if(m)m.state=teamSnapshot(window.__sehStudioSnapshot(),false)||m.state;};
   const render=()=>{
     const select=get('deskMatchSelect');select.replaceChildren(new Option('Ny match', ''));
     matches.forEach((m,i)=>select.add(new Option('Match '+(i+1)+' · '+m.name,m.id)));
@@ -92,10 +153,13 @@
   const takeMatch=async(m,channel)=>{
     remember();active=m.id;
     get('deskName').value=m.name;get('deskStreams').value=m.streams.join('\n');
-    const state={...m.state,matchName:m.name};
-    if(channel)Object.assign(state,{videoSource:'twitch',twitchChannel:channel,twitchShow:true,scene:'live'});
+    const draft={...m.state,matchName:m.name};
+    if(channel)Object.assign(draft,{videoSource:'twitch',twitchChannel:channel,twitchShow:true,scene:'live'});
+    loadStreams(draft);
+    const state=teamSnapshot(draft);
+    if(!state){get('deskMessage').textContent=streamWords[4];return;}
     if(await window.__sehStudioTake(state)===false){get('deskMessage').textContent='Matchen har inte bytts i sändning. Hämta aktuellt SportsGamer-underlag och försök igen.';return;}
-    onAir=m.id;noMatch=false;updateIdle();persist();render();
+    onAir=m.id;noMatch=false;syncStreamFields();updateIdle();persist();render();
     get('deskOnAir').textContent='I sändning: '+m.name+(channel?' · '+channel:'');
     get('deskMessage').textContent='Sändningen har bytt till '+m.name+'.';
   };
@@ -103,7 +167,9 @@
     const button=get('deskTake');if(button.disabled)return;button.disabled=true;
     remember();
     const name=get('deskName').value.trim()||matches.find(m=>m.id===active)?.name||'Aktuell match';
-    let accepted;try{accepted=await window.__sehStudioTake({...window.__sehStudioSnapshot(),matchName:name});}finally{button.disabled=false;}
+    const state=teamSnapshot({...window.__sehStudioSnapshot(),matchName:name});
+    if(!state){button.disabled=false;get('deskMessage').textContent=streamWords[4];return;}
+    let accepted;try{accepted=await window.__sehStudioTake(state);}finally{button.disabled=false;}
     if(accepted===false){get('deskMessage').textContent='Matchen har inte bytts i sändning. Hämta aktuellt SportsGamer-underlag och försök igen.';return;}
     onAir=active;
     noMatch=false;updateIdle();persist();render();
@@ -115,10 +181,12 @@
     if(!name){get('deskMessage').textContent='Ange ett matchnamn.';return;}
     const streams=[];
     for(let channel of raw){if(/^https?:\/\//i.test(channel)){try{const u=new URL(channel);if(!/^(www\.)?twitch\.tv$/i.test(u.hostname))throw Error();channel=u.pathname.split('/').filter(Boolean)[0]||'';}catch{get('deskMessage').textContent='Ange Twitch-kanaler eller Twitch-länkar.';return;}}channel=channel.replace(/^@/,'');if(!/^[a-z0-9_]{1,25}$/i.test(channel)){get('deskMessage').textContent='Ogiltig Twitch-kanal: '+channel;return;}if(!streams.includes(channel.toLowerCase()))streams.push(channel.toLowerCase());}
+    const state=teamSnapshot({...window.__sehStudioSnapshot(),matchName:name});
+    if(!state){get('deskMessage').textContent=streamWords[4];return;}
     let m=update?matches.find(m=>m.id===active):null;
     if(update&&!m)return;
     if(!m){m={id:crypto.randomUUID()};matches.push(m);}
-    Object.assign(m,{name,streams,state:{...window.__sehStudioSnapshot(),matchName:name}});active=m.id;window.__sehStudioRestore(m.state);persist();render();get('deskMessage').textContent='Sparat '+name;
+    Object.assign(m,{name,streams,state});active=m.id;window.__sehStudioRestore(m.state);loadStreams(m.state);persist();render();get('deskMessage').textContent='Sparat '+name;
   };
   get('deskSave').onclick=()=>save(false);get('deskUpdate').onclick=()=>save(true);
   const updateIdle=()=>{get('deskIdle').setAttribute('aria-pressed',String(noMatch));get('deskIdle').textContent=noMatch?'Ingen match just nu · PÅ – klicka för att återgå till sändning':'Ingen match just nu · AV';};

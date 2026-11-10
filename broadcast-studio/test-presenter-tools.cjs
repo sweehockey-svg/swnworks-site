@@ -42,6 +42,23 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
      assert.deepEqual(await groups.filter({visible:true}).evaluateAll(els=>els.map(el=>el.dataset.toolsGroup)),[group]);
     }
     assert.equal(await page.locator('#twitchChannel').inputValue(),'fixture-channel');
+    await page.evaluate(()=>{
+     for(const [side,id,name] of [['home','11','Hemmalaget'],['away','22','Bortalaget']]){
+      const select=document.getElementById(side);select.add(new Option(name,id));select.value=id;
+      select.dispatchEvent(new Event('change',{bubbles:true}));
+     }
+     const snapshot=window.__sehStudioSnapshot;
+     window.__sehStudioSnapshot=()=>({...snapshot(),home:'11',away:'22',scene:'opening'});
+     window.__sehStudioRestore=state=>{window.testPrepared=state;};
+     window.__sehStudioTake=state=>{window.testTaken=state;return true;};
+    });
+    await page.getByText('Lagets Twitch-streamar',{exact:true}).click();
+    await page.getByLabel('Hemmastream · Hemmalaget',{exact:true}).fill('https://www.twitch.tv/Fixture_Home');
+    await page.getByLabel('Bortastream · Bortalaget',{exact:true}).fill('@Fixture_Away');
+    await page.getByRole('button',{name:'Förhandsvisa · Bortastream · Bortalaget'}).click();
+    assert.deepEqual(await page.evaluate(()=>({channel:testPrepared.twitchChannel,reversed:testPrepared.liveTeamsReversed,scene:testPrepared.scene,feeds:testPrepared.twitchTeamChannels})),
+     {channel:'fixture_away',reversed:true,scene:'opening',feeds:{11:'fixture_home',22:'fixture_away'}});
+    assert.equal(await page.evaluate(()=>window.testTaken),undefined,'A source preview does not publish anything');
     assert.deepEqual(await page.locator('main>aside,main>.workspace').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).display)),['contents','contents']);
     await page.setViewportSize({width:550,height:750});
     assert.equal(await page.locator('#studio-tools-prepare').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),1);
