@@ -78,7 +78,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   assert.equal(await panels.count(),2,'Messages not from the broadcast frame are ignored');
   const reserve={sports_gamer_team_id:11,sports_gamer_player_id:112,player_number:18,display_gamertag:'ReserveGoalie',roster_preferred_position_abbreviation:'G',regular_goalie_games:3};
   await page.evaluate(()=>window.addEventListener('message',event=>{
-   if(event.source===document.getElementById('broadcast').contentWindow&&event.data?.type==='seh-presenter-lineups')window.testRoster=event.data.picker;
+   if(event.source===document.getElementById('broadcast').contentWindow&&event.data?.type==='seh-presenter-lineups'){window.testRoster=event.data.picker;window.testLineups=event.data.lineups;}
   }));
   await frame.evaluate(({teams,players,reserve,state})=>{
    const transientSource={ticket:'fixture.ticket'};
@@ -86,6 +86,8 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    lineupFixture.apply({...state,transientSource,scene:'spotlight',presentedPlayer:{id:'112',team:'11'}});
   },{teams,players,reserve,state});
   await page.waitForFunction(()=>window.testRoster?.teams.some(team=>team.id==='11'&&team.choices.some(player=>player.id==='112')));
+  assert.equal(await page.evaluate(()=>window.testLineups.find(team=>team.id==='11').players.LW.id),'111');
+  assert(await page.getByRole('button',{name:'Visa HomeLW i sändningen'}).isDisabled(),'The correct lineup player is available but requires scene access');
   const spotlight=frame.locator('#spotlightCard');
   assert.match(await spotlight.textContent(),/Spelarpresentation.*ReserveGoalie.*G · #18.*SV%/is);
   await frame.evaluate(s=>lineupFixture.apply({...s,scene:'spotlight',presentedPlayer:{id:'112',team:'22'}}),state);

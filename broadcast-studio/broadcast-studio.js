@@ -600,14 +600,14 @@ window.SWNViewerBridge=(()=>{
       const selected=lineupFor(side),playersForTeam=team?roster(team):[];
       const players=Object.fromEntries(SLOTS.map(slot=>{
         const player=playersForTeam.find(p=>same(p.sports_gamer_player_id,selected[slot]));
-        return [slot,player?{gt:String(player.display_gamertag||''),number:String(player.player_number??'')}:null];
+        return [slot,player?{id:String(player.sports_gamer_player_id),gt:String(player.display_gamertag||''),number:String(player.player_number??'')}:null];
       }));
       const choices=playersForTeam.filter(p=>p.display_gamertag).map(p=>({
         id:String(p.sports_gamer_player_id),name:String(p.display_gamertag),number:String(p.player_number??"")
       }));
       return {side,name,players,id,choices};
     });
-    const lineups=activeScene==='idle'||activeScene==='nextmatch'||teams.some(t=>!t.name)?null:teams.map(({side,name,players})=>({side,name,players}));
+    const lineups=activeScene==='idle'||activeScene==='nextmatch'||teams.some(t=>!t.name)?null:teams.map(({side,id,name,players})=>({side,id,name,players}));
     const ticket=state?.transientSource?.ticket;
     const picker=lineups&&ticket&&ticket===currentSourceReference?.ticket?
       {ticket,teams:teams.map(({id,name,choices})=>({id,name,choices}))}:null;

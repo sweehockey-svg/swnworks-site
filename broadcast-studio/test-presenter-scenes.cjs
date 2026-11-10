@@ -12,6 +12,9 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    let state={leagueId:527,scene:'live',home:'111',away:'222',hs:3,as:2,lineupTeamNames:{111:'Testlaget A',222:'Testlaget B'},
     videoSource:'twitch',twitchChannel:'test_home',twitchTeamChannels:{111:'test_home',222:'test_away'},
     transientSource:{ticket:'fixture.ticket',expires_at:new Date(Date.now()+3600000).toISOString()}};
+   const lineupMessage={type:'seh-presenter-lineups',
+    lineups:[{side:'away',id:'222',name:'Testlaget B',players:{G:{id:'43',gt:'Målvakt B'}}},{side:'home',id:'111',name:'Testlaget A',players:{LW:{id:'41',gt:'Forward A'}}}],
+    picker:{ticket:'fixture.ticket',teams:[{id:'111',name:'Testlaget A',choices:[{id:'41',name:'Forward A'},{id:'42',name:'Reserv A',number:'27'}]},{id:'222',name:'Testlaget B',choices:[{id:'43',name:'Målvakt B'}]}]}};
    await page.route('**/*',async route=>{
     const req=route.request(),url=new URL(req.url()),file=url.pathname.split('/').pop();
     const session=mode==='signed-out'?null:{access_token:'fixture-token'};
@@ -68,7 +71,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     }
     if(url.pathname.endsWith('/broadcast_studio_state'))return route.fulfill({json:[{state}]});
     if(url.pathname.endsWith('/graphics-schedule'))return route.fulfill({json:{matches:[]}});
-    if(url.searchParams.get('obs')==='1')return route.fulfill({contentType:'text/html',body:`<main>Match picture</main>${url.searchParams.get('presenter')==='1'?'<script>parent.postMessage({type:"seh-presenter-lineups",lineups:null,picker:{ticket:"fixture.ticket",teams:[{id:"111",name:"Testlaget A",choices:[{id:"42",name:"Reserv A",number:"27"}]},{id:"222",name:"Testlaget B",choices:[{id:"43",name:"Reserv B"}]}]}},location.origin)</script>':''}`});
+    if(url.searchParams.get('obs')==='1')return route.fulfill({contentType:'text/html; charset=utf-8',body:`<main>Match picture</main>${url.searchParams.get('presenter')==='1'?'<script>parent.postMessage('+JSON.stringify(lineupMessage)+',location.origin)</script>':''}`});
     return route.abort();
    });
    await page.goto(base+'presenter.html?lang=sv');
@@ -92,6 +95,9 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     assert.equal(await frame.locator('#compactLoginLink').getAttribute('href'),'mobile.html?lang=sv');
     assert.equal(await frame.locator('[data-scene="live"]').isVisible(),false);
     assert.equal(await frame.locator('#presentPlayerButton').isVisible(),false);
+    const lineupLink=page.getByRole('button',{name:'Visa Forward A i sändningen'});
+    await lineupLink.waitFor();
+    assert(await lineupLink.isDisabled(),'A lineup cannot be taken on air without scene access');
     await series.locator('#compactLoginLink').waitFor({state:'visible'});
     assert.match(await series.locator('#compactLoginLink').innerText(),/serieläge/i);
     assert.equal(await series.locator('#seriesSummary').isVisible(),false);
@@ -217,11 +223,16 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await option.waitFor();
     const [menuBox,playerBox]=await Promise.all([menu.boundingBox(),player.boundingBox()]);
     assert(menuBox.y+menuBox.height<=playerBox.y,'Player picker opens above its button');
-    assert.equal(await menu.getByRole('button',{name:'Reserv B'}).count(),1);
+    assert.equal(await menu.getByRole('button',{name:'Målvakt B'}).count(),1);
     await option.click();
     await frame.locator('#presentPlayerButton.active').waitFor();
     assert.deepEqual(state.presentedPlayer,{id:'42',team:'111'});
     assert.equal(await menu.isVisible(),false);
+    const lineupLink=page.getByRole('button',{name:'Visa Målvakt B i sändningen'});
+    await Promise.all([lineupLink.click(),page.waitForResponse(response=>
+     response.ok()&&response.url().endsWith('/rpc/broadcast_studio_set_team_order')&&response.request().postDataJSON().p_expected.playerId==='43')]);
+    assert.deepEqual(state.presentedPlayer,{id:'43',team:'222'});
+    assert.equal(await menu.isVisible(),false,'The lineup shortcut goes straight to the presentation');
     await frame.locator('[data-scene="spotlight"]').click();
     await frame.locator('[data-scene="spotlight"].active').waitFor();
     assert.equal(state.presentedPlayer,undefined);

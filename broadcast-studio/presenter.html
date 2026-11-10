@@ -32,6 +32,10 @@
     .presenter-lineup-team li[data-position="RD"]{--chel-position:#ffda55}
     .presenter-lineup-team li small{display:block;color:var(--chel-position,#eac75f);font-size:9px;font-weight:800}
     .presenter-lineup-team li span{display:block;color:#eef7ff;font-size:11px;font-weight:700;overflow-wrap:anywhere}
+    .presenter-lineup-team li button{display:block;width:100%;margin:0;padding:0;border:0;background:none;color:inherit;text-align:left;cursor:pointer}
+    .presenter-lineup-team li button:enabled:hover span{color:#ffd36a;text-decoration:underline}
+    .presenter-lineup-team li button:focus-visible{outline:2px solid #ffd36a;outline-offset:1px;border-radius:2px}
+    .presenter-lineup-team li button:disabled{cursor:default}
     #broadcastPreview{position:relative;width:100%}
     #broadcast{width:100%;aspect-ratio:16/9;border:1px solid #345166;border-radius:10px;background:#000;display:block}
     #previewResize{position:absolute;right:2px;bottom:2px;width:26px;height:26px;display:grid;place-items:center;cursor:nwse-resize;touch-action:none;background:#06111ad9;color:#c7dce8;border-radius:5px 0 8px 0}
@@ -225,6 +229,22 @@
   let playerRoster=null,playerRequest=null;
   const playerAnchor=()=>scenePicker.contentDocument?.getElementById("presentPlayerButton");
   const postPlayer=data=>scenePicker.contentWindow?.postMessage(data,location.origin);
+  const canSelectPlayer=()=>playerAnchor()?.disabled===false;
+  const selectPlayer=(ticket,team,id)=>{
+    if(!canSelectPlayer()||playerRoster?.ticket!==ticket)return false;
+    playerError.hidden=true;
+    postPlayer({type:"seh-presenter-player-select",ticket,team,id});
+    return true;
+  };
+  const playerAction=({
+    sv:name=>"Visa "+name+" i sändningen",
+    en:name=>"Show "+name+" on air",
+    fi:name=>"Näytä "+name+" lähetyksessä",
+    de:name=>name+" in der Sendung zeigen"
+  })[lang];
+  const updateLineupButtons=()=>{
+    for(const button of lineupTeams.querySelectorAll("button"))button.disabled=!canSelectPlayer();
+  };
   const closePlayers=(focus=false)=>{
     if(playerMenu.hidden)return;
     playerMenu.hidden=true;playerRequest=null;
@@ -261,8 +281,7 @@
           option.textContent=(choice.number?"#"+choice.number+" · ":"")+choice.name;
           option.onclick=()=>{
             if(playerRequest!==req)return;
-            postPlayer({type:"seh-presenter-player-select",ticket:req.ticket,team:id,id:choice.id});
-            closePlayers(true);
+            if(selectPlayer(req.ticket,id,choice.id))closePlayers(true);
           };
           firstChoice??=option;sections.push(option);
         }
@@ -289,7 +308,14 @@
   document.addEventListener("pointerdown",event=>{if(!playerMenu.contains(event.target))closePlayers();});
   window.addEventListener("scroll",()=>{if(!playerMenu.hidden)placePlayerMenu();},{passive:true});
   window.addEventListener("resize",()=>{if(!playerMenu.hidden)placePlayerMenu();});
-  scenePicker.addEventListener("load",()=>closePlayers());
+  const lineupAccess=new MutationObserver(updateLineupButtons);
+  scenePicker.addEventListener("load",()=>{
+    closePlayers();
+    lineupAccess.disconnect();
+    const anchor=playerAnchor();
+    if(anchor)lineupAccess.observe(anchor,{attributeFilter:["disabled"]});
+    updateLineupButtons();
+  });
   window.addEventListener("message",event=>{
     if(event.origin!==location.origin||event.source!==frame.contentWindow||event.data?.type!=="seh-presenter-lineups")return;
     const next=event.data.picker??null;
@@ -303,18 +329,27 @@
     const sections=teams.map((team,i)=>{
       const section=document.createElement("section"),name=document.createElement("h3"),list=document.createElement("ul");
       section.className="presenter-lineup-team";name.textContent=team.name;
+      const ticket=playerRoster?.ticket;
+      const roster=Array.isArray(playerRoster?.teams)?playerRoster.teams.find(entry=>entry.id===team.id):null;
       for(const position of positions[i]){
         const player=team.players[position],cell=document.createElement("li"),meta=document.createElement("small"),gt=document.createElement("span");
         cell.dataset.position=position;
         meta.textContent=position+(player?.number?" · #"+player.number:"");
         gt.textContent=player?.gt||"–";
-        cell.append(meta,gt);list.append(cell);
+        if(typeof ticket==="string"&&player?.gt&&typeof player.id==="string"&&Array.isArray(roster?.choices)&&roster.choices.some(choice=>choice.id===player.id)){
+          const button=document.createElement("button");
+          button.type="button";button.disabled=!canSelectPlayer();
+          button.title=playerAction(player.gt);button.setAttribute("aria-label",button.title);
+          button.onclick=()=>{if(selectPlayer(ticket,team.id,player.id))closePlayers();};
+          button.append(meta,gt);cell.append(button);
+        }else cell.append(meta,gt);
+        list.append(cell);
       }
       section.append(name,list);return section;
     });
     lineupTeams.replaceChildren(...sections);lineupStatus.hidden=true;
   });
-  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261110-player-presentation";
+  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261110-lineup-player-shortcuts";
   const originalTitles={sv:"Originalstream · utan ljud",en:"Original feed · muted",fi:"Alkuperäinen striimi · mykistetty",de:"Originalstream · stumm"};
   const original=document.getElementById("originalFeed");
   original.title=document.getElementById("originalFeedLabel").textContent=originalTitles[lang];
