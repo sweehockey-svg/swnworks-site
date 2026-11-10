@@ -8,7 +8,9 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   page.on('pageerror',error=>errors.push(error.message));
   page.on('request',request=>{if(!['GET','HEAD','OPTIONS'].includes(request.method()))writes.push(request.url());});
   const root='https://lineups.test/broadcast-studio/';
-  const studio=read('SV/index.html').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link\b[^>]*>/g,'');
+  const studioSource=read('SV/index.html');
+  const obsBoot=studioSource.match(/<script>[^<]*document\.body\.classList\.add\("obs-preview"\)[^<]*<\/script>/)?.[0]||'';
+  const studio=studioSource.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link\b[^>]*>/g,'');
   const fixture=read('broadcast-studio.js').replace('  function studioState(){',`  window.lineupFixture={seed:(teams,players,reference)=>{data.teams=teams;data.players=players;currentSourceReference=reference||null;renderAllCompetitionData();},apply:s=>applyRemoteState(viewerState(s))};
   function studioState(){`);
   await page.route('**/*',route=>{
@@ -77,7 +79,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   assert.equal(await frame.locator('#presenterLineups').count(),0,'The video frame has no presenter panel');
   await page.evaluate(()=>window.postMessage({type:'seh-presenter-lineups',lineups:null},location.origin));
   assert.equal(await panels.count(),2,'Messages not from the broadcast frame are ignored');
-  const reserve={sports_gamer_team_id:11,sports_gamer_player_id:112,player_number:18,display_gamertag:'ReserveGoalie',roster_preferred_position_abbreviation:'G',regular_goalie_games:3};
+  const reserve={sports_gamer_team_id:11,sports_gamer_player_id:112,player_number:18,display_gamertag:'ReserveGoalie',roster_preferred_position_abbreviation:'G',regular_goalie_games:3,regular_goalie_save_percentage:.8531,regular_goalie_goals_against_average:1.75,regular_goalie_shutouts:0};
   await page.evaluate(()=>window.addEventListener('message',event=>{
    if(event.source===document.getElementById('broadcast').contentWindow&&event.data?.type==='seh-presenter-lineups'){window.testRoster=event.data.picker;window.testLineups=event.data.lineups;}
   }));
@@ -91,6 +93,11 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   assert(await page.getByRole('button',{name:'Visa HomeLW i sändningen'}).isDisabled(),'The correct lineup player is available but requires scene access');
   const spotlight=frame.locator('#spotlightCard');
   assert.match(await spotlight.textContent(),/Spelarpresentation.*ReserveGoalie.*G · #18.*SV%/is);
+  assert.deepEqual(await spotlight.locator('thead th').allTextContents(),['GRUPPSPEL','SLUTSPEL']);
+  assert.deepEqual(await spotlight.getByRole('row',{name:/Hållna nollor/}).locator('td').allTextContents(),['0','–']);
+  assert.deepEqual(await spotlight.getByRole('row',{name:/Räddningsprocent/}).locator('td').allTextContents(),['85,31 %','–']);
+  assert.deepEqual(await spotlight.getByRole('row',{name:/Insläppta mål/}).locator('td').allTextContents(),['1,75','–']);
+  assert.equal(await spotlight.locator('.spotlight-total b').textContent(),'3');
   await frame.evaluate(s=>lineupFixture.apply({...s,scene:'spotlight',presentedPlayer:{id:'112',team:'22'}}),state);
   assert.doesNotMatch(await spotlight.textContent(),/ReserveGoalie/);
   await frame.evaluate(s=>lineupFixture.apply({...s,scene:'spotlight'}),state);
@@ -108,7 +115,8 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   assert.equal(await frame.evaluate(()=>testPop.paused),true);
   const slots=['LW','C','RW','LD','RD','G'];
   const all=teams.flatMap((team,i)=>slots.map((slot,j)=>({sports_gamer_team_id:team.sports_gamer_team_id,sports_gamer_player_id:100*i+j+1,display_gamertag:`Team${i+1}_${slot}_LongName`,player_number:j+1,roster_preferred_position_abbreviation:slot,
-   ...(slot==='G'?{regular_goalie_games:4,regular_goalie_save_percentage:.88}:{regular_skater_games:5,regular_goals:7-j,regular_points:12-j})})));
+   ...(slot==='G'?{regular_goalie_games:4,regular_goalie_save_percentage:.88}:{regular_skater_games:5,regular_goals:7-j,regular_points:slot==='LW'?15:12-j}),
+   ...(slot==='C'?{regular_faceoff_wins:9,regular_faceoff_losses:3,playoff_skater_games:2,playoff_points:3,playoff_faceoff_wins:0,playoff_faceoff_losses:4}:{})})));
   const setup=Object.fromEntries(['home','away'].map((side,i)=>[side,Object.fromEntries(slots.map((slot,j)=>[slot,String(100*i+j+1)]))]));
   const both={scene:'duallineup',home:'11',away:'22',lineups:setup,transientSource:{ticket:'fixture.ticket'}};
   const complete=await frame.evaluate(({teams,all,both})=>{
@@ -152,16 +160,33 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   }
   assert.deepEqual(writes,[],'The renderer sends the request to the presenter, never directly to the broadcast API');
   await page.evaluate(()=>{
-   const obs=document.createElement('iframe');obs.id='separateObs';obs.src='SV/?obs=1';document.body.append(obs);
+   const obs=document.createElement('iframe');obs.id='separateObs';obs.style.cssText='display:block;width:100%;height:auto;aspect-ratio:16/9';obs.src='SV/?obs=1';document.body.append(obs);
   });
   await page.frameLocator('#separateObs').locator('#screen').waitFor({state:'attached'});
   const obs=page.frame({url:/\/SV\/\?obs=1$/});
   await obs.waitForFunction(()=>!!window.lineupFixture);
+  assert(obsBoot,'Found the real OBS boot code');
+  await obs.addScriptTag({content:obsBoot.replace(/^<script>|<\/script>$/g,'')});
   await obs.evaluate(({teams,all,both})=>{lineupFixture.seed(teams,all);lineupFixture.apply(both);},{teams,all,both});
   assert.equal(await obs.locator('.scene.duallineup.active img').count(),12);
   assert.equal(await obs.locator('[data-lineup-player],.dual-lineup-player:is(button)').count(),0,'Separate OBS output has no clickable cards in any rendered scene');
   await obs.evaluate(s=>lineupFixture.apply({...s,scene:'spotlight',presentedPlayer:{team:'22',id:'106'}}),both);
   assert.match(await obs.locator('.scene.spotlight.active').textContent(),/Team2_G_LongName.*SV%/is);
+  await obs.evaluate(s=>lineupFixture.apply({...s,scene:'spotlight',presentedPlayer:{team:'22',id:'102'}}),both);
+  const center=obs.locator('.scene.spotlight.active');
+  assert.deepEqual(await center.getByRole('row',{name:/Poäng \/ match/}).locator('td').allTextContents(),['2,20','1,50']);
+  assert.deepEqual(await center.getByRole('row',{name:/Tekningsprocent/}).locator('td').allTextContents(),['75,0 %','0,0 %']);
+  const fits=()=>center.locator('.spotlight-stage-stats').evaluate(table=>{
+   const stats=table.getBoundingClientRect(),bounds=table.closest('.spotlight-wrap').getBoundingClientRect();
+   return {ok:stats.top>=bounds.top-1&&stats.bottom<=bounds.bottom+1&&stats.right<=bounds.right+1,stats:stats.toJSON(),bounds:bounds.toJSON(),viewport:[innerWidth,innerHeight]};
+  });
+  const wideFit=await fits();
+  assert(wideFit.ok,'The full skater table fits the OBS scene: '+JSON.stringify(wideFit));
+  await page.setViewportSize({width:850,height:620});
+  const narrowFit=await fits();
+  assert(narrowFit.ok,'The full skater table fits at a smaller viewport: '+JSON.stringify(narrowFit));
+  await obs.evaluate(s=>lineupFixture.apply({...s,scene:'spotlight',presentedPlayer:{team:'22',id:'101'}}),both);
+  assert.equal(await center.getByRole('row',{name:/Tekningsprocent/}).count(),0);
   await frame.evaluate(s=>lineupFixture.apply({...s,publicNoMatch:true}),state);
   await page.locator('#presenterLineupStatus').waitFor();
   assert.equal(await panels.count(),0,'The roster clears when the broadcast goes idle');

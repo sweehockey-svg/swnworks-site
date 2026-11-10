@@ -167,6 +167,15 @@
 .spotlight-stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
 .spotlight-stats>div{min-width:0}
 .spotlight-stats span{overflow-wrap:anywhere}
+.spotlight-copy:has(.spotlight-stage-stats){padding-block:12px}
+.spotlight-copy:has(.spotlight-stage-stats) .spotlight-total{gap:12px;margin:0 0 8px;padding-bottom:8px}
+.spotlight-copy:has(.spotlight-stage-stats) .spotlight-total b{font-size:clamp(40px,5vw,64px)}
+.spotlight-stage-stats{width:100%;table-layout:fixed;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.spotlight-stage-stats :is(th,td){padding:4px 7px;border-bottom:1px solid #b8d0df25}
+.spotlight-stage-stats tr>:first-child{width:51%;padding-left:0;text-align:left}
+.spotlight-stage-stats thead th{color:var(--theme-accent,#f4b21b);font-size:12px;font-weight:900;text-transform:uppercase;overflow-wrap:anywhere}
+.spotlight-stage-stats tbody th{color:#b9cbd8;font-size:14px;font-weight:750;line-height:1.15;overflow-wrap:anywhere}
+.spotlight-stage-stats tbody td{text-align:center;color:#f3f7fc;font-size:20px;font-weight:850;line-height:1;white-space:nowrap}
 
 
 /* Broadcast context scenes v46 */

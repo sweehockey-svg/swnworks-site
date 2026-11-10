@@ -950,12 +950,41 @@ window.SWNViewerBridge=(()=>{
       x=p?{p,side,slot:position(p)}:null;
     }
     if(!x) return '<div class="role-card empty"><span>'+esc(tx("noPlayer"))+'</span></div>';
-    const p=x.p,t=selectedTeam(x.side), pts=total(p.regular_points,p.playoff_points), goals=total(p.regular_goals,p.playoff_goals), assists=total(p.regular_assists,p.playoff_assists);
-    const goalie=presentedPlayer&&x.slot==="G";
-    const metrics=goalie?[[goalieStageValue(p,"regular","sv"),tx("group")+" SV%"],[goalieStageValue(p,"playoff","sv"),tx("playoffs")+" SV%"],[goalieStageValue(p,"regular","gaa"),tx("group")+" GAA"],[goalieStageValue(p,"playoff","gaa"),tx("playoffs")+" GAA"]]:
-      [[stat(goals),tx("goals")],[stat(assists),"ASSISTS"],[stat(p.regular_points),tx("groupstage")+" P"],[stat(p.playoff_points),tx("playoffs")+" P"],[stat(total(p.regular_penalty_minutes,p.playoff_penalty_minutes)),"PIM TOTAL"]];
+    const p=x.p,t=selectedTeam(x.side),goalie=x.slot==="G";
+    const words=({
+      sv:["Räddningsprocent (SV%)","Insläppta mål / match","Hållna nollor","Assist","Poäng","Poäng / match","Utvisningsminuter","Tekningsprocent"],
+      en:["Save percentage (SV%)","Goals against / game","Shutouts","Assists","Points","Points / game","Penalty minutes","Faceoff percentage"],
+      fi:["Torjuntaprosentti (SV%)","Päästetyt maalit / ottelu","Nollapelit","Syötöt","Pisteet","Pisteet / ottelu","Jäähyminuutit","Aloitusprosentti"],
+      de:["Fangquote (SV%)","Gegentore / Spiel","Shutouts","Vorlagen","Punkte","Punkte / Spiel","Strafminuten","Bullyquote"]
+    })[LOCALE];
+    const gamesKey=goalie?"goalie_games":"skater_games";
+    const stageStat=(stage,key)=>number(p[stage+"_"+gamesKey])>0?stat(p[stage+"_"+key]):"–";
+    const stageGames=stage=>stat(p[stage+"_"+gamesKey]);
+    const perGame=stage=>{
+      const gp=number(p[stage+"_skater_games"]),points=number(p[stage+"_points"]);
+      return gp>0&&points!==null?new Intl.NumberFormat(LOCALE,{minimumFractionDigits:2,maximumFractionDigits:2}).format(points/gp):"–";
+    };
+    const percent=value=>value==="–"?value:value+" %";
+    const faceoffs=stage=>["wins","losses"].every(key=>number(p[stage+"_faceoff_"+key])!==null)?faceoffPct(p,stage):"–";
+    const rows=goalie?[
+      [tx("matches"),stageGames],
+      [words[0],stage=>percent(goalieStageValue(p,stage,"sv"))],
+      [words[1],stage=>goalieStageValue(p,stage,"gaa")],
+      [words[2],stage=>stageStat(stage,"goalie_shutouts")]
+    ]:[
+      [tx("matches"),stageGames],
+      [tx("goals"),stage=>stageStat(stage,"goals")],
+      [words[3],stage=>stageStat(stage,"assists")],
+      [words[4],stage=>stageStat(stage,"points")],
+      [words[5],perGame],
+      [words[6],stage=>stageStat(stage,"penalty_minutes")]
+    ];
+    if(!goalie&&["regular","playoff"].some(stage=>faceoffs(stage)!=="–"))rows.push([words[7],stage=>percent(faceoffs(stage))]);
+    const stats='<table class="spotlight-stage-stats"><thead><tr><td></td><th scope="col">'+esc(tx("groupstage"))+'</th><th scope="col">'+esc(tx("playoffs"))+'</th></tr></thead><tbody>'+
+      rows.map(([label,value])=>'<tr><th scope="row">'+esc(label)+'</th><td>'+esc(value("regular"))+'</td><td>'+esc(value("playoff"))+'</td></tr>').join("")+'</tbody></table>';
+    const headline=goalie?total(p.regular_goalie_games,p.playoff_goalie_games):total(p.regular_points,p.playoff_points);
     const identity=[x.slot,p.player_number!=null&&String(p.player_number)!==""?"#"+p.player_number:""].filter(Boolean).join(" · ");
-    return '<div class="spotlight-player">'+image(playerImage(p),true)+'<div class="spotlight-copy"><div class="eyebrow">'+esc(presentedPlayer?playerPresentationLabel:"PLAYER SPOTLIGHT")+'</div><div class="spotlight-team">'+(logo(t)?'<img src="'+esc(logo(t))+'" alt="">':"")+'<span>'+esc(t.team_name_in_league)+'</span></div><h2>'+playerFlag(p)+esc(p.display_gamertag)+'</h2><h3>'+esc(identity)+'</h3><div class="spotlight-total"><b>'+stat(goalie?total(p.regular_goalie_games,p.playoff_goalie_games):pts)+'</b><span>'+esc(goalie?tx("matches"):tx("totalPoints"))+'</span></div><div class="spotlight-stats">'+metrics.map(([value,label])=>'<div><b>'+esc(value)+'</b><span>'+esc(label)+'</span></div>').join("")+'</div></div></div>';
+    return '<div class="spotlight-player">'+image(playerImage(p),true)+'<div class="spotlight-copy"><div class="eyebrow">'+esc(presentedPlayer?playerPresentationLabel:"PLAYER SPOTLIGHT")+'</div><div class="spotlight-team">'+(logo(t)?'<img src="'+esc(logo(t))+'" alt="">':"")+'<span>'+esc(t.team_name_in_league)+'</span></div><h2>'+playerFlag(p)+esc(p.display_gamertag)+'</h2><h3>'+esc(identity)+'</h3><div class="spotlight-total"><b>'+stat(headline)+'</b><span>'+esc(goalie?tx("matches"):tx("totalPoints"))+'</span></div>'+stats+'</div></div>';
   }
   function renderRoleMatchups() {
     $("#forwardsGrid").innerHTML = ["home","away"].flatMap(side=>["LW","C","RW"].map(slot=>matchupCard(side,slot,slot==="C"?"center":"skater"))).join("");
