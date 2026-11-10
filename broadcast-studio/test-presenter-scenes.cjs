@@ -71,7 +71,12 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     }
     if(url.pathname.endsWith('/broadcast_studio_state'))return route.fulfill({json:[{state}]});
     if(url.pathname.endsWith('/graphics-schedule'))return route.fulfill({json:{matches:[]}});
-    if(url.searchParams.get('obs')==='1')return route.fulfill({contentType:'text/html; charset=utf-8',body:`<main>Match picture</main>${url.searchParams.get('presenter')==='1'?'<script>parent.postMessage('+JSON.stringify(lineupMessage)+',location.origin)</script>':''}`});
+    if(url.searchParams.get('obs')==='1')return route.fulfill({contentType:'text/html; charset=utf-8',body:`<main>Match picture</main>${url.searchParams.get('presenter')==='1'?`<button id="mockCard" disabled>Forward A in graphics</button><script>
+     const card=document.getElementById("mockCard");
+     parent.postMessage(${JSON.stringify(lineupMessage)},location.origin);
+     addEventListener("message",event=>{if(event.source===parent&&event.origin===location.origin&&event.data?.type==="seh-presenter-lineup-control")card.disabled=!event.data.enabled;});
+     card.onclick=()=>parent.postMessage({type:"seh-presenter-lineup-player",ticket:"fixture.ticket",team:"111",id:"41"},location.origin);
+    </script>`:''}`});
     return route.abort();
    });
    await page.goto(base+'presenter.html?lang=sv');
@@ -98,6 +103,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     const lineupLink=page.getByRole('button',{name:'Visa Forward A i sändningen'});
     await lineupLink.waitFor();
     assert(await lineupLink.isDisabled(),'A lineup cannot be taken on air without scene access');
+    assert(await page.frameLocator('#broadcast').locator('#mockCard').isDisabled());
     await series.locator('#compactLoginLink').waitFor({state:'visible'});
     assert.match(await series.locator('#compactLoginLink').innerText(),/serieläge/i);
     assert.equal(await series.locator('#seriesSummary').isVisible(),false);
@@ -233,6 +239,11 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
      response.ok()&&response.url().endsWith('/rpc/broadcast_studio_set_team_order')&&response.request().postDataJSON().p_expected.playerId==='43')]);
     assert.deepEqual(state.presentedPlayer,{id:'43',team:'222'});
     assert.equal(await menu.isVisible(),false,'The lineup shortcut goes straight to the presentation');
+    const graphCard=page.frameLocator('#broadcast').locator('#mockCard');
+    await Promise.all([graphCard.click(),page.waitForResponse(response=>
+     response.ok()&&response.url().endsWith('/rpc/broadcast_studio_set_team_order')&&response.request().postDataJSON().p_expected.playerId==='41')]);
+    assert.deepEqual(state.presentedPlayer,{id:'41',team:'111'});
+    assert.equal(state.scene,'spotlight');
     await frame.locator('[data-scene="spotlight"]').click();
     await frame.locator('[data-scene="spotlight"].active').waitFor();
     assert.equal(state.presentedPlayer,undefined);

@@ -43,6 +43,8 @@ window.SWNViewerBridge=(()=>{
   const OBS_MODE = pageParams.get("obs") === "1";
   const VIEWER_MODE = pageParams.get("viewer") === "1";
   const PREVIEW_MODE = pageParams.get("preview") === "1";
+  const PRESENTER_VIEW=OBS_MODE&&VIEWER_MODE&&!PREVIEW_MODE&&pageParams.get('presenter')==='1'&&parent!==window&&
+    (()=>{try{return window.frameElement?.id==='broadcast'&&parent.location.pathname.endsWith('/presenter.html');}catch{return false;}})();
   document.documentElement.classList.toggle("presenter-studio-tools",!OBS_MODE&&!VIEWER_MODE&&pageParams.get("panel")==="tools");
   if(OBS_MODE&&VIEWER_MODE&&!PREVIEW_MODE&&pageParams.get("feed")==="1"){
     const layer=$("#twitchLayer");
@@ -113,6 +115,30 @@ window.SWNViewerBridge=(()=>{
   dualLineupScene.innerHTML='<div class="dual-lineup-heading"></div><div class="dual-lineup-board"><section class="dual-lineup-team" data-side="home"></section><div class="dual-lineup-vs" aria-hidden="true">VS</div><section class="dual-lineup-team" data-side="away"></section></div>';
   dualLineupScene.querySelector('.dual-lineup-heading').textContent=dualLineupLabel;
   $('#screen')?.append(dualLineupScene);
+  const lineupPlayerAction=({
+    sv:'Visa i sändningen: ',
+    en:'Show on air: ',
+    fi:'Näytä lähetyksessä: ',
+    de:'In der Sendung zeigen: '
+  })[LOCALE];
+  let lineupPlayerEnabled=false;
+  if(PRESENTER_VIEW){
+    window.addEventListener('message',event=>{
+      if(event.source!==parent||event.origin!==location.origin||event.data?.type!=='seh-presenter-lineup-control')return;
+      const enabled=event.data.enabled===true;
+      if(enabled===lineupPlayerEnabled)return;
+      lineupPlayerEnabled=enabled;
+      if(activeScene==='duallineup')renderDualLineup();
+    });
+    dualLineupScene.addEventListener('click',event=>{
+      const button=event.target.closest('button[data-lineup-player]');
+      if(!button||button.disabled||!lineupPlayerEnabled||activeScene!=='duallineup')return;
+      const side=button.closest('.dual-lineup-team').dataset.side;
+      const state=window.__sehTwitchState,ticket=state?.transientSource?.ticket,team=selectedTeam(side),id=button.dataset.lineupPlayer;
+      if(!ticket||ticket!==currentSourceReference?.ticket||!roster(team).some(p=>same(p.sports_gamer_player_id,id)))return;
+      window.SWNViewerBridge.postStatus({type:'seh-presenter-lineup-player',ticket,team:String(team.sports_gamer_team_id),id});
+    });
+  }
   const lastLineupButton=$('[data-scene="lineup"][data-lineup-side="away"]');
   if(lastLineupButton){
     const button=document.createElement('button');button.type='button';button.dataset.scene='duallineup';button.textContent=dualLineupLabel;
@@ -651,7 +677,9 @@ window.SWNViewerBridge=(()=>{
         const portrait=player?'<img src="'+esc(playerImage(player))+'" alt="">':'';
         const number=player?.player_number!=null&&player.player_number!==''?'#'+player.player_number:position;
         const tag=player?.display_gamertag||tx('notSelected');
-        return '<div class="dual-lineup-player" data-position="'+position+'"><div class="dual-lineup-portrait">'+portrait+'</div><div class="dual-lineup-tag"><span title="'+position+'">'+esc(number)+'</span><b>'+esc(tag)+'</b></div></div>';
+        const attrs=' class="dual-lineup-player" data-position="'+position+'"';
+        if(PRESENTER_VIEW&&player)return '<button type="button"'+attrs+' data-lineup-player="'+esc(player.sports_gamer_player_id)+'"'+(lineupPlayerEnabled?'':' disabled')+' aria-label="'+esc(lineupPlayerAction+tag)+'"><span class="dual-lineup-portrait">'+portrait+'</span><span class="dual-lineup-tag"><span title="'+position+'">'+esc(number)+'</span><b>'+esc(tag)+'</b></span></button>';
+        return '<div'+attrs+'><div class="dual-lineup-portrait">'+portrait+'</div><div class="dual-lineup-tag"><span title="'+position+'">'+esc(number)+'</span><b>'+esc(tag)+'</b></div></div>';
       }).join('');
       const html=header+'<div class="dual-lineup-formation">'+cards+'</div>';
       if(panel.__renderedLineup===html)continue;

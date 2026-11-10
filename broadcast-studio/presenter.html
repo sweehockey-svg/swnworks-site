@@ -243,8 +243,11 @@
     de:name=>name+" in der Sendung zeigen"
   })[lang];
   const updateLineupButtons=()=>{
-    for(const button of lineupTeams.querySelectorAll("button"))button.disabled=!canSelectPlayer();
+    const enabled=canSelectPlayer();
+    for(const button of lineupTeams.querySelectorAll("button"))button.disabled=!enabled;
+    frame.contentWindow?.postMessage({type:"seh-presenter-lineup-control",enabled},location.origin);
   };
+  frame.addEventListener("load",updateLineupButtons);
   const closePlayers=(focus=false)=>{
     if(playerMenu.hidden)return;
     playerMenu.hidden=true;playerRequest=null;
@@ -317,7 +320,14 @@
     updateLineupButtons();
   });
   window.addEventListener("message",event=>{
-    if(event.origin!==location.origin||event.source!==frame.contentWindow||event.data?.type!=="seh-presenter-lineups")return;
+    if(event.origin!==location.origin||event.source!==frame.contentWindow)return;
+    if(event.data?.type==="seh-presenter-lineup-player"){
+      const {ticket,team,id}=event.data;
+      const roster=Array.isArray(playerRoster?.teams)?playerRoster.teams.find(entry=>entry.id===team):null;
+      if(typeof ticket==="string"&&Array.isArray(roster?.choices)&&roster.choices.some(choice=>choice.id===id))selectPlayer(ticket,team,id);
+      return;
+    }
+    if(event.data?.type!=="seh-presenter-lineups")return;
     const next=event.data.picker??null;
     if(JSON.stringify(next)!==JSON.stringify(playerRoster)){
       playerRoster=next;
@@ -349,7 +359,7 @@
     });
     lineupTeams.replaceChildren(...sections);lineupStatus.hidden=true;
   });
-  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261110-lineup-player-shortcuts";
+  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261110-graphic-player-shortcut";
   const originalTitles={sv:"Originalstream · utan ljud",en:"Original feed · muted",fi:"Alkuperäinen striimi · mykistetty",de:"Originalstream · stumm"};
   const original=document.getElementById("originalFeed");
   original.title=document.getElementById("originalFeedLabel").textContent=originalTitles[lang];
