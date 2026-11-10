@@ -12,7 +12,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#06111a">
 <title>Mobil scenväljare · SWNWORKS</title><link rel="stylesheet" href="/studio-access.css?v=20261010-admin1">
-<script>{const mode=new URLSearchParams(location.search).get("compact");if(mode==="1"||mode==="series")document.documentElement.setAttribute("data-compact-scenes",mode);}</script>
+<script>{const mode=new URLSearchParams(location.search).get("compact");if(["1","series","stream"].includes(mode))document.documentElement.setAttribute("data-compact-scenes",mode);}</script>
 <style>
 :root{color-scheme:dark;--bg:#06111a;--panel:#091722;--line:#20313e;--text:#f5f8fa;--muted:#718697;--yellow:#f4b21b;--green:#51d88a}
 *{box-sizing:border-box}
@@ -70,10 +70,13 @@ html[data-compact-scenes] body{padding:0}
 html[data-compact-scenes] header,html[data-compact-scenes] #studio-session,html[data-compact-scenes] #studio-login{display:none!important}
 html[data-compact-scenes] main{max-width:none;padding:0}
 html[data-compact-scenes="1"] main>:not(#compactScenes):not(#broadcastStatus),
-html[data-compact-scenes="series"] main>:not(.series-editor):not(#teamStreamSwitch):not(#broadcastStatus){display:none}
+html[data-compact-scenes="series"] main>:not(.series-editor):not(#broadcastStatus),
+html[data-compact-scenes="stream"] main>:not(#teamStreamSwitch){display:none}
+html[data-compact-scenes="stream"] #teamStreamSwitch{margin:0}
+html[data-compact-scenes="stream"] #teamStreamSwitch .grid{grid-template-columns:1fr}
 html[data-compact-scenes] #broadcastStatus{margin:5px 0 0;font-size:11px!important}
 html[data-compact-scenes][data-compact-scene-ready] #broadcastStatus{display:none}
-html[data-compact-scenes][data-studio-locked] body>#compactLogin{display:block!important;padding:5px 1px;font-size:12px}
+html[data-compact-scenes]:not([data-compact-scenes="stream"])[data-studio-locked] body>#compactLogin{display:block!important;padding:5px 1px;font-size:12px}
 #compactLogin a{color:#c2d8e9}
 html[data-compact-scenes="1"] #compactScenes{display:grid;gap:5px}
 #compactScenes .compact-row{display:flex;flex-wrap:wrap;align-items:center;gap:5px;min-width:0}
@@ -180,7 +183,9 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
 <script>
 (() => {
   if(!document.documentElement.hasAttribute("data-compact-scenes"))return;
-  const seriesOnly=document.documentElement.getAttribute("data-compact-scenes")==="series";
+  const mode=document.documentElement.getAttribute("data-compact-scenes");
+  if(mode==="stream")return;
+  const seriesOnly=mode==="series";
   const language=new URLSearchParams(location.search).get("lang")?.toLowerCase();
   const words={sv:["Scenval","Logga in för scenval ↗","Musik"],en:["Scene controls","Sign in for scene controls ↗","Music"],fi:["Näkymän valinta","Kirjaudu vaihtaaksesi näkymää ↗","Musiikki"],de:["Szenensteuerung","Zur Szenensteuerung anmelden ↗","Musik"]};
   const lang=Object.hasOwn(words,language)?language:"sv";
@@ -211,5 +216,5 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
   primary.append(music,document.getElementById("mobileFlipLiveTeams"));
 })();
 </script>
-<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261110-team-feeds"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
+<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261110-feed-layout"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
 

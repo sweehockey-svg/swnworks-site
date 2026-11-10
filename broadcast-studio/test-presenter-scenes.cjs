@@ -10,6 +10,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    const page=await browser.newPage({viewport:{width:1280,height:800}});
    page.on('pageerror',error=>errors.push(error.message));
    let state={leagueId:527,scene:'live',home:'111',away:'222',hs:3,as:2,lineupTeamNames:{111:'Testlaget A',222:'Testlaget B'},
+    videoSource:'twitch',twitchChannel:'test_home',twitchTeamChannels:{111:'test_home',222:'test_away'},
     transientSource:{ticket:'fixture.ticket',expires_at:new Date(Date.now()+3600000).toISOString()}};
    await page.route('**/*',async route=>{
     const req=route.request(),url=new URL(req.url()),file=url.pathname.split('/').pop();
@@ -48,8 +49,13 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     if(url.pathname.endsWith('/rpc/broadcast_studio_set_team_order')){
      assert.equal(req.headers().authorization,'Bearer fixture-token');
      const payload=req.postDataJSON();writes.push(payload);
-     assert.equal(payload.p_action,'live');
-     state={...state,liveTeamsReversed:!state.liveTeamsReversed};
+     if(payload.p_action==='stream-away'){
+      assert.equal(payload.p_expected.twitchChannel,'test_home');
+      state={...state,twitchChannel:'test_away',liveTeamsReversed:true};
+     }else{
+      assert.equal(payload.p_action,'live');
+      state={...state,liveTeamsReversed:!state.liveTeamsReversed};
+     }
      return route.fulfill({json:state});
     }
     if(url.pathname.endsWith('/broadcast_studio_state'))return route.fulfill({json:[{state}]});
@@ -62,6 +68,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    await page.locator('#privateNotes textarea').waitFor({state:'visible'});
    const frame=page.frameLocator('#scenePicker');
    const series=page.frameLocator('#seriesPicker');
+   const streams=page.frameLocator('#streamPicker'),streamPanel=streams.locator('#teamStreamSwitch');
    const noteBox=await page.locator('#privateNotes').boundingBox(),seriesBox=await page.locator('#seriesPicker').boundingBox(),matchBox=await page.locator('#broadcast').boundingBox();
    assert(matchBox.y<=6&&matchBox.x<=8,'Match is close to the top and left edges');
    assert(seriesBox.y>=noteBox.y+noteBox.height,'Series controls sit under the notes');
@@ -79,6 +86,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await series.locator('#compactLoginLink').waitFor({state:'visible'});
     assert.match(await series.locator('#compactLoginLink').innerText(),/serieläge/i);
     assert.equal(await series.locator('#seriesSummary').isVisible(),false);
+    assert.equal(await streamPanel.isVisible(),false,'Stream controls are not visible without channel access');
     assert.equal(writes.length,0);
    }else{
     const live=frame.locator('[data-scene="live"].active');
@@ -138,6 +146,22 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await frame.getByRole('button',{name:'Båda lagen',exact:true}).click();
     await frame.locator('[data-scene="duallineup"].active').waitFor();
     assert.deepEqual(writes.at(-1),{p_channel:'sec21-bronze-test',p_scene:'duallineup',p_lineup_side:null});
+    const awayStream=streams.getByRole('button',{name:'Testlaget B',exact:true});
+    await awayStream.waitFor();
+    const [feedDesktop,pickerDesktop]=await Promise.all([original.boundingBox(),streamPanel.boundingBox()]);
+    assert(pickerDesktop.x>=feedDesktop.x+feedDesktop.width,'Stream controls are to the right of the original video');
+    assert(pickerDesktop.y<feedDesktop.y+feedDesktop.height,'Both controls are on the same row');
+    assert.equal(await series.locator('#teamStreamSwitch').isVisible(),false,'The series editor has no duplicate stream controls');
+    const beforeFeed=structuredClone(state);
+    await awayStream.click();
+    await streams.locator('[data-team-stream="away"][aria-pressed="true"]').waitFor();
+    assert.deepEqual(state,{...beforeFeed,twitchChannel:'test_away',liveTeamsReversed:true});
+    await page.setViewportSize({width:320,height:800});
+    const [feedNarrow,pickerNarrow]=await Promise.all([original.boundingBox(),streamPanel.boundingBox()]);
+    assert(pickerNarrow.y>=feedNarrow.y+feedNarrow.height,'On narrow screens stream controls wrap below the video');
+    state.publicNoMatch=true;
+    await page.waitForFunction(()=>document.getElementById('streamPicker').offsetHeight===0);
+    await page.setViewportSize({width:1920,height:1080});
    }
    await page.locator('#studioToolsTitle').click();
    const toolsPage=page.frameLocator('#studioToolsFrame');
