@@ -209,7 +209,7 @@
     toolStatus=new MutationObserver(fit);toolStatus.observe(doc.documentElement,{attributes:true,attributeFilter:["data-tools-ready","data-studio-locked"]});
     fit();
   });
-  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261110-team-feeds";};
+  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261110-video-default";};
   tools.addEventListener("toggle",loadTools);
   loadTools();
 })();

@@ -15,6 +15,14 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    await page.evaluate(()=>{window.EHOCKEY_CONFIG={};document.documentElement.setAttribute('data-studio-locked','');});
    await page.addScriptTag({content:read('broadcast-studio.js')});
    await page.addScriptTag({content:read('match-desk.js')});
+   assert.equal(await page.locator('#showTwitch').isChecked(),true,'Video starts enabled');
+   await page.evaluate(()=>window.__sehStudioRestore({scene:'opening',twitchShow:false}));
+   assert.equal(await page.locator('#showTwitch').isChecked(),false,'A saved explicit off setting is restored');
+   await page.evaluate(()=>window.__sehStudioRestore({scene:'opening'}));
+   assert.equal(await page.locator('#showTwitch').isChecked(),true,'Older matches with no preference default to on');
+   await page.evaluate(()=>window.__sehStudioRestore({scene:'opening',twitchShow:false}));
+   await page.locator('#deskNewMatch').evaluate(button=>button.click());
+   assert.equal(await page.locator('#showTwitch').isChecked(),true,'A new match does not inherit video-off');
    await page.evaluate(()=>{
     document.querySelector('#tournament').closest('.block').insertAdjacentHTML('beforeend','<section class="stats-refresh"><button>Stats fixture</button></section>');
     document.querySelector('.stream-dock')?.insertAdjacentHTML('beforeend','<section class="recorder-panel">Recording fixture</section>');
