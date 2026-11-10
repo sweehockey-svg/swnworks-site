@@ -286,8 +286,16 @@ window.SWNViewerBridge=(()=>{
   const COMMENTATORS = {
     mkine: { name: 'Marko “mkine” Mäkinen', image: '' },
     flacken: { name: 'Peter “Flacken” Novara', image: 'https://www.svenskehockey.se/players/flacken.png' },
-    wizrob: { name: 'Robert “Wizrob” Olovsson', image: 'https://www.svenskehockey.se/players/Wizrob.png' }
+    wizrob: { name: 'Robert “Wizrob” Olovsson', image: 'https://www.svenskehockey.se/players/Wizrob.png' },
+    phyreon3429: { name: 'Alexander “Phyreon3429” Sundman', playerId: 3429 },
+    troublemakingswe: { name: 'Alex “troublemakingswe” Rautiainen', playerId: 2807 }
   };
+  for(const id of ["commentator1","commentator2"]){
+    const select=$("#"+id);
+    for(const [key,profile] of Object.entries(COMMENTATORS)){
+      if(profile.playerId)select?.add(new Option(profile.name,key));
+    }
+  }
   const status = { teams: "empty", players: "empty", playoffs: "empty" };
   const lineups = new Map();
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
@@ -366,18 +374,15 @@ window.SWNViewerBridge=(()=>{
   function renderCommentators() {
     const ids = ["commentator1","commentator2"].map(id => $("#" + id)?.value).filter(Boolean);
     const people = ids.map(id => COMMENTATORS[id]).filter(Boolean);
-    const opening = $("#openingCommentators");
-    if (opening) opening.innerHTML = people.map(c =>
-      '<div class="opening-commentator">' +
-      (c.image ? '<img src="' + esc(c.image) + '" alt="">' : '<div class="commentator-placeholder" aria-hidden="true"></div>') +
-      '<div><small>'+esc(tx("commentator"))+'</small><b>' + esc(c.name) + '</b></div></div>'
-    ).join("");
-    const live = $("#liveCommentators");
-    if (live) live.innerHTML = people.map(c =>
-      '<div class="live-commentator">' +
-      (c.image ? '<img src="' + esc(c.image) + '" alt="">' : '<div class="commentator-placeholder" aria-hidden="true"></div>') +
-      '<div><small>'+esc(tx("commentator"))+'</small><b>' + esc(c.name) + '</b></div></div>'
-    ).join("");
+    for(const [target,cardClass] of [["#openingCommentators","opening-commentator"],["#liveCommentators","live-commentator"]]){
+      const panel=$(target);
+      if(panel)panel.innerHTML=people.map(c=>{
+        const image=c.playerId?"https://www.svenskehockey.se/players/"+c.playerId+".png":c.image;
+        return '<div class="'+cardClass+'">' +
+          (image?'<img src="'+esc(image)+'" alt="">':'<div class="commentator-placeholder" aria-hidden="true"></div>')+
+          '<div><small>'+esc(tx("commentator"))+'</small><b>'+esc(c.name)+'</b></div></div>';
+      }).join("");
+    }
   }
 
   const groupMeetings=window.BroadcastGroupMeetings;

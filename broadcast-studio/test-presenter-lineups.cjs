@@ -12,6 +12,9 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   function studioState(){`);
   await page.route('**/*',route=>{
    const url=route.request().url();
+   if(/^https:\/\/www\.svenskehockey\.se\/players\/(3429|2807)\.png$/.test(url))return route.fulfill({
+    contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aZ1sAAAAASUVORK5CYII=','base64')
+   });
    if(!url.startsWith(root))return route.abort();
    if(url.includes('/presenter.html'))return route.fulfill({contentType:'text/html; charset=utf-8',body:read('presenter.html')});
    if(url.includes('/SV/')&&url.includes('obs=1')&&!url.includes('feed=1'))return route.fulfill({contentType:'text/html; charset=utf-8',body:studio.replace('</head>','<link rel="stylesheet" href="/broadcast-studio/broadcast-studio.css"></head>').replace('</body>',`<script>window.EHOCKEY_CONFIG={};const FixtureAudio=window.Audio;window.Audio=function(src){const audio=new FixtureAudio(src);if(src.startsWith('blob:'))window.testPop=audio;return audio;};</script><script src="fixture.js"></script></body>`)});
@@ -29,6 +32,17 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   const state={home:'11',away:'22',scene:'opening',lineups:{home:{LW:'111'},away:{RD:'221'}}};
   const frame=page.frame({url:/\/SV\/\?obs=1&viewer=1&presenter=1/});
   await frame.waitForFunction(()=>!!window.lineupFixture);
+  const commentators=[['phyreon3429','Alexander “Phyreon3429” Sundman','3429'],['troublemakingswe','Alex “troublemakingswe” Rautiainen','2807']];
+  for(const selector of ['#commentator1','#commentator2']){
+   const options=await frame.locator(selector+' option').evaluateAll(rows=>rows.map(o=>[o.value,o.textContent]));
+   for(const [key,name] of commentators)assert(options.some(row=>row[0]===key&&row[1]===name),key+' is available in both slots');
+  }
+  await frame.evaluate(s=>lineupFixture.apply(s),{...state,commentator1:'phyreon3429',commentator2:'troublemakingswe',liveCommentatorsShow:true});
+  for(const selector of ['#openingCommentators','#liveCommentators']){
+   assert.deepEqual(await frame.locator(selector+' b').allTextContents(),commentators.map(c=>c[1]));
+   assert.deepEqual(await frame.locator(selector+' img').evaluateAll(imgs=>imgs.map(img=>img.getAttribute('src'))),
+    commentators.map(c=>'https://www.svenskehockey.se/players/'+c[2]+'.png'));
+  }
   await frame.evaluate(({teams,players,state})=>{lineupFixture.seed(teams,players);lineupFixture.apply(state);},{teams,players,state});
   const panels=page.locator('.presenter-lineup-team');
   await panels.last().waitFor();
