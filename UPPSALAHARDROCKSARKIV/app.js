@@ -2544,6 +2544,123 @@
     return null;
   }
 
+
+  // A shared band history is not proof of a shared lineup. The default
+  // person view requires overlapping recorded years or performing credits
+  // on the same single-band release; the extended view keeps all history.
+  function performingColleagueRole(record) {
+    if (Array.isArray(record.instruments) && record.instruments.some(x => String(x || '').trim())) return true;
+    return /\b(?:musician|band member|vocals?|singer|voice|sång|guitars?|gitarr|bass|basist|drums?|trummor|drummer|keyboards?|synths?|piano|organ|harmonica|munspel|percussion|violin|cello|saxophone|trumpet|flute|mandolin|programming)\b/i.test(String(record.role || ''));
+  }
+
+  function colleaguePeriodOverlap(first, second) {
+    if (!performingColleagueRole(first) || !performingColleagueRole(second)) return null;
+    if (first.membership_status === 'current' && second.membership_status === 'current') {
+      return 'Båda registrerade som nuvarande medlemmar';
+    }
+    const currentYear = new Date().getFullYear();
+    const range = m => {
+      const joined = Number.isInteger(m.joined_year) ? m.joined_year : null;
+      const left = Number.isInteger(m.left_year) ? m.left_year : null;
+      if (joined === null && left === null) return null;
+      // An open-ended *past* membership is not assumed to last forever.
+      return [joined ?? left, left ?? (m.membership_status === 'current' ? currentYear : joined)];
+    };
+    const a = range(first), b = range(second);
+    if (!a || !b) return null;
+    const from = Math.max(a[0], b[0]);
+    const to = Math.min(a[1], b[1]);
+    if (from > to) return null;
+    return 'Överlappande registrerade år: ' + (from === to ? from : from + '–' + to);
+  }
+
+  function renderPersonColleagueList(personId, colleagues) {
+    const grid = $('#person-colleagues-grid');
+    const toggle = $('#person-colleagues-all');
+    const count = $('#person-colleagues-count');
+    if (!grid || !toggle || !count) return;
+
+    const memberships = new Map();
+    state.memberships.forEach(m => {
+      const key = String(m.band_id) + '/' + String(m.person_id);
+      if (!memberships.has(key)) memberships.set(key, []);
+      memberships.get(key).push(m);
+    });
+
+    const bandSetsByRelease = new Map();
+    state.releaseBands.forEach(link => {
+      const id = String(link.release_id);
+      if (!bandSetsByRelease.has(id)) bandSetsByRelease.set(id, new Set());
+      bandSetsByRelease.get(id).add(String(link.band_id));
+    });
+    const singleBandReleases = new Map();
+    const releases = releasesById();
+    bandSetsByRelease.forEach((ids, releaseId) => {
+      const release = releases.get(releaseId);
+      if (ids.size === 1 && release &&
+          ['album', 'ep', 'single', 'demo', 'live', 'rehearsal'].includes(release.release_type)) {
+        singleBandReleases.set(releaseId, [...ids][0]);
+      }
+    });
+    const playingCredits = new Map();
+    state.releaseMembers.forEach(credit => {
+      const releaseId = String(credit.release_id);
+      const bandId = singleBandReleases.get(releaseId);
+      if (!bandId || !performingColleagueRole(credit)) return;
+      const key = bandId + '/' + String(credit.person_id);
+      if (!playingCredits.has(key)) playingCredits.set(key, new Set());
+      playingCredits.get(key).add(releaseId);
+    });
+
+    const colleagueRows = colleagues.map(item => {
+      const bandEvidence = item.bands.map(band => {
+        const myKey = String(band.id) + '/' + String(personId);
+        const otherKey = String(band.id) + '/' + String(item.person.id);
+        let evidence = null;
+        for (const mine of memberships.get(myKey) || []) {
+          for (const other of memberships.get(otherKey) || []) {
+            evidence = colleaguePeriodOverlap(mine, other);
+            if (evidence) break;
+          }
+          if (evidence) break;
+        }
+        if (!evidence) {
+          const mine = playingCredits.get(myKey) || new Set();
+          const theirs = playingCredits.get(otherKey) || new Set();
+          const common = [...mine].find(releaseId => theirs.has(releaseId));
+          if (common) evidence = 'Båda har musiker-krediter på: ' + (releases.get(common)?.title || 'samma utgåva');
+        }
+        return { band, evidence };
+      });
+      return { ...item, bandEvidence, documented: bandEvidence.some(x => x.evidence) };
+    }).sort((a, b) => Number(b.documented) - Number(a.documented)
+      || personDisplayName(a.person).localeCompare(personDisplayName(b.person), 'sv'));
+
+    function render() {
+      const showAll = toggle.checked;
+      const visible = colleagueRows.filter(item => showAll || item.documented);
+      count.textContent = showAll
+        ? 'Visar alla ' + visible.length + ' personer med gemensam bandhistorik.'
+        : 'Visar ' + visible.length + ' av ' + colleagueRows.length + ' personer med dokumenterad tidsöverlappning eller gemensamma musiker-krediter.';
+      grid.innerHTML = visible.length ? visible.map(item => {
+        const shared = showAll ? item.bandEvidence : item.bandEvidence.filter(x => x.evidence);
+        const bandMarkup = shared.map(x => '<div class="colleague-band">'
+          + '<a href="' + bandHref(x.band) + '">' + escapeHtml(x.band.canonical_name) + '</a>'
+          + (x.evidence ? '<small>' + escapeHtml(x.evidence) + '</small>'
+            : '<small>Gemensamt band, samtidighet inte belagd</small>')
+          + '</div>').join('');
+        return '<div class="colleague-item">'
+          + '<a href="' + personHref(item.person) + '"><strong>' + escapeHtml(personDisplayName(item.person)) + '</strong></a>'
+          + bandMarkup + '</div>';
+      }).join('') : '<div class="empty-state">'
+        + (showAll ? 'Inga gemensamma bandmedlemskap dokumenterade ännu.'
+          : 'Ingen samtidighet eller gemensam musiker-kredit kan styrkas med nuvarande uppgifter. Kryssa i rutan för att se alla tidigare och senare bandmedlemmar.')
+        + '</div>';
+    }
+    toggle.addEventListener('change', render);
+    render();
+  }
+
   function groupedCreditsForPerson(id) {
     const releases = releasesById();
     const groups = new Map();
@@ -2585,12 +2702,20 @@
           <section class="content-section"><div class="content-head"><span>01</span><h2>Band</h2></div><div class="credit-list">${bandGroups.length ? bandGroups.map(group => `<a href="${bandHref(group.band)}"><strong>${escapeHtml(group.band.canonical_name)}</strong><span>${escapeHtml(group.roles)}</span><em>${escapeHtml(group.periods)}</em></a>`).join('') : '<div class="empty-state">Bandkopplingar kartläggs.</div>'}</div></section>
           ${family.length?`<section class="content-section family-section"><div class="content-head"><span>♥</span><h2>Dokumenterade släktkopplingar</h2></div><p class="section-intro">Bara offentligt godkända och källbelagda familjerelationer. De påverkar inte beräkningen av musikaliska steg.</p><div class="colleague-grid">${family.map(x=>`<div class="colleague-item"><a href="${personHref(x.relative)}"><strong>${escapeHtml(personDisplayName(x.relative))}</strong></a><span>${x.relation_type==='sibling' ? (/tvilling/i.test(x.note||'')?'Tvillingbror':'Syskon') :x.relation_type==='parent_child'?'Förälder / barn':x.relation_type==='spouse_partner'?'Gift / partner':x.relation_type==='sibling_in_law'?'Svåger / svägerska':'Familjerelation'}</span>${x.source?`<span>Källa: ${escapeHtml(x.source.title)}</span>`:''}</div>`).join('')}</div></section>`:''}
           <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvekrediter</h2></div><div class="credit-list">${credits.length ? credits.map(x => `<a href="${releaseHref(x.release)}"><div class="credit-release"><strong>${escapeHtml(x.release.title)}</strong><small class="credit-band">${escapeHtml([...new Set(state.releaseBands.filter(rb => rb.release_id === x.release.id).map(rb => rb.credited_as || bandName(rb.band_id)).filter(Boolean))].join(' / '))}</small></div><span>${escapeHtml(x.roles)}</span><em>${x.release.release_year || '—'}</em></a>`).join('') : '<div class="empty-state">Inga releasecredits registrerade ännu.</div>'}</div></section>
-          <section class="content-section colleague-section"><div class="content-head"><span>↔</span><h2>Gemensamma band</h2></div><p class="section-intro">Dokumenterat medlemskap i samma band. Det innebär inte nödvändigtvis att de spelade samtidigt.</p><div class="colleague-grid">${colleagues.length?colleagues.map(x=>`<div class="colleague-item"><a href="${personHref(x.person)}"><strong>${escapeHtml(personDisplayName(x.person))}</strong></a><span>${x.bands.map(b=>`<a href="${bandHref(b)}">${escapeHtml(b.canonical_name)}</a>`).join(', ')}</span></div>`).join(''):'<div class="empty-state">Inga gemensamma bandmedlemskap dokumenterade ännu.</div>'}</div><a class="network-profile-link" href="#/natverket">Utforska kopplingar i Nätverket ↗</a></section>
-          ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Relaterade bilder</h2></div><p class="section-intro">Gruppbilder och pressmaterial där personen är säkert knuten till sammanhanget. De används inte som individuella porträtt om bildidentifieringen inte är entydig.</p>${archiveGallery(gallery)}</section>` : ''}
+          <section class="content-section colleague-section">
+            <div class="content-head"><span>↔</span><h2>Gemensamma band</h2></div>
+            <p class="section-intro">Som standard visas personer vars registrerade medlemsår överlappar, eller som har musiker-krediter på samma bandskiva. Det bevisar inte automatiskt en gemensam konsert.</p>
+            <label class="colleague-toggle"><input type="checkbox" id="person-colleagues-all"><span>Visa även alla som någon gång varit med i samma band</span></label>
+            <p class="colleague-count" id="person-colleagues-count" aria-live="polite"></p>
+            <div class="colleague-grid" id="person-colleagues-grid"></div>
+            <a class="network-profile-link" href="#/natverket">Utforska kopplingar i Nätverket ↗</a>
+          </section>
+                    ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Relaterade bilder</h2></div><p class="section-intro">Gruppbilder och pressmaterial där personen är säkert knuten till sammanhanget. De används inte som individuella porträtt om bildidentifieringen inte är entydig.</p>${archiveGallery(gallery)}</section>` : ''}
           <details class="content-section person-source-details"><summary>Källäge</summary>${claimList(claims)}</details>
           ${sources.length ? `<details class="content-section person-source-details"><summary>Källor</summary>${sourceList(sources)}</details>` : ''}
         </div>
       </section>`;
+    renderPersonColleagueList(p.id, colleagues);
   }
 
   function renderReleasesIndex() {
