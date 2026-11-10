@@ -132,6 +132,67 @@ window.SWNViewerBridge=(()=>{
   $("#screen")?.append(musicCredit);
   let sceneMusic={},musicAudio=null,musicSource='',musicStart=null,musicPlaying=false,musicViewerMuted=true;
   let championSound=null,championSoundShown=false,championMusicWait=false,championWaitTimer=0,championIntroToken=0;
+  const championTrack='/broadcast-studio/assets/champion.mp3';
+  let championLoop=null;
+  function prepareChampionLoop(){
+    if(championLoop!==null)return championLoop;
+    const Context=window.AudioContext||window.webkitAudioContext;
+    if(!Context)return championLoop=false;
+    let context;
+    try{context=new Context();}catch{return championLoop=false;}
+    const loop=championLoop={context,offset:0};
+    const fallback=reason=>{
+      if(championLoop!==loop)return;
+      clearTimeout(timeout);
+      championLoop=false;
+      void context.close().catch(()=>{});
+      console.warn("Champion loop fell back to the standard player:",reason);
+      syncSceneMusic();
+    };
+    const timeout=setTimeout(()=>fallback("audio preparation timed out"),2500);
+    void Promise.all([context.resume(),fetch(championTrack).then(response=>{
+      if(!response.ok)throw Error("Champion track unavailable");
+      return response.arrayBuffer();
+    }).then(bytes=>context.decodeAudioData(bytes))]).then(([,buffer])=>{
+      if(championLoop!==loop)return;
+      // Loop points for this specific file, excluding its near-silent MP3 edges.
+      const start=Math.round(.050*buffer.sampleRate),end=Math.min(buffer.length,Math.round(37.862*buffer.sampleRate));
+      if(end<=start||context.state!=="running"){fallback("invalid loop points or suspended audio");return;}
+      const ramp=Math.min(Math.round(.002*buffer.sampleRate),Math.floor((end-start)/2));
+      for(let channel=0;channel<buffer.numberOfChannels;channel++){
+        const samples=buffer.getChannelData(channel);
+        for(let i=0;i<ramp;i++){
+          samples[start+i]*=i/ramp;samples[end-1-i]*=i/ramp;
+        }
+      }
+      loop.buffer=buffer;loop.start=start/buffer.sampleRate;loop.end=end/buffer.sampleRate;
+      clearTimeout(timeout);
+      syncSceneMusic();
+    }).catch(fallback);
+    return loop;
+  }
+  function stopChampionLoop(keepPosition=false){
+    const loop=championLoop;if(!loop)return;
+    if(loop.node){
+      if(keepPosition)loop.offset=(loop.offset+loop.context.currentTime-loop.startedAt)%(loop.end-loop.start);
+      loop.node.stop();loop.node.disconnect();loop.gain.disconnect();loop.node=null;
+    }
+    if(!keepPosition)loop.offset=0;
+  }
+  function playChampionLoop(volume){
+    const loop=prepareChampionLoop();
+    if(!loop)return false;
+    if(!loop.buffer)return true;
+    if(!loop.node){
+      const node=loop.context.createBufferSource(),gain=loop.context.createGain();
+      node.buffer=loop.buffer;node.loop=true;node.loopStart=loop.start;node.loopEnd=loop.end;
+      gain.gain.value=volume;node.connect(gain);gain.connect(loop.context.destination);
+      node.start(0,loop.start+loop.offset);
+      loop.node=node;loop.gain=gain;loop.startedAt=loop.context.currentTime;
+    }else loop.gain.gain.value=volume;
+    musicPlaying=true;document.documentElement.dataset.sceneMusic="playing";
+    return true;
+  }
   const musicMode=(scene,settings=sceneMusic)=>settings.muted===true||!musicScenes.includes(scene)?"off":
     ["high","low","off"].includes(settings?.[scene])?settings[scene]:scene==="opening"?"high":"low";
   function createChampionSound(){
@@ -203,12 +264,12 @@ window.SWNViewerBridge=(()=>{
     if(!OBS_MODE||PREVIEW_MODE){renderMusicCredit();return;}
     const audible=!!volume&&(!VIEWER_MODE||!musicViewerMuted);
     const celebrating=activeScene==='series'&&!!championOutcome();
-    const source=celebrating?'/broadcast-studio/assets/champion.mp3':'/broadcast-studio/assets/aztrozmurfen-superhero-in-the-game.mp3';
-    if(musicAudio&&musicSource!==source){
-      musicAudio.pause();musicAudio.src=source;musicSource=source;
-    }
+    const source=celebrating?championTrack:'/broadcast-studio/assets/aztrozmurfen-superhero-in-the-game.mp3';
+    // Warm up the small track during an audible final scene, before the confetti cue.
+    if(audible&&(celebrating||championshipRounds.has(championshipRound())))prepareChampionLoop();
     syncChampionSound(celebrating,audible?volume:0);
     if(!audible||championMusicWait){
+      stopChampionLoop(celebrating&&!!volume&&!audible);
       musicPlaying=false;
       delete document.documentElement.dataset.sceneMusic;
       if(musicAudio){
@@ -217,6 +278,15 @@ window.SWNViewerBridge=(()=>{
       }
       renderMusicCredit();
       return;
+    }
+    if(celebrating&&playChampionLoop(volume)){
+      if(musicAudio&&!musicAudio.paused)musicAudio.pause();
+      renderMusicCredit();
+      return;
+    }
+    stopChampionLoop();
+    if(musicAudio&&musicSource!==source){
+      musicAudio.pause();musicAudio.src=source;musicSource=source;
     }
     if(!musicAudio){
       musicAudio=new Audio(source);musicSource=source;
@@ -1035,8 +1105,11 @@ window.SWNViewerBridge=(()=>{
       name.textContent=player.name;portrait.append(image);tile.append(portrait,name);return tile;
     }));
   }
+  function championshipRound(){
+    return String($('#seriesRound')?.value||'').trim().toLocaleUpperCase(LOCALE).split(/\s*[·:–—]\s*/,1)[0];
+  }
   function championOutcome(){
-    const round=String($('#seriesRound')?.value||'').trim().toLocaleUpperCase(LOCALE).split(/\s*[·:–—]\s*/,1)[0];
+    const round=championshipRound();
     const bo=Number($('#seriesFormat')?.value),hw=Number($('#seriesHome')?.value),aw=Number($('#seriesAway')?.value),need=Math.ceil(bo/2);
     const scoresValid=[3,5,7].includes(bo)&&[hw,aw].every(w=>Number.isInteger(w)&&w>=0&&w<=need)&&((hw===need)!==(aw===need));
     const side=hw>aw?'home':'away',id=$('#'+side)?.value,other=$('#'+(side==='home'?'away':'home'))?.value;

@@ -226,7 +226,7 @@
     });
     lineupTeams.replaceChildren(...sections);lineupStatus.hidden=true;
   });
-  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261110-champion-track";
+  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261110-champion-loop";
   const originalTitles={sv:"Originalstream · utan ljud",en:"Original feed · muted",fi:"Alkuperäinen striimi · mykistetty",de:"Originalstream · stumm"};
   const original=document.getElementById("originalFeed");
   original.title=document.getElementById("originalFeedLabel").textContent=originalTitles[lang];
@@ -286,7 +286,7 @@
     toolStatus=new MutationObserver(fit);toolStatus.observe(doc.documentElement,{attributes:true,attributeFilter:["data-tools-ready","data-studio-locked"]});
     fit();
   });
-  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261110-champion-track";};
+  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261110-champion-loop";};
   tools.addEventListener("toggle",loadTools);
   loadTools();
 })();

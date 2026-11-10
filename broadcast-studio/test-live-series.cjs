@@ -324,6 +324,8 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   assert.deepEqual(errors,[],lang);await page.close();
  }
  const obs=await browser.newPage();
+ const loopWarnings=[];
+ obs.on('console',msg=>{if(msg.text().includes('Champion loop fell back'))loopWarnings.push(msg.text());});
  const origin='https://series.test';
  await obs.route('**/*',r=>{
   const url=new URL(r.request().url());
@@ -346,7 +348,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   };
  });
  await obs.addScriptTag({content:read('studio-language.js')});
- await obs.addScriptTag({content:read('broadcast-studio.js').replace('  function studioState(){','  window.seriesFixture={state:()=>studioState(),remote:s=>applyRemoteState(s)};\n  function studioState(){')});
+ await obs.addScriptTag({content:read('broadcast-studio.js').replace('  function studioState(){','  window.seriesFixture={state:()=>studioState(),remote:s=>applyRemoteState(s),loop:()=>championLoop,disableLoop:()=>{championLoop=false;}};\n  function studioState(){')});
  const setMusicScene=(scene,sceneMusic={})=>obs.evaluate(({scene,sceneMusic})=>seriesFixture.remote({...seriesFixture.state(),scene,sceneMusic}),{scene,sceneMusic});
  assert.equal(await obs.evaluate(()=>!!window.testMusicAudio),false,'Output waits for program state');
  await setMusicScene('opening');
@@ -392,13 +394,33 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
  await obs.waitForFunction(()=>window.testChampionAudio?.currentTime>.02);
  assert.equal(await obs.evaluate(()=>testMusicAudio.paused),true,'The previous song stops before the celebration intro');
  assert.deepEqual(await obs.evaluate(()=>[testChampionPlays,testChampionAudio.volume,testChampionAudio.loop]),[2,.42,false]);
- await obs.waitForFunction(()=>testChampionAudio.ended&&!testMusicAudio.paused&&testMusicAudio.currentTime>.03);
- assert.match(await obs.evaluate(()=>testMusicAudio.src),/champion\.mp3$/);
- assert.equal(await obs.evaluate(()=>testMusicAudio.volume),.32,'Champion song starts high after the pop');
+ await obs.waitForFunction(()=>{const loop=seriesFixture.loop();return loop===false||(testChampionAudio.ended&&loop?.node&&loop.context.currentTime>loop.startedAt+.03);},null,{timeout:6000});
+ assert.notEqual(await obs.evaluate(()=>seriesFixture.loop()===false),true,loopWarnings.join('\n'));
+ assert.equal(await obs.evaluate(()=>seriesFixture.loop().gain.gain.value.toFixed(2)),'0.32','Champion song starts high after the pop');
+ const seam=await obs.evaluate(async()=>{
+  const {node,buffer,start,end}=seriesFixture.loop(),rate=buffer.sampleRate;
+  const offline=new OfflineAudioContext(buffer.numberOfChannels,Math.round(rate*.04),rate);
+  const copy=offline.createBufferSource();
+  copy.buffer=buffer;copy.loop=node.loop;copy.loopStart=node.loopStart;copy.loopEnd=node.loopEnd;
+  copy.connect(offline.destination);copy.start(0,end-Math.round(rate*.02)/rate);
+  const rendered=await offline.startRendering(),channels=Array.from({length:rendered.numberOfChannels},(_,i)=>rendered.getChannelData(i));
+  let longest=0,quiet=0;
+  for(let i=0;i<rendered.length;i++){
+   quiet=channels.every(channel=>Math.abs(channel[i])<.0001)?quiet+1:0;
+   longest=Math.max(longest,quiet);
+  }
+  return {start,end,longestQuietMs:longest/rate*1000};
+ });
+ assert(seam.start>.04&&seam.end<37.88&&seam.longestQuietMs<5,JSON.stringify(seam));
+ console.log('Champion loop seam: '+seam.longestQuietMs.toFixed(2)+' ms below -80 dBFS in both channels.');
  await showFinal('series',{series:'low'});
- assert.deepEqual(await obs.evaluate(()=>[testChampionPlays,testMusicAudio.volume,testMusicAudio.paused]),[2,.10,false]);
+ assert.deepEqual(await obs.evaluate(()=>[testChampionPlays,seriesFixture.loop().gain.gain.value.toFixed(2),testMusicAudio.paused]),[2,'0.10',true]);
  await showFinal('series',{muted:true});
- assert(await obs.evaluate(()=>testMusicAudio.paused),'Champion music remains controllable after the entrance');
+ assert(await obs.evaluate(()=>!seriesFixture.loop().node&&testMusicAudio.paused),'Champion music remains controllable after the entrance');
+ await obs.evaluate(()=>seriesFixture.disableLoop());
+ await showFinal('series',{series:'low'});
+ await obs.waitForFunction(()=>testMusicAudio.src.endsWith('/champion.mp3')&&!testMusicAudio.paused&&testMusicAudio.currentTime>.03);
+ assert.equal(await obs.evaluate(()=>testMusicAudio.volume),.10,'The HTML audio fallback can still play the winner track');
  await obs.close();
  const motionPage=await browser.newPage({viewport:{width:1920,height:1080},reducedMotion:'no-preference'});
  await motionPage.setContent('<body data-background="gamenight"><div class="screen arena-mist-enabled" data-arena-scene="opening" style="position:relative;width:1000px;height:563px"><div class="background-package-layer"></div></div></body>');
