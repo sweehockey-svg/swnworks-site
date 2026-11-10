@@ -448,9 +448,11 @@ body.obs-preview .lowerthird{inset:0}
   background:#061521ee;border:1px solid #365063;border-left:5px solid #ffb400;
   box-shadow:0 12px 28px #0005;text-align:left;overflow:hidden;
 }
-.opening-commentator>img,.opening-commentator>.commentator-placeholder{
+.opening-commentator>img,.opening-commentator>.commentator-placeholder,.opening-commentator>.commentator-portrait{
   width:88px;height:94px;object-fit:contain;object-position:center bottom;background:#12364b;
 }
+.commentator-portrait{display:block;position:relative;overflow:hidden}
+.commentator-portrait>img{position:absolute;top:0;left:50%;width:var(--portrait-width);max-width:none;height:auto;transform:translateX(-50%)}
 .opening-commentator>.commentator-placeholder{
   display:grid;place-items:center;color:#ffffff45;font-size:12px;font-weight:900;letter-spacing:.12em;
 }
@@ -463,7 +465,7 @@ body.obs-preview .lowerthird{inset:0}
 /* v65: commentator cards - give names room and make 1/2 commentator states deliberate */
 .opening-commentators{gap:16px;width:760px;bottom:50px}
 .opening-commentator{width:372px;height:94px;grid-template-columns:92px minmax(0,1fr)}
-.opening-commentator>img,.opening-commentator>.commentator-placeholder{width:92px;height:94px}
+.opening-commentator>img,.opening-commentator>.commentator-placeholder,.opening-commentator>.commentator-portrait{width:92px;height:94px}
 .opening-commentator>div:last-child{padding:0 12px}
 .opening-commentator b{font-size:17px;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.12}
 .opening-commentators .opening-commentator:only-child{width:420px}
@@ -474,7 +476,7 @@ body.obs-preview .lowerthird{inset:0}
 .opening{padding-bottom:28px}
 .opening-commentators{bottom:58px;width:720px;gap:12px}
 .opening-commentator{width:354px;height:78px;grid-template-columns:76px minmax(0,1fr);box-shadow:none;background:#061521d9}
-.opening-commentator>img,.opening-commentator>.commentator-placeholder{width:76px;height:78px}
+.opening-commentator>img,.opening-commentator>.commentator-placeholder,.opening-commentator>.commentator-portrait{width:76px;height:78px}
 .opening-commentator>div:last-child{padding:0 11px}
 .opening-commentator small{font-size:9px;margin-bottom:3px}
 .opening-commentator b{font-size:16px;line-height:1.08}
@@ -2406,7 +2408,8 @@ html[lang="de"] .scene-quick-toggle input{accent-color:#f2c500}
   box-shadow:0 5px 14px rgba(0,0,0,.28);
 }
 .live-commentator>img,
-.live-commentator>.commentator-placeholder{
+.live-commentator>.commentator-placeholder,
+.live-commentator>.commentator-portrait{
   width:46px;
   height:48px;
   object-fit:cover;
@@ -2742,7 +2745,8 @@ body[data-graphics="gamenight"] .opening-commentator{
   clip-path:polygon(0 0,96% 0,100% 50%,96% 100%,0 100%);
 }
 body[data-graphics="gamenight"] .opening-commentator>img,
-body[data-graphics="gamenight"] .opening-commentator>.commentator-placeholder{
+body[data-graphics="gamenight"] .opening-commentator>.commentator-placeholder,
+body[data-graphics="gamenight"] .opening-commentator>.commentator-portrait{
   width:76px!important;height:78px!important;
   background:#0a293c!important;
 }

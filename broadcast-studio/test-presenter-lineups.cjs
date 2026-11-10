@@ -12,9 +12,10 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   function studioState(){`);
   await page.route('**/*',route=>{
    const url=route.request().url();
-   if(/^https:\/\/www\.svenskehockey\.se\/players\/(3429|2807)\.png$/.test(url))return route.fulfill({
-    contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aZ1sAAAAASUVORK5CYII=','base64')
-   });
+   const portrait=url.match(/^https:\/\/www\.svenskehockey\.se\/players\/(3429|2807|flacken)\.png$/);
+   if(portrait)return route.fulfill({contentType:'image/png',...(process.env.SWN_COMMENTATOR_PORTRAITS&&portrait[1]!=='flacken'
+    ?{path:process.env.SWN_COMMENTATOR_PORTRAITS+'/'+portrait[1]+'.png'}
+    :{body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aZ1sAAAAASUVORK5CYII=','base64')})});
    if(!url.startsWith(root))return route.abort();
    if(url.includes('/presenter.html'))return route.fulfill({contentType:'text/html; charset=utf-8',body:read('presenter.html')});
    if(url.includes('/SV/')&&url.includes('obs=1')&&!url.includes('feed=1'))return route.fulfill({contentType:'text/html; charset=utf-8',body:studio.replace('</head>','<link rel="stylesheet" href="/broadcast-studio/broadcast-studio.css"></head>').replace('</body>',`<script>window.EHOCKEY_CONFIG={};const FixtureAudio=window.Audio;window.Audio=function(src){const audio=new FixtureAudio(src);if(src.startsWith('blob:'))window.testPop=audio;return audio;};</script><script src="fixture.js"></script></body>`)});
@@ -37,11 +38,22 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    const options=await frame.locator(selector+' option').evaluateAll(rows=>rows.map(o=>[o.value,o.textContent]));
    for(const [key,name] of commentators)assert(options.some(row=>row[0]===key&&row[1]===name),key+' is available in both slots');
   }
-  await frame.evaluate(s=>lineupFixture.apply(s),{...state,commentator1:'phyreon3429',commentator2:'troublemakingswe',liveCommentatorsShow:true});
+  await frame.evaluate(s=>lineupFixture.apply(s),{...state,graphicsPackage:'gamenight',commentator1:'phyreon3429',commentator2:'troublemakingswe',liveCommentatorsShow:true});
   for(const selector of ['#openingCommentators','#liveCommentators']){
    assert.deepEqual(await frame.locator(selector+' b').allTextContents(),commentators.map(c=>c[1]));
    assert.deepEqual(await frame.locator(selector+' img').evaluateAll(imgs=>imgs.map(img=>img.getAttribute('src'))),
     commentators.map(c=>'https://www.svenskehockey.se/players/'+c[2]+'.png'));
+   assert.deepEqual(await frame.locator(selector+' .commentator-portrait').evaluateAll(rows=>rows.map(el=>
+    [getComputedStyle(el).overflow,el.style.getPropertyValue('--portrait-width')])),[['hidden','175%'],['hidden','110%']]);
+  }
+  if(process.env.SWN_COMMENTATOR_SCREENSHOT){
+   await frame.locator('#openingCommentators img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode())));
+   await frame.locator('#openingCommentators').screenshot({path:process.env.SWN_COMMENTATOR_SCREENSHOT});
+  }
+  await frame.evaluate(s=>lineupFixture.apply(s),{...state,commentator1:'flacken',commentator2:''});
+  for(const selector of ['#openingCommentators','#liveCommentators']){
+   assert.equal(await frame.locator(selector+' .commentator-portrait').count(),0,'Flacken keeps his original crop');
+   assert.equal(await frame.locator(selector+' img').getAttribute('src'),'https://www.svenskehockey.se/players/flacken.png');
   }
   await frame.evaluate(({teams,players,state})=>{lineupFixture.seed(teams,players);lineupFixture.apply(state);},{teams,players,state});
   const panels=page.locator('.presenter-lineup-team');

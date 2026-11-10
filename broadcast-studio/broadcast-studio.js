@@ -287,8 +287,8 @@ window.SWNViewerBridge=(()=>{
     mkine: { name: 'Marko “mkine” Mäkinen', image: '' },
     flacken: { name: 'Peter “Flacken” Novara', image: 'https://www.svenskehockey.se/players/flacken.png' },
     wizrob: { name: 'Robert “Wizrob” Olovsson', image: 'https://www.svenskehockey.se/players/Wizrob.png' },
-    phyreon3429: { name: 'Alexander “Phyreon3429” Sundman', playerId: 3429 },
-    troublemakingswe: { name: 'Alex “troublemakingswe” Rautiainen', playerId: 2807 }
+    phyreon3429: { name: 'Alexander “Phyreon3429” Sundman', playerId: 3429, portraitWidth: 175 },
+    troublemakingswe: { name: 'Alex “troublemakingswe” Rautiainen', playerId: 2807, portraitWidth: 110 }
   };
   for(const id of ["commentator1","commentator2"]){
     const select=$("#"+id);
@@ -378,8 +378,10 @@ window.SWNViewerBridge=(()=>{
       const panel=$(target);
       if(panel)panel.innerHTML=people.map(c=>{
         const image=c.playerId?"https://www.svenskehockey.se/players/"+c.playerId+".png":c.image;
+        const img=image?'<img src="'+esc(image)+'" alt="">':'';
+        const portrait=c.portraitWidth?'<span class="commentator-portrait" style="--portrait-width:'+c.portraitWidth+'%">'+img+'</span>':img;
         return '<div class="'+cardClass+'">' +
-          (image?'<img src="'+esc(image)+'" alt="">':'<div class="commentator-placeholder" aria-hidden="true"></div>')+
+          (portrait||'<div class="commentator-placeholder" aria-hidden="true"></div>')+
           '<div><small>'+esc(tx("commentator"))+'</small><b>'+esc(c.name)+'</b></div></div>';
       }).join("");
     }
@@ -1400,11 +1402,11 @@ window.SWNViewerBridge=(()=>{
   $("#showLiveTeamStrip")?.addEventListener("change",()=>{$("#screen")?.classList.toggle("live-team-strip-off",!$("#showLiveTeamStrip").checked);publishState();});
   $("#showLiveCommentators")?.addEventListener("change",()=>{$("#screen")?.classList.toggle("live-commentators-off",!$("#showLiveCommentators").checked);publishState();});
   $("#screen").addEventListener("error", event => {
-    if (event.target.matches?.(".opening-commentator > img, .live-commentator > img")) {
+    if (event.target.matches?.(".opening-commentator > img, .live-commentator > img, .commentator-portrait > img")) {
       const placeholder=document.createElement("div");
       placeholder.className="commentator-placeholder";
       placeholder.setAttribute("aria-hidden","true");
-      event.target.replaceWith(placeholder);
+      (event.target.closest(".commentator-portrait")||event.target).replaceWith(placeholder);
       return;
     }
     if (event.target.tagName === "IMG") event.target.hidden = true;
