@@ -77,6 +77,9 @@ buttons.forEach(b=>{
 document.getElementById("brandName").textContent="SWNWORKS";
 document.getElementById("studioLink").href=({sv:"SV/",en:"en/",fi:"fi/",de:"de/"})[LANG];
 const matchStatus=document.getElementById("broadcastStatus");
+const presentPlayerButton=document.getElementById("presentPlayerButton");
+const playerLabel=({sv:"Spelarpresentation",en:"Player presentation",fi:"Pelaajaesittely",de:"Spielervorstellung"})[LANG];
+if(presentPlayerButton)presentPlayerButton.textContent=playerLabel+" ▴";
 const seriesForm=document.getElementById("seriesEditor"),seriesSummary=document.getElementById("seriesSummary");
 const seriesHome=document.getElementById("mobileSeriesHome"),seriesAway=document.getElementById("mobileSeriesAway");
 const seriesSave=document.getElementById("mobileSeriesSave"),seriesStatus=document.getElementById("mobileSeriesStatus");
@@ -218,6 +221,10 @@ function controls(){
  seriesSave.textContent=reset&&unchanged?seriesResetText[0]:seriesText[4];
  seriesSave.disabled=seriesHome.disabled||(h===limit&&a===limit)||(unchanged&&!reset);
  swapTeams.disabled=locked||!orderValid(received);
+ if(presentPlayerButton){
+  presentPlayerButton.disabled=swapTeams.disabled;
+  presentPlayerButton.classList.toggle("active",scene==="spotlight"&&!!received?.presentedPlayer);
+ }
  flipLiveTeams.disabled=swapTeams.disabled||scene!=="live";
  const reversed=received?.liveTeamsReversed===true;
  const topTeam=teamLabel(received,reversed?"away":"home");
@@ -258,7 +265,7 @@ function render(state){
  }
  const scene=state?.scene==="stats"?"teamcompare":state?.scene==="lowerthird"?"matchup":state?.scene||"",side=state?.lineupSide||"home";
  buttons.forEach(b=>{
-  b.classList.toggle("active",b.dataset.scene===scene&&(scene!=="lineup"||(b.dataset.lineupSide||"home")===side));
+  b.classList.toggle("active",b.dataset.scene===scene&&(scene!=="lineup"||(b.dataset.lineupSide||"home")===side)&&!(scene==="spotlight"&&state?.presentedPlayer));
   b.classList.remove("pending");
   if(b.dataset.scene==="lineup"){
    const team=teamLabel(state,b.dataset.lineupSide),fallback=lineupFallback(b.dataset.lineupSide);
@@ -268,6 +275,7 @@ function render(state){
  });
  const lineupName=scene==="lineup"?teamLabel(state,side):"";
  current.textContent=scene==="lineup"?(lineupName?labels.lineup+" · "+lineupName:lineupFallback(side)):(labels[scene]||scene||"Ingen scen");
+ if(scene==="spotlight"&&state?.presentedPlayer)current.textContent=playerLabel;
  const reason=!state||!Object.keys(state).length?"missing":state.publicNoMatch?"idle":Number.isFinite(expires)?"expired":"missing";
  const messages={
   sv:{missing:"Ingen aktiv match med matchdata. Hämta data och välj ”Visa förberedd match i sändning” i huvudstudion.",idle:"Vänteskärmen är på. Återgå till sändningen i huvudstudion för att välja scen.",expired:"Matchdatan har gått ut. Uppdatera och godkänn statistiken i huvudstudion. Scenknapparna låses upp automatiskt."},
@@ -314,13 +322,14 @@ async function changeProgram(button,music=false){
 const setScene=button=>changeProgram(button);
 buttons.forEach(b=>{b.disabled=true;b.addEventListener("click",()=>void setScene(b));});
 musicButtons.forEach(b=>b.addEventListener("click",()=>void changeProgram(b,true)));
-async function changeTeamOrder(action){
+async function changeTeamOrder(action,selection){
  controls();
  const switching=action.startsWith("stream-");
  const overlay=overlayButtons.find(b=>b.dataset.overlay===action);
- const button=overlay||(switching?streamButtons.find(b=>b.dataset.teamStream===action.slice(7)):action==="swap"?swapTeams:flipLiveTeams);
+ const button=overlay||(switching?streamButtons.find(b=>b.dataset.teamStream===action.slice(7)):action==="swap"?swapTeams:action==="present-player"?presentPlayerButton:flipLiveTeams);
  if(!button||button.disabled)return;
  const expected=orderExpected(received);
+ if(selection){expected.playerId=selection.id;expected.playerTeam=selection.team;}
  if(overlay)expected.overlayVisible=overlayVisible(received,action);
  if(switching){
   expected.twitchChannel=received.twitchChannel??null;expected.twitchTeamChannels=received.twitchTeamChannels;
@@ -342,7 +351,24 @@ async function changeTeamOrder(action){
   if(switching)streamStatus.textContent=streamText[3];
   else{ready=false;(action==="swap"?seriesStatus:matchStatus).textContent=overlay?overlayText[2]:orderText[6];}
   setConnection(T.error);
+  return false;
  }finally{busy=false;controls();}
+ return true;
+}
+if(presentPlayerButton&&window.parent!==window){
+ presentPlayerButton.addEventListener("click",()=>{
+  controls();
+  if(!presentPlayerButton.disabled)window.parent.postMessage({type:"seh-presenter-player-open",ticket:received.transientSource.ticket,home:String(received.home),away:String(received.away)},location.origin);
+ });
+ window.addEventListener("message",async event=>{
+  if(event.origin!==location.origin||event.source!==window.parent)return;
+  const data=event.data;
+  if(data?.type==="seh-presenter-player-expanded"){presentPlayerButton.setAttribute("aria-expanded",String(data.expanded===true));return;}
+  if(data?.type!=="seh-presenter-player-select")return;
+  const valid=data.ticket===received?.transientSource?.ticket&&[String(received?.home),String(received?.away)].includes(data.team)&&typeof data.id==="string"&&/^[1-9][0-9]{0,15}$/.test(data.id);
+  const ok=valid&&await changeTeamOrder("present-player",data);
+  window.parent.postMessage({type:"seh-presenter-player-result",ok:ok===true},location.origin);
+ });
 }
 swapTeams.addEventListener("click",()=>void changeTeamOrder("swap"));
 flipLiveTeams.addEventListener("click",()=>void changeTeamOrder("live"));

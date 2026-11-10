@@ -12,17 +12,25 @@ begin
   if auth.uid() is null or not coalesce(public.swn_studio_scene_access(p_channel), false) then
     raise exception 'Scene access required' using errcode = '42501';
   end if;
-  if p_action is null or p_action not in ('swap','live','stream-home','stream-away','team-strip','commentators')
+  if p_action is null or p_action not in ('swap','live','stream-home','stream-away','team-strip','commentators','present-player')
     or coalesce(p_expected->>'ticket','') = ''
     or coalesce(p_expected->>'home','') = '' or coalesce(p_expected->>'away','') = ''
     or p_expected->>'home' = p_expected->>'away' then
     raise exception 'Invalid team order' using errcode = '22023';
   end if;
+  if p_action = 'present-player' and (
+    coalesce(p_expected->>'playerId','') !~ '^[1-9][0-9]{0,15}$'
+    or coalesce(p_expected->>'playerTeam','') not in (p_expected->>'home',p_expected->>'away')
+  ) then
+    raise exception 'Invalid player selection' using errcode = '22023';
+  end if;
   overlay_key := case p_action when 'team-strip' then 'liveTeamStripShow' when 'commentators' then 'liveCommentatorsShow' end;
 
   update public.broadcast_studio_state
   set state = state
-    || case when p_action in ('stream-home','stream-away') then jsonb_build_object(
+    || case when p_action = 'present-player' then jsonb_build_object(
+      'scene','spotlight','presentedPlayer',jsonb_build_object('id',p_expected->>'playerId','team',p_expected->>'playerTeam')
+    ) when p_action in ('stream-home','stream-away') then jsonb_build_object(
       'twitchChannel',state->'twitchTeamChannels'->(state->>substring(p_action from 8)),
       'liveTeamsReversed',p_action = 'stream-away'
     ) when overlay_key is not null then jsonb_build_object(overlay_key, not (case when overlay_key = 'liveTeamStripShow'
@@ -47,7 +55,7 @@ begin
       and state->'twitchTeamChannels'->>(state->>substring(p_action from 8)) ~ '^[a-z0-9_]{1,25}$'
       and state->'twitchTeamChannels'->>(state->>substring(p_action from 8)) is distinct from state->>'twitchChannel'
     ))
-    and p_expected = (jsonb_build_object(
+    and (case when p_action='present-player' then p_expected-'playerId'-'playerTeam' else p_expected end) = (jsonb_build_object(
       'leagueId',state->'leagueId','home',state->'home','away',state->'away',
       'matchName',state->'matchName','ticket',state#>'{transientSource,ticket}',
       'teamOrderRevision',state->'teamOrderRevision',

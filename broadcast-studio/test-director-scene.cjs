@@ -8,7 +8,7 @@ const document={hidden:false,querySelectorAll:()=>['opening','lineup','live'].ma
 const ctx=vm.createContext({console,document,calls,scenes,statuses,music,series,window:{dispatchEvent:e=>statuses.push(e.detail)},CustomEvent:class{constructor(type,{detail}){this.type=type;this.detail=detail;}}});
 vm.runInContext(`
 let directorRestoring=false,directorReading=false,directorWrites=0,remoteTimer=0,directorRevision=0;
-let programState={home:'prepared-home',away:'prepared-away',scene:'opening',lineupSide:'home',lineups:{home:{G:'player'}}};
+let presentedPlayer=null,programState={home:'prepared-home',away:'prepared-away',scene:'opening',lineupSide:'home',lineups:{home:{G:'player'}}};
 let programHeld=false;
 let seriesGameFinal=null;
 let incoming={scene:'opening',home:'on-air-home',lineupSide:'home'},publicNoMatch=true,publicNextMatch=null,delay=null;

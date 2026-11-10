@@ -32,6 +32,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
      assert.equal(req.headers().authorization,'Bearer fixture-token');
      const payload=req.postDataJSON();writes.push(payload);
      state={...state,scene:payload.p_scene};
+     delete state.presentedPlayer;
      return route.fulfill({json:state});
     }
     if(url.pathname.endsWith('/rpc/broadcast_studio_set_match_result')){
@@ -49,7 +50,10 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     if(url.pathname.endsWith('/rpc/broadcast_studio_set_team_order')){
      assert.equal(req.headers().authorization,'Bearer fixture-token');
      const payload=req.postDataJSON();writes.push(payload);
-     if(payload.p_action==='team-strip'||payload.p_action==='commentators'){
+     if(payload.p_action==='present-player'){
+      assert.equal(payload.p_expected.ticket,'fixture.ticket');
+      state={...state,scene:'spotlight',presentedPlayer:{id:payload.p_expected.playerId,team:payload.p_expected.playerTeam}};
+     }else if(payload.p_action==='team-strip'||payload.p_action==='commentators'){
       const field=payload.p_action==='team-strip'?'liveTeamStripShow':'liveCommentatorsShow';
       assert.equal(payload.p_expected.overlayVisible,field==='liveTeamStripShow'?state[field]!==false:state[field]===true);
       state={...state,[field]:!payload.p_expected.overlayVisible};
@@ -64,7 +68,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     }
     if(url.pathname.endsWith('/broadcast_studio_state'))return route.fulfill({json:[{state}]});
     if(url.pathname.endsWith('/graphics-schedule'))return route.fulfill({json:{matches:[]}});
-    if(url.searchParams.get('obs')==='1')return route.fulfill({contentType:'text/html',body:'<main>Match picture</main>'});
+    if(url.searchParams.get('obs')==='1')return route.fulfill({contentType:'text/html',body:`<main>Match picture</main>${url.searchParams.get('presenter')==='1'?'<script>parent.postMessage({type:"seh-presenter-lineups",lineups:null,picker:{ticket:"fixture.ticket",teams:[{id:"111",name:"Testlaget A",choices:[{id:"42",name:"Reserv A",number:"27"}]},{id:"222",name:"Testlaget B",choices:[{id:"43",name:"Reserv B"}]}]}},location.origin)</script>':''}`});
     return route.abort();
    });
    await page.goto(base+'presenter.html?lang=sv');
@@ -87,6 +91,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await frame.locator('#compactLoginLink').waitFor({state:'visible'});
     assert.equal(await frame.locator('#compactLoginLink').getAttribute('href'),'mobile.html?lang=sv');
     assert.equal(await frame.locator('[data-scene="live"]').isVisible(),false);
+    assert.equal(await frame.locator('#presentPlayerButton').isVisible(),false);
     await series.locator('#compactLoginLink').waitFor({state:'visible'});
     assert.match(await series.locator('#compactLoginLink').innerText(),/serieläge/i);
     assert.equal(await series.locator('#seriesSummary').isVisible(),false);
@@ -205,6 +210,21 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await awayStream.click();
     await streams.locator('[data-team-stream="away"][aria-pressed="true"]').waitFor();
     assert.deepEqual(state,{...beforeFeed,twitchChannel:'test_away',liveTeamsReversed:true});
+    const player=frame.locator('#presentPlayerButton');
+    assert.equal(await player.evaluate(el=>el.previousElementSibling.dataset.scene),'leaders');
+    await player.click();
+    const menu=page.getByRole('dialog',{name:'Spelarpresentation'}),option=menu.getByRole('button',{name:'#27 · Reserv A'});
+    await option.waitFor();
+    const [menuBox,playerBox]=await Promise.all([menu.boundingBox(),player.boundingBox()]);
+    assert(menuBox.y+menuBox.height<=playerBox.y,'Player picker opens above its button');
+    assert.equal(await menu.getByRole('button',{name:'Reserv B'}).count(),1);
+    await option.click();
+    await frame.locator('#presentPlayerButton.active').waitFor();
+    assert.deepEqual(state.presentedPlayer,{id:'42',team:'111'});
+    assert.equal(await menu.isVisible(),false);
+    await frame.locator('[data-scene="spotlight"]').click();
+    await frame.locator('[data-scene="spotlight"].active').waitFor();
+    assert.equal(state.presentedPlayer,undefined);
     await page.setViewportSize({width:320,height:800});
     const [feedNarrow,pickerNarrow]=await Promise.all([original.boundingBox(),streamPanel.boundingBox()]);
     assert(pickerNarrow.y>=feedNarrow.y+feedNarrow.height,'On narrow screens stream controls wrap below the video');

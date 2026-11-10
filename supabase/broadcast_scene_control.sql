@@ -32,7 +32,7 @@ begin
  if auth.uid() is null or not public.swn_studio_scene_access(p_channel) then raise exception 'Scene access required' using errcode='42501'; end if;
  if p_scene is null or p_scene not in ('opening','live','matchup','series','lineup','duallineup','stats','table','teamcompare','scorers','formguide','offense','defenseleaders','goalieleaders','road','leaders','intermission','lowerthird','forwards','defense','goalies','keymatchup','spotlight','groupmeetings') then raise exception 'Invalid scene' using errcode='22023'; end if;
  if p_lineup_side is not null and p_lineup_side not in ('home','away') then raise exception 'Invalid lineup side' using errcode='22023'; end if;
- update public.broadcast_studio_state set state=jsonb_set(case when p_scene='lineup' then jsonb_set(state,'{lineupSide}',to_jsonb(coalesce(p_lineup_side,'home')),true) else state end,'{scene}',to_jsonb(p_scene),true),updated_at=clock_timestamp()
+ update public.broadcast_studio_state set state=jsonb_set(case when p_scene='lineup' then jsonb_set(state,'{lineupSide}',to_jsonb(coalesce(p_lineup_side,'home')),true) else state end,'{scene}',to_jsonb(p_scene),true)-'presentedPlayer',updated_at=clock_timestamp()
  where channel=p_channel and jsonb_typeof(state)='object' and state<>'{}'::jsonb returning state into result;
  if result is null then raise exception 'No prepared broadcast' using errcode='P0002'; end if;
  return result;

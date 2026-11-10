@@ -40,6 +40,12 @@
     #previewResize:focus-visible,#previewReset:focus-visible{outline:2px solid #ffd33d;outline-offset:-2px}
     #scenePicker,#seriesPicker{display:block;width:100%;height:32px;border:0}
     #scenePicker{margin-top:5px;height:67px}
+    #presentPlayerMenu{position:fixed;z-index:10;box-sizing:border-box;width:min(300px,calc(100vw - 16px));overflow:auto;padding:9px;border:1px solid #587285;border-radius:8px;background:#0c202d;box-shadow:0 10px 28px #000a}
+    #presentPlayerMenu h2,#presentPlayerMenu h3{margin:5px 0;color:#ffd36a;font-size:12px}
+    #presentPlayerMenu p{margin:6px 0;font-size:12px}
+    #presentPlayerMenu button{display:block;width:100%;margin:3px 0;padding:6px 8px;border:1px solid #314c5e;border-radius:4px;background:#102939;color:#eef7ff;text-align:left;cursor:pointer}
+    #presentPlayerMenu button:hover,#presentPlayerMenu button:focus-visible{outline:2px solid #ffd36a;outline-offset:-2px}
+    #presentPlayerError{color:#ffd36a;margin:4px 0;font-size:12px}
     .presenter-feed-row{display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px;min-width:0}
     .original-feed{width:min(100%,210px);margin:0;min-width:0}
     .original-feed figcaption{margin:0 0 3px;color:#aac1d0;font-size:11px;font-weight:800}
@@ -81,6 +87,7 @@
         </div>
       </div>
       <iframe id="scenePicker" title="Scenval" loading="lazy"></iframe>
+      <p id="presentPlayerError" role="status" hidden></p>
     </section>
     <aside class="presenter-sidebar">
     <div class="presenter-audio">
@@ -114,6 +121,7 @@
     <iframe id="studioToolsFrame" title="Fler studioverktyg" allow="autoplay; fullscreen; microphone; display-capture" allowfullscreen></iframe>
   </details>
 </main>
+<div id="presentPlayerMenu" role="dialog" aria-labelledby="presentPlayerTitle" hidden></div>
 <script>
 (() => {
   const labels={
@@ -207,8 +215,88 @@
   lineupPanel.querySelector("summary").textContent=lineupLabels[lang][0];
   lineupStatus.textContent=lineupLabels[lang][1];
   const positions=[["RD","G","LD","RW","C","LW"],["LW","C","RW","LD","G","RD"]];
+  const scenePicker=document.getElementById("scenePicker"),playerMenu=document.getElementById("presentPlayerMenu"),playerError=document.getElementById("presentPlayerError");
+  const playerText=({
+    sv:["Spelarpresentation","Trupperna är inte tillgängliga för den här matchen ännu.","Stäng","Spelaren kunde inte visas. Kontrollera sändningen och försök igen."],
+    en:["Player presentation","Rosters are not available for this match yet.","Close","Could not show the player. Check the broadcast and try again."],
+    fi:["Pelaajaesittely","Tämän ottelun pelaajalistat eivät ole vielä saatavilla.","Sulje","Pelaajaa ei voitu näyttää. Tarkista lähetys ja yritä uudelleen."],
+    de:["Spielervorstellung","Die Kader für dieses Spiel sind noch nicht verfügbar.","Schließen","Der Spieler konnte nicht angezeigt werden. Prüfe die Sendung und versuche es erneut."]
+  })[lang];
+  let playerRoster=null,playerRequest=null;
+  const playerAnchor=()=>scenePicker.contentDocument?.getElementById("presentPlayerButton");
+  const postPlayer=data=>scenePicker.contentWindow?.postMessage(data,location.origin);
+  const closePlayers=(focus=false)=>{
+    if(playerMenu.hidden)return;
+    playerMenu.hidden=true;playerRequest=null;
+    postPlayer({type:"seh-presenter-player-expanded",expanded:false});
+    if(focus)playerAnchor()?.focus({preventScroll:true});
+  };
+  const placePlayerMenu=()=>{
+    const anchor=playerAnchor()?.getBoundingClientRect(),frameRect=scenePicker.getBoundingClientRect();
+    if(!anchor)return closePlayers();
+    const top=frameRect.top+anchor.top;
+    if(top<50||top>=innerHeight)return closePlayers();
+    playerMenu.style.left=Math.max(8,Math.min(frameRect.left+anchor.left,innerWidth-playerMenu.offsetWidth-8))+"px";
+    playerMenu.style.bottom=(innerHeight-top+5)+"px";
+    playerMenu.style.maxHeight=Math.min(innerHeight*.55,top-13)+"px";
+  };
+  const buildPlayerMenu=(focus=false)=>{
+    const req=playerRequest;
+    if(!req)return;
+    const title=document.createElement("h2");title.id="presentPlayerTitle";title.textContent=playerText[0];
+    const close=document.createElement("button");close.type="button";close.textContent=playerText[2];close.onclick=()=>closePlayers(true);
+    const sections=[title],teams=playerRoster?.ticket===req.ticket&&Array.isArray(playerRoster.teams)?playerRoster.teams:[];
+    let firstChoice=null;
+    if([req.home,req.away].every(id=>teams.some(team=>team.id===id))){
+      for(const id of [req.home,req.away]){
+        const team=teams.find(item=>item.id===id);
+        const heading=document.createElement("h3");heading.textContent=team.name;sections.push(heading);
+        const seen=new Set();
+        const choices=(Array.isArray(team.choices)?team.choices:[]).filter(p=>typeof p?.name==="string"&&typeof p.id==="string"&&/^[1-9][0-9]{0,15}$/.test(p.id));
+        choices.sort((a,b)=>a.name.localeCompare(b.name,lang));
+        for(const choice of choices){
+          if(seen.has(choice.id))continue;
+          seen.add(choice.id);
+          const option=document.createElement("button");option.type="button";
+          option.textContent=(choice.number?"#"+choice.number+" · ":"")+choice.name;
+          option.onclick=()=>{
+            if(playerRequest!==req)return;
+            postPlayer({type:"seh-presenter-player-select",ticket:req.ticket,team:id,id:choice.id});
+            closePlayers(true);
+          };
+          firstChoice??=option;sections.push(option);
+        }
+      }
+    }
+    if(!firstChoice){const info=document.createElement("p");info.textContent=playerText[1];sections.push(info);}
+    playerMenu.replaceChildren(...sections,close);
+    playerMenu.hidden=false;placePlayerMenu();
+    if(focus&&!playerMenu.hidden)(firstChoice||close).focus({preventScroll:true});
+  };
+  window.addEventListener("message",event=>{
+    if(event.origin!==location.origin||event.source!==scenePicker.contentWindow)return;
+    const data=event.data;
+    if(data?.type==="seh-presenter-player-result"){
+      playerError.hidden=data.ok===true;playerError.textContent=playerError.hidden?"":playerText[3];return;
+    }
+    if(data?.type!=="seh-presenter-player-open"||!playerAnchor()||typeof data.ticket!=="string")return;
+    if(!playerMenu.hidden){closePlayers(true);return;}
+    playerError.hidden=true;
+    playerRequest=data;buildPlayerMenu(true);
+    postPlayer({type:"seh-presenter-player-expanded",expanded:!playerMenu.hidden});
+  });
+  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!playerMenu.hidden){event.preventDefault();closePlayers(true);}});
+  document.addEventListener("pointerdown",event=>{if(!playerMenu.contains(event.target))closePlayers();});
+  window.addEventListener("scroll",()=>{if(!playerMenu.hidden)placePlayerMenu();},{passive:true});
+  window.addEventListener("resize",()=>{if(!playerMenu.hidden)placePlayerMenu();});
+  scenePicker.addEventListener("load",()=>closePlayers());
   window.addEventListener("message",event=>{
     if(event.origin!==location.origin||event.source!==frame.contentWindow||event.data?.type!=="seh-presenter-lineups")return;
+    const next=event.data.picker??null;
+    if(JSON.stringify(next)!==JSON.stringify(playerRoster)){
+      playerRoster=next;
+      if(playerRequest)buildPlayerMenu(true);
+    }
     const teams=event.data.lineups;
     if(teams===null){lineupStatus.hidden=false;lineupTeams.replaceChildren();return;}
     if(!Array.isArray(teams)||teams.length!==2||teams.some(team=>!["away","home"].includes(team?.side)||typeof team.name!=="string"||!team.players)||teams[0].side===teams[1].side)return;
@@ -226,7 +314,7 @@
     });
     lineupTeams.replaceChildren(...sections);lineupStatus.hidden=true;
   });
-  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261110-champion-loop";
+  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261110-player-presentation";
   const originalTitles={sv:"Originalstream · utan ljud",en:"Original feed · muted",fi:"Alkuperäinen striimi · mykistetty",de:"Originalstream · stumm"};
   const original=document.getElementById("originalFeed");
   original.title=document.getElementById("originalFeedLabel").textContent=originalTitles[lang];
@@ -247,7 +335,7 @@
       resize.observe(body);
       fit();
     });
-    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261110-overlay-shortcuts";
+    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261110-player-presentation";
   }
   mountControls("scenePicker",sceneTitle,"1");
   const seriesTitles={sv:"Serieläge",en:"Series score",fi:"Sarjatilanne",de:"Serienstand"};
@@ -286,7 +374,7 @@
     toolStatus=new MutationObserver(fit);toolStatus.observe(doc.documentElement,{attributes:true,attributeFilter:["data-tools-ready","data-studio-locked"]});
     fit();
   });
-  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261110-champion-loop";};
+  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261110-player-presentation";};
   tools.addEventListener("toggle",loadTools);
   loadTools();
 })();

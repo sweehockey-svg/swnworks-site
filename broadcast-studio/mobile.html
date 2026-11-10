@@ -211,6 +211,10 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
     button.disabled=true;
     if(!quick.includes(button.dataset.scene))secondary.append(button);
   }
+  const player=document.createElement("button");
+  player.type="button";player.id="presentPlayerButton";player.disabled=true;
+  player.setAttribute("aria-haspopup","dialog");player.setAttribute("aria-expanded","false");
+  secondary.querySelector('[data-scene="leaders"]')?.after(player);
   for(const scene of quick){
     for(const button of buttons.filter(b=>b.dataset.scene===scene))primary.append(button);
   }
@@ -231,5 +235,5 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
   strip.append(overlays);
 })();
 </script>
-<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261110-overlay-shortcuts"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
+<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261110-player-presentation"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
 

@@ -8,7 +8,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   page.on('pageerror',error=>errors.push(error.message));
   const root='https://lineups.test/broadcast-studio/';
   const studio=read('SV/index.html').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link\b[^>]*>/g,'');
-  const fixture=read('broadcast-studio.js').replace('  function studioState(){',`  window.lineupFixture={seed:(teams,players)=>{data.teams=teams;data.players=players;renderAllCompetitionData();},apply:s=>applyRemoteState(viewerState(s))};
+  const fixture=read('broadcast-studio.js').replace('  function studioState(){',`  window.lineupFixture={seed:(teams,players,reference)=>{data.teams=teams;data.players=players;currentSourceReference=reference||null;renderAllCompetitionData();},apply:s=>applyRemoteState(viewerState(s))};
   function studioState(){`);
   await page.route('**/*',route=>{
    const url=route.request().url();
@@ -76,6 +76,23 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   assert.equal(await frame.locator('#presenterLineups').count(),0,'The video frame has no presenter panel');
   await page.evaluate(()=>window.postMessage({type:'seh-presenter-lineups',lineups:null},location.origin));
   assert.equal(await panels.count(),2,'Messages not from the broadcast frame are ignored');
+  const reserve={sports_gamer_team_id:11,sports_gamer_player_id:112,player_number:18,display_gamertag:'ReserveGoalie',roster_preferred_position_abbreviation:'G',regular_goalie_games:3};
+  await page.evaluate(()=>window.addEventListener('message',event=>{
+   if(event.source===document.getElementById('broadcast').contentWindow&&event.data?.type==='seh-presenter-lineups')window.testRoster=event.data.picker;
+  }));
+  await frame.evaluate(({teams,players,reserve,state})=>{
+   const transientSource={ticket:'fixture.ticket'};
+   lineupFixture.seed(teams,[...players,reserve],transientSource);
+   lineupFixture.apply({...state,transientSource,scene:'spotlight',presentedPlayer:{id:'112',team:'11'}});
+  },{teams,players,reserve,state});
+  await page.waitForFunction(()=>window.testRoster?.teams.some(team=>team.id==='11'&&team.choices.some(player=>player.id==='112')));
+  const spotlight=frame.locator('#spotlightCard');
+  assert.match(await spotlight.textContent(),/Spelarpresentation.*ReserveGoalie.*G · #18.*SV%/is);
+  await frame.evaluate(s=>lineupFixture.apply({...s,scene:'spotlight',presentedPlayer:{id:'112',team:'22'}}),state);
+  assert.doesNotMatch(await spotlight.textContent(),/ReserveGoalie/);
+  await frame.evaluate(s=>lineupFixture.apply({...s,scene:'spotlight'}),state);
+  assert.doesNotMatch(await spotlight.textContent(),/ReserveGoalie|Spelarpresentation/);
+  await frame.evaluate(s=>lineupFixture.apply(s),state);
   const audio=page.getByRole('button',{name:'Lyssna här'});
   assert.equal(await audio.getAttribute('aria-pressed'),'false','Presenter starts muted');
   assert.equal(await frame.evaluate(()=>document.documentElement.dataset.sceneMusic),undefined);
