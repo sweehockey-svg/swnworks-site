@@ -712,6 +712,15 @@ body.network-body-fullscreen { overflow:hidden; }
 .colleague-item span { color:#b2b6b7; font-size:12px; line-height:1.65; }
 .colleague-item a { color:inherit; text-decoration:none; }
 .colleague-item a:hover { color:var(--acid); }
+
+.colleague-toggle { display:inline-flex; align-items:center; gap:10px; max-width:100%; padding:10px 13px; margin:2px 0 8px; border:1px solid var(--line-strong); background:#15191b; color:var(--ink); font:500 13px/1.5 var(--sans); cursor:pointer; }
+.colleague-toggle:focus-within { outline:2px solid var(--acid); outline-offset:3px; }
+.colleague-toggle input { width:17px; height:17px; margin:0; flex-shrink:0; accent-color:var(--acid); cursor:pointer; }
+.colleague-count { margin:0 0 14px; color:var(--muted); font:400 12px/1.5 var(--sans); }
+.colleague-band { display:grid; gap:4px; }
+.colleague-band > a { color:var(--acid); font:500 12px/1.4 var(--sans); }
+.colleague-band > small { display:block; color:var(--muted); font:400 11px/1.45 var(--sans); }
+
 .degrees-panel { border:1px solid var(--line-strong); background:#111518; padding:22px 24px; margin-bottom:22px; }
 .degrees-header h2 { font:700 25px var(--condensed); color:#f1f1ec; text-transform:uppercase; margin:7px 0; }
 .degrees-header p { color:#aeb2b3; font:400 13px var(--sans); margin:0 0 17px; }
