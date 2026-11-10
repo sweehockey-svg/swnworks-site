@@ -8,15 +8,65 @@ security definer
 set search_path = ''
 as $function$
 declare result jsonb; overlay_key text;
+  old_lineups jsonb; new_lineups jsonb; side text; slot text;
+  old_ids text[]; new_ids text[];
+  slots constant text[] := array['LW','C','RW','LD','RD','G'];
 begin
   if auth.uid() is null or not coalesce(public.swn_studio_scene_access(p_channel), false) then
     raise exception 'Scene access required' using errcode = '42501';
   end if;
-  if p_action is null or p_action not in ('swap','live','stream-home','stream-away','team-strip','commentators','present-player')
+  if p_action is null or p_action not in ('swap','live','stream-home','stream-away','team-strip','commentators','present-player','reorder-lineups')
     or coalesce(p_expected->>'ticket','') = ''
     or coalesce(p_expected->>'home','') = '' or coalesce(p_expected->>'away','') = ''
     or p_expected->>'home' = p_expected->>'away' then
     raise exception 'Invalid team order' using errcode = '22023';
+  end if;
+  if p_action = 'reorder-lineups' then
+    old_lineups := p_expected->'baseLineups';
+    new_lineups := p_expected->'lineups';
+    if jsonb_typeof(old_lineups) is distinct from 'object' or jsonb_typeof(new_lineups) is distinct from 'object' then
+      raise exception 'Invalid lineups' using errcode = '22023';
+    end if;
+    if old_lineups-'home'-'away' <> '{}'::jsonb or new_lineups-'home'-'away' <> '{}'::jsonb then
+      raise exception 'Invalid lineup side' using errcode = '22023';
+    end if;
+    foreach side in array array['home','away'] loop
+      if jsonb_typeof(old_lineups->side) is distinct from 'object' or jsonb_typeof(new_lineups->side) is distinct from 'object' then
+        raise exception 'Invalid lineup side' using errcode = '22023';
+      end if;
+      if (old_lineups->side)-slots <> '{}'::jsonb or (new_lineups->side)-slots <> '{}'::jsonb then
+        raise exception 'Invalid lineup position' using errcode = '22023';
+      end if;
+      old_ids := array[]::text[];
+      new_ids := array[]::text[];
+      foreach slot in array slots loop
+        if jsonb_typeof(old_lineups#>array[side,slot]) is distinct from 'string'
+          or jsonb_typeof(new_lineups#>array[side,slot]) is distinct from 'string'
+          or old_lineups#>>array[side,slot] !~ '^([1-9][0-9]{0,15})?$'
+          or new_lineups#>>array[side,slot] !~ '^([1-9][0-9]{0,15})?$' then
+          raise exception 'Invalid lineup position or player' using errcode = '22023';
+        end if;
+        old_ids := array_append(old_ids,old_lineups#>>array[side,slot]);
+        new_ids := array_append(new_ids,new_lineups#>>array[side,slot]);
+      end loop;
+      if array(select x from unnest(old_ids) x order by x) <> array(select x from unnest(new_ids) x order by x) then
+        raise exception 'Only players already assigned to this team can move' using errcode = '22023';
+      end if;
+    end loop;
+    update public.broadcast_studio_state
+    set state=jsonb_set(state,'{lineups}',new_lineups,false),updated_at=clock_timestamp()
+    where channel=p_channel and state->>'scene'='duallineup'
+      and (state->'publicNoMatch') is distinct from 'true'::jsonb
+      and (state#>>'{transientSource,expires_at}')::timestamptz > clock_timestamp()
+      and state#>>'{transientSource,ticket}'=p_expected->>'ticket'
+      and state->>'leagueId' is not distinct from p_expected->>'leagueId'
+      and state->>'home'=p_expected->>'home' and state->>'away'=p_expected->>'away'
+      and state->>'matchName' is not distinct from p_expected->>'matchName'
+      and state->>'teamOrderRevision' is not distinct from p_expected->>'teamOrderRevision'
+      and state->'lineups'=old_lineups
+    returning state into result;
+    if result is null then raise exception 'Match, scene or lineup changed' using errcode = 'P0002'; end if;
+    return result;
   end if;
   if p_action = 'present-player' and (
     coalesce(p_expected->>'playerId','') !~ '^[1-9][0-9]{0,15}$'

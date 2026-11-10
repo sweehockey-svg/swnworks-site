@@ -44,6 +44,10 @@
     #previewResize:focus-visible,#previewReset:focus-visible{outline:2px solid #ffd33d;outline-offset:-2px}
     #scenePicker,#seriesPicker{display:block;width:100%;height:32px;border:0}
     #scenePicker{margin-top:5px;height:67px}
+    #lineupEditBar:not([hidden]){display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:5px;color:#b7ccda;font-size:11px}
+    #lineupEditBar button{border:1px solid #365367;border-radius:5px;background:#102534;color:#eef7ff;padding:5px 8px;font:700 11px Arial,sans-serif;cursor:pointer}
+    #lineupEditBar button:disabled{opacity:.6;cursor:default}
+    #lineupEditSave:not(:disabled){border-color:#ffd36a;color:#ffd36a}
     #presentPlayerMenu{position:fixed;z-index:10;box-sizing:border-box;width:min(300px,calc(100vw - 16px));overflow:auto;padding:9px;border:1px solid #587285;border-radius:8px;background:#0c202d;box-shadow:0 10px 28px #000a}
     #presentPlayerMenu h2,#presentPlayerMenu h3{margin:5px 0;color:#ffd36a;font-size:12px}
     #presentPlayerMenu p{margin:6px 0;font-size:12px}
@@ -89,6 +93,12 @@
         <div id="previewResize" role="slider" tabindex="0" aria-controls="broadcast" aria-label="Storlek på sändningsbilden">
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 13 13 3M7 13l6-6m-2 6 2-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
+      </div>
+      <div id="lineupEditBar" hidden>
+        <button id="lineupEditStart" type="button">Byt positioner</button>
+        <button id="lineupEditSave" type="button" hidden>Spara i sändningen</button>
+        <button id="lineupEditCancel" type="button" hidden>Avbryt</button>
+        <span id="lineupEditHint" role="status"></span>
       </div>
       <iframe id="scenePicker" title="Scenval" loading="lazy"></iframe>
       <p id="presentPlayerError" role="status" hidden></p>
@@ -230,6 +240,30 @@
   const playerAnchor=()=>scenePicker.contentDocument?.getElementById("presentPlayerButton");
   const postPlayer=data=>scenePicker.contentWindow?.postMessage(data,location.origin);
   const canSelectPlayer=()=>playerAnchor()?.disabled===false;
+  const lineupEditText=({
+    sv:["Byt positioner","Spara i sändningen","Avbryt","Dra en spelare till en annan ruta i samma lag. Ändringen syns bara här tills du sparar.","Sparar…","Sparat i sändningen.","Kunde inte bekräfta ändringen. Kontrollera uppställningen och försök igen."],
+    en:["Swap positions","Save on air","Cancel","Drag a player to another slot on the same team. Only you see the change until you save.","Saving…","Saved on air.","Could not confirm the change. Check the lineup and try again."],
+    fi:["Vaihda paikkoja","Tallenna lähetykseen","Peruuta","Vedä pelaaja saman joukkueen toiseen paikkaan. Muutos näkyy muille vasta tallennuksen jälkeen.","Tallennetaan…","Tallennettu lähetykseen.","Muutosta ei voitu vahvistaa. Tarkista kokoonpano ja yritä uudelleen."],
+    de:["Positionen tauschen","In der Sendung speichern","Abbrechen","Ziehe einen Spieler auf eine andere Position im selben Team. Die Änderung bleibt bis zum Speichern privat.","Wird gespeichert…","In der Sendung gespeichert.","Änderung nicht bestätigt. Prüfe die Aufstellung und versuche es erneut."]
+  })[lang];
+  const lineupBar=document.getElementById("lineupEditBar"),lineupStart=document.getElementById("lineupEditStart"),
+    lineupSave=document.getElementById("lineupEditSave"),lineupCancel=document.getElementById("lineupEditCancel"),lineupHint=document.getElementById("lineupEditHint");
+  [lineupStart,lineupSave,lineupCancel].forEach((button,i)=>{button.textContent=lineupEditText[i];});
+  let lineupAvailable=false,lineupEditing=false,lineupChanged=false,lineupSaving=false,lineupSaved=false,lineupFeedback="";
+  const lineupMessage=action=>frame.contentWindow?.postMessage({type:"seh-presenter-lineup-edit",action},location.origin);
+  const renderLineupTools=()=>{
+    const enabled=canSelectPlayer();
+    lineupBar.hidden=!lineupEditing&&!lineupSaving&&!(lineupAvailable&&enabled)&&!lineupFeedback;
+    lineupStart.hidden=lineupEditing||!lineupAvailable||!enabled;
+    lineupStart.disabled=lineupSaving;
+    lineupSave.hidden=lineupCancel.hidden=!lineupEditing;
+    lineupSave.disabled=!enabled||!lineupChanged||lineupSaving||lineupSaved;
+    lineupCancel.disabled=lineupSaving||lineupSaved;
+    lineupHint.textContent=lineupSaving?lineupEditText[4]:lineupFeedback||(lineupEditing?lineupEditText[3]:"");
+  };
+  lineupStart.onclick=()=>{lineupFeedback="";lineupSaved=false;lineupMessage("start");renderLineupTools();};
+  lineupCancel.onclick=()=>{lineupFeedback="";lineupMessage("cancel");};
+  lineupSave.onclick=()=>{lineupFeedback="";lineupMessage("save");};
   const selectPlayer=(ticket,team,id)=>{
     if(!canSelectPlayer()||playerRoster?.ticket!==ticket)return false;
     playerError.hidden=true;
@@ -246,6 +280,7 @@
     const enabled=canSelectPlayer();
     for(const button of lineupTeams.querySelectorAll("button"))button.disabled=!enabled;
     frame.contentWindow?.postMessage({type:"seh-presenter-lineup-control",enabled},location.origin);
+    renderLineupTools();
   };
   frame.addEventListener("load",updateLineupButtons);
   const closePlayers=(focus=false)=>{
@@ -298,6 +333,12 @@
   window.addEventListener("message",event=>{
     if(event.origin!==location.origin||event.source!==scenePicker.contentWindow)return;
     const data=event.data;
+    if(data?.type==="seh-presenter-lineup-save-result"&&lineupSaving){
+      lineupSaving=false;lineupSaved=data.ok===true;
+      lineupFeedback=lineupEditText[lineupSaved?5:6];
+      if(!lineupSaved)lineupMessage("save-failed");
+      renderLineupTools();return;
+    }
     if(data?.type==="seh-presenter-player-result"){
       playerError.hidden=data.ok===true;playerError.textContent=playerError.hidden?"":playerText[3];return;
     }
@@ -321,6 +362,18 @@
   });
   window.addEventListener("message",event=>{
     if(event.origin!==location.origin||event.source!==frame.contentWindow)return;
+    if(event.data?.type==="seh-presenter-lineup-edit-status"){
+      lineupAvailable=event.data.available===true;lineupEditing=event.data.editing===true;lineupChanged=event.data.changed===true;
+      if(!lineupAvailable&&!lineupSaving)lineupFeedback="";
+      if(!lineupEditing)lineupSaved=false;
+      renderLineupTools();return;
+    }
+    if(event.data?.type==="seh-presenter-lineup-save"){
+      if(lineupEditing&&!lineupSaving&&lineupChanged&&canSelectPlayer()&&event.data.ticket===playerRoster?.ticket){
+        lineupSaving=true;lineupFeedback="";renderLineupTools();postPlayer(event.data);
+      }else lineupMessage("save-failed");
+      return;
+    }
     if(event.data?.type==="seh-presenter-lineup-player"){
       const {ticket,team,id}=event.data;
       const roster=Array.isArray(playerRoster?.teams)?playerRoster.teams.find(entry=>entry.id===team):null;
@@ -359,7 +412,7 @@
     });
     lineupTeams.replaceChildren(...sections);lineupStatus.hidden=true;
   });
-  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261110-spotlight-stages";
+  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261110-lineup-drag";
   const originalTitles={sv:"Originalstream · utan ljud",en:"Original feed · muted",fi:"Alkuperäinen striimi · mykistetty",de:"Originalstream · stumm"};
   const original=document.getElementById("originalFeed");
   original.title=document.getElementById("originalFeedLabel").textContent=originalTitles[lang];
@@ -380,7 +433,7 @@
       resize.observe(body);
       fit();
     });
-    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261110-player-presentation";
+    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261110-lineup-drag";
   }
   mountControls("scenePicker",sceneTitle,"1");
   const seriesTitles={sv:"Serieläge",en:"Series score",fi:"Sarjatilanne",de:"Serienstand"};
@@ -419,7 +472,7 @@
     toolStatus=new MutationObserver(fit);toolStatus.observe(doc.documentElement,{attributes:true,attributeFilter:["data-tools-ready","data-studio-locked"]});
     fit();
   });
-  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261110-player-presentation";};
+  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261110-lineup-drag";};
   tools.addEventListener("toggle",loadTools);
   loadTools();
 })();

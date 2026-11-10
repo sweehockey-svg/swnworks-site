@@ -326,10 +326,11 @@ async function changeTeamOrder(action,selection){
  controls();
  const switching=action.startsWith("stream-");
  const overlay=overlayButtons.find(b=>b.dataset.overlay===action);
- const button=overlay||(switching?streamButtons.find(b=>b.dataset.teamStream===action.slice(7)):action==="swap"?swapTeams:action==="present-player"?presentPlayerButton:flipLiveTeams);
+ const button=overlay||(switching?streamButtons.find(b=>b.dataset.teamStream===action.slice(7)):action==="swap"?swapTeams:["present-player","reorder-lineups"].includes(action)?presentPlayerButton:flipLiveTeams);
  if(!button||button.disabled)return;
  const expected=orderExpected(received);
- if(selection){expected.playerId=selection.id;expected.playerTeam=selection.team;}
+ if(action==="present-player"){expected.playerId=selection.id;expected.playerTeam=selection.team;}
+ if(action==="reorder-lineups"){expected.baseLineups=selection.base;expected.lineups=selection.lineups;}
  if(overlay)expected.overlayVisible=overlayVisible(received,action);
  if(switching){
   expected.twitchChannel=received.twitchChannel??null;expected.twitchTeamChannels=received.twitchTeamChannels;
@@ -364,6 +365,12 @@ if(presentPlayerButton&&window.parent!==window){
   if(event.origin!==location.origin||event.source!==window.parent)return;
   const data=event.data;
   if(data?.type==="seh-presenter-player-expanded"){presentPlayerButton.setAttribute("aria-expanded",String(data.expanded===true));return;}
+  if(data?.type==="seh-presenter-lineup-save"){
+   const valid=received?.scene==="duallineup"&&data.ticket===received.transientSource?.ticket&&data.home===String(received.home)&&data.away===String(received.away);
+   const ok=valid&&await changeTeamOrder("reorder-lineups",data);
+   window.parent.postMessage({type:"seh-presenter-lineup-save-result",ok:ok===true},location.origin);
+   return;
+  }
   if(data?.type!=="seh-presenter-player-select")return;
   const valid=data.ticket===received?.transientSource?.ticket&&[String(received?.home),String(received?.away)].includes(data.team)&&typeof data.id==="string"&&/^[1-9][0-9]{0,15}$/.test(data.id);
   const ok=valid&&await changeTeamOrder("present-player",data);

@@ -122,6 +122,57 @@ window.SWNViewerBridge=(()=>{
     de:'In der Sendung zeigen: '
   })[LOCALE];
   let lineupPlayerEnabled=false;
+  let lineupDraft=null,lineupPicked=null,lineupDrag=null;
+  const lineupDraftKey=state=>JSON.stringify([state?.transientSource?.ticket,state?.leagueId,state?.home,state?.away,state?.matchName,state?.teamOrderRevision,
+    ...['home','away'].flatMap(side=>SLOTS.map(slot=>state?.lineups?.[side]?.[slot]))]);
+  function lineupEditable(){
+    const state=window.__sehTwitchState;
+    return !!(state?.scene==='duallineup'&&!state.publicNoMatch&&state.transientSource?.ticket&&state.transientSource.ticket===currentSourceReference?.ticket&&
+      ['home','away'].every(side=>state[side]&&SLOTS.every(slot=>{
+        const id=state.lineups?.[side]?.[slot];
+        return typeof id==='string'&&(!id||roster(selectedTeam(side)).some(p=>same(p.sports_gamer_player_id,id)));
+      })));
+  }
+  function lineupEditorStatus(){
+    if(!PRESENTER_VIEW)return;
+    const available=lineupEditable();
+    if(lineupDraft&&(!available||lineupDraft.key!==lineupDraftKey(window.__sehTwitchState))){
+      lineupDraft=null;lineupPicked=null;lineupDrag=null;
+      renderDualLineup();
+    }
+    const draft=lineupDraft;
+    const changed=!!draft&&['home','away'].some(side=>SLOTS.some(slot=>draft.lineups[side][slot]!==draft.base[side][slot]));
+    window.SWNViewerBridge.postStatus({type:'seh-presenter-lineup-edit-status',available,editing:!!draft,changed});
+  }
+  function editSlot(card){
+    return card?{side:card.closest('.dual-lineup-team').dataset.side,slot:card.dataset.position}:null;
+  }
+  function editTarget(event){
+    return document.elementFromPoint(event.clientX,event.clientY)?.closest('.dual-lineup-player[data-edit-slot]');
+  }
+  function markLineupPick(pick){
+    lineupPicked=pick;
+    dualLineupScene.querySelectorAll('[data-edit-slot]').forEach(card=>{
+      const here=editSlot(card);
+      card.setAttribute('aria-pressed',String(pick?.side===here.side&&pick.slot===here.slot));
+    });
+  }
+  function swapDraftSlots(source,target){
+    if(!lineupDraft||lineupDraft.saving||!lineupPlayerEnabled||!source||!target||source.side!==target.side||source.slot===target.slot)return false;
+    const slots=lineupDraft.lineups[source.side];
+    if(!slots[source.slot])return false;
+    [slots[source.slot],slots[target.slot]]=[slots[target.slot],slots[source.slot]];
+    lineupPicked=null;renderDualLineup();lineupEditorStatus();
+    dualLineupScene.querySelector('.dual-lineup-team[data-side="'+target.side+'"] [data-position="'+target.slot+'"]')?.focus({preventScroll:true});
+    return true;
+  }
+  function chooseDraftSlot(card){
+    const target=editSlot(card);
+    if(!target||!lineupDraft||lineupDraft.saving||!lineupPlayerEnabled)return;
+    if(swapDraftSlots(lineupPicked,target))return;
+    if(lineupPicked?.side===target.side&&lineupPicked.slot===target.slot){markLineupPick(null);return;}
+    markLineupPick(lineupDraft.lineups[target.side][target.slot]?target:null);
+  }
   function playerShortcutAttributes(player){
     if(!PRESENTER_VIEW||!player?.sports_gamer_player_id||!player.sports_gamer_team_id||!player.display_gamertag)return {};
     return {'data-lineup-player':String(player.sports_gamer_player_id),'data-lineup-team':String(player.sports_gamer_team_id),
@@ -133,7 +184,27 @@ window.SWNViewerBridge=(()=>{
   if(PRESENTER_VIEW){
     const screen=$('#screen');
     window.addEventListener('message',event=>{
-      if(event.source!==parent||event.origin!==location.origin||event.data?.type!=='seh-presenter-lineup-control')return;
+      if(event.source!==parent||event.origin!==location.origin)return;
+      const data=event.data;
+      if(data?.type==='seh-presenter-lineup-edit'){
+        if(data.action==='start'&&lineupPlayerEnabled&&lineupEditable()&&!lineupDraft){
+          const state=window.__sehTwitchState;
+          lineupDraft={key:lineupDraftKey(state),ticket:state.transientSource.ticket,home:String(state.home),away:String(state.away),
+            base:structuredClone(state.lineups),lineups:structuredClone(state.lineups)};
+        }else if(data.action==='cancel'){
+          lineupDraft=null;lineupDrag=null;lineupPicked=null;
+        }else if(data.action==='save-failed'&&lineupDraft){
+          lineupDraft.saving=false;
+        }else if(data.action==='save'&&lineupPlayerEnabled&&lineupDraft&&!lineupDraft.saving&&lineupEditable()&&lineupDraft.key===lineupDraftKey(window.__sehTwitchState)){
+          lineupDraft.saving=true;
+          const {ticket,home,away,base,lineups}=lineupDraft;
+          window.SWNViewerBridge.postStatus({type:'seh-presenter-lineup-save',ticket,home,away,base,lineups});
+          return;
+        }
+        renderDualLineup();lineupEditorStatus();
+        return;
+      }
+      if(data?.type!=='seh-presenter-lineup-control')return;
       const enabled=event.data.enabled===true;
       if(enabled===lineupPlayerEnabled)return;
       lineupPlayerEnabled=enabled;
@@ -143,6 +214,7 @@ window.SWNViewerBridge=(()=>{
       });
     });
     const presentPlayer=event=>{
+      if(lineupDraft)return;
       const card=event.target.closest('[data-lineup-player]');
       const scene=card?.closest('.scene.active:not(.scene-leave):not(.lineup-transition-old)');
       if(!scene?.classList.contains(activeScene)||!lineupPlayerEnabled)return;
@@ -154,9 +226,48 @@ window.SWNViewerBridge=(()=>{
       event.preventDefault();
       window.SWNViewerBridge.postStatus({type:'seh-presenter-lineup-player',ticket,team:String(team.sports_gamer_team_id),id});
     };
-    screen.addEventListener('click',presentPlayer);
+    screen.addEventListener('click',event=>{
+      if(lineupDraft){if(event.detail===0)chooseDraftSlot(event.target.closest('[data-edit-slot]'));return;}
+      presentPlayer(event);
+    });
     screen.addEventListener('keydown',event=>{
-      if(!event.repeat&&(event.key==='Enter'||event.key===' '))presentPlayer(event);
+      if(event.repeat)return;
+      if(lineupDraft&&event.key==='Escape'){markLineupPick(null);return;}
+      if(event.key==='Enter'||event.key===' '){
+        const slot=event.target.closest('[data-edit-slot]');
+        if(lineupDraft&&slot){event.preventDefault();chooseDraftSlot(slot);}
+        else presentPlayer(event);
+      }
+    });
+    dualLineupScene.addEventListener('pointerdown',event=>{
+      const card=event.target.closest('[data-edit-slot]');
+      if(!card||!lineupDraft||lineupDraft.saving||!lineupPlayerEnabled||!event.isPrimary||event.button!==0)return;
+      event.preventDefault();
+      lineupDrag={pointer:event.pointerId,card,from:editSlot(card),x:event.clientX,y:event.clientY,moved:false};
+      dualLineupScene.setPointerCapture(event.pointerId);
+    });
+    dualLineupScene.addEventListener('pointermove',event=>{
+      if(lineupDrag?.pointer!==event.pointerId||!lineupDraft)return;
+      if(!lineupDrag.moved&&Math.hypot(event.clientX-lineupDrag.x,event.clientY-lineupDrag.y)>6){
+        lineupDrag.moved=true;
+        lineupDrag.card.classList.add('lineup-drag-origin');
+      }
+      const from=lineupDrag.from,card=editTarget(event),to=editSlot(card);
+      dualLineupScene.querySelectorAll('.lineup-drop-target').forEach(node=>node.classList.remove('lineup-drop-target'));
+      if(lineupDrag.moved&&to?.side===from.side&&to.slot!==from.slot&&lineupDraft.lineups[from.side][from.slot])card.classList.add('lineup-drop-target');
+    });
+    dualLineupScene.addEventListener('pointerup',event=>{
+      if(lineupDrag?.pointer!==event.pointerId)return;
+      const {from,moved}=lineupDrag;lineupDrag.card.classList.remove('lineup-drag-origin');lineupDrag=null;
+      const card=editTarget(event),to=editSlot(card);
+      dualLineupScene.querySelectorAll('.lineup-drop-target').forEach(node=>node.classList.remove('lineup-drop-target'));
+      if(!lineupPlayerEnabled)return;
+      if(moved)swapDraftSlots(from,to);
+      else if(to?.side===from.side&&to.slot===from.slot)chooseDraftSlot(card);
+    });
+    dualLineupScene.addEventListener('lostpointercapture',()=>{
+      lineupDrag=null;
+      dualLineupScene.querySelectorAll('.lineup-drop-target,.lineup-drag-origin').forEach(node=>node.classList.remove('lineup-drop-target','lineup-drag-origin'));
     });
   }
   const lastLineupButton=$('[data-scene="lineup"][data-lineup-side="away"]');
@@ -687,11 +798,12 @@ window.SWNViewerBridge=(()=>{
     scheduleLineupFit();
     postPresenterLineups();
     if(activeScene==='duallineup')renderDualLineup();
+    lineupEditorStatus();
   }
 
   function renderDualLineup(){
     for(const panel of dualLineupScene.querySelectorAll('.dual-lineup-team')){
-      const side=panel.dataset.side,team=selectedTeam(side),players=roster(team),slots=lineupFor(side);
+      const side=panel.dataset.side,team=selectedTeam(side),players=roster(team),slots=lineupDraft?.lineups[side]||lineupFor(side);
       const name=window.__sehTwitchState?.lineupTeamNames?.[team.sports_gamer_team_id]||team.team_name_in_league;
       const crest=logo(team);
       const header='<div class="dual-lineup-team-name">'+(crest?'<img src="'+esc(crest)+'" alt="">':'')+'<strong>'+esc(name)+'</strong></div>';
@@ -701,7 +813,8 @@ window.SWNViewerBridge=(()=>{
         const number=player?.player_number!=null&&player.player_number!==''?'#'+player.player_number:position;
         const tag=player?.display_gamertag||tx('notSelected');
         const attrs=' class="dual-lineup-player" data-position="'+position+'"';
-        return '<div'+attrs+playerShortcutHtml(player)+'><div class="dual-lineup-portrait">'+portrait+'</div><div class="dual-lineup-tag"><span title="'+position+'">'+esc(number)+'</span><b>'+esc(tag)+'</b></div></div>';
+        const action=lineupDraft?' data-edit-slot role="button" tabindex="0" aria-label="'+esc(position+' · '+tag)+'" aria-pressed="'+(lineupPicked?.side===side&&lineupPicked.slot===position)+'"':playerShortcutHtml(player);
+        return '<div'+attrs+action+'><div class="dual-lineup-portrait">'+portrait+'</div><div class="dual-lineup-tag"><span title="'+position+'">'+esc(number)+'</span><b>'+esc(tag)+'</b></div></div>';
       }).join('');
       const html=header+'<div class="dual-lineup-formation">'+cards+'</div>';
       if(panel.__renderedLineup===html)continue;
@@ -1319,12 +1432,12 @@ window.SWNViewerBridge=(()=>{
     },420);
   }
   let lastOutputControls=null;
-  function applyRemoteState(s){if(!s||typeof s!=="object")return;if(OBS_MODE&&window.BroadcastStatsUpdate){const signature=window.BroadcastStatsUpdate.controls(s);if(signature===lastOutputControls){window.__sehTwitchState=s;postPresenterLineups();if(Object.hasOwn(s,"transientSource"))void sourceProvider?.receive(s.transientSource);return;}lastOutputControls=signature;}remoteApplying=true;const incomingLeague=Number(s.leagueId||activeLeagueId);if(COMPETITIONS[incomingLeague]&&incomingLeague!==activeLeagueId){activeLeagueId=incomingLeague;if($("#tournament"))$("#tournament").value=String(activeLeagueId);applyCompetitionChrome(false);loadTournamentData();}if(Object.hasOwn(s,"transientSource"))void sourceProvider?.receive(s.transientSource);applyCompetitionChrome(false,Number(s.competitionProfileId||incomingLeague));setTheme(s.backgroundPackage||s.theme||"broadcast");setGraphicsPackage(s.graphicsPackage||"standard");setFooterBrand(s.footerBrand);if($("#videoSource")&&s.videoSource!==undefined)$("#videoSource").value=s.videoSource||"twitch";if($("#hlsUrl")&&s.hlsUrl!==undefined)$("#hlsUrl").value=s.hlsUrl||"";if($("#twitchChannel")&&s.twitchChannel!==undefined)$("#twitchChannel").value=s.twitchChannel||"";if($("#showTwitch"))$("#showTwitch").checked=s.twitchShow!==false;if($("#muteTwitch")&&s.twitchMute!==undefined)$("#muteTwitch").checked=!!s.twitchMute;if($("#showLiveTeamStrip")&&s.liveTeamStripShow!==undefined)$("#showLiveTeamStrip").checked=!!s.liveTeamStripShow;if($("#showLiveCommentators")&&s.liveCommentatorsShow!==undefined)$("#showLiveCommentators").checked=!!s.liveCommentatorsShow;$("#screen")?.classList.toggle("live-team-strip-off",$("#showLiveTeamStrip")?.checked===false);$("#screen")?.classList.toggle("live-commentators-off",!$("#showLiveCommentators")?.checked);window.__sehTwitchState=s;["home","away"].forEach(id=>{if(s[id]!==undefined&&$("#"+id)){const el=$("#"+id),v=String(s[id]);if(v&&![...el.options].some(o=>o.value===v))el.add(new Option(tx("team"),v));el.value=v;}});["hs","as","headline","subline","commentator1","commentator2","seriesFormat","seriesRound","seriesHome","seriesAway"].forEach(id=>{if(s[id]!==undefined&&$("#"+id))$("#"+id).value=s[id];});if($("#seriesShowResults")&&s.seriesShowResults!==undefined)$("#seriesShowResults").checked=!!s.seriesShowResults;applySeriesResults(s.seriesResults);if(s.lineups){["home","away"].forEach(side=>{if(!s.lineups[side])return;const key=side+":"+String(selectedTeam(side).sports_gamer_team_id);const next={};SLOTS.forEach(slot=>next[slot]=String(s.lineups[side][slot]||""));lineups.set(key,next);});}setArenaMist(s.arenaMist===true);setSceneMusic(s.sceneMusic);setLiveTeamOrder(s.liveTeamsReversed);teamOrderRevision=s.teamOrderRevision??null;seriesGameFinal=s.seriesGameFinal??null;presentedPlayer=s.presentedPlayer??null;applyScene(s.scene,s.lineupSide);window.dispatchEvent(new CustomEvent("seh:twitch-state",{detail:s}));renderMatch();if($("#showLiveSeries"))$("#showLiveSeries").checked=s.liveSeriesShow===true;renderSeries();renderLineup();renderTable();renderTeamCompare();renderScorers();renderFormGuide();renderOffense();renderDefenseLeaders();renderGoalieLeaders();renderRoad();renderLeaders();renderRoleMatchups();remoteApplying=false;}
+  function applyRemoteState(s){if(!s||typeof s!=="object")return;if(OBS_MODE&&window.BroadcastStatsUpdate){const signature=window.BroadcastStatsUpdate.controls(s);if(signature===lastOutputControls){window.__sehTwitchState=s;postPresenterLineups();lineupEditorStatus();if(Object.hasOwn(s,"transientSource"))void sourceProvider?.receive(s.transientSource);return;}lastOutputControls=signature;}remoteApplying=true;const incomingLeague=Number(s.leagueId||activeLeagueId);if(COMPETITIONS[incomingLeague]&&incomingLeague!==activeLeagueId){activeLeagueId=incomingLeague;if($("#tournament"))$("#tournament").value=String(activeLeagueId);applyCompetitionChrome(false);loadTournamentData();}if(Object.hasOwn(s,"transientSource"))void sourceProvider?.receive(s.transientSource);applyCompetitionChrome(false,Number(s.competitionProfileId||incomingLeague));setTheme(s.backgroundPackage||s.theme||"broadcast");setGraphicsPackage(s.graphicsPackage||"standard");setFooterBrand(s.footerBrand);if($("#videoSource")&&s.videoSource!==undefined)$("#videoSource").value=s.videoSource||"twitch";if($("#hlsUrl")&&s.hlsUrl!==undefined)$("#hlsUrl").value=s.hlsUrl||"";if($("#twitchChannel")&&s.twitchChannel!==undefined)$("#twitchChannel").value=s.twitchChannel||"";if($("#showTwitch"))$("#showTwitch").checked=s.twitchShow!==false;if($("#muteTwitch")&&s.twitchMute!==undefined)$("#muteTwitch").checked=!!s.twitchMute;if($("#showLiveTeamStrip")&&s.liveTeamStripShow!==undefined)$("#showLiveTeamStrip").checked=!!s.liveTeamStripShow;if($("#showLiveCommentators")&&s.liveCommentatorsShow!==undefined)$("#showLiveCommentators").checked=!!s.liveCommentatorsShow;$("#screen")?.classList.toggle("live-team-strip-off",$("#showLiveTeamStrip")?.checked===false);$("#screen")?.classList.toggle("live-commentators-off",!$("#showLiveCommentators")?.checked);window.__sehTwitchState=s;["home","away"].forEach(id=>{if(s[id]!==undefined&&$("#"+id)){const el=$("#"+id),v=String(s[id]);if(v&&![...el.options].some(o=>o.value===v))el.add(new Option(tx("team"),v));el.value=v;}});["hs","as","headline","subline","commentator1","commentator2","seriesFormat","seriesRound","seriesHome","seriesAway"].forEach(id=>{if(s[id]!==undefined&&$("#"+id))$("#"+id).value=s[id];});if($("#seriesShowResults")&&s.seriesShowResults!==undefined)$("#seriesShowResults").checked=!!s.seriesShowResults;applySeriesResults(s.seriesResults);if(s.lineups){["home","away"].forEach(side=>{if(!s.lineups[side])return;const key=side+":"+String(selectedTeam(side).sports_gamer_team_id);const next={};SLOTS.forEach(slot=>next[slot]=String(s.lineups[side][slot]||""));lineups.set(key,next);});}setArenaMist(s.arenaMist===true);setSceneMusic(s.sceneMusic);setLiveTeamOrder(s.liveTeamsReversed);teamOrderRevision=s.teamOrderRevision??null;seriesGameFinal=s.seriesGameFinal??null;presentedPlayer=s.presentedPlayer??null;applyScene(s.scene,s.lineupSide);window.dispatchEvent(new CustomEvent("seh:twitch-state",{detail:s}));renderMatch();if($("#showLiveSeries"))$("#showLiveSeries").checked=s.liveSeriesShow===true;renderSeries();renderLineup();renderTable();renderTeamCompare();renderScorers();renderFormGuide();renderOffense();renderDefenseLeaders();renderGoalieLeaders();renderRoad();renderLeaders();renderRoleMatchups();remoteApplying=false;}
   async function remoteRequest(method,body){const cfg=window.EHOCKEY_CONFIG||{};if(!cfg.supabaseUrl||!cfg.supabasePublishableKey)return;const key=String(cfg.supabasePublishableKey),headers={apikey:key,Accept:"application/json","Content-Type":"application/json"};if(/^eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(key))headers.Authorization="Bearer "+key;if(method!=="GET"){const session=await window.SWNStudioAccess?.session();if(!session)throw new Error("Admininloggning krävs.");headers.Authorization="Bearer "+session.access_token;}const url=String(cfg.supabaseUrl).replace(/\/+$/,"")+"/rest/v1/broadcast_studio_state?channel=eq."+encodeURIComponent(REMOTE_CHANNEL);const res=await fetch(url,{method,headers,body:body?JSON.stringify(body):undefined,cache:"no-store"});if(!res.ok)throw new Error("Broadcast state HTTP "+res.status);return method==="GET"?res.json():null;}
   // Preparing a match must never publish its state to the program output.
   let programState=null,programHeld=true,canResumeProgram=false,takeSequence=0;
   let directorSceneKey='',directorRevision=0,directorWrites=0,directorReading=false,directorRestoring=false;
-  const sceneKey=s=>JSON.stringify([s.scene,s.presentedPlayer??null,s.videoSource,s.twitchChannel,s.twitchTeamChannels,s.lineupSide||'home',!!s.publicNoMatch,s.publicNextMatch||null,s.sceneMusic||{},s.seriesHome,s.seriesAway,s.liveTeamsReversed===true,s.teamOrderRevision??null,s.hs,s.as,s.seriesGameFinal,s.seriesResults,s.seriesShowResults,s.liveTeamStripShow!==false,s.liveCommentatorsShow===true]);
+  const sceneKey=s=>JSON.stringify([s.scene,s.lineups??null,s.presentedPlayer??null,s.videoSource,s.twitchChannel,s.twitchTeamChannels,s.lineupSide||'home',!!s.publicNoMatch,s.publicNextMatch||null,s.sceneMusic||{},s.seriesHome,s.seriesAway,s.liveTeamsReversed===true,s.teamOrderRevision??null,s.hs,s.as,s.seriesGameFinal,s.seriesResults,s.seriesShowResults,s.liveTeamStripShow!==false,s.liveCommentatorsShow===true]);
   function holdProgram(){
     takeSequence++;
     if(!programHeld)programState=structuredClone(studioState());
@@ -1440,7 +1553,8 @@ window.SWNViewerBridge=(()=>{
       if(!publicNoMatch&&[...document.querySelectorAll('[data-scene]')].some(button=>button.dataset.scene===state.scene)){
         const sceneChanged=programState.scene!==state.scene||(programState.lineupSide||'home')!==side;
         const swapped=!!state.teamOrderRevision&&programState.teamOrderRevision!==state.teamOrderRevision;
-        const orderPatch=swapped?{home:state.home,away:state.away,subline:state.subline,lineups:state.lineups,teamOrderRevision:state.teamOrderRevision}:{};
+        const lineupsChanged=!!state.lineups&&JSON.stringify(programState.lineups)!==JSON.stringify(state.lineups);
+        const orderPatch=swapped?{home:state.home,away:state.away,subline:state.subline,lineups:state.lineups,teamOrderRevision:state.teamOrderRevision}:lineupsChanged?{lineups:state.lineups}:{};
         const scores={hs:state.hs,as:state.as,seriesGameFinal:state.seriesGameFinal??null,seriesResults:state.seriesResults,seriesShowResults:state.seriesShowResults};
         const streamChanged=programState.videoSource!==state.videoSource||programState.twitchChannel!==state.twitchChannel||
           JSON.stringify(programState.twitchTeamChannels||{})!==JSON.stringify(state.twitchTeamChannels||{});
@@ -1449,7 +1563,7 @@ window.SWNViewerBridge=(()=>{
         const selectedChanged=JSON.stringify(programState.presentedPlayer??null)!==JSON.stringify(state.presentedPlayer??null);
         const controls={...orderPatch,...scores,...streamPatch,...overlays,presentedPlayer:state.presentedPlayer??null,scene:state.scene,lineupSide:side,sceneMusic:state.sceneMusic||{},seriesHome:state.seriesHome,seriesAway:state.seriesAway,liveTeamsReversed:state.liveTeamsReversed===true};
         programState={...programState,...controls};
-        if(!programHeld&&(swapped||streamChanged)){
+        if(!programHeld&&(swapped||streamChanged||lineupsChanged)){
           // The director mirrors on-air controls only when not editing a separate draft.
           applyRemoteState({...studioState(),...controls});
         }else{
