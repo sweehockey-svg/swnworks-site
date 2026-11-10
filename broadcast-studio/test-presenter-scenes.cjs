@@ -127,13 +127,31 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     const laptopSidebar=await page.locator('.presenter-sidebar').boundingBox();
     assert(laptopPicture.width<laptopStrip.width-30,'Only the video shrinks on laptop screens');
     assert(Math.abs(laptopPicture.width/laptopPicture.height-16/9)<.01,'The video keeps its 16:9 ratio');
-    const withoutCap=await page.locator('#broadcast').evaluate(el=>{
+    const withoutCap=await page.locator('#broadcastPreview').evaluate(el=>{
      el.style.maxWidth='none';
      const box=document.querySelector('.presenter-sidebar').getBoundingClientRect(),scene=document.querySelector('#scenePicker').getBoundingClientRect();
      el.style.removeProperty('max-width');
      return {x:box.x,width:box.width,controlsWidth:scene.width};
     });
     assert.deepEqual(withoutCap,{x:laptopSidebar.x,width:laptopSidebar.width,controlsWidth:laptopStrip.width});
+    if(mode==='allowed'){
+     const grip=page.getByRole('slider',{name:'Storlek på sändningsbilden'});
+     const handle=await grip.boundingBox();
+     const x=handle.x+handle.width/2,y=handle.y+handle.height/2;
+     await page.mouse.move(x,y);await page.mouse.down();
+     await page.mouse.move(x-130,y,{steps:6});await page.mouse.up();
+     const smaller=await page.locator('#broadcast').boundingBox();
+     assert(Math.abs(smaller.width-(laptopPicture.width-130))<2,'Dragging the corner reduces the preview width');
+     assert(Math.abs(smaller.width/smaller.height-16/9)<.01,'Manual resizing keeps 16:9');
+     assert.equal((await page.locator('#scenePicker').boundingBox()).width,laptopStrip.width);
+     assert.equal((await page.locator('.presenter-sidebar').boundingBox()).width,laptopSidebar.width);
+     assert.equal(await page.evaluate(()=>localStorage.getItem('swn-presenter-preview-width-v1')),String(Math.round(smaller.width)));
+     await grip.press('ArrowRight');
+     assert((await page.locator('#broadcast').boundingBox()).width>smaller.width,'The grip also works with arrow keys');
+     await page.getByRole('button',{name:'Återställ automatisk storlek'}).click();
+     assert(Math.abs((await page.locator('#broadcast').boundingBox()).width-laptopPicture.width)<1,'Auto restores the responsive size');
+     assert.equal(await page.evaluate(()=>localStorage.getItem('swn-presenter-preview-width-v1')),null);
+    }
     await page.setViewportSize({width:1280,height:800});
     await frame.locator('[data-scene="intermission"]').click();
     await frame.locator('[data-scene="intermission"].active').waitFor();

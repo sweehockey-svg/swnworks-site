@@ -32,7 +32,12 @@
     .presenter-lineup-team li[data-position="RD"]{--chel-position:#ffda55}
     .presenter-lineup-team li small{display:block;color:var(--chel-position,#eac75f);font-size:9px;font-weight:800}
     .presenter-lineup-team li span{display:block;color:#eef7ff;font-size:11px;font-weight:700;overflow-wrap:anywhere}
+    #broadcastPreview{position:relative;width:100%}
     #broadcast{width:100%;aspect-ratio:16/9;border:1px solid #345166;border-radius:10px;background:#000;display:block}
+    #previewResize{position:absolute;right:2px;bottom:2px;width:26px;height:26px;display:grid;place-items:center;cursor:nwse-resize;touch-action:none;background:#06111ad9;color:#c7dce8;border-radius:5px 0 8px 0}
+    #previewResize svg{pointer-events:none}
+    #previewReset{position:absolute;right:32px;bottom:4px;min-height:22px;padding:2px 6px;border:1px solid #345166;border-radius:4px;background:#06111ae8;color:#eef7ff;font:700 10px Arial,sans-serif;cursor:pointer}
+    #previewResize:focus-visible,#previewReset:focus-visible{outline:2px solid #ffd33d;outline-offset:-2px}
     #scenePicker,#seriesPicker{display:block;width:100%;height:32px;border:0}
     #scenePicker{margin-top:5px;height:67px}
     .presenter-feed-row{display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px;min-width:0}
@@ -52,22 +57,29 @@
     }
     @media(min-width:880px) and (min-height:500px){
       .commentator-workspace{--match-width:calc((100svh - 96px)*16 / 9)}
-      #broadcast,#scenePicker{width:min(100%,var(--match-width))}
+      #broadcastPreview,#scenePicker{width:min(100%,var(--match-width))}
     }
     /* Leave the control column and sidebar alone; only the video gives up space. */
     @media (max-height:800px){
-      #broadcast{max-width:max(220px,calc((100svh - 144px)*16 / 9))}
+      #broadcastPreview{max-width:max(220px,calc((100svh - 144px)*16 / 9))}
     }
     @media (min-width:880px) and (max-width:1440px){
-      #broadcast{max-width:min(94%,max(220px,calc((100svh - 144px)*16 / 9)))}
+      #broadcastPreview{max-width:min(94%,max(220px,calc((100svh - 144px)*16 / 9)))}
     }
+    #broadcastPreview[data-manual-size]{width:min(100%,var(--preview-width));max-width:none}
   </style>
 </head>
 <body data-commentary-role="obs-presenter">
 <main>
   <div class="commentator-workspace">
     <section class="commentator-match">
-      <iframe id="broadcast" title="Matchbild från studion" allow="autoplay; fullscreen" allowfullscreen></iframe>
+      <div id="broadcastPreview">
+        <iframe id="broadcast" title="Matchbild från studion" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        <button type="button" id="previewReset" hidden>Auto</button>
+        <div id="previewResize" role="slider" tabindex="0" aria-controls="broadcast" aria-label="Storlek på sändningsbilden">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 13 13 3M7 13l6-6m-2 6 2-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
       <iframe id="scenePicker" title="Scenval" loading="lazy"></iframe>
     </section>
     <aside class="presenter-sidebar">
@@ -116,6 +128,71 @@
   document.documentElement.lang=lang;
   document.title=heading+" · SWNWORKS";
   const frame=document.getElementById("broadcast");
+  const preview=document.getElementById("broadcastPreview"),grip=document.getElementById("previewResize"),reset=document.getElementById("previewReset");
+  const resizeWords={
+    sv:["Storlek på sändningsbilden","Återställ automatisk storlek"],
+    en:["Broadcast preview size","Reset automatic size"],
+    fi:["Lähetyskuvan koko","Palauta automaattinen koko"],
+    de:["Größe der Sendevorschau","Automatische Größe wiederherstellen"]
+  }[lang];
+  grip.title=resizeWords[0];grip.setAttribute("aria-label",resizeWords[0]);
+  reset.title=resizeWords[1];reset.setAttribute("aria-label",resizeWords[1]);
+  const sizeKey="swn-presenter-preview-width-v1";
+  let manualWidth=null,drag=null;
+  const maxWidth=()=>Math.max(1,Math.floor(preview.parentElement.getBoundingClientRect().width));
+  const minWidth=()=>Math.min(240,maxWidth());
+  const size=()=>Math.round(preview.getBoundingClientRect().width);
+  const syncGrip=()=>{
+    grip.setAttribute("aria-valuemin",String(Math.min(minWidth(),size())));
+    grip.setAttribute("aria-valuemax",String(Math.max(maxWidth(),size())));
+    grip.setAttribute("aria-valuenow",String(size()));
+    grip.setAttribute("aria-valuetext",size()+" px");
+  };
+  const applySize=width=>{
+    manualWidth=width;
+    preview.toggleAttribute("data-manual-size",width!==null);
+    if(width!==null)preview.style.setProperty("--preview-width",width+"px");
+    else preview.style.removeProperty("--preview-width");
+    reset.hidden=width===null;
+    syncGrip();
+  };
+  const setSize=width=>applySize(Math.max(minWidth(),Math.min(maxWidth(),Math.round(width))));
+  const rememberSize=()=>{try{
+    if(manualWidth===null)localStorage.removeItem(sizeKey);
+    else localStorage.setItem(sizeKey,String(manualWidth));
+  }catch{}};
+  const autoSize=()=>{if(document.activeElement===reset)grip.focus({preventScroll:true});applySize(null);rememberSize();};
+  try{
+    const stored=Number(localStorage.getItem(sizeKey));
+    if(Number.isInteger(stored)&&stored>0&&stored<=10000)applySize(stored);
+  }catch{}
+  const gripSize=new ResizeObserver(syncGrip);
+  gripSize.observe(preview);gripSize.observe(preview.parentElement);syncGrip();
+  grip.addEventListener("pointerdown",event=>{
+    if(!event.isPrimary||event.button!==0)return;
+    grip.focus({preventScroll:true});grip.setPointerCapture(event.pointerId);
+    drag={id:event.pointerId,x:event.clientX,y:event.clientY,width:size(),changed:false};
+    event.preventDefault();
+  });
+  grip.addEventListener("pointermove",event=>{
+    if(drag?.id!==event.pointerId)return;
+    const dx=event.clientX-drag.x,dy=(event.clientY-drag.y)*16/9;
+    const delta=Math.abs(dx)>=Math.abs(dy)?dx:dy;
+    if(!drag.changed&&Math.abs(delta)<3)return;
+    drag.changed=true;setSize(drag.width+delta);
+  });
+  const endDrag=event=>{if(drag?.id!==event.pointerId)return;if(drag.changed)rememberSize();drag=null;};
+  ["pointerup","pointercancel","lostpointercapture"].forEach(type=>grip.addEventListener(type,endDrag));
+  reset.addEventListener("click",autoSize);
+  grip.addEventListener("dblclick",autoSize);
+  grip.addEventListener("keydown",event=>{
+    const direction={ArrowLeft:-1,ArrowDown:-1,ArrowRight:1,ArrowUp:1}[event.key];
+    if(direction){setSize(size()+direction*(event.shiftKey?80:24));rememberSize();}
+    else if(event.key==="Home"||event.key==="Escape")autoSize();
+    else if(event.key==="End"){setSize(maxWidth());rememberSize();}
+    else return;
+    event.preventDefault();
+  });
   frame.title=title;
   const audioLabels={sv:["Lyssna här","Bara i den här fliken · påverkar inte OBS"],en:["Listen here","This tab only · does not affect OBS"],fi:["Kuuntele tässä","Vain tässä välilehdessä · ei vaikuta OBS:ään"],de:["Hier mithören","Nur dieser Tab · kein Einfluss auf OBS"]};
   const audioButton=document.getElementById("presenterAudio");
