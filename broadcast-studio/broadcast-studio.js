@@ -286,6 +286,15 @@ window.SWNViewerBridge=(()=>{
     const button=document.createElement('button');button.type='button';button.dataset.scene='duallineup';button.textContent=dualLineupLabel;
     lastLineupButton.after(button);
   }
+  const tournamentScenes=window.BroadcastTournamentScenes;
+  const tournamentControls=document.createElement("div"),tournamentScene=document.createElement("div");
+  if(tournamentScenes){
+    const table=$('[data-scene="table"]'), grid=table?.closest(".scene-grid");
+    tournamentControls.className="studio-tournament-controls scene-grid";
+    if(grid){grid.after(tournamentControls);tournamentScenes.mount(tournamentControls,LOCALE,table);}
+    tournamentScene.className="scene tournament-broadcast";
+    $("#screen")?.append(tournamentScene);
+  }
   const musicScenes=[...new Set($$("[data-scene]").map(button=>button.dataset.scene))].filter(scene=>scene!=="live");
   const musicVolume={high:.32,low:.10};
   const musicLabels={
@@ -500,7 +509,8 @@ window.SWNViewerBridge=(()=>{
     controls.append(title);
     const scene=document.createElement("select"),level=document.createElement("select");
     scene.id="music-scene";level.id="music-level";
-    for(const name of musicScenes)scene.add(new Option($(`[data-scene="${name}"]`)?.textContent.trim()||name,name));
+    const tournamentLabels=tournamentScenes?.labels(LOCALE)||{};
+    for(const name of musicScenes)scene.add(new Option(tournamentLabels[name]||$(`[data-scene="${name}"]`)?.textContent.trim()||name,name));
     ["off","low","high"].forEach((mode,n)=>level.add(new Option(musicText[3+n],mode)));
     [scene,level].forEach((select,i)=>{
       const label=document.createElement("label");label.textContent=musicText[i+1];label.append(select);controls.append(label);
@@ -926,6 +936,59 @@ window.SWNViewerBridge=(()=>{
     $("#scorerGrid").innerHTML=card("home")+card("away");
   }
 
+  let tournamentSchedulePending=null;
+  function renderTournamentScene(scene=activeScene,loadSchedule=true){
+    const mode=tournamentScenes?.parse(scene);
+    if(!mode)return;
+    const {family,phase}=mode, t=tournamentScenes.words(LOCALE), goalie=family==="tourgoalies";
+    const phaseLabel=t[phase==="regular"?5:phase==="playoff"?6:4];
+    const title=t[family==="tourpoints"?1:goalie?2:3];
+    const teamFor=id=>data.teams.find(x=>Number(x.sports_gamer_team_id)===id);
+    const badge=team=>team&&logo(team)?'<img class="tour-team-logo" src="'+esc(logo(team))+'" alt="">':"";
+    const format=(v,max=0)=>Number(v).toLocaleString(LOCALE,{maximumFractionDigits:max});
+    const notice=message=>'<div class="tour-empty">'+esc(message)+'</div>';
+    let body, note=goalie?t[7]+(phase?"":" · "+t[8]):"";
+    if(family==="tourstats"){
+      const league=activeLeagueId, matches=groupMeetings?.completed(league);
+      if(loadSchedule&&groupMeetings&&tournamentSchedulePending!==league){
+        tournamentSchedulePending=league;
+        void groupMeetings.load(league).then(()=>{
+          if(tournamentSchedulePending===league)tournamentSchedulePending=null;
+          if(activeLeagueId===league)renderTournamentScene(activeScene,false);
+        });
+      }
+      const stats=matches&&tournamentScenes.summarize(matches,phase);
+      const tile=(label,value,detail="",team)=>'<div class="tour-stat">'+badge(team)+'<small>'+esc(label)+'</small><b>'+esc(value)+'</b>'+(detail?'<span>'+esc(detail)+'</span>':'')+'</div>';
+      if(!stats?.games)body=notice(matches?t[9]:t[groupMeetings?.status(league)===2?14:15]);
+      else{
+        const m=stats.highest,top=stats.topTeam,team=teamFor(top.id);
+        body='<div class="tour-stat-grid">'+tile(t[10],format(stats.games))+tile(t[11],format(stats.goals/stats.games,2))+
+          tile(t[12],m.homeScore+'–'+m.awayScore,(m.home||teamFor(m.homeId)?.team_name_in_league||"")+" · "+(m.away||teamFor(m.awayId)?.team_name_in_league||""))+
+          tile(t[13],format(top.goals),team?.team_name_in_league||top.name,team)+'</div>';
+      }
+    }else{
+      const ranked=tournamentScenes.rank(data.players,phase,goalie).slice(0,10);
+      const cols=goalie?["GP","SO","SV%"]:["GP","G","A","P"];
+      const values=p=>goalie?[p.gp,p.so,format(p.sv,2)+" %"]:[p.gp,p.goals,p.assists,p.points];
+      const named=p=>{const team=teamFor(p.team);return [badge(team),esc(team?.team_name_in_league||p.player.current_global_team_name||""),playerFlag(p.player)+esc(p.player.display_gamertag)];};
+      const podium=ranked.slice(0,3).map((p,i)=>{
+        const [mark,team,name]=named(p), vals=values(p);
+        return '<div class="tour-podium-card"><span class="tour-rank">'+(i+1)+'</span><div class="tour-photo">'+image(playerImage(p.player),true)+'</div><div class="tour-podium-info">'+
+          '<b>'+name+'</b><small>'+mark+team+'</small><strong>'+vals.at(-1)+(goalie?'':' P')+'</strong><div>'+
+          vals.slice(0,-1).map((v,j)=>'<span>'+v+' '+cols[j]+'</span>').join("")+'</div></div></div>';
+      }).join("");
+      const rows=ranked.slice(3).map((p,i)=>{
+        const [mark,team,name]=named(p);
+        return '<div><b>'+(i+4)+'</b><b>'+name+'</b><span>'+mark+team+'</span>'+values(p).map(v=>'<b>'+v+'</b>').join("")+'</div>';
+      }).join("");
+      body=ranked.length?'<div class="tour-podium">'+podium+'</div>'+(rows?
+        '<div class="tour-ranking'+(goalie?' tour-goalie':'')+'"><div class="tour-table-head"><b>#</b><b>'+esc(({sv:"SPELARE",fi:"PELAAJA",de:"SPIELER"})[LOCALE]||"PLAYER")+'</b><span>'+tx("team")+'</span>'+
+        cols.map(col=>'<b>'+col+'</b>').join("")+'</div>'+rows+'</div>':''):notice(t[9]);
+    }
+    tournamentScene.innerHTML='<div class="tour-heading"><small>'+esc(competition().label+' · '+phaseLabel)+'</small><h2>'+esc(title)+'</h2>'+
+      (note?'<span>'+esc(note)+'</span>':'')+'</div>'+body;
+  }
+
   function teamTotals(t) {
     const r=stage(t,"regular"), p=stage(t,"playoffs");
     return {gp:(number(r.games_played)??0)+(number(p.games_played)??0),w:(number(r.total_wins)??0)+(number(p.total_wins)??0),l:(number(r.losses)??0)+(number(p.losses)??0),gf:(number(r.goals_for)??0)+(number(p.goals_for)??0),ga:(number(r.goals_against)??0)+(number(p.goals_against)??0)};
@@ -1152,7 +1215,7 @@ window.SWNViewerBridge=(()=>{
 
   function renderAllCompetitionData(){
     renderTeams();renderSeries();renderLineup();renderTable();renderTeamCompare();renderScorers();
-    renderFormGuide();renderOffense();renderDefenseLeaders();renderGoalieLeaders();renderRoad();renderLeaders();renderRoleMatchups();
+    renderFormGuide();renderOffense();renderDefenseLeaders();renderGoalieLeaders();renderRoad();renderLeaders();renderRoleMatchups();renderTournamentScene();
   }
 
   function renderStatus() {
@@ -1386,7 +1449,7 @@ window.SWNViewerBridge=(()=>{
     const next=name==="stats"?"teamcompare":name==="lowerthird"?"matchup":name||"opening";
     const nextSide=side||$("#lineupSide").value;
     const current=document.querySelector(".scene.active");
-    const target=document.querySelector(".scene."+next);
+    const target=tournamentScenes?.parse(next)?tournamentScene:document.querySelector(".scene."+next);
     const sideChanged=next==="lineup"&&activeScene==="lineup"&&nextSide!==displayedLineupSide;
     // Home and away share the same lineup DOM node. Keep a visual snapshot of
     // the outgoing lineup, but run it through the exact same transition classes
@@ -1399,6 +1462,8 @@ window.SWNViewerBridge=(()=>{
     displayedLineupSide=next==="lineup"?nextSide:displayedLineupSide;
     document.querySelectorAll("[data-scene]").forEach(x=>x.classList.toggle("active",x.dataset.scene===next&&(!x.dataset.lineupSide||x.dataset.lineupSide===$("#lineupSide").value)));
     activeScene=next;
+    tournamentScenes?.sync(tournamentControls,next);
+    renderTournamentScene(next);
     syncMusicControl(current!==target);
     syncSceneMusic();
     if($("#screen"))$("#screen").dataset.arenaScene=next;

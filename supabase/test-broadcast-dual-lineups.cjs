@@ -53,6 +53,17 @@ const read=name=>fs.readFileSync(__dirname+'/'+name,'utf8');
   assert.deepEqual(manual,{...stripOn,scene:'spotlight',presentedPlayer:{id:'345',team:stripOn.home}});
   const automatic=(await db.query("select broadcast_control.set_scene('broadcast-en','spotlight',null) as result")).rows[0].result;
   assert.deepEqual(automatic,{...stripOn,scene:'spotlight'});
+  for(const family of ['tourpoints','tourgoalies','tourstats']){
+   for(const phase of ['','regular','playoff']){
+    const scene=family+phase;
+    await assert.rejects(db.query("select broadcast_control.set_scene('broadcast-fi',$1,null)",[scene]),{code:'42501'});
+    const tournament=(await db.query("select broadcast_control.set_scene('broadcast-en',$1,null) as result",[scene])).rows[0].result;
+    assert.equal(tournament.scene,scene);
+    assert.equal(tournament.hs,automatic.hs);
+    const withMusic=(await db.query("select broadcast_control.set_music('broadcast-en',$1,'low') as result",[scene])).rows[0].result;
+    assert.equal(withMusic.sceneMusic[scene],'low');
+   }
+  }
   const baseLineups={home:{LW:'201',C:'202',RW:'',LD:'',RD:'',G:''},away:{LW:'301',C:'',RW:'',LD:'',RD:'',G:''}};
   const reorder={...expected(automatic),baseLineups,lineups:{...baseLineups,home:{...baseLineups.home,LW:'202',C:'',RW:'201'}}};
   await assert.rejects(control('broadcast-fi',reorder,'reorder-lineups'),{code:'42501'});

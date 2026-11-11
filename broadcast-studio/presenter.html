@@ -43,7 +43,7 @@
     #previewReset{position:absolute;right:32px;bottom:4px;min-height:22px;padding:2px 6px;border:1px solid #345166;border-radius:4px;background:#06111ae8;color:#eef7ff;font:700 10px Arial,sans-serif;cursor:pointer}
     #previewResize:focus-visible,#previewReset:focus-visible{outline:2px solid #ffd33d;outline-offset:-2px}
     #scenePicker,#seriesPicker{display:block;width:100%;height:32px;border:0}
-    #scenePicker{margin-top:5px;height:67px}
+    #scenePicker{margin-top:5px;height:102px}
     #lineupEditBar:not([hidden]){display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:5px;color:#b7ccda;font-size:11px}
     #lineupEditBar button{border:1px solid #365367;border-radius:5px;background:#102534;color:#eef7ff;padding:5px 8px;font:700 11px Arial,sans-serif;cursor:pointer}
     #lineupEditBar button:disabled{opacity:.6;cursor:default}
@@ -72,15 +72,15 @@
       }
     }
     @media(min-width:880px) and (min-height:500px){
-      .commentator-workspace{--match-width:calc((100svh - 96px)*16 / 9)}
+      .commentator-workspace{--match-width:calc((100svh - 150px)*16 / 9)}
       #broadcastPreview,#scenePicker{width:min(100%,var(--match-width))}
     }
     /* Leave the control column and sidebar alone; only the video gives up space. */
     @media (max-height:800px){
-      #broadcastPreview{max-width:max(220px,calc((100svh - 144px)*16 / 9))}
+      #broadcastPreview{max-width:max(220px,calc((100svh - 179px)*16 / 9))}
     }
     @media (min-width:880px) and (max-width:1440px){
-      #broadcastPreview{max-width:min(94%,max(220px,calc((100svh - 144px)*16 / 9)))}
+      #broadcastPreview{max-width:min(94%,max(220px,calc((100svh - 179px)*16 / 9)))}
     }
     #broadcastPreview[data-manual-size]{width:min(100%,var(--preview-width));max-width:none}
   </style>
@@ -447,7 +447,7 @@
     });
     lineupTeams.replaceChildren(...sections);lineupStatus.hidden=true;
   });
-  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261111-champion-avatar";
+  frame.src=path+"/?obs=1&viewer=1&presenter=1&v=20261111-tournament-scenes";
   const originalTitles={sv:"Originalstream · utan ljud",en:"Original feed · muted",fi:"Alkuperäinen striimi · mykistetty",de:"Originalstream · stumm"};
   const original=document.getElementById("originalFeed");
   original.title=document.getElementById("originalFeedLabel").textContent=originalTitles[lang];
@@ -468,7 +468,7 @@
       resize.observe(body);
       fit();
     });
-    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261111-lineup-reserves";
+    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261111-tournament-scenes";
   }
   mountControls("scenePicker",sceneTitle,"1");
   const seriesTitles={sv:"Serieläge",en:"Series score",fi:"Sarjatilanne",de:"Serienstand"};
@@ -507,7 +507,7 @@
     toolStatus=new MutationObserver(fit);toolStatus.observe(doc.documentElement,{attributes:true,attributeFilter:["data-tools-ready","data-studio-locked"]});
     fit();
   });
-  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261111-champion-avatar";};
+  const loadTools=()=>{if(tools.open&&!toolsFrame.hasAttribute("src"))toolsFrame.src=path+"/?panel=tools&v=20261111-tournament-scenes";};
   tools.addEventListener("toggle",loadTools);
   loadTools();
 })();

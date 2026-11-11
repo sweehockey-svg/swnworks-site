@@ -33,7 +33,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     }
     if(file==='studio-access.js'||file==='studio-access.css')return route.fulfill({contentType:file.endsWith('.css')?'text/css':'application/javascript',body:read('../'+file)});
     if(file==='broadcast-config.js')return route.fulfill({contentType:'application/javascript',body:`window.EHOCKEY_CONFIG={supabaseUrl:${JSON.stringify(origin)},supabasePublishableKey:"fixture"};`});
-    if(['mobile-control.js','commentator-notes.js','group-meetings.js','commentator-notes.css'].includes(file))return route.fulfill({contentType:file.endsWith('.css')?'text/css':'application/javascript',body:read(file)});
+    if(['mobile-control.js','commentator-notes.js','group-meetings.js','tournament-scenes.js','commentator-notes.css'].includes(file))return route.fulfill({contentType:file.endsWith('.css')?'text/css':'application/javascript',body:read(file)});
     if(url.pathname.endsWith('/rpc/broadcast_studio_set_scene')){
      assert.equal(req.headers().authorization,'Bearer fixture-token');
      const payload=req.postDataJSON();writes.push(payload);
@@ -140,9 +140,11 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await live.waitFor({state:'visible'});
     assert.equal(await live.isEnabled(),true);
     await page.setViewportSize({width:1906,height:900});
-    await page.waitForFunction(()=>document.getElementById('scenePicker').getBoundingClientRect().height===67);
+    await frame.locator('#tournamentControls > [data-scene="tourstats"]').waitFor();
     assert.deepEqual(await frame.locator('#compactPrimary > button[data-scene]').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
-     ['opening','live','lineup','lineup','intermission','series','table','teamcompare','formguide','forwards','defense','goalies']);
+     ['opening','live','lineup','lineup','intermission','series','teamcompare','formguide','forwards','defense','goalies']);
+    assert.deepEqual(await frame.locator('#tournamentControls > button[data-scene]').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
+     ['table','tourpoints','tourgoalies','tourstats']);
     assert.deepEqual(await frame.locator('#compactSecondary > button[data-scene]').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
      ['duallineup','matchup','groupmeetings','road','scorers','offense','defenseleaders','goalieleaders','keymatchup','spotlight','leaders']);
     assert.equal(await frame.locator('#compactScenes details').count(),0);
@@ -155,7 +157,9 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     assert.equal(flipBox.y,goaliesBox.y,'Flip stays on the upper row');
     assert(goaliesBox.x+goaliesBox.width<=musicBox.x&&musicBox.x+musicBox.width<=flipBox.x,'Music and flip sit to the right of Goalies');
     const desktopStrip=await page.locator('#scenePicker').boundingBox();
-    assert(desktopStrip.y+desktopStrip.height<=900,'Both rows fit below the video on desktop');
+    const tournamentRow=await frame.locator('#tournamentControls').boundingBox();
+    assert(tournamentRow.y+tournamentRow.height<=desktopStrip.y+desktopStrip.height,'The tournament row fits in the control strip');
+    assert(desktopStrip.y+desktopStrip.height<=900,'Scene rows fit below the video on desktop: '+JSON.stringify({desktopStrip,tournamentRow}));
     const stripToggle=frame.getByRole('button',{name:'Visa lagruta',exact:true});
     const commentatorToggle=frame.getByRole('button',{name:'Visa kommentatorer',exact:true});
     const [stripBox,commentatorBox]=await Promise.all([stripToggle.boundingBox(),commentatorToggle.boundingBox()]);
@@ -199,6 +203,13 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await frame.locator('[data-scene="intermission"]').click();
     await frame.locator('[data-scene="intermission"].active').waitFor();
     assert.deepEqual(writes,[{p_channel:'sec21-bronze-test',p_scene:'intermission',p_lineup_side:null}]);
+    await frame.locator('#tournamentControls > [data-scene="tourpoints"]').click();
+    await frame.getByRole('button',{name:'Slutspel',exact:true}).click();
+    await frame.locator('[data-scene="tourpointsplayoff"].active').waitFor();
+    assert.equal(writes.at(-1).p_scene,'tourpointsplayoff');
+    await frame.locator('[data-scene="intermission"]').click();
+    await frame.locator('[data-scene="intermission"].active').waitFor();
+    writes.splice(1);
     assert.equal(state.hs,3);assert.equal(state.as,2);
     await page.setViewportSize({width:1920,height:1080});
     await series.locator('#seriesSummary').click();

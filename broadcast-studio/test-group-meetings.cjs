@@ -18,6 +18,19 @@ const helper=ctx.window.BroadcastGroupMeetings,plain=x=>JSON.parse(JSON.stringif
   assert.equal(helper.cached(527,6709,7103),null);
   await Promise.all([helper.load(527),helper.load(527)]);
   assert.equal(requests,1);
+  const completed=plain(helper.completed(527));
+  assert.deepEqual(completed.map(x=>x.id),[136003,137003,137001,135997]);
+  const {summarize,rank}=require('./tournament-scenes.js');
+  assert.deepEqual([summarize(completed,'').games,summarize(completed,'').goals,summarize(completed,'playoff').games],[4,29,1]);
+  assert.equal(summarize(completed,'regular').highest.id,136003);
+  const goalie=(id,team,values)=>({sports_gamer_player_id:id,sports_gamer_team_id:team,...values});
+  const ranking=rank([
+    goalie(1,10,{regular_goalie_games:3,regular_goalie_save_percentage:.8}),
+    goalie(1,11,{playoff_goalie_games:2,playoff_goalie_save_percentage:90}),
+    goalie(2,12,{regular_goalie_games:2,regular_goalie_save_percentage:99}),
+    goalie(3,12,{regular_goalie_games:4,regular_goalie_save_percentage:null})
+  ],'',true);
+  assert.deepEqual(ranking.map(p=>[p.id,p.team,p.gp,p.sv]),[[1,10,5,84]]);
   assert.deepEqual(plain(helper.cached(527,6709,7103)).map(x=>[x.id,x.home,x.away]),[[136003,6,2],[135997,3,4]]);
   assert.deepEqual(plain(helper.cached(527,7103,6709)).map(x=>[x.home,x.away]),[[2,6],[4,3]]);
   assert.deepEqual(plain(helper.cached(527,6709,55)),[]);

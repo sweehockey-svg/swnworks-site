@@ -50,6 +50,11 @@ const meetings=window.BroadcastGroupMeetings,meetingsLabel=meetings?.label[LANG]
 if(meetingsLabel)labels.groupmeetings=meetingsLabel[0];
 let pendingMeetings=null;
 const groupRows=()=>meetings?.cached(received?.leagueId,received?.home,received?.away);
+const tournamentScenes=window.BroadcastTournamentScenes,tournamentControls=document.getElementById("tournamentControls");
+if(tournamentScenes&&tournamentControls){
+ Object.assign(labels,tournamentScenes.labels(LANG));
+ tournamentScenes.mount(tournamentControls,LANG,tournamentControls.querySelector('[data-scene="table"]'));
+}
 const buttons=[...document.querySelectorAll("[data-scene]")];
 const musicButtons=[...document.querySelectorAll("[data-music]")];
 const musicEnabled=scene=>scene!=="live"&&Object.hasOwn(labels,scene);
@@ -64,12 +69,12 @@ document.getElementById("activeSceneLabel").textContent=T.active;
 document.getElementById("groupBroadcast").textContent=T.broadcast;
 document.getElementById("groupLineups").textContent=T.lineups;
 document.getElementById("groupMatch").textContent=T.match;
-document.getElementById("groupStats").textContent=T.stats;
+document.getElementById("groupStats").textContent=({sv:"LAGSTATISTIK",en:"TEAM STATISTICS",fi:"JOUKKUETILASTOT",de:"TEAMSTATISTIK"})[LANG];
 document.getElementById("groupPlayers").textContent=T.players;
 document.getElementById("footText").textContent=T.foot;
 buttons.forEach(b=>{
  const key=b.dataset.scene;
- const text=labels[key]||b.textContent;
+ const text=b.hasAttribute("data-tournament-phase")?b.textContent:labels[key]||b.textContent;
  if(key==="lineup") b.textContent=lineupFallback(b.dataset.lineupSide);
  else b.textContent=text;
 });
@@ -273,6 +278,7 @@ function render(state){
    b.setAttribute("aria-label",team?fallback+" · "+team:fallback);
   }
  });
+ tournamentScenes?.sync(tournamentControls,scene);
  const lineupName=scene==="lineup"?teamLabel(state,side):"";
  current.textContent=scene==="lineup"?(lineupName?labels.lineup+" · "+lineupName:lineupFallback(side)):(labels[scene]||scene||"Ingen scen");
  if(scene==="spotlight"&&state?.presentedPlayer)current.textContent=playerLabel;

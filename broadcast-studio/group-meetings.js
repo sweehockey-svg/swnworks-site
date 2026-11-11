@@ -75,5 +75,16 @@
     if(!Array.isArray(entries)||entries.length>99||entries.some(x=>!positive(x?.id)||!positive(x?.goals)||typeof x?.name!=="string"||!x.name.trim()||x.name.length>80))return [];
     return entries.reduce((n,x)=>n+Number(x.goals),0)===goals?entries:[];
   }
-  window.BroadcastGroupMeetings={select,cached,load,status,label,loadScorers,scorers,scorerLabel};
+  function completed(league){
+    const rows=cache.get(Number(league))?.rows;
+    if(!rows)return null;
+    const matches=new Map();
+    for(const m of rows){
+      if(!m||!["regular","playoffs"].includes(m.stage)||!positive(m.id)||!positive(m.homeId)||!positive(m.awayId)||
+         Number(m.homeId)===Number(m.awayId)||!score(m.homeScore)||!score(m.awayScore)||!Number.isFinite(Date.parse(m.date)))continue;
+      matches.set(Number(m.id),{...m,id:Number(m.id),homeId:Number(m.homeId),awayId:Number(m.awayId),homeScore:Number(m.homeScore),awayScore:Number(m.awayScore)});
+    }
+    return [...matches.values()].sort((a,b)=>Date.parse(b.date)-Date.parse(a.date)||b.id-a.id);
+  }
+  window.BroadcastGroupMeetings={select,cached,completed,load,status,label,loadScorers,scorers,scorerLabel};
 })();

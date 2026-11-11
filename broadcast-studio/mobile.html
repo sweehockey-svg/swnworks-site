@@ -64,6 +64,14 @@ button[disabled].pending{cursor:wait;opacity:1}
 #teamStreamStatus{margin:4px 0 0;color:#f1bf8a;font-size:11px}
 #teamStreamStatus:empty{display:none}
 @media(min-width:560px) and (orientation:landscape){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}button{min-height:54px}}
+.tournament-controls{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.tournament-controls>button{flex:1 1 42%}
+.tournament-caption{flex-basis:100%;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#99b1c1;font-weight:800}
+.tournament-filters:not([hidden]){display:flex;flex-wrap:wrap;align-items:center;gap:5px;flex-basis:100%}
+.tournament-filters>button{min-height:36px;padding:4px 8px}
+#compactScenes .tournament-controls>button,#compactScenes .tournament-caption{flex:0 1 auto}
+#compactScenes .tournament-filters{flex-basis:auto}
+#compactScenes .tournament-caption{letter-spacing:.06em}
 #compactLogin,#compactScenes{display:none}
 html[data-compact-scenes],html[data-compact-scenes] body{min-height:0}
 html[data-compact-scenes] body{padding:0}
@@ -89,6 +97,7 @@ html[data-compact-scenes="1"] #compactScenes{display:grid;gap:5px}
 @media(min-width:1200px){
  html[data-compact-scenes="1"] #compactScenes{grid-template-columns:minmax(0,1fr) max-content;align-items:start}
  #compactPrimary,#compactSecondary{grid-column:1}
+ #tournamentControls{grid-column:1/-1;grid-row:3}
  #compactOverlays{grid-area:1/2/span 2/3}
 }
 html[data-compact-scenes="series"] .series-editor{margin:0;padding:5px 7px}
@@ -143,8 +152,8 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
     <button data-scene="road">Slutspelsvägen</button>
   </div></section>
 
-  <section class="group"><h2 id="groupStats">TABELL &amp; TOPPLISTOR</h2><div class="grid">
-    <button data-scene="table">Tabell</button>
+  <section class="group tournament-controls" id="tournamentControls"><button data-scene="table">Tabell</button></section>
+  <section class="group"><h2 id="groupStats">LAGSTATISTIK</h2><div class="grid">
     <button data-scene="formguide">Form</button>
     <button data-scene="scorers">Poängliga</button>
     <button data-scene="offense">Offensiv</button>
@@ -205,11 +214,11 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
   if(seriesOnly)return;
   const strip=document.getElementById("compactScenes"),primary=document.getElementById("compactPrimary"),secondary=document.getElementById("compactSecondary");
   strip.setAttribute("aria-label",label);
-  const quick=["opening","live","lineup","intermission","series","table","teamcompare","formguide","forwards","defense","goalies"];
+  const quick=["opening","live","lineup","intermission","series","teamcompare","formguide","forwards","defense","goalies"];
   const buttons=[...document.querySelectorAll("[data-scene]")];
   for(const button of buttons){
     button.disabled=true;
-    if(!quick.includes(button.dataset.scene))secondary.append(button);
+    if(button.dataset.scene!=="table"&&!quick.includes(button.dataset.scene))secondary.append(button);
   }
   const player=document.createElement("button");
   player.type="button";player.id="presentPlayerButton";player.disabled=true;
@@ -233,7 +242,9 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
   }
   overlays.append(document.getElementById("mobileFlipLiveTeams"),toggles);
   strip.append(overlays);
+  const tournament=document.getElementById("tournamentControls");
+  tournament.classList.remove("group");tournament.classList.add("compact-row");strip.append(tournament);
 })();
 </script>
-<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261108-scorers"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261111-lineup-reserves"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
+<script src="broadcast-config.js?v=2"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0"></script><script type="text/plain" data-studio-src="group-meetings.js?v=20261111-tournament-scenes"></script><script type="text/plain" data-studio-src="tournament-scenes.js?v=20261111-tournament-scenes"></script><script type="text/plain" data-studio-src="mobile-control.js?v=20261111-tournament-scenes"></script><script src="/studio-access.js?v=20261019-scene-email"></script></body></html>
 

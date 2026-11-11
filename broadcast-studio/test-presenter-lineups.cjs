@@ -21,9 +21,10 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     :{body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aZ1sAAAAASUVORK5CYII=','base64')})});
    if(!url.startsWith(root))return route.abort();
    if(url.includes('/presenter.html'))return route.fulfill({contentType:'text/html; charset=utf-8',body:read('presenter.html')});
-   if(url.includes('/SV/')&&url.includes('obs=1')&&!url.includes('feed=1'))return route.fulfill({contentType:'text/html; charset=utf-8',body:studio.replace('</head>','<link rel="stylesheet" href="/broadcast-studio/broadcast-studio.css"></head>').replace('</body>',`<script>window.EHOCKEY_CONFIG={};const FixtureAudio=window.Audio;window.Audio=function(src){const audio=new FixtureAudio(src);if(src.startsWith('blob:'))window.testPop=audio;return audio;};</script><script src="fixture.js"></script></body>`)});
+   if(url.includes('/SV/')&&url.includes('obs=1')&&!url.includes('feed=1'))return route.fulfill({contentType:'text/html; charset=utf-8',body:studio.replace('</head>','<link rel="stylesheet" href="/broadcast-studio/broadcast-studio.css"></head>').replace('</body>',`<script>window.EHOCKEY_CONFIG={};const FixtureAudio=window.Audio;window.Audio=function(src){const audio=new FixtureAudio(src);if(src.startsWith('blob:'))window.testPop=audio;return audio;};</script><script src="tournament-scenes.js"></script><script src="fixture.js"></script></body>`)});
    if(url.endsWith('/aztrozmurfen-superhero-in-the-game.mp3'))return route.fulfill({contentType:'audio/mpeg',path:__dirname+'/assets/aztrozmurfen-superhero-in-the-game.mp3'});
    if(url.endsWith('/fixture.js'))return route.fulfill({contentType:'application/javascript; charset=utf-8',body:fixture});
+   if(url.endsWith('/tournament-scenes.js'))return route.fulfill({contentType:'application/javascript; charset=utf-8',body:read('tournament-scenes.js')});
    if(url.includes('commentator-notes.css'))return route.fulfill({contentType:'text/css',body:read('commentator-notes.css')});
    if(url.includes('broadcast-studio.css'))return route.fulfill({contentType:'text/css',body:read('broadcast-studio.css')});
    if(url.includes('commentator-notes.js'))return route.fulfill({contentType:'application/javascript; charset=utf-8',body:read('commentator-notes.js')});
@@ -36,6 +37,22 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   const state={home:'11',away:'22',scene:'opening',lineups:{home:{LW:'111'},away:{RD:'221'}}};
   const frame=page.frame({url:/\/SV\/\?obs=1&viewer=1&presenter=1/});
   await frame.waitForFunction(()=>!!window.lineupFixture);
+  const tourTeam={sports_gamer_team_id:33,team_name_in_league:'Tredje laget'};
+  const tourPlayers=Array.from({length:10},(_,i)=>({sports_gamer_team_id:33,sports_gamer_player_id:i+1000,display_gamertag:'TourPlayer'+i,
+   regular_skater_games:5,regular_goals:10-i,regular_assists:3,regular_points:13-i,
+   playoff_skater_games:2,playoff_goals:i,playoff_assists:2,playoff_points:i+2,
+   regular_goalie_games:i<2?2:3,regular_goalie_save_percentage:i<2?.95:.80-i/100,regular_goalie_shutouts:0}));
+  await frame.evaluate(({teams,tourPlayers,state})=>{
+   lineupFixture.seed(teams,tourPlayers);lineupFixture.apply({...state,scene:'tourpointsplayoff'});
+  },{teams:[...teams,tourTeam],tourPlayers,state});
+  const tournament=frame.locator('.tournament-broadcast.active');
+  assert.match(await tournament.locator('.tour-heading').innerText(),/Slutspel[\s\S]*Turneringens poängliga/i);
+  assert.match(await tournament.locator('.tour-podium-card').first().innerText(),/TourPlayer9[\s\S]*Tredje laget/);
+  assert.equal(await tournament.locator('.tour-ranking>div').count(),8);
+  assert(await tournament.evaluate(el=>el.querySelector('.tour-ranking').getBoundingClientRect().bottom<=el.getBoundingClientRect().bottom));
+  await frame.evaluate(s=>lineupFixture.apply({...s,scene:'tourgoaliesregular'}),state);
+  assert.match(await tournament.locator('.tour-podium-card').first().innerText(),/TourPlayer2/);
+  assert.doesNotMatch(await tournament.innerText(),/TourPlayer[01]\b/);
   const commentators=[['phyreon3429','Alexander “Phyreon” Sundman','3429'],['troublemakingswe','Alex “troublemakingswe” Rautiainen','2807']];
   for(const selector of ['#commentator1','#commentator2']){
    const options=await frame.locator(selector+' option').evaluateAll(rows=>rows.map(o=>[o.value,o.textContent]));

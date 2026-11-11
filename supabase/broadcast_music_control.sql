@@ -13,7 +13,8 @@ begin
   if p_scene is null or p_scene not in (
     'opening','matchup','series','lineup','duallineup','stats','table','teamcompare','scorers','formguide',
     'offense','defenseleaders','goalieleaders','road','leaders','intermission','lowerthird',
-    'forwards','defense','goalies','keymatchup','spotlight','groupmeetings'
+    'forwards','defense','goalies','keymatchup','spotlight','groupmeetings',
+    'tourpoints','tourpointsregular','tourpointsplayoff','tourgoalies','tourgoaliesregular','tourgoaliesplayoff','tourstats','tourstatsregular','tourstatsplayoff'
   ) or p_mode is null or p_mode not in ('high','low','off') then
     raise exception 'Invalid music setting' using errcode = '22023';
   end if;
