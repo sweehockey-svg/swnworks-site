@@ -456,7 +456,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   }
   return {start,end,longestQuietMs:longest/rate*1000};
  });
- assert(seam.start>.04&&seam.end<37.88&&seam.longestQuietMs<5,JSON.stringify(seam));
+ assert(seam.start>.22&&seam.start<.24&&seam.end>303.5&&seam.end<303.56&&seam.longestQuietMs<5,JSON.stringify(seam));
  console.log('Champion loop seam: '+seam.longestQuietMs.toFixed(2)+' ms below -80 dBFS in both channels.');
  await showFinal('series',{series:'low'});
  assert.deepEqual(await obs.evaluate(()=>[testChampionPlays,seriesFixture.loop().gain.gain.value.toFixed(2),testMusicAudio.paused]),[2,'0.10',true]);
@@ -464,7 +464,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
  assert(await obs.evaluate(()=>!seriesFixture.loop().node&&testMusicAudio.paused),'Champion music remains controllable after the entrance');
  await obs.evaluate(()=>seriesFixture.disableLoop());
  await showFinal('series',{series:'low'});
- await obs.waitForFunction(()=>testMusicAudio.src.endsWith('/champion.mp3')&&!testMusicAudio.paused&&testMusicAudio.currentTime>.03);
+ await obs.waitForFunction(()=>new URL(testMusicAudio.src).pathname.endsWith('/champion.mp3')&&!testMusicAudio.paused&&testMusicAudio.currentTime>.03);
  assert.equal(await obs.evaluate(()=>testMusicAudio.volume),.10,'The HTML audio fallback can still play the winner track');
  await obs.close();
  const motionPage=await browser.newPage({viewport:{width:1920,height:1080},reducedMotion:'no-preference'});

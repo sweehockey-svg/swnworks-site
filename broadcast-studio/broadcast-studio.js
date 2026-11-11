@@ -311,7 +311,7 @@ window.SWNViewerBridge=(()=>{
   $("#screen")?.append(musicCredit);
   let sceneMusic={},musicAudio=null,musicSource='',musicStart=null,musicPlaying=false,musicViewerMuted=true;
   let championSound=null,championSoundShown=false,championMusicWait=false,championWaitTimer=0,championIntroToken=0;
-  const championTrack='/broadcast-studio/assets/champion.mp3';
+  const championTrack='/broadcast-studio/assets/champion.mp3?v=20261111-victory';
   let championLoop=null;
   function prepareChampionLoop(){
     if(championLoop!==null)return championLoop;
@@ -328,14 +328,14 @@ window.SWNViewerBridge=(()=>{
       console.warn("Champion loop fell back to the standard player:",reason);
       syncSceneMusic();
     };
-    const timeout=setTimeout(()=>fallback("audio preparation timed out"),2500);
+    const timeout=setTimeout(()=>fallback("audio preparation timed out"),6500);
     void Promise.all([context.resume(),fetch(championTrack).then(response=>{
       if(!response.ok)throw Error("Champion track unavailable");
       return response.arrayBuffer();
     }).then(bytes=>context.decodeAudioData(bytes))]).then(([,buffer])=>{
       if(championLoop!==loop)return;
       // Loop points for this specific file, excluding its near-silent MP3 edges.
-      const start=Math.round(.050*buffer.sampleRate),end=Math.min(buffer.length,Math.round(37.862*buffer.sampleRate));
+      const start=Math.round(.231*buffer.sampleRate),end=Math.min(buffer.length,Math.round(303.531*buffer.sampleRate));
       if(end<=start||context.state!=="running"){fallback("invalid loop points or suspended audio");return;}
       const ramp=Math.min(Math.round(.002*buffer.sampleRate),Math.floor((end-start)/2));
       for(let channel=0;channel<buffer.numberOfChannels;channel++){
@@ -444,7 +444,7 @@ window.SWNViewerBridge=(()=>{
     const audible=!!volume&&(!VIEWER_MODE||!musicViewerMuted);
     const celebrating=activeScene==='series'&&!!championOutcome();
     const source=celebrating?championTrack:'/broadcast-studio/assets/aztrozmurfen-superhero-in-the-game.mp3';
-    // Warm up the small track during an audible final scene, before the confetti cue.
+    // Warm up the track during an audible final scene, before the confetti cue.
     if(audible&&(celebrating||championshipRounds.has(championshipRound())))prepareChampionLoop();
     syncChampionSound(celebrating,audible?volume:0);
     if(!audible||championMusicWait){
