@@ -2878,6 +2878,15 @@
         byTrack.get(credit.track_id).push(credit);
       });
       const noteGroups = groupTrackNotes(tracks);
+      // Visa artist per låt bara när utgåvan faktiskt har olika artister,
+      // eller när en spårartist skiljer sig från utgåvans enda registrerade band.
+      // En samling med enbart ett band behöver inte upprepa bandnamnet heller.
+      const releaseBandIds = new Set(state.releaseBands
+        .filter(link => link.release_id === releaseId)
+        .map(link => link.band_id));
+      const creditedBandIds = new Set(tracks.map(track => track.credited_band_id).filter(Boolean));
+      const showTrackArtists = releaseBandIds.size > 1 || creditedBandIds.size > 1
+        || [...creditedBandIds].some(bandId => !releaseBandIds.has(bandId));
       const formatDuration = seconds => {
         if (seconds === null || seconds === undefined || !Number.isFinite(Number(seconds))) return '';
         const total = Number(seconds);
@@ -2890,7 +2899,7 @@
           return `${escapeHtml(name)} · ${escapeHtml(roleSv(credit.role || ''))}`;
         }).join(' · ');
         const performer = bandsById().get(track.credited_band_id);
-        const performerHtml = performer
+        const performerHtml = showTrackArtists && performer
           ? '<span class="release-track-performer">Artist: <a href="' + escapeHtml(bandHref(performer)) + '">' + escapeHtml(performer.canonical_name) + '</a></span>'
           : '';
         const note = String(track.notes || '').trim();
