@@ -38,21 +38,31 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   const frame=page.frame({url:/\/SV\/\?obs=1&viewer=1&presenter=1/});
   await frame.waitForFunction(()=>!!window.lineupFixture);
   const tourTeam={sports_gamer_team_id:33,team_name_in_league:'Tredje laget'};
-  const tourPlayers=Array.from({length:10},(_,i)=>({sports_gamer_team_id:33,sports_gamer_player_id:i+1000,display_gamertag:'TourPlayer'+i,
-   regular_skater_games:5,regular_goals:10-i,regular_assists:3,regular_points:13-i,
+  const tourPlayers=Array.from({length:12},(_,i)=>({sports_gamer_team_id:33,sports_gamer_player_id:i+1000,display_gamertag:'TourPlayer'+i,
+   regular_skater_games:5,regular_goals:12-i,regular_assists:3,regular_points:15-i,
    playoff_skater_games:2,playoff_goals:i,playoff_assists:2,playoff_points:i+2,
    regular_goalie_games:i<2?2:3,regular_goalie_save_percentage:i<2?.95:.80-i/100,regular_goalie_shutouts:0}));
   await frame.evaluate(({teams,tourPlayers,state})=>{
-   lineupFixture.seed(teams,tourPlayers);lineupFixture.apply({...state,scene:'tourpointsplayoff'});
+   lineupFixture.seed(teams,tourPlayers);lineupFixture.apply({...state,scene:'tourpointsplayoff',graphicsPackage:'gamenight'});
   },{teams:[...teams,tourTeam],tourPlayers,state});
   const tournament=frame.locator('.tournament-broadcast.active');
   assert.match(await tournament.locator('.tour-heading').innerText(),/Slutspel[\s\S]*Turneringens poängliga/i);
-  assert.match(await tournament.locator('.tour-podium-card').first().innerText(),/TourPlayer9[\s\S]*Tredje laget/);
-  assert.equal(await tournament.locator('.tour-ranking>div').count(),8);
-  assert(await tournament.evaluate(el=>el.querySelector('.tour-ranking').getBoundingClientRect().bottom<=el.getBoundingClientRect().bottom));
-  await frame.evaluate(s=>lineupFixture.apply({...s,scene:'tourgoaliesregular'}),state);
+  assert.match(await tournament.locator('.tour-podium-card').first().innerText(),/TourPlayer11[\s\S]*Tredje laget/);
+  async function assertTenthFits(){
+   assert.equal(await tournament.locator('.tour-ranking>div').count(),8);
+   assert.equal(await tournament.locator('.tour-ranking>div:last-child>b:first-child').innerText(),'10');
+   const layout=await tournament.evaluate(el=>{
+    const table=el.querySelector('.tour-ranking'),row=table.lastElementChild,footer=document.querySelector('#screen>.bug');
+    const bottom=node=>node.getBoundingClientRect().bottom;
+    return {insideTable:bottom(row)<=bottom(table),insideScene:bottom(table)<=bottom(el),aboveFooter:bottom(table)<footer.getBoundingClientRect().top};
+   });
+   assert.deepEqual(layout,{insideTable:true,insideScene:true,aboveFooter:true});
+  }
+  await assertTenthFits();
+  await frame.evaluate(s=>lineupFixture.apply({...s,scene:'tourgoalies',graphicsPackage:'gamenight'}),state);
   assert.match(await tournament.locator('.tour-podium-card').first().innerText(),/TourPlayer2/);
   assert.doesNotMatch(await tournament.innerText(),/TourPlayer[01]\b/);
+  await assertTenthFits();
   const commentators=[['phyreon3429','Alexander “Phyreon” Sundman','3429'],['troublemakingswe','Alex “troublemakingswe” Rautiainen','2807']];
   for(const selector of ['#commentator1','#commentator2']){
    const options=await frame.locator(selector+' option').evaluateAll(rows=>rows.map(o=>[o.value,o.textContent]));

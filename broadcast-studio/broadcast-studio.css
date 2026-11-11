@@ -3077,7 +3077,7 @@ body:not(.obs-preview) #fetchBroadcastData:disabled{opacity:.5;cursor:wait}
 .studio-tournament-controls .tournament-filters[hidden]{display:none!important}
 
 .tournament-broadcast{--tour-gold:var(--theme-accent,#ffc52b);inset:15.5% 3% 7%;flex-direction:column;gap:12px;padding:0!important}
-.tour-heading{position:relative;border-bottom:1px solid #ffc52b45;padding:0 0 9px}
+.tour-heading{position:relative;flex:none;border-bottom:1px solid #ffc52b45;padding:0 0 9px}
 .tour-heading>small{display:block;font-size:14px;letter-spacing:.16em;font-weight:900;text-transform:uppercase;color:var(--tour-gold)}
 .tour-heading>h2{font-size:clamp(34px,4.4vw,67px);font-weight:950;line-height:1;margin:4px 0 0;letter-spacing:-.025em;text-transform:uppercase}
 .tour-heading>span{display:block;color:#c1d3df;margin-top:4px;font-size:13px}
@@ -3096,9 +3096,10 @@ body:not(.obs-preview) #fetchBroadcastData:disabled{opacity:.5;cursor:wait}
 .tour-team-logo{width:24px;height:24px;object-fit:contain;flex:none}
 .tour-podium-info>strong,.tour-stat>b{color:var(--tour-gold);font-size:clamp(26px,3.4vw,52px);line-height:1.05;font-weight:950}
 .tour-podium-info>div{display:flex;flex-wrap:wrap;gap:5px 10px;color:#d6e3eb;font-weight:800}
-.tour-ranking{min-height:0;border:1px solid #7997ad60;background:#07131ef2}
+.tour-ranking{flex:none;border:1px solid #7997ad60;background:#07131ef2}
 .tour-ranking>div{display:grid;grid-template-columns:6% 29% minmax(0,1fr) repeat(4,9%);align-items:center;min-height:27px;padding:2px 10px;border-bottom:1px solid #ffffff18;gap:4px;font-size:clamp(12px,1.3vw,21px)}
 .tour-ranking.tour-goalie>div{grid-template-columns:6% 29% minmax(0,1fr) 10% 10% 14%}
+.tour-ranking>div>:is(b,span){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tour-ranking>div>b:nth-child(n+4){text-align:center}
 .tour-ranking>div:not(.tour-table-head)>b:last-child{color:var(--tour-gold)}
 .tour-ranking>div>.tour-team-logo,.tour-ranking .tour-team-logo{width:22px;height:22px}
