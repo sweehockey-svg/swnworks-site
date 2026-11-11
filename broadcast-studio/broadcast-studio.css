@@ -2014,13 +2014,13 @@ html[lang="de"] .opening-commentator>.commentator-placeholder{
   border:1px solid #ffffff2b;
 }
 .table .bt-panel-title{
-  min-height:34px;
+  min-height:38px;
   display:flex;
   align-items:center;
   justify-content:center;
   background:#f4b21b;
   color:#07131d;
-  font-size:12px;
+  font-size:16px;
   font-weight:950;
   letter-spacing:.08em;
   text-transform:uppercase;
@@ -2028,21 +2028,20 @@ html[lang="de"] .opening-commentator>.commentator-placeholder{
 .table .bt-panel .bt-head,
 .table .bt-panel .bt-row{
   grid-template-columns:30px minmax(105px,1fr) repeat(5,43px);
-  min-height:29px;
   padding:0 7px;
 }
-.table .bt-panel .bt-head{min-height:25px;font-size:7px}
-.table .bt-panel .bt-row{font-size:10px}
-.table .bt-panel .bt-team{gap:6px;min-width:0}
-.table .bt-panel .bt-team img{width:21px;height:21px;flex:0 0 21px}
+.table .bt-panel .bt-head{min-height:29px;font-size:10px}
+.table .bt-panel .bt-row{min-height:clamp(24px,calc(392px / var(--bt-group-rows,8)),41px);font-size:14px}
+.table .bt-panel .bt-team{gap:7px;min-width:0}
+.table .bt-panel .bt-team img{width:23px;height:23px;flex:0 0 23px}
 .table .bt-panel .bt-team strong{
   min-width:0;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
-  font-size:11px;
+  font-size:16px;
 }
-.table .bt-panel .bt-row>b:last-child{font-size:13px}
+.table .bt-panel .bt-row>b:last-child{font-size:17px}
 .table .bt-panel .bt-row.selected .bt-team:before{left:-7px;top:4px;bottom:4px;width:3px}
 .table.table-dual-mode .scene-title{margin:.6% 0 7px!important}
 .table.table-dual-mode .scene-title b{font-size:clamp(24px,3.1vw,46px)!important}

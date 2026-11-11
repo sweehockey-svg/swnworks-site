@@ -8,7 +8,7 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   await page.addStyleTag({content:read('broadcast-studio.css')});await page.evaluate(()=>{window.EHOCKEY_CONFIG={};});
   await page.addScriptTag({content:read('studio-language.js')});
   await page.addScriptTag({content:read('group-meetings.js')});
-  await page.addScriptTag({content:read('broadcast-studio.js').replace('  function studioState(){','  window.seriesFixture={state:()=>studioState(),remote:s=>applyRemoteState(s),seedPlayers:players=>{data.players=players;renderSeries();},compare:teams=>{const prior=data.teams;data.teams=teams;renderTeamCompare();data.teams=prior;}};\n  function studioState(){')});
+  await page.addScriptTag({content:read('broadcast-studio.js').replace('  function studioState(){','  window.seriesFixture={state:()=>studioState(),remote:s=>applyRemoteState(s),standings:teams=>{data.teams=teams;},seedPlayers:players=>{data.players=players;renderSeries();},compare:teams=>{const prior=data.teams;data.teams=teams;renderTeamCompare();data.teams=prior;}};\n  function studioState(){')});
   await page.evaluate(()=>seriesFixture.remote({...seriesFixture.state(),scene:'lineup'}));
   await page.locator('.lineup .players').evaluate(grid=>{
    const card=document.createElement('div');
@@ -344,6 +344,28 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   assert.deepEqual(await totals.allTextContents(),['2','6','4','3'],lang+' results follow the displayed teams');
   assert.match(await groupScores.first().locator('.group-meeting-side').first().innerText(),/Oscar Tkaczyk ×2/);
   assert.equal(await summary.innerText(),summaryText,'Aggregate winner and totals stay the same after reversing sides');
+  await page.evaluate(()=>{
+   const fixtures=Array.from({length:16},(_,i)=>({sports_gamer_team_id:100+i,effective_group_id:i<8?42:9,
+    team_name_in_league:'Fixture Team '+i,statistics_stage:'regular',table_points:30-(i%8)}));
+   const setup=seriesFixture.state();
+   for(const [home,away] of [['100','108'],['108','100']]){
+    seriesFixture.standings(fixtures);
+    seriesFixture.remote({...setup,scene:'table',home,away,graphicsPackage:'gamenight'});
+    const panels=[...document.querySelectorAll('.bt-panel')];
+    if(panels.length!==2)throw Error('Missing split group table');
+    if(!panels[0].querySelector('.bt-panel-title').textContent.endsWith(' 1')||
+       !panels[1].querySelector('.bt-panel-title').textContent.endsWith(' 2'))throw Error('Groups are not ordered');
+    if(panels[0].querySelector('.bt-team strong').textContent!=='Fixture Team 8'||
+       panels[1].querySelector('.bt-team strong').textContent!=='Fixture Team 0')throw Error('Team ranking changed');
+    if(panels.some(panel=>panel.querySelectorAll('.bt-row.selected').length!==1))throw Error('Missing selected team highlight');
+   }
+  });
+  const tables=await page.locator('.bt-panel').evaluateAll(panels=>panels.map(panel=>{
+   const row=panel.querySelector('.bt-row'),scene=panel.closest('.scene');
+   return [getComputedStyle(row).fontSize,getComputedStyle(row.querySelector('.bt-team strong')).fontSize,
+    panel.getBoundingClientRect().bottom<=scene.getBoundingClientRect().bottom];
+  }));
+  assert.deepEqual(tables,[['14px','16px',true],['14px','16px',true]],lang+' larger split standings fit on screen');
   assert.deepEqual(errors,[],lang);await page.close();
  }
  const obs=await browser.newPage();

@@ -887,12 +887,13 @@ window.SWNViewerBridge=(()=>{
     const scene=box.closest(".scene.table");
 
     if(splitGroups){
-      const homeRows=regular.filter(r=>groupId(r)===homeGroup);
-      const awayRows=regular.filter(r=>groupId(r)===awayGroup);
+      const groups=[homeGroup,awayGroup].sort((a,b)=>a-b).map(id=>({id,rows:regular.filter(r=>groupId(r)===id)}));
+      const maxRows=Math.max(...groups.map(group=>group.rows.length));
       box.className="broadcast-table bt-dual";
-      box.innerHTML=
-        '<section class="bt-panel"><div class="bt-panel-title">'+esc(groupLabel(homeGroup))+'</div><div class="bt-table-inner">'+tableMarkup(homeRows)+'</div></section>'+
-        '<section class="bt-panel"><div class="bt-panel-title">'+esc(groupLabel(awayGroup))+'</div><div class="bt-table-inner">'+tableMarkup(awayRows)+'</div></section>';
+      box.style.setProperty("--bt-group-rows",String(maxRows));
+      box.innerHTML=groups.map(({id,rows})=>
+        '<section class="bt-panel"><div class="bt-panel-title">'+esc(groupLabel(id))+'</div><div class="bt-table-inner">'+tableMarkup(rows)+'</div></section>'
+      ).join("");
       scene?.classList.add("table-dual-mode","table-dense-mode");
       if($("#tableKicker"))$("#tableKicker").textContent=competition().label+" · "+tx("playoffs")+" · "+tx("groupTables");
       return;
@@ -906,6 +907,7 @@ window.SWNViewerBridge=(()=>{
     }
     rows=sortRows(rows);
     const density=rows.length>12?"bt-xdense":rows.length>8?"bt-dense":"";
+    box.style.removeProperty("--bt-group-rows");
     box.className="broadcast-table"+(density?" "+density:"");
     box.innerHTML=tableMarkup(rows);
     scene?.classList.remove("table-dual-mode");
