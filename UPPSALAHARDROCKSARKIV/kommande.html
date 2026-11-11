@@ -142,7 +142,7 @@
     const isBand = event => event.has_uppsala_band === true;
     const isIncluded = event => isBand(event) || isCity(event);
     const isExactDate = event => /^\d{4}-\d{2}-\d{2}$/.test(String(event.date || '')) && (!event.precision || ['exact','day'].includes(event.precision));
-    const dateObject = date => new Date(date + 'T12:00:00');
+    const dateObject = date => new Date(date + 'T12:00:00Z');
     function todayInSweden() {
       const parts = new Intl.DateTimeFormat('en-GB', {timeZone:'Europe/Stockholm',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
       const date = {};
