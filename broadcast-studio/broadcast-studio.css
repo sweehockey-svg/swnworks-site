@@ -1514,6 +1514,25 @@ html.obs-preview.obs-twitch-playing body #screen>.scene.active{
 .road-card .road-step span{font-size:12px}
 .road-card>i{flex:0 0 1px}
 .road-empty{color:#9db0bf;font-size:18px}
+.road-card .road-team b,.road-opponent b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.road-regular{display:flex;align-items:baseline;gap:12px;padding-bottom:8px;border-bottom:1px solid #fff2;color:#d8e5ed}
+.road-regular small,.road-history h3,.road-fact small{color:#a8bdcb;font-size:11px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+.road-regular b{font-size:15px}
+.road-history{min-height:0}
+.road-history h3{margin:0 0 7px;font-size:13px}
+.road-history h3 span{letter-spacing:0}
+.road-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:7px}
+.road-fact{min-width:0;padding:4px 8px;background:#122b3b;border-left:2px solid var(--theme-accent,#f4b21b)}
+.road-fact small,.road-fact b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.road-fact b{color:#f6f8fb;font-size:20px;line-height:1.1;font-variant-numeric:tabular-nums}
+.road-history ol{margin:0;padding:0;list-style:none}
+.road-history li{padding:5px 0;border-top:1px solid #fff2}
+.road-opponent{display:flex;align-items:center;gap:7px;font-size:16px;line-height:1.15}
+.road-opponent img{width:20px;height:20px;object-fit:contain;flex:none}
+.road-opponent strong{margin-inline-start:auto;color:var(--theme-accent,#f4b21b);font-size:20px;line-height:1;white-space:nowrap}
+.road-games{display:flex;gap:4px;margin-top:3px}
+.road-games span{padding:1px 6px;background:#142a38;color:#cbd9e3;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.road-history .road-empty,.road-fallback{margin:8px 0;font-size:14px;color:#b5c8d5}
 .screen.live-mode>.top{
   left:auto!important;
   right:3%!important;

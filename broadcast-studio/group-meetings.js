@@ -86,5 +86,23 @@
     }
     return [...matches.values()].sort((a,b)=>Date.parse(b.date)-Date.parse(a.date)||b.id-a.id);
   }
-  window.BroadcastGroupMeetings={select,cached,completed,load,status,label,loadScorers,scorers,scorerLabel};
+  function playoffPath(matches,team,currentOpponent){
+    if(!positive(team))return [];
+    team=Number(team);currentOpponent=Number(currentOpponent);
+    const opponents=new Map();
+    for(const match of [...matches].reverse()){
+      if(match.stage!=="playoffs")continue;
+      const home=match.homeId===team, away=match.awayId===team;
+      if(!home&&!away)continue;
+      const other=home?match.awayId:match.homeId;
+      if(other===currentOpponent)continue;
+      const row=opponents.get(other)||{id:other,name:home?match.away:match.home,wins:0,losses:0,gf:0,ga:0,games:[]};
+      const gf=home?match.homeScore:match.awayScore,ga=home?match.awayScore:match.homeScore;
+      row.wins+=Number(gf>ga);row.losses+=Number(gf<ga);
+      row.gf+=gf;row.ga+=ga;row.games.push({gf,ga});
+      row.last=Date.parse(match.date);opponents.set(other,row);
+    }
+    return [...opponents.values()].sort((a,b)=>a.last-b.last||a.id-b.id);
+  }
+  window.BroadcastGroupMeetings={select,cached,completed,playoffPath,load,status,label,loadScorers,scorers,scorerLabel};
 })();

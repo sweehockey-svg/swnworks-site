@@ -1019,27 +1019,48 @@ window.SWNViewerBridge=(()=>{
     $("#goalieLeaderGrid").innerHTML=card("home")+card("away");
   }
 
+  let roadLoadLeague=null;
   function renderRoad() {
-    $("#roadGrid").innerHTML = ["home", "away"].map(side => {
-      const t = selectedTeam(side), r = stage(t, "regular"), po = playoff(t);
-      const valid=value=>number(value)!==null&&number(value)>=0;
-      const matchWinsLabel=value=>number(value)===1?({sv:'matchvinst',en:'match win',fi:'otteluvoitto',de:'Spielsieg'}[LOCALE]||tx('matchWins')):tx('matchWins');
-      const sections=[];
-      const step=(label,value,detail='')=>'<div class="road-step"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong>'+(detail?'<span>'+esc(detail)+'</span>':'')+'</div>';
-      const regularDetails=[];
-      if(valid(r.goals_for)&&valid(r.goals_against))regularDetails.push(r.goals_for+'–'+r.goals_against+' '+tx('goals'));
-      if(valid(po.regular_season_seed)&&number(po.regular_season_seed)>0){
-        if(valid(r.total_wins))regularDetails.unshift(r.total_wins+' '+tx('wins'));
-        sections.push(step(tx('groupstage'),'#'+po.regular_season_seed,regularDetails.join(' · ')));
-      }else if(valid(r.total_wins))sections.push(step(tx('groupstage'),r.total_wins+' '+tx('wins'),regularDetails.join(' · ')));
-      const p=stage(t,'playoffs');
-      if(valid(po.series_won)&&valid(po.series_lost))sections.push(step(tx('playoffs')+(po.playoff_round_name?' · '+po.playoff_round_name:''),po.series_won+'–'+po.series_lost+' '+tx('series'),valid(po.matched_playoff_game_wins)?po.matched_playoff_game_wins+' '+matchWinsLabel(po.matched_playoff_game_wins):''));
-      else if(valid(p.games_played)&&number(p.games_played)>0&&valid(p.total_wins))sections.push(step(tx('playoffs'),p.total_wins+' '+matchWinsLabel(p.total_wins),p.games_played+' '+tx('matches')));
-      if($('#showLiveSeries')?.checked){
-        const bo=Number($('#seriesFormat')?.value||5),need=Math.ceil(bo/2),wins=Math.max(0,Math.min(need,number($('#series'+(side==='home'?'Home':'Away')).value)||0));
-        sections.push(step(tx('seriesState')+' · '+($('#seriesRound')?.value||tx('playoffs')),wins+' '+matchWinsLabel(wins),seriesBestOf(bo)));
-      }
-      return '<div class="road-card"><div class="road-team">'+(logo(t)?image(logo(t)):'')+'<b>'+esc(t.team_name_in_league)+'</b></div>'+ (sections.length?sections.join('<i></i>'):'<p class="road-empty">'+esc(tx('dataMissing'))+'</p>')+'</div>';
+    const grid=$("#roadGrid"), league=activeLeagueId, teams=["home","away"].map(selectedTeam);
+    if(!grid)return;
+    const roadLabels={
+      sv:["Tidigare slutspelsmotstånd","Vinster–förluster","Hämtar slutspelsresultat…","Tidigare matchresultat kunde inte hämtas","Inga tidigare slutspelsmöten i resultatkällan","Slutspelet totalt"],
+      en:["Previous playoff opponents","Wins–losses","Loading playoff results…","Previous results unavailable","No earlier playoff meetings in the results feed","Playoff totals"],
+      fi:["Aiemmat pudotuspelivastustajat","Voitot–tappiot","Haetaan pudotuspelituloksia…","Aiemmat tulokset eivät ole saatavilla","Tulospalvelussa ei ole aiempia pudotuspeliotteluita","Pudotuspelit yhteensä"],
+      de:["Bisherige Playoff-Gegner","Siege–Niederlagen","Playoff-Ergebnisse werden geladen…","Frühere Ergebnisse nicht verfügbar","Keine früheren Playoff-Spiele im Ergebnisfeed","Playoffs gesamt"]
+    };
+    const [priorLabel,recordLabel,waiting,unavailable,noPrevious,overall]=roadLabels[LOCALE]||roadLabels.en;
+    if(activeScene==="road"&&groupMeetings&&roadLoadLeague!==league&&teams.every(t=>Number(t.sports_gamer_team_id)>0)){
+      roadLoadLeague=league;
+      void groupMeetings.load(league).then(()=>{if(activeScene==="road"&&activeLeagueId===league)renderRoad();});
+    }
+    const matches=groupMeetings?.completed(league);
+    const valid=value=>number(value)!==null&&number(value)>=0;
+    const label=(text,value)=>'<div class="road-fact"><small>'+esc(text)+'</small><b>'+esc(value)+'</b></div>';
+    grid.innerHTML=teams.map((t,i)=>{
+      const r=stage(t,"regular"),p=stage(t,"playoffs"),po=playoff(t);
+      const prior=matches?groupMeetings.playoffPath(matches,t.sports_gamer_team_id,teams[1-i].sports_gamer_team_id):[];
+      const regular=[
+        number(po.regular_season_seed)>0?"#"+po.regular_season_seed:"",
+        valid(r.total_wins)?r.total_wins+" "+tx("wins"):"",
+        valid(r.goals_for)&&valid(r.goals_against)?r.goals_for+"–"+r.goals_against+" "+tx("goals"):""
+      ].filter(Boolean);
+      const totals=prior.reduce((a,o)=>[a[0]+o.games.length,a[1]+o.wins,a[2]+o.losses,a[3]+o.gf,a[4]+o.ga],[0,0,0,0,0]);
+      const stats=totals[0]?[label(tx("matches"),totals[0]),label(recordLabel,totals[1]+"–"+totals[2]),label(tx("goals"),totals[3]+"–"+totals[4])].join(""):"";
+      const path=prior.slice(-5).map(o=>{
+        const opponent=team(o.id),name=o.name||opponent.team_name_in_league;
+        return '<li><div class="road-opponent">'+(logo(opponent)?image(logo(opponent)):"")+'<b>'+esc(name)+'</b>'+
+          '<strong title="'+esc(recordLabel)+'">'+o.wins+'–'+o.losses+'</strong></div><div class="road-games">'+
+          o.games.slice(0,7).map(m=>'<span>'+m.gf+'–'+m.ga+'</span>').join("")+
+          (o.games.length>7?'<span>+'+(o.games.length-7)+'</span>':"")+'</div></li>';
+      }).join("");
+      const status=matches?noPrevious:groupMeetings?.status(league)===2?waiting:unavailable;
+      const fallback=!matches&&valid(p.games_played)&&number(p.games_played)>0?
+        '<p class="road-fallback">'+esc(overall+' · '+p.games_played+' '+tx('matches')+(valid(p.total_wins)?' · '+p.total_wins+' '+tx('matchWins'):""))+'</p>':"";
+      return '<div class="road-card"><div class="road-team">'+(logo(t)?image(logo(t)):"")+'<b>'+esc(t.team_name_in_league)+'</b></div>'+
+        (regular.length?'<div class="road-regular"><small>'+esc(tx("groupstage"))+'</small><b>'+esc(regular.join(" · "))+'</b></div>':"")+
+        '<div class="road-history"><h3>'+esc(priorLabel)+(prior.length>5?' <span>('+Math.min(5,prior.length)+' / '+prior.length+')</span>':"")+'</h3>'+
+        (path?'<div class="road-facts">'+stats+'</div><ol>'+path+'</ol>':'<p class="road-empty">'+esc(status)+'</p>'+fallback)+'</div></div>';
     }).join("");
   }
 
@@ -1464,7 +1485,9 @@ window.SWNViewerBridge=(()=>{
     if(next==='spotlight')$("#spotlightCard").innerHTML=spotlightHtml();
     displayedLineupSide=next==="lineup"?nextSide:displayedLineupSide;
     document.querySelectorAll("[data-scene]").forEach(x=>x.classList.toggle("active",x.dataset.scene===next&&(!x.dataset.lineupSide||x.dataset.lineupSide===$("#lineupSide").value)));
+    if(next==="road"&&activeScene!==next)roadLoadLeague=null;
     activeScene=next;
+    if(next==="road")renderRoad();
     tournamentScenes?.sync(tournamentControls,next);
     renderTournamentScene(next);
     syncMusicControl(current!==target);

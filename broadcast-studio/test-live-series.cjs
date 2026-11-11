@@ -312,7 +312,9 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   }
   await page.route('https://series.test/functions/v1/graphics-schedule?league=527',r=>r.fulfill({json:{matches:[
    {id:135997,stage:'regular',homeId:7103,awayId:6709,homeScore:4,awayScore:3,date:'2026-10-06'},
-   {id:136003,stage:'regular',homeId:6709,awayId:7103,homeScore:6,awayScore:2,date:'2026-10-07'}
+   {id:136003,stage:'regular',homeId:6709,awayId:7103,homeScore:6,awayScore:2,date:'2026-10-07'},
+   ...Array.from({length:5},(_,i)=>({id:137100+i,stage:'playoffs',homeId:8000+i,home:'Opponent '+(i+1),awayId:7103,homeScore:2,awayScore:5,date:'2026-11-0'+(i+1)})),
+   {id:137109,stage:'playoffs',homeId:7103,awayId:6709,homeScore:15,awayScore:0,date:'2026-11-09'}
   ]}}));
   await page.route('https://series.test/functions/v1/graphics-schedule?league=527&goals=135997,136003',r=>r.fulfill({json:{scorers:{
    136003:{6709:[{id:12593,name:'Jordan NHL',goals:2},{id:15085,name:'Dan Larsson',goals:4}],7103:[{id:16128,name:'Oscar Tkaczyk',goals:2}]}
@@ -344,6 +346,14 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   assert.deepEqual(await totals.allTextContents(),['2','6','4','3'],lang+' results follow the displayed teams');
   assert.match(await groupScores.first().locator('.group-meeting-side').first().innerText(),/Oscar Tkaczyk ×2/);
   assert.equal(await summary.innerText(),summaryText,'Aggregate winner and totals stay the same after reversing sides');
+  await page.evaluate(()=>seriesFixture.remote({...seriesFixture.state(),scene:'road',seriesRound:'FINAL',seriesHome:'1',seriesAway:'0',liveSeriesShow:true,graphicsPackage:'gamenight'}));
+  const road=page.locator('.scene.road.active .road-card').first();
+  await road.locator('.road-history li').last().waitFor();
+  assert.deepEqual(await road.locator('.road-opponent b').allTextContents(),['Opponent 1','Opponent 2','Opponent 3','Opponent 4','Opponent 5']);
+  assert.deepEqual(await road.locator('.road-games span').allTextContents(),['5–2','5–2','5–2','5–2','5–2']);
+  assert.doesNotMatch(await road.innerText(),/15–0|FINAL/);
+  assert(await road.evaluate(el=>el.querySelector('.road-history li:last-child').getBoundingClientRect().bottom<=el.getBoundingClientRect().bottom),
+   lang+' five previous opponents fit in the playoff path graphic');
   await page.evaluate(()=>{
    const fixtures=Array.from({length:16},(_,i)=>({sports_gamer_team_id:100+i,effective_group_id:i<8?42:9,
     team_name_in_league:'Fixture Team '+i,statistics_stage:'regular',table_points:30-(i%8)}));
