@@ -72,7 +72,7 @@
       }
     }
     @media(min-width:880px) and (min-height:500px){
-      .commentator-workspace{--match-width:calc((100svh - 150px)*16 / 9)}
+      .commentator-workspace{--match-width:calc((100svh - 120px)*16 / 9)}
       #broadcastPreview,#scenePicker{width:min(100%,var(--match-width))}
     }
     /* Leave the control column and sidebar alone; only the video gives up space. */
@@ -468,7 +468,7 @@
       resize.observe(body);
       fit();
     });
-    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261111-tournament-scenes";
+    picker.src="mobile.html?lang="+lang+"&compact="+mode+"&v=20261111-three-rows";
   }
   mountControls("scenePicker",sceneTitle,"1");
   const seriesTitles={sv:"Serieläge",en:"Series score",fi:"Sarjatilanne",de:"Serienstand"};

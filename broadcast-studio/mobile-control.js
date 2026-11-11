@@ -84,7 +84,7 @@ document.getElementById("studioLink").href=({sv:"SV/",en:"en/",fi:"fi/",de:"de/"
 const matchStatus=document.getElementById("broadcastStatus");
 const presentPlayerButton=document.getElementById("presentPlayerButton");
 const playerLabel=({sv:"Spelarpresentation",en:"Player presentation",fi:"Pelaajaesittely",de:"Spielervorstellung"})[LANG];
-if(presentPlayerButton)presentPlayerButton.textContent=playerLabel+" ▴";
+if(presentPlayerButton){presentPlayerButton.textContent=playerLabel+" ▴";presentPlayerButton.title=playerLabel;}
 const seriesForm=document.getElementById("seriesEditor"),seriesSummary=document.getElementById("seriesSummary");
 const seriesHome=document.getElementById("mobileSeriesHome"),seriesAway=document.getElementById("mobileSeriesAway");
 const seriesSave=document.getElementById("mobileSeriesSave"),seriesStatus=document.getElementById("mobileSeriesStatus");
@@ -209,7 +209,7 @@ function controls(){
   const rows=b.dataset.scene==="groupmeetings"?groupRows():null;
   const unavailable=b.dataset.scene==="groupmeetings"&&!rows?.length;
   b.disabled=locked||unavailable;
-  b.title=locked&&!busy?matchStatus.textContent:unavailable?(meetingsLabel?.[rows===null?meetings.status(received?.leagueId):1]||""):(b.dataset.shortcut||"");
+  b.title=locked&&!busy?matchStatus.textContent:unavailable?(meetingsLabel?.[rows===null?meetings.status(received?.leagueId):1]||""):(b.dataset.shortcut||b.textContent.trim());
  });
  const scene=received?.scene,saved=received?.sceneMusic?.[scene];
  const enabled=musicEnabled(scene);
