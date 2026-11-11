@@ -11,6 +11,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    page.on('pageerror',error=>errors.push(error.message));
    const baseLineups={home:{LW:'41',C:'',RW:'',LD:'',RD:'',G:''},away:{LW:'',C:'',RW:'',LD:'',RD:'',G:'43'}};
    const updatedLineups={...baseLineups,home:{...baseLineups.home,LW:'',C:'41'}};
+   const reserveLineups={...updatedLineups,home:{...updatedLineups.home,C:'42'}};
    let state={leagueId:527,scene:'live',home:'111',away:'222',hs:3,as:2,lineupTeamNames:{111:'Testlaget A',222:'Testlaget B'},lineups:baseLineups,
     videoSource:'twitch',twitchChannel:'test_home',twitchTeamChannels:{111:'test_home',222:'test_away'},
     transientSource:{ticket:'fixture.ticket',expires_at:new Date(Date.now()+3600000).toISOString()}};
@@ -52,6 +53,14 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
      state={...state,sceneMusic:{...state.sceneMusic,muted:payload.p_mode==='off',[payload.p_scene]:payload.p_mode}};
      return route.fulfill({json:state});
     }
+    if(url.pathname.endsWith('/functions/v1/broadcast-lineups')){
+     assert.equal(req.headers().authorization,'Bearer fixture-token');
+     const payload=req.postDataJSON();writes.push(payload);
+     assert.deepEqual(payload.p_expected.baseLineups,updatedLineups);
+     assert.deepEqual(payload.p_expected.lineups,reserveLineups);
+     state={...state,lineups:reserveLineups};
+     return route.fulfill({json:state});
+    }
     if(url.pathname.endsWith('/rpc/broadcast_studio_set_team_order')){
      assert.equal(req.headers().authorization,'Bearer fixture-token');
      const payload=req.postDataJSON();writes.push(payload);
@@ -84,12 +93,14 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
      parent.postMessage(${JSON.stringify(lineupMessage)},location.origin);
      addEventListener("message",event=>{if(event.source===parent&&event.origin===location.origin&&event.data?.type==="seh-presenter-lineup-control")card.disabled=!event.data.enabled;});
      card.onclick=()=>parent.postMessage({type:"seh-presenter-lineup-player",ticket:"fixture.ticket",team:"111",id:"41"},location.origin);
-     window.lineupStatus=(editing,changed)=>parent.postMessage({type:"seh-presenter-lineup-edit-status",available:true,editing,changed},location.origin);
+     window.lineupStatus=(editing,changed,choosing)=>parent.postMessage({type:"seh-presenter-lineup-edit-status",available:true,editing,changed,choosing},location.origin);
+     let reserved=false;
      addEventListener("message",event=>{
       if(event.source!==parent||event.origin!==location.origin||event.data?.type!=="seh-presenter-lineup-edit")return;
       if(event.data.action==="start")lineupStatus(true,false);
       if(event.data.action==="cancel")lineupStatus(false,false);
-      if(event.data.action==="save")parent.postMessage({type:"seh-presenter-lineup-save",ticket:"fixture.ticket",home:"111",away:"222",base:${JSON.stringify(baseLineups)},lineups:${JSON.stringify(updatedLineups)}},location.origin);
+      if(event.data.action==="reserve"){reserved=event.data.id==="42";lineupStatus(true,reserved,false);}
+      if(event.data.action==="save")parent.postMessage({type:"seh-presenter-lineup-save",ticket:"fixture.ticket",home:"111",away:"222",base:reserved?${JSON.stringify(updatedLineups)}:${JSON.stringify(baseLineups)},lineups:reserved?${JSON.stringify(reserveLineups)}:${JSON.stringify(updatedLineups)}},location.origin);
      });
     </script>`:''}`});
     return route.abort();
@@ -223,7 +234,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     assert.deepEqual(writes.at(-1),{p_channel:'sec21-bronze-test',p_scene:'duallineup',p_lineup_side:null});
     const viewer=page.frame({url:/[?&]presenter=1/});
     await viewer.evaluate(()=>lineupStatus(false,false));
-    await page.getByRole('button',{name:'Byt positioner'}).click();
+    await page.getByRole('button',{name:'Redigera laguppställning'}).click();
     const saveLineup=page.getByRole('button',{name:'Spara i sändningen',exact:true});
     await saveLineup.waitFor();
     assert(await saveLineup.isDisabled());
@@ -233,6 +244,16 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await saveLineup.click();
     await page.getByText('Sparat i sändningen.',{exact:true}).waitFor();
     assert.deepEqual(state,{...beforeLineup,lineups:updatedLineups},'Only the lineup changed on air');
+    await viewer.evaluate(()=>lineupStatus(false,false));
+    await page.getByRole('button',{name:'Redigera laguppställning'}).click();
+    await saveLineup.waitFor();
+    await viewer.evaluate(()=>parent.postMessage({type:'seh-presenter-lineup-reserves',ticket:'fixture.ticket',side:'home',slot:'C',team:'Testlaget A',current:'Forward A',choices:[{id:'42',name:'Reserv A',number:'27'}]},location.origin));
+    const reservePick=page.getByRole('combobox',{name:'Testlaget A · C · Forward A'});
+    await reservePick.selectOption('42');
+    assert.deepEqual(state.lineups,updatedLineups,'A reserve choice remains a draft until Save');
+    const savedReserve=page.waitForResponse(response=>response.url().endsWith('/functions/v1/broadcast-lineups')&&response.ok());
+    await saveLineup.click();await savedReserve;
+    assert.deepEqual(state,{...beforeLineup,lineups:reserveLineups});
     await viewer.evaluate(()=>lineupStatus(false,false));
     const beforeOverlays=structuredClone(state);
     await stripToggle.click();

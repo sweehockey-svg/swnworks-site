@@ -130,7 +130,7 @@ window.SWNViewerBridge=(()=>{
     return !!(state?.scene==='duallineup'&&!state.publicNoMatch&&state.transientSource?.ticket&&state.transientSource.ticket===currentSourceReference?.ticket&&
       ['home','away'].every(side=>state[side]&&SLOTS.every(slot=>{
         const id=state.lineups?.[side]?.[slot];
-        return typeof id==='string'&&(!id||roster(selectedTeam(side)).some(p=>same(p.sports_gamer_player_id,id)));
+        return typeof id==='string'&&(!id||/^[1-9][0-9]{0,15}$/.test(id));
       })));
   }
   function lineupEditorStatus(){
@@ -142,7 +142,7 @@ window.SWNViewerBridge=(()=>{
     }
     const draft=lineupDraft;
     const changed=!!draft&&['home','away'].some(side=>SLOTS.some(slot=>draft.lineups[side][slot]!==draft.base[side][slot]));
-    window.SWNViewerBridge.postStatus({type:'seh-presenter-lineup-edit-status',available,editing:!!draft,changed});
+    window.SWNViewerBridge.postStatus({type:'seh-presenter-lineup-edit-status',available,editing:!!draft,changed,choosing:!!lineupPicked});
   }
   function editSlot(card){
     return card?{side:card.closest('.dual-lineup-team').dataset.side,slot:card.dataset.position}:null;
@@ -160,7 +160,7 @@ window.SWNViewerBridge=(()=>{
   function swapDraftSlots(source,target){
     if(!lineupDraft||lineupDraft.saving||!lineupPlayerEnabled||!source||!target||source.side!==target.side||source.slot===target.slot)return false;
     const slots=lineupDraft.lineups[source.side];
-    if(!slots[source.slot])return false;
+    if(!slots[source.slot]||!roster(selectedTeam(source.side)).some(p=>same(p.sports_gamer_player_id,slots[source.slot])))return false;
     [slots[source.slot],slots[target.slot]]=[slots[target.slot],slots[source.slot]];
     lineupPicked=null;renderDualLineup();lineupEditorStatus();
     dualLineupScene.querySelector('.dual-lineup-team[data-side="'+target.side+'"] [data-position="'+target.slot+'"]')?.focus({preventScroll:true});
@@ -169,9 +169,13 @@ window.SWNViewerBridge=(()=>{
   function chooseDraftSlot(card){
     const target=editSlot(card);
     if(!target||!lineupDraft||lineupDraft.saving||!lineupPlayerEnabled)return;
-    if(swapDraftSlots(lineupPicked,target))return;
-    if(lineupPicked?.side===target.side&&lineupPicked.slot===target.slot){markLineupPick(null);return;}
-    markLineupPick(lineupDraft.lineups[target.side][target.slot]?target:null);
+    const team=selectedTeam(target.side),players=roster(team),current=lineupDraft.lineups[target.side][target.slot];
+    const used=new Set(Object.values(lineupDraft.lineups).flatMap(side=>Object.values(side)));
+    const choices=players.filter(p=>p.is_current_roster!==false&&p.display_gamertag&&!used.has(String(p.sports_gamer_player_id)))
+      .map(p=>({id:String(p.sports_gamer_player_id),name:String(p.display_gamertag),number:String(p.player_number??'')}));
+    markLineupPick(target);
+    window.SWNViewerBridge.postStatus({type:'seh-presenter-lineup-reserves',ticket:lineupDraft.ticket,...target,
+      team:String(team.team_name_in_league),current:players.find(p=>same(p.sports_gamer_player_id,current))?.display_gamertag||'',choices});
   }
   function playerShortcutAttributes(player){
     if(!PRESENTER_VIEW||!player?.sports_gamer_player_id||!player.sports_gamer_team_id||!player.display_gamertag)return {};
@@ -195,6 +199,13 @@ window.SWNViewerBridge=(()=>{
           lineupDraft=null;lineupDrag=null;lineupPicked=null;
         }else if(data.action==='save-failed'&&lineupDraft){
           lineupDraft.saving=false;
+        }else if(data.action==='close-reserves'){
+          markLineupPick(null);
+        }else if(data.action==='reserve'&&lineupPlayerEnabled&&lineupDraft&&!lineupDraft.saving&&lineupPicked&&
+          lineupDraft.ticket===data.ticket&&lineupPicked.side===data.side&&lineupPicked.slot===data.slot){
+          const used=Object.values(lineupDraft.lineups).some(side=>Object.values(side).includes(data.id));
+          const player=typeof data.id==='string'&&!used&&roster(selectedTeam(data.side)).find(p=>same(p.sports_gamer_player_id,data.id)&&p.is_current_roster!==false);
+          if(player){lineupDraft.lineups[data.side][data.slot]=data.id;lineupPicked=null;}
         }else if(data.action==='save'&&lineupPlayerEnabled&&lineupDraft&&!lineupDraft.saving&&lineupEditable()&&lineupDraft.key===lineupDraftKey(window.__sehTwitchState)){
           lineupDraft.saving=true;
           const {ticket,home,away,base,lineups}=lineupDraft;
@@ -232,7 +243,7 @@ window.SWNViewerBridge=(()=>{
     });
     screen.addEventListener('keydown',event=>{
       if(event.repeat)return;
-      if(lineupDraft&&event.key==='Escape'){markLineupPick(null);return;}
+      if(lineupDraft&&event.key==='Escape'){markLineupPick(null);lineupEditorStatus();return;}
       if(event.key==='Enter'||event.key===' '){
         const slot=event.target.closest('[data-edit-slot]');
         if(lineupDraft&&slot){event.preventDefault();chooseDraftSlot(slot);}

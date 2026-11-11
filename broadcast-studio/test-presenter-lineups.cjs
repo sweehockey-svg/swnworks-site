@@ -146,6 +146,8 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   await frame.evaluate(s=>lineupFixture.apply(s),editorState);
   await page.evaluate(()=>{
    const viewer=document.getElementById('broadcast');
+   const control=document.getElementById('scenePicker').contentDocument;
+   const button=control.createElement('button');button.id='presentPlayerButton';control.body.append(button);
    window.lineupEdit=action=>viewer.contentWindow.postMessage({type:'seh-presenter-lineup-edit',action},location.origin);
    window.addEventListener('message',event=>{
     if(event.source===viewer.contentWindow&&event.data?.type==='seh-presenter-lineup-save')window.testLineupSave=event.data;
@@ -154,6 +156,8 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   });
   const editCard=(side,slot)=>frame.locator('.scene.duallineup [data-side="'+side+'"] [data-position="'+slot+'"][data-edit-slot]');
   const drag=async(from,to)=>{
+   await from.scrollIntoViewIfNeeded();
+   await to.scrollIntoViewIfNeeded();
    const a=await from.boundingBox(),b=await to.boundingBox();
    await page.mouse.move(a.x+a.width/2,a.y+a.height/2);
    await page.mouse.down();
@@ -161,6 +165,7 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    await page.mouse.up();
   };
   await editCard('home','LW').waitFor({state:'visible'});
+  await frame.waitForFunction(()=>!document.getElementById('screen').classList.contains('scene-switching'));
   await drag(editCard('home','LW'),editCard('away','C'));
   assert.match(await editCard('home','LW').textContent(),/Team1_LW/,'Cannot move across teams');
   await drag(editCard('home','LW'),editCard('home','C'));
@@ -173,9 +178,25 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
   await page.waitForFunction(()=>!!window.testLineupSave);
   const edited={...editorState.lineups,home:{...editorState.lineups.home,LW:'2',C:'',RW:'1'}};
   assert.deepEqual(await page.evaluate(()=>window.testLineupSave),{type:'seh-presenter-lineup-save',ticket:'fixture.ticket',home:'11',away:'22',base:editorState.lineups,lineups:edited});
+  await page.frameLocator('#scenePicker').locator('body').evaluate(()=>parent.postMessage({type:'seh-presenter-lineup-save-result',ok:false},location.origin));
+  await page.getByText('Kunde inte bekräfta ändringen.',{exact:false}).waitFor();
   await page.evaluate(()=>window.lineupEdit('cancel'));
   await editCard('home','LW').waitFor({state:'detached'});
   assert.match(await frame.locator('.scene.duallineup [data-side="home"] [data-position="LW"]').textContent(),/Team1_LW/);
+  await frame.evaluate(({teams,all,reserve,state})=>{
+   lineupFixture.seed(teams,[...all,reserve,{...reserve,sports_gamer_team_id:22,sports_gamer_player_id:115,display_gamertag:'AwayReserve'}],state.transientSource);
+   lineupFixture.apply(state);
+  },{teams,all,reserve,state:editorState});
+  await page.evaluate(()=>window.lineupEdit('start'));
+  await editCard('home','C').click();
+  const reserveMenu=page.locator('#lineupReservePlayer');
+  await reserveMenu.waitFor();
+  assert.deepEqual(await reserveMenu.locator('option').allTextContents(),['Välj reserv','#18 · ReserveGoalie','#3 · Team1_RW_LongName']);
+  await reserveMenu.selectOption('112');
+  await editCard('home','C').filter({hasText:'ReserveGoalie'}).waitFor();
+  assert.deepEqual(await frame.evaluate(()=>window.__sehTwitchState.lineups),editorState.lineups);
+  await page.evaluate(()=>window.lineupEdit('cancel'));
+  await editCard('home','C').waitFor({state:'detached'});
   const cases=[
    ['lineup','away','RW',103],['lineup','home','C',2],['scorers','home','LW',1],['offense','away','LW',101],
    ['defenseleaders','away','RD',105],['goalieleaders','home','G',6],['leaders','home','LW',1],

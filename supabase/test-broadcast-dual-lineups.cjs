@@ -5,7 +5,7 @@ const read=name=>fs.readFileSync(__dirname+'/'+name,'utf8');
 (async()=>{
  const db=new PGlite();
  try{
-  await db.exec(`create role anon; create role authenticated; create schema auth; create schema broadcast_control;
+  await db.exec(`create role anon; create role authenticated; create role service_role; create schema auth; create schema broadcast_control;
    grant usage on schema broadcast_control to authenticated;
    create function auth.uid() returns uuid language sql as $$ select '00000000-0000-0000-0000-000000000001'::uuid $$;
    create function public.swn_studio_scene_access(text) returns boolean language sql as $$ select $1='broadcast-en' $$;
@@ -69,6 +69,18 @@ const read=name=>fs.readFileSync(__dirname+'/'+name,'utf8');
   const reordered=(await control('broadcast-en',reorder,'reorder-lineups')).rows[0].result;
   assert.deepEqual(reordered,{...formation,lineups:reorder.lineups});
   await assert.rejects(control('broadcast-en',reorder,'reorder-lineups'),{code:'P0002'});
+  await db.exec('reset role');
+  await db.exec(read('broadcast_verified_lineups.sql'));
+  const verified={...reordered,leagueId:527};
+  await db.query("update public.broadcast_studio_state set state=$1 where channel='broadcast-en'",[verified]);
+  const verifiedGuard={...expected(verified),baseLineups:verified.lineups};
+  const incoming={...verified.lineups,home:{...verified.lineups.home,RW:'999'}};
+  const replace=()=>db.query("select public.broadcast_studio_set_verified_lineups('broadcast-en',$1,$2) as result",[verifiedGuard,incoming]);
+  await db.exec('set role authenticated');
+  await assert.rejects(replace(),{code:'42501'});
+  await db.exec('set role service_role');
+  assert.deepEqual((await replace()).rows[0].result,{...verified,lineups:incoming});
+  await assert.rejects(replace(),{code:'P0002'});
   await db.exec('reset role');
   assert.equal((await db.query("select has_function_privilege('anon','broadcast_control.set_scene(text,text,text)','EXECUTE') as allowed")).rows[0].allowed,false);
   assert.equal((await db.query("select has_function_privilege('anon','public.broadcast_studio_set_team_order(text,jsonb,text)','EXECUTE') as allowed")).rows[0].allowed,false);

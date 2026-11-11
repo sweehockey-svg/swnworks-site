@@ -289,8 +289,8 @@ function render(state){
  renderMatchEditor(state);
  controls();
 }
-async function request(url,options={}){
- const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+async function request(url,options={},timeout=10000){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
  try{return await fetch(url,{...options,cache:"no-store",signal:controller.signal});}finally{clearTimeout(timer);}
 }
 async function pull(){
@@ -337,11 +337,16 @@ async function changeTeamOrder(action,selection){
   streamStatus.textContent="";
  }
  const args={p_channel:CHANNEL,p_expected:expected,p_action:action};
+ const substitution=action==="reorder-lineups"&&["home","away"].some(side=>{
+  const assigned=Object.values(selection.base?.[side]||{});
+  return Object.values(selection.lineups?.[side]||{}).some(id=>id&&!assigned.includes(id));
+ });
  if(action==="swap"&&!window.confirm(orderText[4]))return;
  busy=true;revision++;controls();setConnection(T.sending,"busy");
  try{
   const session=await window.SWNStudioAccess.session();
-  const res=await request(base()+"/rest/v1/rpc/broadcast_studio_set_team_order",{method:"POST",headers:headers(session.access_token),body:JSON.stringify(args)});
+  const endpoint=substitution?"/functions/v1/broadcast-lineups":"/rest/v1/rpc/broadcast_studio_set_team_order";
+  const res=await request(base()+endpoint,{method:"POST",headers:headers(session.access_token),body:JSON.stringify(args)},substitution?45000:10000);
   if(!res.ok)throw new Error("HTTP "+res.status);
   const state=await res.json();
   if(!state||typeof state!=="object"||Array.isArray(state))throw new Error("No program state");
