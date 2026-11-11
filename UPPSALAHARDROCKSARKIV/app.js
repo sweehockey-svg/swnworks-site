@@ -2385,6 +2385,36 @@
     }
   }
 
+  // Only verified band-owned links are shown. Unverified research stays private.
+  async function renderBandExternalLinks(bandId) {
+    const holderForBand = () => {
+      const holder = $('#band-external-links');
+      return holder?.dataset.bandId === String(bandId) ? holder : null;
+    };
+    if (!holderForBand()) return;
+    try {
+      const endpoint = cfg.supabaseUrl + '/rest/v1/band_external_links?select=kind,url,label&band_id=eq.'
+        + encodeURIComponent(bandId) + '&verified=eq.true';
+      const response = await fetch(endpoint, { headers: { apikey: cfg.publishableKey, Accept: 'application/json' } });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const rows = await response.json();
+      if (!Array.isArray(rows)) throw new Error('Ogiltigt länksvar');
+      const names = { website: 'Hemsida', instagram: 'Instagram', facebook: 'Facebook', bandcamp: 'Bandcamp', youtube: 'YouTube', spotify: 'Spotify', other: 'Övrigt' };
+      const ordering = ['website','instagram','facebook','bandcamp','youtube','spotify','other'];
+      const valid = rows.filter(row => row && Object.hasOwn(names, row.kind) && typeof row.url === 'string'
+        && /^https:\/\/[^\s<>"']+$/i.test(row.url.trim()))
+        .sort((a, b) => ordering.indexOf(a.kind) - ordering.indexOf(b.kind));
+      const holder = holderForBand();
+      if (!holder || !valid.length) return;
+      holder.querySelector('.band-external-link-list').innerHTML = valid.map(row =>
+        '<a href="' + escapeHtml(row.url.trim()) + '" target="_blank" rel="noopener noreferrer">'
+        + '<span>' + escapeHtml(row.label || names[row.kind]) + '</span><span aria-hidden="true">↗</span></a>'
+      ).join('');
+      holder.hidden = false;
+    } catch (error) {
+      console.warn('Officiella bandlänkar kunde inte hämtas', error);
+    }
+  }
   function renderBandDetail(b) {
     const mems = membershipsForBand(b.id);
     const memberGroups = groupedMembershipsForBand(b.id);
@@ -2403,7 +2433,7 @@
     const meta = [b.formed_year ? `Bildat ${b.formed_year}` : 'Bildningsår söks', bandPlace, ...(b.genres || [])].map(x => `<span>${escapeHtml(x)}</span>`).join('');
     app.innerHTML = `${breadcrumbs([{label:'Band',href:'#/band'},{label:b.canonical_name}])}${pageHeader(bandKicker,escapeHtml(b.canonical_name),'',meta,'band-page-hero')}
       <section class="section detail-layout first-section band-detail-layout">
-        <aside class="detail-aside">${bandMedia(b) ? `<figure class="detail-media"><img src="${bandMedia(b)}" alt="${escapeHtml(b.canonical_name)}"></figure>${externalMediaCredit(bandMedia(b))}` : ''}${spotifyLink(b)}<div class="aside-label">Översikt</div><p>${escapeHtml(archiveTextSv(b.description || defaultDescription))}</p><div class="aside-facts"><div><span>Status</span><strong>${b.status === 'active' ? 'Aktivt' : b.status === 'inactive' ? 'Inaktivt' : 'Okänt'}</strong></div><div><span>Arkivklass</span><strong>${scopeLabel}</strong></div><div><span>Medlemmar i arkivet</span><strong>${memberGroups.length}</strong></div><div><span>Utgåvor i arkivet</span><strong>${rels.length}</strong></div></div></aside>
+        <aside class="detail-aside">${bandMedia(b) ? `<figure class="detail-media"><img src="${bandMedia(b)}" alt="${escapeHtml(b.canonical_name)}"></figure>${externalMediaCredit(bandMedia(b))}` : ''}${spotifyLink(b)}<div class="aside-label">Översikt</div><p>${escapeHtml(archiveTextSv(b.description || defaultDescription))}</p><div class="aside-facts"><div><span>Status</span><strong>${b.status === 'active' ? 'Aktivt' : b.status === 'inactive' ? 'Inaktivt' : 'Okänt'}</strong></div><div><span>Arkivklass</span><strong>${scopeLabel}</strong></div><div><span>Medlemmar i arkivet</span><strong>${memberGroups.length}</strong></div><div><span>Utgåvor i arkivet</span><strong>${rels.length}</strong></div></div><div class="band-external-links" id="band-external-links" data-band-id="${escapeHtml(b.id)}" hidden><div class="aside-label">Officiella länkar</div><div class="band-external-link-list"></div></div></aside>
         <div class="detail-main">
           <section class="content-section"><div class="content-head"><span>01</span><h2>Medlemmar</h2></div><div class="credit-list">${memberGroups.length ? memberGroups.map(group => { const p=peopleById().get(group.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(personBandName(p,b.id))}</strong><span>${escapeHtml(group.roles || 'Roll kartläggs')}</span><em>${escapeHtml(group.periods || 'Årtal söks')}</em></a>`; }).join('') : '<div class="empty-state">Lineup kartläggs.</div>'}</div></section>
           <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${rels.length ? rels.map(r => releaseRow(r, {compact:true})).join('') : '<div class="empty-state">Inga utgåvor registrerade ännu.</div>'}</div></section>
@@ -2424,6 +2454,7 @@
         </div>
       </section>`;
     renderBandConcerts(b.id);
+    renderBandExternalLinks(b.id);
   }
 
 
