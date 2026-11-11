@@ -959,7 +959,7 @@ body.obs-preview[data-theme="impact"] .screen{background:
 .champion-player{position:relative;display:grid;grid-template-rows:minmax(0,1fr) auto;flex:0 0 calc((100% - (var(--champion-columns) - 1) * var(--champion-gap))/var(--champion-columns));min-width:0;height:min(250px,calc(342px / var(--champion-rows)));border-bottom:2px solid #ffc758;overflow:hidden;background:linear-gradient(0deg,#122330d9,transparent 78%)}
 .champion-portrait{overflow:hidden;padding-top:4px}
 .champion-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;transform:scale(var(--champion-portrait-zoom,1.22));transform-origin:50% 0}
-.champion-portrait img[src*="1DEFAULTBILDID.png" i]{width:min(77%,124px);height:100%;margin-inline:auto;object-fit:fill;transform:none}
+.champion-portrait img[src*="1DEFAULTBILDID.png" i]{transform:none}
 .champion-portrait img[hidden]{display:none}
 .champion-player>b{padding:4px 2px;background:#080d16ed;color:#fff4d1;font-size:clamp(10px,1.25vw,15px);font-weight:900;line-height:1.1;overflow-wrap:anywhere;text-shadow:0 2px 4px #000}
 /* Eight portraits still fit on one row with a wider safe area and a lighter crop. */

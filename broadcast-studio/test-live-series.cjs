@@ -149,11 +149,14 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    {sports_gamer_team_id:222,sports_gamer_player_id:5,display_gamertag:'Opponent',playoff_goalie_games:1},
    ...Array.from({length:12},(_,i)=>({sports_gamer_team_id:111,sports_gamer_player_id:100+i,display_gamertag:'Teammate_'+i,playoff_goalie_games:1}))
   ];
-  const rosterLayout=()=>champion.evaluate(card=>{
+  await page.route(/\/players\/1DEFAULTBILDID\.png$/i,r=>r.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="1086" height="1446"><ellipse cx="543" cy="420" rx="260" ry="380"/></svg>'}));
+  const rosterLayout=()=>champion.evaluate(async card=>{
    const roster=card.querySelector('.champion-roster'),tiles=[...roster.querySelectorAll('.champion-player')];
    const photo=roster.querySelector('img[src^="data:"]'),avatar=roster.querySelector('img[src*="1DEFAULTBILDID.png"]');
+   await avatar.decode();
    return {width:roster.offsetWidth,rows:new Set(tiles.map(tile=>tile.offsetTop)).size,
-    zoom:new DOMMatrixReadOnly(getComputedStyle(photo).transform).a,avatar:getComputedStyle(avatar).transform};
+    zoom:new DOMMatrixReadOnly(getComputedStyle(photo).transform).a,avatar:getComputedStyle(avatar).transform,
+    avatarFit:getComputedStyle(avatar).objectFit,avatarWidth:avatar.offsetWidth,portraitWidth:avatar.parentElement.clientWidth};
   });
   await page.evaluate(players=>seriesFixture.seedPlayers(players),rosterRows.slice(0,10));
   const seven=await rosterLayout();
@@ -167,6 +170,8 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
   assert(eight.width>seven.width,'The eight-player roster uses more horizontal room');
   assert.equal(eight.zoom,1.14);
   assert.equal(eight.avatar,'none');
+  assert.equal(eight.avatarFit,'cover','The fallback portrait keeps its original aspect ratio');
+  assert.equal(eight.avatarWidth,eight.portraitWidth,'The fallback portrait uses the full card width');
   await page.evaluate(players=>seriesFixture.seedPlayers(players),rosterRows);
   const names=await champion.locator('.champion-player>b').allTextContents();
   assert.equal(names.length,15,'All participants fit without cutting the roster');
