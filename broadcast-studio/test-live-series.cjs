@@ -149,6 +149,24 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
    {sports_gamer_team_id:222,sports_gamer_player_id:5,display_gamertag:'Opponent',playoff_goalie_games:1},
    ...Array.from({length:12},(_,i)=>({sports_gamer_team_id:111,sports_gamer_player_id:100+i,display_gamertag:'Teammate_'+i,playoff_goalie_games:1}))
   ];
+  const rosterLayout=()=>champion.evaluate(card=>{
+   const roster=card.querySelector('.champion-roster'),tiles=[...roster.querySelectorAll('.champion-player')];
+   const photo=roster.querySelector('img[src^="data:"]'),avatar=roster.querySelector('img[src*="1DEFAULTBILDID.png"]');
+   return {width:roster.offsetWidth,rows:new Set(tiles.map(tile=>tile.offsetTop)).size,
+    zoom:new DOMMatrixReadOnly(getComputedStyle(photo).transform).a,avatar:getComputedStyle(avatar).transform};
+  });
+  await page.evaluate(players=>seriesFixture.seedPlayers(players),rosterRows.slice(0,10));
+  const seven=await rosterLayout();
+  assert.equal(await champion.locator('.champion-player').count(),7);
+  assert.equal(seven.rows,1);
+  assert.equal(seven.zoom,1.22);
+  await page.evaluate(players=>seriesFixture.seedPlayers(players),rosterRows.slice(0,11));
+  const eight=await rosterLayout();
+  assert.equal(await champion.locator('.champion-player').count(),8);
+  assert.equal(eight.rows,1);
+  assert(eight.width>seven.width,'The eight-player roster uses more horizontal room');
+  assert.equal(eight.zoom,1.14);
+  assert.equal(eight.avatar,'none');
   await page.evaluate(players=>seriesFixture.seedPlayers(players),rosterRows);
   const names=await champion.locator('.champion-player>b').allTextContents();
   assert.equal(names.length,15,'All participants fit without cutting the roster');
