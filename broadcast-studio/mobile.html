@@ -99,8 +99,10 @@ html[data-compact-scenes="1"] #compactScenes{display:grid;gap:5px}
  html[data-compact-scenes="1"] #compactScenes{grid-template-columns:minmax(0,1fr) max-content;align-items:start}
  #compactScenes :is(#compactPrimary,#compactSecondary){grid-column:1;flex-wrap:nowrap;gap:4px}
  #compactScenes :is(#compactPrimary,#compactSecondary)>button{min-width:0;padding-inline:6px}
+ #compactScenes [data-compact-group-start]{margin-inline-start:6px}
  #compactScenes #compactPrimary>.compact-music{flex:none}
  #tournamentControls{grid-column:1/-1;grid-row:3}
+ #compactScenes .tournament-filters{margin-inline-start:3px;padding-inline-start:8px;border-inline-start:1px solid #345166}
  #compactOverlays{grid-area:1/2/span 2/3}
  #compactScenes #mobileFlipLiveTeams{max-width:clamp(152px,16vw,240px)}
 }
@@ -207,9 +209,14 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
   if(mode==="stream")return;
   const seriesOnly=mode==="series";
   const language=new URLSearchParams(location.search).get("lang")?.toLowerCase();
-  const words={sv:["Scenval","Logga in för scenval ↗","Musik"],en:["Scene controls","Sign in for scene controls ↗","Music"],fi:["Näkymän valinta","Kirjaudu vaihtaaksesi näkymää ↗","Musiikki"],de:["Szenensteuerung","Zur Szenensteuerung anmelden ↗","Musik"]};
+  const words={
+    sv:["Scenval","Logga in för scenval ↗","Musik","Match och sändning","Statistik och spelare"],
+    en:["Scene controls","Sign in for scene controls ↗","Music","Match and broadcast","Statistics and players"],
+    fi:["Näkymän valinta","Kirjaudu vaihtaaksesi näkymää ↗","Musiikki","Ottelu ja lähetys","Tilastot ja pelaajat"],
+    de:["Szenensteuerung","Zur Szenensteuerung anmelden ↗","Musik","Spiel und Sendung","Statistik und Spieler"]
+  };
   const lang=Object.hasOwn(words,language)?language:"sv";
-  const [label,signIn,musicLabel]=words[lang];
+  const [label,signIn,musicLabel,matchLabel,statsLabel]=words[lang];
   document.documentElement.lang=lang;
   const link=document.getElementById("compactLoginLink");
   link.href="mobile.html?lang="+lang;
@@ -218,19 +225,30 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
   if(seriesOnly)return;
   const strip=document.getElementById("compactScenes"),primary=document.getElementById("compactPrimary"),secondary=document.getElementById("compactSecondary");
   strip.setAttribute("aria-label",label);
-  const quick=["opening","live","lineup","intermission","series","teamcompare","formguide","forwards","defense","goalies"];
   const buttons=[...document.querySelectorAll("[data-scene]")];
+  buttons.forEach(button=>{button.disabled=true;});
+  const place=(row,title,groups)=>{
+    row.setAttribute("role","group");row.setAttribute("aria-label",title);
+    groups.forEach((scenes,i)=>{
+      const items=scenes.flatMap(scene=>buttons.filter(button=>button.dataset.scene===scene));
+      if(i&&items.length)items[0].setAttribute("data-compact-group-start","");
+      row.append(...items);
+    });
+  };
+  place(primary,matchLabel,[
+    ["opening","live","intermission","series"],["duallineup","lineup"],["matchup","groupmeetings","road"]
+  ]);
+  place(secondary,statsLabel,[
+    ["teamcompare","formguide","offense","scorers","defenseleaders","goalieleaders"],
+    ["forwards","defense","goalies","keymatchup"],["spotlight","leaders"]
+  ]);
   for(const button of buttons){
-    button.disabled=true;
-    if(button.dataset.scene!=="table"&&!quick.includes(button.dataset.scene))secondary.append(button);
+    if(button.dataset.scene!=="table"&&button.parentElement!==primary&&button.parentElement!==secondary)secondary.append(button);
   }
   const player=document.createElement("button");
   player.type="button";player.id="presentPlayerButton";player.disabled=true;
   player.setAttribute("aria-haspopup","dialog");player.setAttribute("aria-expanded","false");
   secondary.querySelector('[data-scene="leaders"]')?.after(player);
-  for(const scene of quick){
-    for(const button of buttons.filter(b=>b.dataset.scene===scene))primary.append(button);
-  }
   const music=document.createElement("div"),caption=document.createElement("span");
   music.className="compact-music";
   music.setAttribute("role","group");

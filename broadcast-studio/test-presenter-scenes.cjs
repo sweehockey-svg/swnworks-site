@@ -142,20 +142,20 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
     await page.setViewportSize({width:1906,height:900});
     await frame.locator('#tournamentControls > [data-scene="tourstats"]').waitFor();
     assert.deepEqual(await frame.locator('#compactPrimary > button[data-scene]').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
-     ['opening','live','lineup','lineup','intermission','series','teamcompare','formguide','forwards','defense','goalies']);
+     ['opening','live','intermission','series','duallineup','lineup','lineup','matchup','groupmeetings','road']);
     assert.deepEqual(await frame.locator('#tournamentControls > button[data-scene]').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
      ['table','tourpoints','tourgoalies','tourstats']);
     assert.deepEqual(await frame.locator('#compactSecondary > button[data-scene]').evaluateAll(buttons=>buttons.map(b=>b.dataset.scene)),
-     ['duallineup','matchup','groupmeetings','road','scorers','offense','defenseleaders','goalieleaders','keymatchup','spotlight','leaders']);
+     ['teamcompare','formguide','offense','scorers','defenseleaders','goalieleaders','forwards','defense','goalies','keymatchup','spotlight','leaders']);
     assert.equal(await frame.locator('#compactScenes details').count(),0);
-    await frame.locator('#compactSecondary [data-scene="matchup"]').waitFor({state:'visible'});
+    await frame.locator('#compactPrimary [data-scene="matchup"]').waitFor({state:'visible'});
     const flipBox=await frame.locator('#mobileFlipLiveTeams').boundingBox(),liveBox=await live.boundingBox();
     assert.equal(flipBox.height,liveBox.height,'Flip and scene buttons have the same height');
-    const goaliesBox=await frame.locator('[data-scene="goalies"]').boundingBox();
+    const roadBox=await frame.locator('[data-scene="road"]').boundingBox();
     const musicBox=await frame.locator('.compact-music').boundingBox();
-    assert.equal(musicBox.y,goaliesBox.y,'Music stays on the upper row');
-    assert.equal(flipBox.y,goaliesBox.y,'Flip stays on the upper row');
-    assert(goaliesBox.x+goaliesBox.width<=musicBox.x&&musicBox.x+musicBox.width<=flipBox.x,'Music and flip sit to the right of Goalies');
+    assert.equal(musicBox.y,roadBox.y,'Music stays on the upper row');
+    assert.equal(flipBox.y,roadBox.y,'Flip stays on the upper row');
+    assert(roadBox.x+roadBox.width<=musicBox.x&&musicBox.x+musicBox.width<=flipBox.x,'Music and flip sit after the match scenes');
     const desktopStrip=await page.locator('#scenePicker').boundingBox();
     const tournamentRow=await frame.locator('#tournamentControls').boundingBox();
     const threeRows=()=>frame.locator('#compactScenes').evaluate(el=>[...new Set([...el.querySelectorAll('button')].filter(b=>b.getClientRects().length).map(b=>b.getBoundingClientRect().top))]);
