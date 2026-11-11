@@ -1610,6 +1610,26 @@
       .map(place => place.replace(/(^|[\s-])\p{L}/gu, letter => letter.toLocaleUpperCase('sv'))).join(' / ');
   }
 
+  // Band ska finnas i alla årtionden som överlappar en dokumenterad
+  // verksamhetsperiod, inte enbart årtiondet då bandet bildades.
+  // Saknat slutår betyder okänt, INTE att bandet var aktivt för alltid.
+  function bandActiveDecades(band) {
+    const validYear = value => {
+      if (value === null || value === undefined || value === '') return null;
+      const year = Number(value);
+      return Number.isInteger(year) && year >= 1900 && year <= 2100 ? year : null;
+    };
+    const formed = validYear(band?.formed_year);
+    const disbanded = validYear(band?.disbanded_year);
+    if (formed === null) return [];
+    const first = Math.floor(formed / 10) * 10;
+    const last = disbanded !== null && disbanded >= formed
+      ? Math.floor(disbanded / 10) * 10 : first;
+    const decades = [];
+    for (let decade = first; decade <= last; decade += 10) decades.push(decade);
+    return decades;
+  }
+
   function renderBandIndex() {
     const bands = uppsalaBands();
     const byName = (a, b) => a.canonical_name.localeCompare(b.canonical_name, 'sv', { sensitivity: 'base' });
@@ -1618,9 +1638,7 @@
       .sort((a, b) => a.localeCompare(b, 'sv'));
     const cities = [...new Set(bands.map(b => cityFilterLabel(b.city)).filter(Boolean))]
       .sort((a, b) => a.localeCompare(b, 'sv'));
-    const decades = [...new Set(bands.map(b => Number(b.formed_year))
-      .filter(year => Number.isInteger(year) && year >= 1900)
-      .map(year => Math.floor(year / 10) * 10))].sort((a, b) => a - b);
+    const decades = [...new Set(bands.flatMap(bandActiveDecades))].sort((a, b) => a - b);
     const releaseIds = new Map();
     state.releaseBands.forEach(link => {
       if (!releaseIds.has(link.band_id)) releaseIds.set(link.band_id, new Set());
@@ -1656,7 +1674,7 @@
             <option value="releases">Flest utgåvor</option>
           </select></label>
           <label class="band-filter-field"><span>Genre</span><select id="band-genre"><option value="">Alla genrer</option>${selectOptions(genres)}</select></label>
-          <label class="band-filter-field"><span>Årtionde</span><select id="band-decade"><option value="">Alla årtionden</option>${decades.map(year => `<option value="${year}">${year}-talet</option>`).join('')}</select></label>
+          <label class="band-filter-field"><span>Verksamt årtionde</span><select id="band-decade" title="Visar band som enligt kända start- och slutår var verksamma någon gång under årtiondet. Okänt slutår ger inga antagna extra årtionden."><option value="">Alla årtionden</option>${decades.map(year => `<option value="${year}">${year}-talet</option>`).join('')}</select></label>
           <label class="band-filter-field"><span>Ort</span><select id="band-city"><option value="">Alla orter</option>${selectOptions(cities)}</select></label>
         </div>
         <div class="band-filter-actions">
@@ -1684,7 +1702,7 @@
       const filtered = bands.filter(b => {
         if (term && !`${b.canonical_name} ${(b.genres || []).join(' ')} ${b.city || ''} ${cityFilterLabel(b.city)} ${b.formed_year || ''}`.toLocaleLowerCase('sv').includes(term)) return false;
         if (selectedGenre && !(b.genres || []).some(value => genreFilterLabel(value) === selectedGenre)) return false;
-        if (selectedDecade && Math.floor(Number(b.formed_year) / 10) * 10 !== Number(selectedDecade)) return false;
+        if (selectedDecade && !bandActiveDecades(b).includes(Number(selectedDecade))) return false;
         if (selectedCity && cityFilterLabel(b.city) !== selectedCity) return false;
         if (demoOnly.checked && !demoBandIds.has(b.id)) return false;
         return true;
