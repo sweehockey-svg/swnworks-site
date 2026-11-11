@@ -42,6 +42,8 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    regular_skater_games:5,regular_goals:12-i,regular_assists:3,regular_points:15-i,
    playoff_skater_games:2,playoff_goals:i,playoff_assists:2,playoff_points:i+2,
    regular_goalie_games:i<2?2:3,regular_goalie_save_percentage:i<2?.95:.80-i/100,regular_goalie_shutouts:0}));
+  Object.assign(tourPlayers[9],{display_gamertag:'Mathiasgamer_07',player_country:'NO'});
+  Object.assign(tourPlayers[2],{display_gamertag:'DobbyTheJoker_',player_country:'SE'});
   await frame.evaluate(({teams,tourPlayers,state})=>{
    lineupFixture.seed(teams,tourPlayers);lineupFixture.apply({...state,scene:'tourpointsplayoff',graphicsPackage:'gamenight'});
   },{teams:[...teams,tourTeam],tourPlayers,state});
@@ -59,8 +61,34 @@ const read=file=>fs.readFileSync(__dirname+'/'+file,'utf8');
    assert.deepEqual(layout,{insideTable:true,insideScene:true,aboveFooter:true});
   }
   await assertTenthFits();
+  const podiumLayout=async(scope,selector,name)=>{
+   const card=scope.locator('.tournament-broadcast.active .tour-podium-card').nth(selector);
+   assert.equal(await card.locator('.tour-podium-name>span').innerText(),name);
+   return card.evaluate(el=>{
+    const name=el.querySelector('.tour-podium-name>span'),flag=el.querySelector('.player-flag'),info=el.querySelector('.tour-podium-info');
+    const rect=node=>node.getBoundingClientRect();
+    return {nameFits:name.scrollWidth<=name.clientWidth,flagInline:rect(flag).right<rect(name).left,
+     scoreFits:rect(info.querySelector('strong')).bottom<=rect(el).bottom,
+     detailsFit:rect(info.lastElementChild).bottom<=rect(el).bottom,
+     nameSize:getComputedStyle(name).fontSize,scoreSize:getComputedStyle(info.querySelector('strong')).fontSize};
+   });
+  };
+  const previewPodium=await podiumLayout(frame,2,'Mathiasgamer_07');
+  assert.deepEqual([previewPodium.nameFits,previewPodium.flagInline,previewPodium.scoreFits,previewPodium.detailsFit],[true,true,true,true]);
+  await page.evaluate(url=>{
+   const obs=document.createElement('iframe');obs.id='standalone-obs';obs.style.cssText='position:absolute;top:0;left:0;width:1597px;height:898px;visibility:hidden';
+   obs.src=url;document.body.append(obs);
+  },root+'SV/?obs=1');
+  const standalone=page.frame({url:/\/SV\/\?obs=1$/})||await page.waitForEvent('framenavigated',f=>f.url().endsWith('/SV/?obs=1'));
+  await standalone.waitForFunction(()=>!!window.lineupFixture);
+  await standalone.evaluate(({teams,tourPlayers,state})=>{
+   lineupFixture.seed(teams,tourPlayers);lineupFixture.apply({...state,scene:'tourpointsplayoff',graphicsPackage:'gamenight'});
+  },{teams:[...teams,tourTeam],tourPlayers,state});
+  assert.deepEqual(await podiumLayout(standalone,2,'Mathiasgamer_07'),previewPodium,'OBS and presenter use identical podium text sizes and fit');
+  await page.locator('#standalone-obs').evaluate(el=>el.remove());
   await frame.evaluate(s=>lineupFixture.apply({...s,scene:'tourgoalies',graphicsPackage:'gamenight'}),state);
-  assert.match(await tournament.locator('.tour-podium-card').first().innerText(),/TourPlayer2/);
+  const goaliePodium=await podiumLayout(frame,0,'DobbyTheJoker_');
+  assert.deepEqual([goaliePodium.nameFits,goaliePodium.flagInline,goaliePodium.scoreFits,goaliePodium.detailsFit],[true,true,true,true]);
   assert.doesNotMatch(await tournament.innerText(),/TourPlayer[01]\b/);
   await assertTenthFits();
   const commentators=[['phyreon3429','Alexander “Phyreon” Sundman','3429'],['troublemakingswe','Alex “troublemakingswe” Rautiainen','2807']];

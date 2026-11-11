@@ -972,16 +972,17 @@ window.SWNViewerBridge=(()=>{
       const ranked=tournamentScenes.rank(data.players,phase,goalie).slice(0,10);
       const cols=goalie?["GP","SO","SV%"]:["GP","G","A","P"];
       const values=p=>goalie?[p.gp,p.so,format(p.sv,2)+" %"]:[p.gp,p.goals,p.assists,p.points];
-      const named=p=>{const team=teamFor(p.team);return [badge(team),esc(team?.team_name_in_league||p.player.current_global_team_name||""),playerFlag(p.player)+esc(p.player.display_gamertag)];};
+      const named=p=>{const team=teamFor(p.team);return [badge(team),esc(team?.team_name_in_league||p.player.current_global_team_name||""),playerFlag(p.player),String(p.player.display_gamertag||"")];};
       const podium=ranked.slice(0,3).map((p,i)=>{
-        const [mark,team,name]=named(p), vals=values(p);
+        const [mark,team,flag,name]=named(p), vals=values(p);
         return '<div class="tour-podium-card"><span class="tour-rank">'+(i+1)+'</span><div class="tour-photo">'+image(playerImage(p.player),true)+'</div><div class="tour-podium-info">'+
-          '<b>'+name+'</b><small>'+mark+team+'</small><strong>'+vals.at(-1)+(goalie?'':' P')+'</strong><div>'+
+          '<b class="tour-podium-name" style="--tour-name-length:'+Math.max(1,[...name].length)+'">'+flag+'<span title="'+esc(name)+'">'+esc(name)+'</span></b>'+
+          '<small>'+mark+'<span>'+team+'</span></small><strong>'+vals.at(-1)+(goalie?'':' P')+'</strong><div>'+
           vals.slice(0,-1).map((v,j)=>'<span>'+v+' '+cols[j]+'</span>').join("")+'</div></div></div>';
       }).join("");
       const rows=ranked.slice(3).map((p,i)=>{
-        const [mark,team,name]=named(p);
-        return '<div><b>'+(i+4)+'</b><b>'+name+'</b><span>'+mark+team+'</span>'+values(p).map(v=>'<b>'+v+'</b>').join("")+'</div>';
+        const [mark,team,flag,name]=named(p);
+        return '<div><b>'+(i+4)+'</b><b>'+flag+esc(name)+'</b><span>'+mark+team+'</span>'+values(p).map(v=>'<b>'+v+'</b>').join("")+'</div>';
       }).join("");
       body=ranked.length?'<div class="tour-podium">'+podium+'</div>'+(rows?
         '<div class="tour-ranking'+(goalie?' tour-goalie':'')+'"><div class="tour-table-head"><b>#</b><b>'+esc(({sv:"SPELARE",fi:"PELAAJA",de:"SPIELER"})[LOCALE]||"PLAYER")+'</b><span>'+tx("team")+'</span>'+

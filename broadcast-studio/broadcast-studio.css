@@ -3080,9 +3080,10 @@ body:not(.obs-preview) #fetchBroadcastData:disabled{opacity:.5;cursor:wait}
 .tour-heading{position:relative;flex:none;border-bottom:1px solid #ffc52b45;padding:0 0 9px}
 .tour-heading>small{display:block;font-size:14px;letter-spacing:.16em;font-weight:900;text-transform:uppercase;color:var(--tour-gold)}
 .tour-heading>h2{font-size:clamp(34px,4.4vw,67px);font-weight:950;line-height:1;margin:4px 0 0;letter-spacing:-.025em;text-transform:uppercase}
+.tournament-broadcast:has(.tour-podium) .tour-heading>h2{font-size:56px}
 .tour-heading>span{display:block;color:#c1d3df;margin-top:4px;font-size:13px}
 .tour-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;min-height:0;flex:0 1 43%}
-.tour-podium-card{position:relative;min-height:0;min-width:0;display:grid;grid-template-columns:42% minmax(0,1fr);align-items:stretch;overflow:hidden;background:linear-gradient(125deg,#0d2738,#07131ef5 70%);border:1px solid #7997ad60;border-bottom:2px solid #aebac9}
+.tour-podium-card{position:relative;min-height:0;min-width:0;display:grid;grid-template-columns:40% minmax(0,1fr);align-items:stretch;overflow:hidden;background:linear-gradient(125deg,#0d2738,#07131ef5 70%);border:1px solid #7997ad60;border-bottom:2px solid #aebac9}
 .tour-podium-card:first-child{border-bottom-color:var(--tour-gold)}
 .tour-podium-card:nth-child(3){border-bottom-color:#bd916c}
 .tour-photo{min-width:0;min-height:0;background:radial-gradient(ellipse at 50% 65%,#2c56755c,transparent 75%)}
@@ -3091,13 +3092,16 @@ body:not(.obs-preview) #fetchBroadcastData:disabled{opacity:.5;cursor:wait}
 .tour-podium-card:first-child .tour-rank{background:var(--tour-gold)}
 .tour-podium-card:nth-child(3) .tour-rank{background:#bd916c}
 .tour-podium-info{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:10px 12px 10px 4px;gap:5px}
-.tour-podium-info>b{font-size:clamp(16px,1.9vw,32px);line-height:1.05;overflow-wrap:anywhere}
+.tour-podium-name{display:flex;align-items:center;gap:6px;min-width:0;font-size:clamp(14px,calc(312px / var(--tour-name-length,1)),25px);line-height:1.15}
+.tour-podium-name .player-flag{flex:none;margin:0!important}
+.tour-podium-name>span,.tour-podium-info>small>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tour-podium-info>small,.tour-ranking>div>span{display:flex;align-items:center;gap:6px;color:#c1d3df;font-weight:700;min-width:0}
 .tour-team-logo{width:24px;height:24px;object-fit:contain;flex:none}
 .tour-podium-info>strong,.tour-stat>b{color:var(--tour-gold);font-size:clamp(26px,3.4vw,52px);line-height:1.05;font-weight:950}
+.tour-podium-info>strong{font-size:46px;white-space:nowrap}
 .tour-podium-info>div{display:flex;flex-wrap:wrap;gap:5px 10px;color:#d6e3eb;font-weight:800}
 .tour-ranking{flex:none;border:1px solid #7997ad60;background:#07131ef2}
-.tour-ranking>div{display:grid;grid-template-columns:6% 29% minmax(0,1fr) repeat(4,9%);align-items:center;min-height:27px;padding:2px 10px;border-bottom:1px solid #ffffff18;gap:4px;font-size:clamp(12px,1.3vw,21px)}
+.tour-ranking>div{display:grid;grid-template-columns:6% 29% minmax(0,1fr) repeat(4,9%);align-items:center;min-height:27px;padding:2px 10px;border-bottom:1px solid #ffffff18;gap:4px;font-size:17px}
 .tour-ranking.tour-goalie>div{grid-template-columns:6% 29% minmax(0,1fr) 10% 10% 14%}
 .tour-ranking>div>:is(b,span){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tour-ranking>div>b:nth-child(n+4){text-align:center}
