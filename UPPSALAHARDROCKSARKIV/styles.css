@@ -1652,3 +1652,11 @@ body.network-body-fullscreen { overflow:hidden; }
 @media (prefers-reduced-motion:reduce) {
   .band-concert-summary,.band-concert-chevron { transition:none; }
 }
+
+/* Verified official band websites and social profiles. */
+.band-external-links { margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--line); }
+.band-external-links .aside-label { margin-bottom: 12px; }
+.band-external-link-list { display: flex; flex-wrap: wrap; gap: 9px; }
+.band-external-link-list a { display: inline-flex; align-items: center; justify-content: space-between; gap: 15px; min-height: 38px; padding: 8px 13px; border: 1px solid var(--line-strong); color: var(--ink); background: rgba(255,255,255,.03); text-decoration: none; font-family: var(--condensed); font-size: 12px; font-weight: 600; letter-spacing: .02em; transition: border-color .18s, background .18s; }
+.band-external-link-list a:hover, .band-external-link-list a:focus-visible { border-color: var(--acid); background: rgba(213,255,63,.07); color: var(--acid); }
+.band-external-link-list a span:last-child { font-size: 14px; opacity: .65; }
