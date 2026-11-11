@@ -100,10 +100,10 @@ html[data-compact-scenes="1"] #compactScenes{display:grid;gap:5px}
  #compactScenes :is(#compactPrimary,#compactSecondary){grid-column:1;flex-wrap:nowrap;gap:4px}
  #compactScenes :is(#compactPrimary,#compactSecondary)>button{min-width:0;padding-inline:6px}
  #compactScenes [data-compact-group-start]{margin-inline-start:6px}
- #compactScenes #compactPrimary>.compact-music{flex:none}
- #tournamentControls{grid-column:1/-1;grid-row:3}
- #compactScenes .tournament-filters{margin-inline-start:3px;padding-inline-start:8px;border-inline-start:1px solid #345166}
- #compactOverlays{grid-area:1/2/span 2/3}
+ #compactScenes #tournamentControls{grid-column:1;grid-row:3;flex-wrap:nowrap}
+ #compactScenes #tournamentControls>button{min-width:0}
+ #compactScenes .tournament-filters{flex:none;flex-wrap:nowrap;margin-inline-start:3px;padding-inline-start:8px;border-inline-start:1px solid #345166}
+ #compactOverlays{grid-area:1/2/span 3/3}
  #compactScenes #mobileFlipLiveTeams{max-width:clamp(152px,16vw,240px)}
 }
 html[data-compact-scenes="series"] .series-editor{margin:0;padding:5px 7px}
@@ -255,14 +255,13 @@ html[data-compact-scenes="series"] .series-editor [role="status"]:empty{display:
   music.setAttribute("aria-label",musicLabel);
   caption.textContent=musicLabel;
   music.append(caption,...document.querySelectorAll("[data-music]"));
-  primary.append(music);
   const overlays=document.createElement("div"),toggles=document.createElement("div");
   overlays.id="compactOverlays";
   for(const action of ["team-strip","commentators"]){
     const button=document.createElement("button");
     button.type="button";button.dataset.overlay=action;button.disabled=true;button.setAttribute("aria-pressed","false");toggles.append(button);
   }
-  overlays.append(document.getElementById("mobileFlipLiveTeams"),toggles);
+  overlays.append(document.getElementById("mobileFlipLiveTeams"),toggles,music);
   strip.append(overlays);
   const tournament=document.getElementById("tournamentControls");
   tournament.classList.remove("group");tournament.classList.add("compact-row");strip.append(tournament);
