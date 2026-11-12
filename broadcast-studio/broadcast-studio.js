@@ -2035,8 +2035,10 @@ window.SWNViewerBridge=(()=>{
        let qualityLabel="";
        if(Array.isArray(hls.levels)&&hls.levels.length){
          const levels=hls.levels.map((level,index)=>({index,height:Number(level.height||0),width:Number(level.width||0),bitrate:Number(level.bitrate||0)}));
+         // Start the program feed at up to Full HD; leave HLS in auto mode
+         // so it can fall back to lower renditions when bandwidth drops.
          const candidates=levels
-           .filter(x=>x.height>0&&x.height<=720&&(!x.width||x.width<=1280));
+           .filter(x=>x.height>0&&x.height<=1080&&(!x.width||x.width<=1920));
          const chosen=RAW_FEED?levels.sort((a,b)=>(a.bitrate-b.bitrate)||(a.height-b.height))[0]:
            (candidates.length?candidates:levels).sort((a,b)=>(b.height-a.height)||(b.bitrate-a.bitrate))[0];
          if(chosen){
