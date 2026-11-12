@@ -393,11 +393,25 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
  await obs.goto(origin+'/broadcast-studio/SV/?obs=1');
  await obs.evaluate(()=>{
   window.EHOCKEY_CONFIG={};
+  const fetch=window.fetch.bind(window);
+  window.fetch=async(input,options)=>{
+   if(String(input).includes('/champion.mp3')){
+    window.testChampionFetchStarted=true;
+    await new Promise(resolve=>{window.releaseChampionFetch=resolve;});
+   }
+   return fetch(input,options);
+  };
   const Audio=window.Audio;
   window.Audio=function(src){
    const audio=new Audio(src);
-   if(!src.startsWith('blob:'))return window.testMusicAudio=audio;
+   if(!src.startsWith('blob:')){
+    audio.addEventListener('playing',()=>{
+     if(new URL(audio.src).pathname.endsWith('/champion.mp3'))window.testChampionStartedAt=performance.now();
+    });
+    return window.testMusicAudio=audio;
+   }
    window.testChampionAudio=audio;
+   audio.addEventListener('ended',()=>{window.testChampionEndedAt=performance.now();});
    const play=audio.play.bind(audio);audio.play=()=>{window.testChampionPlays=(window.testChampionPlays||0)+1;return play();};
    return audio;
   };
@@ -427,6 +441,9 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
  await obs.waitForFunction(()=>window.testMusicAudio?.currentTime>.05&&!testMusicAudio.paused);
  assert.equal(await obs.evaluate(()=>testMusicAudio.volume),.10,'Low explicitly resumes playback');
  const showFinal=(scene,sceneMusic,homeWins=3)=>obs.evaluate(({scene,sceneMusic,homeWins})=>seriesFixture.remote({...seriesFixture.state(),scene,sceneMusic,home:'111',away:'222',lineupTeamNames:{111:'Home team',222:'Away team'},seriesRound:'Final',seriesHome:String(homeWins),seriesAway:'1'}),{scene,sceneMusic,homeWins});
+ await showFinal('live',{muted:true},2);
+ assert.equal(await obs.evaluate(()=>window.testChampionFetchStarted),true,'Preload starts even in a muted Match Live final');
+ assert.equal(await obs.evaluate(()=>testMusicAudio.paused),true,'Preloading does not start audio');
  await showFinal('series',{series:'high'},2);
  assert.equal(await obs.evaluate(()=>window.testChampionPlays||0),0,'No pop for an undecided final');
  await showFinal('live',{series:'high'});
@@ -449,9 +466,14 @@ const read=p=>fs.readFileSync(__dirname+'/'+p,'utf8');
  await obs.waitForFunction(()=>window.testChampionAudio?.currentTime>.02);
  assert.equal(await obs.evaluate(()=>testMusicAudio.paused),true,'The previous song stops before the celebration intro');
  assert.deepEqual(await obs.evaluate(()=>[testChampionPlays,testChampionAudio.volume,testChampionAudio.loop]),[2,.42,false]);
+ await obs.waitForFunction(()=>testChampionAudio.ended&&window.testChampionStartedAt>=window.testChampionEndedAt&&!testMusicAudio.paused&&testMusicAudio.currentTime>.25,null,{timeout:1800});
+ const entrance=await obs.evaluate(()=>({gap:testChampionStartedAt-testChampionEndedAt,decoding:!seriesFixture.loop()?.buffer}));
+ assert(entrance.decoding&&entrance.gap<500,'Champion starts after the pop without waiting for the download: '+JSON.stringify(entrance));
+ await obs.evaluate(()=>window.releaseChampionFetch());
  await obs.waitForFunction(()=>{const loop=seriesFixture.loop();return loop===false||(testChampionAudio.ended&&loop?.node&&loop.context.currentTime>loop.startedAt+.03);},null,{timeout:6000});
  assert.notEqual(await obs.evaluate(()=>seriesFixture.loop()===false),true,loopWarnings.join('\n'));
  assert.equal(await obs.evaluate(()=>seriesFixture.loop().gain.gain.value.toFixed(2)),'0.32','Champion song starts high after the pop');
+ assert(await obs.evaluate(()=>seriesFixture.loop().offset>.01),'The gapless loop picks up where streaming playback left off');
  const seam=await obs.evaluate(async()=>{
   const {node,buffer,start,end}=seriesFixture.loop(),rate=buffer.sampleRate;
   const offline=new OfflineAudioContext(buffer.numberOfChannels,Math.round(rate*.04),rate);

@@ -312,7 +312,14 @@ window.SWNViewerBridge=(()=>{
   let sceneMusic={},musicAudio=null,musicSource='',musicStart=null,musicPlaying=false,musicViewerMuted=true;
   let championSound=null,championSoundShown=false,championMusicWait=false,championWaitTimer=0,championIntroToken=0;
   const championTrack='/broadcast-studio/assets/champion.mp3?v=20261111-victory';
-  let championLoop=null;
+  const championStart=.231;
+  let championLoop=null,championBytes=null,championWarmupStarted=false;
+  function loadChampionBytes(){
+    return championBytes??=fetch(championTrack,{signal:AbortSignal.timeout(20000)}).then(response=>{
+      if(!response.ok)throw Error("Champion track unavailable");
+      return response.arrayBuffer();
+    }).catch(error=>{championBytes=null;throw error;});
+  }
   function prepareChampionLoop(){
     if(championLoop!==null)return championLoop;
     const Context=window.AudioContext||window.webkitAudioContext;
@@ -328,14 +335,11 @@ window.SWNViewerBridge=(()=>{
       console.warn("Champion loop fell back to the standard player:",reason);
       syncSceneMusic();
     };
-    const timeout=setTimeout(()=>fallback("audio preparation timed out"),6500);
-    void Promise.all([context.resume(),fetch(championTrack).then(response=>{
-      if(!response.ok)throw Error("Champion track unavailable");
-      return response.arrayBuffer();
-    }).then(bytes=>context.decodeAudioData(bytes))]).then(([,buffer])=>{
+    const timeout=setTimeout(()=>fallback("audio preparation timed out"),22000);
+    void Promise.all([context.resume(),loadChampionBytes().then(bytes=>context.decodeAudioData(bytes))]).then(([,buffer])=>{
       if(championLoop!==loop)return;
       // Loop points for this specific file, excluding its near-silent MP3 edges.
-      const start=Math.round(.231*buffer.sampleRate),end=Math.min(buffer.length,Math.round(303.531*buffer.sampleRate));
+      const start=Math.round(championStart*buffer.sampleRate),end=Math.min(buffer.length,Math.round(303.531*buffer.sampleRate));
       if(end<=start||context.state!=="running"){fallback("invalid loop points or suspended audio");return;}
       const ramp=Math.min(Math.round(.002*buffer.sampleRate),Math.floor((end-start)/2));
       for(let channel=0;channel<buffer.numberOfChannels;channel++){
@@ -360,12 +364,16 @@ window.SWNViewerBridge=(()=>{
   }
   function playChampionLoop(volume){
     const loop=prepareChampionLoop();
-    if(!loop)return false;
-    if(!loop.buffer)return true;
+    if(!loop?.buffer)return false;
     if(!loop.node){
       const node=loop.context.createBufferSource(),gain=loop.context.createGain();
       node.buffer=loop.buffer;node.loop=true;node.loopStart=loop.start;node.loopEnd=loop.end;
       gain.gain.value=volume;node.connect(gain);gain.connect(loop.context.destination);
+      // The streaming player can already be playing while the full track decodes.
+      // Continue at its position when handing over to the gapless loop.
+      if(musicSource===championTrack&&musicAudio&&!musicAudio.paused&&musicAudio.currentTime>loop.start){
+        loop.offset=(musicAudio.currentTime-loop.start)%(loop.end-loop.start);
+      }
       node.start(0,loop.start+loop.offset);
       loop.node=node;loop.gain=gain;loop.startedAt=loop.context.currentTime;
     }else loop.gain.gain.value=volume;
@@ -444,8 +452,13 @@ window.SWNViewerBridge=(()=>{
     const audible=!!volume&&(!VIEWER_MODE||!musicViewerMuted);
     const celebrating=activeScene==='series'&&!!championOutcome();
     const source=celebrating?championTrack:'/broadcast-studio/assets/aztrozmurfen-superhero-in-the-game.mp3';
-    // Warm up the track during an audible final scene, before the confetti cue.
-    if(audible&&(celebrating||championshipRounds.has(championshipRound())))prepareChampionLoop();
+    const finalRound=championshipRounds.has(championshipRound());
+    // Prefetch during the final even in Match Live or when music is off.
+    if(finalRound&&!championWarmupStarted&&typeof (window.AudioContext||window.webkitAudioContext)==="function"){
+      championWarmupStarted=true;
+      void loadChampionBytes().catch(()=>{});
+    }
+    if(audible&&(celebrating||finalRound))prepareChampionLoop();
     syncChampionSound(celebrating,audible?volume:0);
     if(!audible||championMusicWait){
       stopChampionLoop(celebrating&&!!volume&&!audible);
@@ -476,12 +489,14 @@ window.SWNViewerBridge=(()=>{
         renderMusicCredit();
       });
       for(const event of ["pause","waiting","ended","error"])musicAudio.addEventListener(event,()=>{
+        if(musicSource===championTrack&&championLoop?.node)return;
         musicPlaying=false;renderMusicCredit();
       });
       musicAudio.addEventListener("error",()=>{document.documentElement.dataset.sceneMusic="unavailable";});
     }
     musicAudio.volume=volume;
     if(musicAudio.paused&&!musicStart){
+      if(celebrating&&musicAudio.currentTime<championStart)musicAudio.currentTime=championStart;
       musicStart=musicAudio.play().then(()=>{musicStart=null;},error=>{
         musicStart=null;
         if(musicMode(activeScene)==="off"||(VIEWER_MODE&&musicViewerMuted))return;
