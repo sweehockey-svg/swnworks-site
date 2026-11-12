@@ -2959,12 +2959,13 @@ body[data-background="gamenight"] .background-package-layer{
 .scene-music-controls legend{padding:0 5px;color:#f4b21b;font-size:11px;font-weight:800}
 .scene-music-controls label{margin:0;min-width:0}
 .scene-music-controls select{width:100%;min-width:0}
-.screen>.scene-music-credit{
-  position:absolute;z-index:5;left:50%;bottom:3.5%;transform:translateX(-50%);
-  padding:6px 12px;color:#eff5fa;background:#06131ce8;
-  border-bottom:1px solid #f4b21b;font-size:12px;font-weight:700;
-  white-space:nowrap;pointer-events:none;
+.screen>.top>.scene-music-credit{
+  margin-inline-start:auto;max-width:32%;flex:0 1 auto;
+  padding:6px 10px;color:#eff5fa;background:#06131ce8;
+  border-bottom:1px solid var(--theme-accent,#f4b21b);font-size:12px;font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;
 }
+.screen>.top>.scene-music-credit:not([hidden])+.onair{margin-inline-start:0;flex:none}
 .scene-music-credit[hidden]{display:none!important}
 
 /* A low drifting mist behind the graphics, never over Match Live. */

@@ -298,17 +298,17 @@ window.SWNViewerBridge=(()=>{
   const musicScenes=[...new Set($$("[data-scene]").map(button=>button.dataset.scene))].filter(scene=>scene!=="live");
   const musicVolume={high:.32,low:.10};
   const musicLabels={
-    sv:["Bakgrundsmusik","Scen","Volym","Av (alla scener)","Låg","Hög","Musik av Aztrozmurfen"],
-    en:["Background music","Scene","Volume","Off (all scenes)","Low","High","Music by Aztrozmurfen"],
-    fi:["Taustamusiikki","Näkymä","Äänenvoimakkuus","Pois kaikista","Matala","Korkea","Musiikki: Aztrozmurfen"],
-    de:["Hintergrundmusik","Szene","Lautstärke","Aus (alle Szenen)","Leise","Laut","Musik von Aztrozmurfen"]
+    sv:["Bakgrundsmusik","Scen","Volym","Av (alla scener)","Låg","Hög","Musik av Aztrozmurfen","Vinnarlåt"],
+    en:["Background music","Scene","Volume","Off (all scenes)","Low","High","Music by Aztrozmurfen","Victory music"],
+    fi:["Taustamusiikki","Näkymä","Äänenvoimakkuus","Pois kaikista","Matala","Korkea","Musiikki: Aztrozmurfen","Voittomusiikki"],
+    de:["Hintergrundmusik","Szene","Lautstärke","Aus (alle Szenen)","Leise","Laut","Musik von Aztrozmurfen","Siegermusik"]
   };
   const musicText=musicLabels[LOCALE]||musicLabels.en;
   const musicCredit=document.createElement("div");
   musicCredit.className="scene-music-credit";
   musicCredit.textContent=musicText[6];
   musicCredit.hidden=true;
-  $("#screen")?.append(musicCredit);
+  $("#screen>.top>.onair")?.before(musicCredit);
   let sceneMusic={},musicAudio=null,musicSource='',musicStart=null,musicPlaying=false,musicViewerMuted=true;
   let championSound=null,championSoundShown=false,championMusicWait=false,championWaitTimer=0,championIntroToken=0;
   const championTrack='/broadcast-studio/assets/champion.mp3?v=20261111-victory';
@@ -444,7 +444,13 @@ window.SWNViewerBridge=(()=>{
     level.value=musicMode(scene.value);
   }
   function renderMusicCredit(){
-    musicCredit.hidden=activeScene!=="opening"||musicMode("opening")==="off"||(OBS_MODE&&!PREVIEW_MODE&&!musicPlaying);
+    const enabled=musicMode(activeScene)!=="off";
+    const showConfigured=!OBS_MODE||PREVIEW_MODE||(PRESENTER_VIEW&&musicViewerMuted);
+    musicCredit.hidden=!enabled||(!showConfigured&&!musicPlaying);
+    if(!musicCredit.hidden){
+      const credit=musicText[activeScene==="series"&&championOutcome()?7:6];
+      if(musicCredit.textContent!==credit)musicCredit.textContent=credit;
+    }
   }
   function syncSceneMusic(){
     const volume=musicVolume[musicMode(activeScene)]||0;
@@ -478,6 +484,7 @@ window.SWNViewerBridge=(()=>{
     }
     stopChampionLoop();
     if(musicAudio&&musicSource!==source){
+      musicPlaying=false;
       musicAudio.pause();musicAudio.src=source;musicSource=source;
     }
     if(!musicAudio){
