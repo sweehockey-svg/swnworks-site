@@ -2428,7 +2428,7 @@ html[lang="de"] .scene-quick-toggle input{accent-color:#f2c500}
   z-index:6;
   flex-direction:column;
   gap:5px;
-  width:252px;
+  width:274px;
   pointer-events:none;
 }
 .screen.live-mode:not(.live-commentators-off)>.live-commentators:not(:empty){
