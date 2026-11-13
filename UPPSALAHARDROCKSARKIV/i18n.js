@@ -492,6 +492,36 @@
       const count=key.match(/^(\\d+) kommande spelning(ar)?$/);
       if (count) return count[1]+' upcoming '+(count[1]==='1'?'show':'shows');
     }
+    if (element?.closest('.concert-wrap')) {
+      const concertText={
+        '← Till arkivet':'← Back to the archive',
+        'Kommande spelningar →':'Upcoming shows →',
+        'UPPSALA HÅRDROCKSARKIV / LIVEHISTORIA':'UPPSALA HARD ROCK ARCHIVE / LIVE HISTORY',
+        'Konsertarkivet':'Concert archive',
+        'Historiska konserter, festivaler och turnéer. Som standard visas spelningar med Uppsalaband, oavsett var konserten ägde rum. Välj':'Historical concerts, festivals and tours. By default, shows featuring Uppsala bands are displayed regardless of where they took place. Select',
+        'Alla spelningar i Uppsala':'All shows in Uppsala',
+        'för att även hitta gästande svenska och internationella hårdrocks-, metal-, punk- och hardcoreband.':'to also discover visiting Swedish and international hard rock, metal, punk and hardcore bands.',
+        'Uppsalaband':'Uppsala bands',
+        'Alla år':'All years','Alla band':'All bands','Alla länder':'All countries',
+        'Alla spelställen':'All venues','Alla typer':'All types',
+        'Konserter':'Concerts','Festivaler':'Festivals','Releasefester':'Release parties','Övriga':'Other',
+        'Äldsta först':'Oldest first','Nyaste först':'Newest first',
+        'Band A–Ö':'Band A–Z','Spelställe A–Ö':'Venue A–Z',
+        'Lista':'List','Kort':'Cards','Spelställe':'Venue','Stad':'City','Land':'Country','Typ':'Type',
+        'Datum':'Date','Källa ↗':'Source ↗','Uppgift att kontrollera':'Unverified information',
+        'Föregående':'Previous','Nästa':'Next','Okänt':'Unknown','Okänt spelställe':'Unknown venue',
+        'Hämtar konserter…':'Loading concerts…',
+        'En spelning räknas som ett evenemang även när flera band deltar. Gästartister finns med i spelplatsvyn utan att automatiskt läggas till i Uppsalabandens band- eller personregister. Osäkra datum visas med den precision som finns dokumenterad.':'A show counts as one event even when several bands perform. Visiting acts appear in the venue view without automatically being added to the Uppsala band or musician directory. Uncertain dates are shown with their documented precision.'
+      };
+      if(concertText[key]) return concertText[key];
+      const events=key.match(/^(\\d[\\d\\s]*) evenemang(?: med Uppsalaband)?$/);
+      if(events) return events[1]+(key.includes('med Uppsalaband')?' events featuring Uppsala bands':' events');
+      const city=key.match(/^(\\d[\\d\\s]*) spelningar i Uppsala$/);
+      if(city) return city[1]+' shows in Uppsala';
+      const pages=key.match(/^Sida (\\d+) av (\\d+)$/);
+      if(pages) return 'Page '+pages[1]+' of '+pages[2];
+      if (element?.closest('.concert-card,.concert-table,.concert-stats')) return source.replace(/\\bSverige\\b/g,'Sweden');
+    }
     if (key==='Uppsala-band' && element?.closest('.aside-facts')) return 'Uppsala band';
     const exact = lookup.get(key.toLocaleLowerCase('sv'));
     let output = exact ? applyCase(key,exact) : key;
