@@ -468,6 +468,23 @@
         'juni':'June','juli':'July','augusti':'August','september':'September',
         'oktober':'October'
       };
+      const calendarSentences = {
+        '← Till arkivet':'← Back to the archive',
+        'UPPSALA HÅRDROCKSARKIV / LIVEKALENDER':'UPPSALA HARD ROCK ARCHIVE / LIVE CALENDAR',
+        'Rock, punk, metal och hårdrock. Här samlar vi ':'Rock, punk, metal and hard rock. Here we list ',
+        'Uppsalabandens kommande spelningar, oavsett stad':'upcoming shows by Uppsala bands, wherever they perform',
+        ', och ':', and ',
+        'spelningar i Uppsala även med gästande band':'shows in Uppsala, including visiting bands',
+        '. Allt bygger på samma konsertregister som arkivet.':'. All information comes from the archive’s concert database.',
+        'Band, spelställe, stad …':'Band, venue, city …',
+        'Se hela konsertarkivet ↗':'Explore the full concert archive ↗',
+        'Tipsa om en spelning ↗':'Submit a show ↗',
+        'Hämtar kommande spelningar…':'Loading upcoming shows…',
+        'Hämtar livekalendern…':'Loading the live calendar…',
+        'Kalendern visar annonserade evenemang med känt datum. Bokningar kan flyttas eller ställas in, så kontrollera alltid arrangörens uppgifter före avresa. För festivaler och kryssningar kan datumet avse evenemangets start, inte ett visst bands scentid. En konsert som både har Uppsalaband och äger rum i Uppsala visas bara en gång under ”Alla”.':'The calendar lists announced events with known dates. Shows may be rescheduled or cancelled, so always check with the organizer before travelling. For festivals and cruises, the date may refer to the start of the event rather than a particular band’s performance. A show featuring an Uppsala band in Uppsala appears only once under “All”.'
+      };
+      if (calendarSentences[key]) return calendarSentences[key];
+      if (element?.closest('.upcoming-place')) return source.replace(/\\bSverige\\b/g,'Sweden');
       const direct=calendarLabels[key.toLocaleLowerCase('sv')];
       if (direct) return applyCase(key,direct);
       const monthHeading=key.match(/^(januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december) (\\d{4})$/i);
