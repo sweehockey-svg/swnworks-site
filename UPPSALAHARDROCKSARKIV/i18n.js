@@ -522,6 +522,20 @@
       if(pages) return 'Page '+pages[1]+' of '+pages[2];
       if (element?.closest('.concert-card,.concert-table,.concert-stats')) return source.replace(/\\bSverige\\b/g,'Sweden');
     }
+    if (location.hash.startsWith('#/personer')) {
+      const peopleText={
+        'PERSONER MED UPPSALAANKNYTNING':'PEOPLE CONNECTED TO UPPSALA',
+        'Musiker, låtskrivare, producenter och ljudtekniker med Uppsalaanknytning och koppling till rock, punk, metal eller närliggande genrer. Andra musikprojekt finns kvar i band- och utgåvehistoriken.':'Musicians, songwriters, producers and sound engineers connected to Uppsala and to rock, punk, metal or related genres. Other music projects remain documented in band and release histories.',
+        'Här visas bara personer med rock-, metal- eller punkkoppling. Både bekräftade Uppsalapersoner och bandmedlemmar under granskning ingår.':'Only people connected to rock, metal or punk are shown here, including both verified Uppsala musicians and band members still under review.',
+        'Sök person':'Search people','Namn eller band…':'Name or band…',
+        'Rensa filter':'Clear filters','Välj personkategori':'Select people category'
+      };
+      if (peopleText[key]) return peopleText[key];
+      const verified=key.match(/^Endast bekräftade \\((\\d+)\\)$/);
+      if (verified) return 'Verified only ('+verified[1]+')';
+      const unverified=key.match(/^Endast obekräftade \\((\\d+)\\)$/);
+      if (unverified) return 'Unverified only ('+unverified[1]+')';
+    }
     if (key==='Uppsala-band' && element?.closest('.aside-facts')) return 'Uppsala band';
     const exact = lookup.get(key.toLocaleLowerCase('sv'));
     let output = exact ? applyCase(key,exact) : key;
