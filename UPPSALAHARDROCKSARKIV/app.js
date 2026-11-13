@@ -5,6 +5,12 @@
   const releaseCovers = window.ARCHIVE_RELEASE_COVERS || {};
   const app = document.getElementById('app');
   const syncLabel = document.getElementById('sync-label');
+  // Authored English long-form translations. Swedish database text remains canonical.
+  // The renderer also accepts a future description_en value from the archive API.
+  const BAND_DESCRIPTIONS_EN = Object.freeze({
+    '15f29eb2-00cd-4bde-87ba-ffed47a4edb8': "Stained Red were a rap metal/nu metal band from Uppsala, formed in 1998 by Johan Persson (bass), Carl-Albin \"Calle\" Rudolfsson (drums), Nils \"Nisse\" Jansson (vocals) and Tobias \"Tobbe\" Eriksson (guitar). Guitarist and vocalist Martin Svenningsson is identified by his full name on the band's own official websites archived in 2003, 2004 and 2006. Some original Stained Red releases from 1998–2004 list Martin Skagerberg or Skageberg in the same guitar position on Discogs; these are treated as historical credit names associated with Svenningsson. No known primary source establishes a legal surname change. Tobbe left before Mean Folks (2000) and was replaced by Petro Holmgren, also credited as Cedan on This City (2004) and early releases by The 21st Impact. The band recorded the six-track EP What Are We Building in 2005–2006, with Carl Vikman handling recording and production and Peter in de Betou mastering. On 7 September 2006, the band announced that recording was complete, and on 16 September it uploaded four new songs to Myspace. The date of the EP's first physical release remains unverified. The band's archived concert schedule documents five shows in north-east England from 23 to 29 May 2002, in Newcastle, South Shields and Durham."
+  });
+
   const state = {
     people: [], bands: [], relatedBands: [], allBands: [], memberships: [], releases: [], releaseBands: [], releaseMembers: [],
     relations: [], familyRelations: [], sources: [], claims: [], claimSources: [], claimEntities: [], uppsalaBandIds: [], mediaItems: [], mediaLinks: []
@@ -2426,6 +2432,7 @@
     const uppsalaBand = isUppsalaBand(b);
     const bandKicker = uppsalaBand ? 'BAND / UPPSALA' : (b.archive_scope === 'external' ? 'RELATERAT BAND' : 'BAND / OKLASSIFICERAT');
     const bandPlace = b.city || (uppsalaBand ? 'Uppsala' : 'Ort söks');
+    const overviewDescriptionEn = b.description_en || BAND_DESCRIPTIONS_EN[b.id] || '';
     const defaultDescription = uppsalaBand
       ? `Ett dokumenterat band i Uppsala-scenen. Arkivet bygger successivt ut historik, lineups, utgåvor och kopplingar kring ${b.canonical_name}.`
       : `Ett relaterat band i person- och meritnätverket. ${b.canonical_name} klassas inte som ett Uppsala-band, men finns med för att visa dokumenterade bandhistoriker och kopplingar.`;
@@ -2433,7 +2440,7 @@
     const meta = [b.formed_year ? `Bildat ${b.formed_year}` : 'Bildningsår söks', bandPlace, ...(b.genres || [])].map(x => `<span>${escapeHtml(x)}</span>`).join('');
     app.innerHTML = `${breadcrumbs([{label:'Band',href:'#/band'},{label:b.canonical_name}])}${pageHeader(bandKicker,escapeHtml(b.canonical_name),'',meta,'band-page-hero')}
       <section class="section detail-layout first-section band-detail-layout">
-        <aside class="detail-aside">${bandMedia(b) ? `<figure class="detail-media"><img src="${bandMedia(b)}" alt="${escapeHtml(b.canonical_name)}"></figure>${externalMediaCredit(bandMedia(b))}` : ''}${spotifyLink(b)}<div class="aside-label">Översikt</div><p>${escapeHtml(archiveTextSv(b.description || defaultDescription))}</p><div class="aside-facts"><div><span>Status</span><strong>${b.status === 'active' ? 'Aktivt' : b.status === 'inactive' ? 'Inaktivt' : 'Okänt'}</strong></div><div><span>Arkivklass</span><strong>${scopeLabel}</strong></div><div><span>Medlemmar i arkivet</span><strong>${memberGroups.length}</strong></div><div><span>Utgåvor i arkivet</span><strong>${rels.length}</strong></div></div><div class="band-external-links" id="band-external-links" data-band-id="${escapeHtml(b.id)}" hidden><div class="aside-label">Officiella länkar</div><div class="band-external-link-list"></div></div></aside>
+        <aside class="detail-aside">${bandMedia(b) ? `<figure class="detail-media"><img src="${bandMedia(b)}" alt="${escapeHtml(b.canonical_name)}"></figure>${externalMediaCredit(bandMedia(b))}` : ''}${spotifyLink(b)}<div class="aside-label">Översikt</div><p class="archive-description" ${overviewDescriptionEn ? `data-i18n-en="${escapeHtml(overviewDescriptionEn)}"` : ''}>${escapeHtml(archiveTextSv(b.description || defaultDescription))}</p><div class="aside-facts"><div><span>Status</span><strong>${b.status === 'active' ? 'Aktivt' : b.status === 'inactive' ? 'Inaktivt' : 'Okänt'}</strong></div><div><span>Arkivklass</span><strong>${scopeLabel}</strong></div><div><span>Medlemmar i arkivet</span><strong>${memberGroups.length}</strong></div><div><span>Utgåvor i arkivet</span><strong>${rels.length}</strong></div></div><div class="band-external-links" id="band-external-links" data-band-id="${escapeHtml(b.id)}" hidden><div class="aside-label">Officiella länkar</div><div class="band-external-link-list"></div></div></aside>
         <div class="detail-main">
           <section class="content-section"><div class="content-head"><span>01</span><h2>Medlemmar</h2></div><div class="credit-list">${memberGroups.length ? memberGroups.map(group => { const p=peopleById().get(group.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(personBandName(p,b.id))}</strong><span>${escapeHtml(group.roles || 'Roll kartläggs')}</span><em>${escapeHtml(group.periods || 'Årtal söks')}</em></a>`; }).join('') : '<div class="empty-state">Lineup kartläggs.</div>'}</div></section>
           <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${rels.length ? rels.map(r => releaseRow(r, {compact:true})).join('') : '<div class="empty-state">Inga utgåvor registrerade ännu.</div>'}</div></section>
