@@ -52,6 +52,7 @@
     .upcoming-card h3{font:700 clamp(20px,2.1vw,29px) var(--condensed,'Oswald',sans-serif);line-height:1.25;margin:0 0 12px;color:#f3f5f4}
     .upcoming-place{display:flex;gap:7px;align-items:flex-start;color:#c6cbd1;font-size:14px;margin:0 0 12px}
     .upcoming-place svg{width:17px;height:17px;flex-shrink:0;stroke:var(--acid,#d5ff3f)}
+    .upcoming-genre{color:#b6bec5;font-size:13px;line-height:1.5;margin:0 0 8px}.upcoming-genre strong{color:#d9e1e7}.upcoming-genre em{font-style:normal;color:#b7a781;font-size:11px;margin-left:5px}
     .upcoming-artists{color:#b6bec5;font-size:13px;line-height:1.65;margin:0}
     .upcoming-artists a{color:#d6e8aa;text-decoration:none;border-bottom:1px solid #536e40}
     .upcoming-artists a:hover{color:var(--acid,#d5ff3f)}
@@ -156,7 +157,7 @@
   <footer class="site-footer">
     <div><strong>UPPSALA HÅRDROCKSARKIV</strong><p>Ett pågående kartläggningsprojekt. Datum och källor kontrolleras och kan uppdateras.</p><a href="./#/kontakt">Kontakt / Tipsa arkivet</a></div>
   </footer>
-  <script src="config.js?v=2.30"></script><script src="i18n.js?v=17"></script>
+  <script src="config.js?v=2.30"></script><script src="i18n.js?v=21"></script>
   <script>
   (() => {
     'use strict';
@@ -222,6 +223,7 @@
         + '<time class="upcoming-date" datetime="' + escapeHtml(event.date) + '"><span class="upcoming-weekday">' + (isApproximateFestival(event) ? 'Festivalstart' : escapeHtml(fmtWeekday.format(d))) + '</span><span class="upcoming-day">' + escapeHtml(fmtDay.format(d)) + '</span><span class="upcoming-month-label">' + escapeHtml(fmtShortMonth.format(d)) + '</span><span class="upcoming-year">' + escapeHtml(event.date.slice(0,4)) + '</span></time>'
         + '<div class="upcoming-content"><div class="upcoming-badges">' + tags + '</div><h3>' + escapeHtml(event.title || 'Spelning') + '</h3>'
         + '<p class="upcoming-place"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>' + escapeHtml(location) + '</span></p>'
+        + (event.genre ? '<p class="upcoming-genre"><strong>Genre:</strong> ' + escapeHtml(event.genre) + (event.genre_status === 'provisional' ? ' <em>(Preliminär)</em>' : '') + '</p>' : '')
         + '<p class="upcoming-artists"><strong>Medverkande:</strong> ' + artistsHtml(event) + '</p>'
         + (uncertainty ? '<p class="upcoming-uncertainty">' + escapeHtml(uncertainty) + '</p>' : '')
         + '</div><div class="upcoming-card-actions">' + sources + '</div></article>';
@@ -230,7 +232,7 @@
       const today = todayInSweden();
       const filtered = allEvents.filter(event => isIncluded(event) && hasCalendarDate(event) && event.date >= today)
         .filter(event => scope === 'bands' ? isBand(event) : scope === 'city' ? isCity(event) : true)
-        .filter(event => !query || [event.title,event.venue,event.city,event.country,...artistNames(event)].join(' ').toLocaleLowerCase('sv').includes(query))
+        .filter(event => !query || [event.title,event.venue,event.city,event.country,event.genre,...artistNames(event)].join(' ').toLocaleLowerCase('sv').includes(query))
         .sort((a,b) => a.date.localeCompare(b.date) || collator.compare(a.title || '',b.title || ''));
       $('result-count').textContent = filtered.length + (filtered.length === 1 ? ' kommande spelning' : ' kommande spelningar');
       if (!filtered.length) {
