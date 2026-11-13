@@ -150,7 +150,7 @@
     </div>
     <div class="upcoming-filters">
       <div class="upcoming-filter"><label for="upcoming-genre">Genre</label><select id="upcoming-genre"><option value="">Alla genrer</option></select></div>
-      <div class="upcoming-filter"><label for="upcoming-venue">Spelställe</label><select id="upcoming-venue"><option value="">Alla spelställen</option></select></div>
+      <div class="upcoming-filter"><label for="upcoming-venue">Spelställe i Uppsala</label><select id="upcoming-venue"><option value="">Alla spelställen</option></select></div>
     </div>
     <div class="upcoming-result-count" id="result-count" role="status" aria-live="polite">Hämtar kommande spelningar…</div>
     <div id="upcoming-results" class="upcoming-loader" aria-live="polite">Hämtar livekalendern…</div>
@@ -246,7 +246,7 @@
     function populateFilters() {
       const eligible = allEvents.filter(event => isIncluded(event) && hasCalendarDate(event) && event.date >= todayInSweden());
       const genres = [...new Set(eligible.flatMap(genreParts))].sort(collator.compare);
-      const venues = [...new Set(eligible.map(event => String(event.venue || '').trim()).filter(Boolean))].sort(collator.compare);
+      const venues = [...new Set(eligible.filter(event => String(event.city || '').trim().toLocaleLowerCase('sv') === 'uppsala').map(event => String(event.venue || '').trim()).filter(Boolean))].sort(collator.compare);
       const fill = (id,values,empty) => {
         const select = $(id);
         const previous = select.value;
