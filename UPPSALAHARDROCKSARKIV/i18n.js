@@ -457,7 +457,7 @@
     if (element?.closest('.upcoming-wrap')) {
       const calendarLabels = {
         'uppsalaband':'Uppsala bands','i uppsala':'In Uppsala',
-        'medverkande:':'Featuring:','arrangör / källa ↗':'Organizer / source ↗',
+        'medverkande:':'Featuring:','genre:':'Genre:','(preliminär)':'(Provisional)','arrangör / källa ↗':'Organizer / source ↗',
         'mer info ↗':'More info ↗','speldag ej bekräftad':'Performance date unconfirmed',
         'spelställe ej angivet':'Venue not specified','se evenemangets program':'See event lineup',
         'totalt':'Total','med uppsalaband':'Featuring Uppsala bands',
