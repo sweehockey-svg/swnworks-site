@@ -439,8 +439,19 @@
   function english(source, element) {
     const trimmed = source.trim(), key = trimmed.replace(/\s+/g,' ');
     if (!key) return source;
+    // Translate each date component separately; never replace weekday/day/month/year with a full date.
     const time=element?.closest('time[datetime]');
-    if (time) { const date=new Date(time.getAttribute('datetime')); if (!Number.isNaN(date.getTime())) return new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'Europe/Stockholm'}).format(date); }
+    if (time) {
+      if (element?.closest('.upcoming-day, .upcoming-year')) return source;
+      if (element?.closest('.upcoming-weekday')) {
+        const days={mån:'Mon',tis:'Tue',ons:'Wed',tor:'Thu',fre:'Fri',lör:'Sat',sön:'Sun'};
+        return days[key.toLocaleLowerCase('sv').replace(/\.$/,'')] || source;
+      }
+      if (element?.closest('.upcoming-month-label')) {
+        const months={jan:'Jan',feb:'Feb',mar:'Mar',apr:'Apr',maj:'May',jun:'Jun',jul:'Jul',aug:'Aug',sep:'Sep',okt:'Oct',nov:'Nov',dec:'Dec'};
+        return months[key.toLocaleLowerCase('sv').replace(/\.$/,'')] || source;
+      }
+    }
     if (key==='Uppsala-band' && element?.closest('.aside-facts')) return 'Uppsala band';
     const exact = lookup.get(key.toLocaleLowerCase('sv'));
     let output = exact ? applyCase(key,exact) : key;
