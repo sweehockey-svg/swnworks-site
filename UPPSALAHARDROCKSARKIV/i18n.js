@@ -512,14 +512,15 @@
         'Datum':'Date','Källa ↗':'Source ↗','Uppgift att kontrollera':'Unverified information',
         'Föregående':'Previous','Nästa':'Next','Okänt':'Unknown','Okänt spelställe':'Unknown venue',
         'Hämtar konserter…':'Loading concerts…',
+        'evenemang med Uppsalaband':'events featuring Uppsala bands','spelningar i Uppsala':'shows in Uppsala','spelställen i Uppsala':'venues in Uppsala','Sök band, spelställe, stad, land...':'Search bands, venues, cities, countries...',
         'En spelning räknas som ett evenemang även när flera band deltar. Gästartister finns med i spelplatsvyn utan att automatiskt läggas till i Uppsalabandens band- eller personregister. Osäkra datum visas med den precision som finns dokumenterad.':'A show counts as one event even when several bands perform. Visiting acts appear in the venue view without automatically being added to the Uppsala band or musician directory. Uncertain dates are shown with their documented precision.'
       };
       if(concertText[key]) return concertText[key];
-      const events=key.match(/^(\\d[\\d\\s]*) evenemang(?: med Uppsalaband)?$/);
+      const events=key.match(/^(\d[\d\s]*) evenemang(?: med Uppsalaband)?$/);
       if(events) return events[1]+(key.includes('med Uppsalaband')?' events featuring Uppsala bands':' events');
-      const city=key.match(/^(\\d[\\d\\s]*) spelningar i Uppsala$/);
+      const city=key.match(/^(\d[\d\s]*) spelningar i Uppsala$/);
       if(city) return city[1]+' shows in Uppsala';
-      const pages=key.match(/^Sida (\\d+) av (\\d+)$/);
+      const pages=key.match(/^Sida (\d+) av (\d+)$/);
       if(pages) return 'Page '+pages[1]+' of '+pages[2];
       if (element?.closest('.concert-card,.concert-table,.concert-stats')) return source.replace(/\\bSverige\\b/g,'Sweden');
     }
@@ -532,9 +533,9 @@
         'Rensa filter':'Clear filters','Välj personkategori':'Select people category'
       };
       if (peopleText[key]) return peopleText[key];
-      const verified=key.match(/^Endast bekräftade \\((\\d+)\\)$/);
+      const verified=key.match(/^Endast bekräftade \((\d+)\)$/);
       if (verified) return 'Verified only ('+verified[1]+')';
-      const unverified=key.match(/^Endast obekräftade \\((\\d+)\\)$/);
+      const unverified=key.match(/^Endast obekräftade \((\d+)\)$/);
       if (unverified) return 'Unverified only ('+unverified[1]+')';
     }
     if (key==='Uppsala-band' && element?.closest('.aside-facts')) return 'Uppsala band';
