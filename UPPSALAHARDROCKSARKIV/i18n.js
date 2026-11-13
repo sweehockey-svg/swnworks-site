@@ -438,6 +438,8 @@
     ? translated.toLocaleUpperCase('en') : source === source.toLocaleLowerCase('sv') ? translated.toLocaleLowerCase('en') : translated;
 
   function english(source, element) {
+    // Long archive biographies are authored separately in English, not word-for-word UI labels.
+    if (element?.classList?.contains('archive-description') && element.hasAttribute('data-i18n-en')) return element.getAttribute('data-i18n-en');
     const trimmed = source.trim(), key = trimmed.replace(/\s+/g,' ');
     if (!key) return source;
     // Translate each date component separately; never replace weekday/day/month/year with a full date.
@@ -649,6 +651,7 @@
     scheduled=false;
     observer.disconnect();
     document.documentElement.lang=language;
+    document.querySelectorAll('.archive-description[data-i18n-en]').forEach(element => { element.lang = language; });
     const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
     let node;
     while ((node=walker.nextNode())) translateText(node);
