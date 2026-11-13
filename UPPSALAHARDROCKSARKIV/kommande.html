@@ -243,19 +243,26 @@
     function genreParts(event) {
       return String(event.genre || '').split('/').map(part => part.trim()).filter(Boolean);
     }
-    function populateFilters() {
-      const eligible = allEvents.filter(event => isIncluded(event) && hasCalendarDate(event) && event.date >= todayInSweden());
-      const genres = [...new Set(eligible.flatMap(genreParts))].sort(collator.compare);
-      const venues = [...new Set(eligible.filter(event => String(event.city || '').trim().toLocaleLowerCase('sv') === 'uppsala').map(event => String(event.venue || '').trim()).filter(Boolean))].sort(collator.compare);
-      const fill = (id,values,empty) => {
+    function populateFilters(changed = '') {
+      const eligible = allEvents.filter(event => isIncluded(event) && hasCalendarDate(event) && event.date >= todayInSweden())
+        .filter(event => scope === 'bands' ? isBand(event) : scope === 'city' ? isCity(event) : true);
+      const genresFor = events => [...new Set(events.flatMap(genreParts))].sort(collator.compare);
+      const venuesFor = events => [...new Set(events.filter(isCity).map(event => String(event.venue || '').trim()).filter(Boolean))].sort(collator.compare);
+      const fill = (id, values, empty, selected) => {
         const select = $(id);
-        const previous = select.value;
         select.replaceChildren(new Option(empty,''));
         values.forEach(value => select.add(new Option(value,value)));
-        select.value = values.includes(previous) ? previous : '';
+        select.value = values.includes(selected) ? selected : '';
+        return select.value;
       };
-      fill('upcoming-genre',genres,'Alla genrer');
-      fill('upcoming-venue',venues,'Alla spelställen');
+      // Preserve the filter just changed, and reset incompatible choices in the other filter.
+      if (changed === 'venue') {
+        selectedVenue = fill('upcoming-venue',venuesFor(eligible),'Alla spelställen',selectedVenue);
+        selectedGenre = fill('upcoming-genre',genresFor(eligible.filter(event => !selectedVenue || event.venue === selectedVenue)),'Alla genrer',selectedGenre);
+      } else {
+        selectedGenre = fill('upcoming-genre',genresFor(eligible),'Alla genrer',selectedGenre);
+        selectedVenue = fill('upcoming-venue',venuesFor(eligible.filter(event => !selectedGenre || genreParts(event).includes(selectedGenre))),'Alla spelställen',selectedVenue);
+      }
     }
     function render() {
       const today = todayInSweden();
@@ -299,10 +306,11 @@
         tab.classList.toggle('active',active);
         tab.setAttribute('aria-pressed',String(active));
       });
+      populateFilters();
       render();
     }));
-    $('upcoming-genre').addEventListener('change', event => { selectedGenre = event.target.value; render(); });
-    $('upcoming-venue').addEventListener('change', event => { selectedVenue = event.target.value; render(); });
+    $('upcoming-genre').addEventListener('change', event => { selectedGenre = event.target.value; populateFilters('genre'); render(); });
+    $('upcoming-venue').addEventListener('change', event => { selectedVenue = event.target.value; populateFilters('venue'); render(); });
     $('upcoming-search').addEventListener('input', event => { query = event.target.value.trim().toLocaleLowerCase('sv'); render(); });
     const nav=document.getElementById('site-nav'),navToggle=document.querySelector('.nav-toggle'),navGroups=[...nav.querySelectorAll('.nav-group')];
     const closeNav=()=>{nav.classList.remove('open');navToggle.setAttribute('aria-expanded','false');navGroups.forEach(group=>{group.open=false;});};
