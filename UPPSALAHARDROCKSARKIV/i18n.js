@@ -452,6 +452,29 @@
         return months[key.toLocaleLowerCase('sv').replace(/\.$/,'')] || source;
       }
     }
+    // Live calendar has dynamic labels not covered by the general archive dictionary.
+    if (element?.closest('.upcoming-wrap')) {
+      const calendarLabels = {
+        'uppsalaband':'Uppsala bands','i uppsala':'In Uppsala',
+        'medverkande:':'Featuring:','arrangör / källa ↗':'Organizer / source ↗',
+        'mer info ↗':'More info ↗','speldag ej bekräftad':'Performance date unconfirmed',
+        'spelställe ej angivet':'Venue not specified','se evenemangets program':'See event lineup',
+        'totalt':'Total','med uppsalaband':'Featuring Uppsala bands',
+        'alla':'All','sök band eller spelställe':'Search bands or venues',
+        'om uppgifterna':'About the information','kommande':'Upcoming',
+        'konserter':'Concerts','personer':'People','utgåvor':'Releases',
+        'november':'November','december':'December','januari':'January',
+        'februari':'February','mars':'March','april':'April','maj':'May',
+        'juni':'June','juli':'July','augusti':'August','september':'September',
+        'oktober':'October'
+      };
+      const direct=calendarLabels[key.toLocaleLowerCase('sv')];
+      if (direct) return applyCase(key,direct);
+      const monthHeading=key.match(/^(januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december) (\\d{4})$/i);
+      if (monthHeading) return calendarLabels[monthHeading[1].toLocaleLowerCase('sv')]+' '+monthHeading[2];
+      const count=key.match(/^(\\d+) kommande spelning(ar)?$/);
+      if (count) return count[1]+' upcoming '+(count[1]==='1'?'show':'shows');
+    }
     if (key==='Uppsala-band' && element?.closest('.aside-facts')) return 'Uppsala band';
     const exact = lookup.get(key.toLocaleLowerCase('sv'));
     let output = exact ? applyCase(key,exact) : key;
