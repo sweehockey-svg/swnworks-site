@@ -1277,6 +1277,13 @@
   function statusSv(s) { return ({confirmed:'Bekräftad', probable:'Trolig', unconfirmed:'Obekräftad', disputed:'Omstridd', rejected:'Avfärdad'})[s] || s; }
   function sourceReliabilitySv(s) { return ({high:'Stark källa',medium:'Sekundärkälla',low:'Svag källa',unknown:'Ej bedömd'})[s] || s; }
   function relationSv(s) { return ({formed_from:'Bildades ur',renamed_to:'Bytte namn till',reformed_as:'Återbildades som',side_project:'Sidoprojekt till',successor:'Efterföljare till',predecessor:'Föregångare till',shared_lineup:'Delad lineup med',other:'Koppling till'})[s] || 'Koppling till'; }
+  function relationLabelSv(r, currentBandId) {
+    // The relation is directed: from_band_id (the side project) -> to_band_id (the original band).
+    // The Murvipunk attribution rests on secondary evidence, so its label stays explicitly tentative.
+    if (r.relation_type === 'side_project') return String(r.from_band_id) === String(currentBandId)
+      ? 'Möjligt sidoprojekt till' : 'Möjligt sidoprojekt';
+    return relationSv(r.relation_type);
+  }
   function yearSpan(m) {
     if (!m.joined_year && !m.left_year) return 'Årtal söks';
     if (m.joined_year && m.left_year) return `${m.joined_year}${m.left_year !== m.joined_year ? `–${m.left_year}` : ''}`;
@@ -2451,7 +2458,7 @@
           </section>
           ${youtubeSection(b)}
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Bildarkiv</h2></div>${archiveGallery(gallery)}</section>` : ''}
-          ${links.length ? `<section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Kopplingar</h2></div><div class="relation-grid">${links.map(r => { const otherId = r.from_band_id === b.id ? r.to_band_id : r.from_band_id; const other = bandsById().get(otherId); return `<a href="${bandHref(other)}"><span>${escapeHtml(relationSv(r.relation_type))}</span><strong>${escapeHtml(other.canonical_name)}</strong><em>${r.from_year || ''}</em></a>`; }).join('')}</div></section>` : ''}
+          ${links.length ? `<section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Kopplingar</h2></div><div class="relation-grid">${links.map(r => { const otherId = r.from_band_id === b.id ? r.to_band_id : r.from_band_id; const other = bandsById().get(otherId); return `<a href="${bandHref(other)}"><span>${escapeHtml(relationLabelSv(r, b.id))}</span><strong>${escapeHtml(other.canonical_name)}</strong><em>${r.from_year || ''}</em></a>`; }).join('')}</div></section>` : ''}
           <section class="content-section"><div class="content-head"><span>${String(3 + (gallery.length ? 1 : 0) + (links.length ? 1 : 0)).padStart(2,'0')}</span><h2>Källäge</h2></div>${claimList(claims)}</section>
           ${sources.length ? `<section class="content-section"><div class="content-head"><span>${String(4 + (gallery.length ? 1 : 0) + (links.length ? 1 : 0)).padStart(2,'0')}</span><h2>Källor</h2></div>${sourceList(sources)}</section>` : ''}
           <section class="band-tip-panel"><div class="section-kicker">HJÄLP ARKIVET VÄXA</div><h2>Vet du mer om detta band?</h2>
