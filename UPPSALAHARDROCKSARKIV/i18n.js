@@ -203,6 +203,8 @@
   "Bytte namn till": "Renamed to",
   "Återbildades som": "Reformed as",
   "Sidoprojekt till": "Side project of",
+  "Möjligt sidoprojekt": "Possible side project",
+  "Möjligt sidoprojekt till": "Possible side project of",
   "Efterföljare till": "Successor to",
   "Föregångare till": "Predecessor to",
   "Delad lineup med": "Shared line-up with",
