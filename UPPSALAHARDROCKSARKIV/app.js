@@ -2590,8 +2590,35 @@
       if (!Array.isArray(concerts)) throw new Error('Ogiltigt konsertsvar');
       const holder = activeHolder();
       if (!holder || !concerts.length) return;
-      holder.querySelector('.band-concert-list').innerHTML = concerts.map(bandConcertMarkup).join('');
-      holder.hidden = false;
+      const list=holder.querySelector('.band-concert-list');
+      const maxPreview=15;
+      let expanded=false;
+      const renderRows=()=>{
+        list.innerHTML=(expanded?concerts:concerts.slice(0,maxPreview)).map(bandConcertMarkup).join('');
+      };
+      renderRows();
+      if(concerts.length>maxPreview){
+        const more=document.createElement('button');
+        more.type='button';
+        more.className='band-concert-more';
+        const updateText=()=>{
+          more.textContent=expanded?'Visa färre spelningar':'Visa alla spelningar ('+concerts.length+')';
+          more.setAttribute('aria-expanded',String(expanded));
+        };
+        updateText();
+        more.addEventListener('click',()=>{
+          expanded=!expanded;
+          renderRows();
+          updateText();
+        });
+        const actions=document.createElement('div');
+        actions.className='band-concert-pagination';
+        actions.append(more);
+        list.after(actions);
+      }
+      holder.hidden=false;
+      const tab=app.querySelector('[data-band-tab="concerts"]');
+      if(tab)tab.hidden=false;
       renumberBandHeadings();
     } catch (error) {
       console.warn('Källbelagda konserter kunde inte hämtas', error);
@@ -2628,6 +2655,130 @@
       console.warn('Officiella bandlänkar kunde inte hämtas', error);
     }
   }
+  // Reorganize an existing band profile into accessible content tabs.
+  // Existing archive elements are MOVED, never deleted or reconstructed.
+  function setupBandProfileTabs(memberGroups, releases) {
+    const layout=app.querySelector('.band-detail-layout');
+    const aside=layout?.querySelector(':scope > .detail-aside');
+    const main=layout?.querySelector(':scope > .detail-main');
+    if(!layout || !aside || !main)return;
+    const sections=[...main.children];
+    const heading=name=>sections.find(section=>section.querySelector(':scope > .content-head h2')?.textContent.trim()===name);
+    const members=heading('Medlemmar');
+    const editions=heading('Utgåvor');
+    const concerts=main.querySelector('#band-concerts');
+    const youtube=sections.find(section=>section.classList.contains('youtube-section'));
+    const gallery=heading('Bildarkiv');
+    const links=heading('Kopplingar');
+    const evidence=main.querySelector('#band-evidence');
+    const sources=main.querySelector('#band-sources');
+    const tip=main.querySelector('.band-tip-panel');
+
+    const photo=document.createElement('div');
+    photo.className='band-overview-media';
+    const summary=document.createElement('div');
+    summary.className='band-overview-copy';
+    let inPhoto=true;
+    [...aside.children].forEach(child=>{
+      if(child.classList.contains('aside-label') && child.textContent.trim()==='Översikt')inPhoto=false;
+      (inPhoto?photo:summary).append(child);
+    });
+    const grid=document.createElement('div');
+    grid.className='band-overview-grid';
+    if(!photo.children.length)grid.classList.add('no-media');
+    grid.append(photo,summary);
+    const story=summary.querySelector('.archive-description');
+    if(story) {
+      story.classList.add('band-overview-story');
+      if(story.textContent.length>420){
+        story.classList.add('is-collapsed');
+        const expand=document.createElement('button');
+        expand.type='button';
+        expand.className='band-story-more';
+        expand.textContent='Läs hela historiken';
+        expand.setAttribute('aria-expanded','false');
+        expand.addEventListener('click',()=>{
+          const open=story.classList.toggle('is-expanded');
+          expand.textContent=open?'Visa mindre':'Läs hela historiken';
+          expand.setAttribute('aria-expanded',String(open));
+        });
+        story.after(expand);
+      }
+    }
+    aside.remove();
+
+    const consumed=new Set([members,editions,concerts,youtube,gallery,links,evidence,sources,tip].filter(Boolean));
+    const leftovers=sections.filter(section=>!consumed.has(section));
+    const tabData=[
+      {id:'overview',label:'Översikt',items:[grid,tip,...leftovers],visible:true},
+      {id:'members',label:'Medlemmar',items:[members],visible:!!(members && memberGroups.length)},
+      {id:'releases',label:'Utgåvor',items:[editions],visible:!!(editions && releases.length)},
+      {id:'concerts',label:'Spelningar',items:[concerts],visible:false},
+      {id:'media',label:'Media',items:[youtube,gallery],visible:!!(youtube || gallery)},
+      {id:'links',label:'Kopplingar',items:[links],visible:!!links},
+      {id:'sources',label:'Källor',items:[evidence,sources],visible:true}
+    ];
+    const tablist=document.createElement('div');
+    tablist.className='band-tablist';
+    tablist.setAttribute('role','tablist');
+    tablist.setAttribute('aria-label','Bandets innehåll');
+    const panels=document.createElement('div');
+    panels.className='band-tabpanels';
+    const tabs=[];
+    tabData.forEach(entry=>{
+      const button=document.createElement('button');
+      button.type='button';
+      button.setAttribute('role','tab');
+      button.id='band-tab-'+entry.id;
+      button.dataset.bandTab=entry.id;
+      button.setAttribute('aria-controls','band-panel-'+entry.id);
+      button.setAttribute('aria-selected',String(entry.id==='overview'));
+      button.tabIndex=entry.id==='overview'?0:-1;
+      button.textContent=entry.label;
+      button.hidden=!entry.visible;
+      tablist.append(button);
+      tabs.push(button);
+      const panel=document.createElement('section');
+      panel.id='band-panel-'+entry.id;
+      panel.className='band-tab-panel';
+      panel.setAttribute('role','tabpanel');
+      panel.setAttribute('aria-labelledby',button.id);
+      panel.tabIndex=0;
+      panel.hidden=entry.id!=='overview';
+      entry.items.filter(Boolean).forEach(item=>panel.append(item));
+      panels.append(panel);
+    });
+    layout.classList.remove('detail-layout');
+    layout.classList.add('band-tabbed-layout');
+    main.replaceWith(tablist,panels);
+    function select(id) {
+      const chosen=tabs.find(tab=>tab.dataset.bandTab===id);
+      if(!chosen || chosen.hidden)return;
+      tabs.forEach(tab=>{
+        const active=tab===chosen;
+        tab.setAttribute('aria-selected',String(active));
+        tab.tabIndex=active?0:-1;
+      });
+      [...panels.children].forEach(panel=>{panel.hidden=panel.id!=='band-panel-'+id;});
+      if(tablist.getBoundingClientRect().top<72)tablist.scrollIntoView({block:'start',behavior:'auto'});
+    }
+    tablist.addEventListener('click',event=>{
+      const target=event.target.closest('button[data-band-tab]');
+      if(target && tablist.contains(target))select(target.dataset.bandTab);
+    });
+    tablist.addEventListener('keydown',event=>{
+      if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+      const shown=tabs.filter(tab=>!tab.hidden);
+      const current=shown.indexOf(document.activeElement);
+      if(current<0)return;
+      event.preventDefault();
+      const next=event.key==='Home'?0:event.key==='End'?shown.length-1:
+        (current+(event.key==='ArrowRight'?1:-1)+shown.length)%shown.length;
+      shown[next].focus();
+      select(shown[next].dataset.bandTab);
+    });
+  }
+
   function renderBandDetail(b) {
     const mems = membershipsForBand(b.id);
     const memberGroups = groupedMembershipsForBand(b.id);
@@ -2679,6 +2830,7 @@
           </section>
         </div>
       </section>`;
+    setupBandProfileTabs(memberGroups, rels);
     renumberBandHeadings();
     renderBandConcerts(b.id);
     renderBandExternalLinks(b.id);
