@@ -1590,7 +1590,7 @@
   }
 
 
-  function releaseRow(r, bandLabel) {
+  function releaseRow(r, bandLabel, titleOverride) {
     const compact = bandLabel?.compact === true;
     const band = releaseBand(r.id);
     const credits = creditsForRelease(r.id).slice(0,4).map(x => `${personName(x.person_id)} — ${roleSv(x.role)}`);
@@ -1598,13 +1598,92 @@
     return `<a class="release-row${cover ? ' has-cover' : ''}${compact ? ' release-row-compact' : ''}" href="${releaseHref(r)}">
       <div class="release-cover-thumb">${cover ? `<img src="${escapeHtml(cover)}" alt="${escapeHtml(r.title)}" loading="lazy">` : '<span>UHA</span>'}</div>
       <div class="release-year">${r.release_year || '—'}</div>
-      <div><div class="release-title">${escapeHtml(r.title)}</div><span class="release-kind">${escapeHtml([r.release_type, r.format].filter(Boolean).join(' · '))}</span></div>
+      <div><div class="release-title">${escapeHtml(titleOverride || r.title)}</div><span class="release-kind">${escapeHtml([r.release_type, r.format].filter(Boolean).join(' · '))}</span></div>
       ${compact ? '' : `<div class="release-band">${escapeHtml(typeof bandLabel === 'string' ? bandLabel : (band?.canonical_name || 'Band kartläggs'))}</div>`}
       ${compact ? '' : `<div class="release-credits">${escapeHtml(credits.join(' · ') || 'Krediter kartläggs')}${creditsForRelease(r.id).length > 4 ? ' …' : ''}</div>`}
     </a>`;
   }
 
 
+
+
+  // A verified edition link, never a matching title alone, forms a release family.
+  const DISCOGRAPHY_SECTIONS = [
+    ['album','Album'],['ep','EP'],['single','Singlar'],['demo','Demos'],
+    ['split','Splits'],['compilation','Samlingsskivor & medverkan'],
+    ['live','Liveutgåvor'],['rehearsal','Repetitionsinspelningar'],
+    ['other','Övriga utgåvor']
+  ];
+  function releaseEditionGroups(releases) {
+    const present=new Map(releases.map(r=>[r.id,r])),groups=new Map();
+    const rootId=r=>{
+      let current=r;
+      const visited=new Set([r.id]);
+      while(current.edition_of_release_id && present.has(current.edition_of_release_id)
+        && !visited.has(current.edition_of_release_id)) {
+        current=present.get(current.edition_of_release_id);
+        visited.add(current.id);
+      }
+      return current.id;
+    };
+    releases.forEach(r=>{
+      const id=rootId(r);
+      if(!groups.has(id)) groups.set(id,[]);
+      groups.get(id).push(r);
+    });
+    return [...groups].map(([id,items])=>{
+      const primary=present.get(id);
+      const editions=items.slice().sort((a,b)=>
+        (a.id===primary.id?-1:b.id===primary.id?1:0)
+        || (a.release_year||9999)-(b.release_year||9999)
+        || a.title.localeCompare(b.title,'sv'));
+      return {primary,editions};
+    }).sort((a,b)=>(a.primary.release_year||9999)-(b.primary.release_year||9999)
+      || a.primary.title.localeCompare(b.primary.title,'sv'));
+  }
+  function editionDisplayLabel(r) {
+    return r.edition_label || [r.release_year,r.format,r.catalog_number].filter(Boolean).join(' · ') || r.title;
+  }
+  function discographyReleaseRow(group) {
+    const title=group.editions.length>1
+      ? group.primary.title.replace(/\s*\(Swedish CD5\)$/i,'') : group.primary.title;
+    const overview=releaseRow(group.primary,{compact:true},title);
+    if(group.editions.length<2) return '<div class="discography-release">'+overview+'</div>';
+    return '<div class="discography-release">'+overview
+      +'<details class="discography-editions"><summary><span>Versioner</span><strong>'
+      +group.editions.length+'</strong></summary><div class="discography-editions-list">'
+      +group.editions.map(r=>'<a class="discography-edition-link" href="'+releaseHref(r)+'">'
+        +'<strong>'+escapeHtml(editionDisplayLabel(r))+'</strong>'
+        +'<small>'+escapeHtml([r.release_year,r.format,r.catalog_number].filter(Boolean).join(' · '))+'</small></a>').join('')
+      +'</div></details></div>';
+  }
+  function renderBandDiscography(releases) {
+    if(!releases.length) return '<div class="empty-state">Inga utgåvor registrerade ännu.</div>';
+    const groups=releaseEditionGroups(releases);
+    const categories=DISCOGRAPHY_SECTIONS.map(([type,label])=>({
+      type,label,groups:groups.filter(g=>g.primary.release_type===type)
+    })).filter(c=>c.groups.length);
+    return '<div class="band-discography">'
+      +'<p class="discography-note">Olika pressningar och nyutgåvor visas under respektive titel. Varje version har kvar sin egen arkivpost och låtlista.</p>'
+      +categories.map(c=>'<details class="discography-section"'+(c.type==='compilation'?'':' open')+'>'
+        +'<summary><span>'+escapeHtml(c.label)+'</span><strong>'+c.groups.length+'</strong></summary>'
+        +'<div class="discography-section-rows">'+c.groups.map(discographyReleaseRow).join('')+'</div>'
+        +'</details>').join('')+'</div>';
+  }
+  function releaseVersionsPanel(r) {
+    const primary=releasesById().get(r.edition_of_release_id)||r;
+    const related=state.releases.filter(item=>item.id===primary.id || item.edition_of_release_id===primary.id);
+    const group=releaseEditionGroups(related).find(g=>g.primary.id===primary.id);
+    if(!group || group.editions.length<2) return '';
+    return '<section class="release-versions-panel" aria-label="Versioner av samma utgåva">'
+      +'<div class="release-versions-heading"><h2>Versioner av samma utgåva</h2><span>'+group.editions.length+'</span></div>'
+      +'<div class="release-versions-links">'
+      +group.editions.map(item=>'<a class="release-version-link'+(item.id===r.id?' is-current':'')+'" href="'
+        +releaseHref(item)+'"'+(item.id===r.id?' aria-current="page"':'')+'>'
+        +'<strong>'+escapeHtml(editionDisplayLabel(item))+'</strong>'
+        +'<small>'+escapeHtml([item.release_year,item.format,item.catalog_number].filter(Boolean).join(' · '))
+        +'</small></a>').join('')+'</div></section>';
+  }
 
   function normalizedFilterText(value) {
     return String(value || '').normalize('NFC').trim().replace(/\s+/g, ' ');
@@ -2447,10 +2526,10 @@
     const meta = [b.formed_year ? `Bildat ${b.formed_year}` : 'Bildningsår söks', bandPlace, ...(b.genres || [])].map(x => `<span>${escapeHtml(x)}</span>`).join('');
     app.innerHTML = `${breadcrumbs([{label:'Band',href:'#/band'},{label:b.canonical_name}])}${pageHeader(bandKicker,escapeHtml(b.canonical_name),'',meta,'band-page-hero')}
       <section class="section detail-layout first-section band-detail-layout">
-        <aside class="detail-aside">${bandMedia(b) ? `<figure class="detail-media"><img src="${bandMedia(b)}" alt="${escapeHtml(b.canonical_name)}"></figure>${externalMediaCredit(bandMedia(b))}` : ''}${spotifyLink(b)}<div class="aside-label">Översikt</div><p class="archive-description" ${overviewDescriptionEn ? `data-i18n-en="${escapeHtml(overviewDescriptionEn)}"` : ''}>${escapeHtml(archiveTextSv(b.description || defaultDescription))}</p><div class="aside-facts"><div><span>Status</span><strong>${b.status === 'active' ? 'Aktivt' : b.status === 'inactive' ? 'Inaktivt' : 'Okänt'}</strong></div><div><span>Arkivklass</span><strong>${scopeLabel}</strong></div><div><span>Medlemmar i arkivet</span><strong>${memberGroups.length}</strong></div><div><span>Utgåvor i arkivet</span><strong>${rels.length}</strong></div></div><div class="band-external-links" id="band-external-links" data-band-id="${escapeHtml(b.id)}" hidden><div class="aside-label">Officiella länkar</div><div class="band-external-link-list"></div></div></aside>
+        <aside class="detail-aside">${bandMedia(b) ? `<figure class="detail-media"><img src="${bandMedia(b)}" alt="${escapeHtml(b.canonical_name)}"></figure>${externalMediaCredit(bandMedia(b))}` : ''}${spotifyLink(b)}<div class="aside-label">Översikt</div><p class="archive-description" ${overviewDescriptionEn ? `data-i18n-en="${escapeHtml(overviewDescriptionEn)}"` : ''}>${escapeHtml(archiveTextSv(b.description || defaultDescription))}</p><div class="aside-facts"><div><span>Status</span><strong>${b.status === 'active' ? 'Aktivt' : b.status === 'inactive' ? 'Inaktivt' : 'Okänt'}</strong></div><div><span>Arkivklass</span><strong>${scopeLabel}</strong></div><div><span>Medlemmar i arkivet</span><strong>${memberGroups.length}</strong></div><div><span>Utgåvor i arkivet</span><strong>${releaseEditionGroups(rels).length}</strong></div></div><div class="band-external-links" id="band-external-links" data-band-id="${escapeHtml(b.id)}" hidden><div class="aside-label">Officiella länkar</div><div class="band-external-link-list"></div></div></aside>
         <div class="detail-main">
           <section class="content-section"><div class="content-head"><span>01</span><h2>Medlemmar</h2></div><div class="credit-list">${memberGroups.length ? memberGroups.map(group => { const p=peopleById().get(group.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(personBandName(p,b.id))}</strong><span>${escapeHtml(group.roles || 'Roll kartläggs')}</span><em>${escapeHtml(group.periods || 'Årtal söks')}</em></a>`; }).join('') : '<div class="empty-state">Lineup kartläggs.</div>'}</div></section>
-          <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${rels.length ? rels.map(r => releaseRow(r, {compact:true})).join('') : '<div class="empty-state">Inga utgåvor registrerade ännu.</div>'}</div></section>
+          <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${renderBandDiscography(rels)}</div></section>
           <section class="content-section band-concert-section" id="band-concerts" data-band-id="${escapeHtml(b.id)}" hidden>
             <div class="content-head"><span>03</span><h2>Spelningar</h2></div>
             <p class="band-concert-intro">Källor och eventuella osäkerheter visas under Mer info.</p>
@@ -3022,6 +3101,7 @@
         <aside class="detail-aside">${releaseMedia(r) ? `<figure class="detail-media release-artwork"><img src="${releaseMedia(r)}" alt="${escapeHtml(r.title)}"></figure>${externalMediaCredit(releaseMedia(r))}` : ''}${spotifyLink(band, r.id)}<div class="aside-label">Utgåva</div><p>${escapeHtml(r.description || `En ${r.release_type || 'utgåva'} från ${r.release_year || 'okänt år'} i arkivet.`)}</p>${band ? `<a class="button button-ghost aside-button" href="${bandHref(band)}">Öppna ${escapeHtml(band.canonical_name)}</a>` : ''}</aside>
         <div class="detail-main">
 
+          ${releaseVersionsPanel(r)}
           <section class="content-section"><div class="content-head"><span>01</span><h2>Låtlista</h2></div><div id="release-tracklist" class="release-tracklist" data-release-id="${escapeHtml(r.id)}"><div class="empty-state">Hämtar låtlistan…</div></div></section>
           ${youtubeSection(band, r.id)}
           <section class="content-section"><div class="content-head"><span>02</span><h2>Krediter</h2></div><div class="credit-list">${credits.length ? credits.map(c => { const p=peopleById().get(c.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(c.credited_as || p.canonical_name)}</strong><span>${escapeHtml(roleSv(c.role || ''))}</span><em>${escapeHtml(p.canonical_name)}</em></a>`; }).join('') : '<div class="empty-state">Krediter kartläggs.</div>'}</div></section>
