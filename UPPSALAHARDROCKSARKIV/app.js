@@ -1712,7 +1712,7 @@
     return r.edition_label || [r.release_year,r.format,r.catalog_number].filter(Boolean).join(' · ') || r.title;
   }
   function bonusDiscDisplayLabel(r) {
-    return 'Bonus-CD · ' + r.title;
+    return (/\bCD(?:-R|R)?\b/i.test(r.format || '') ? 'Bonus-CD' : 'Bonusmaterial') + ' · ' + r.title;
   }
   function editionLink(r, cssClass, displayTitle, currentId) {
     return '<a class="'+cssClass+(currentId===r.id?' is-current':'')+'" href="'+releaseHref(r)+'"'
