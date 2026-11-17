@@ -8,6 +8,7 @@
   "Gäst- och studiomusiker": "Guest and session musicians",
   "Övriga medverkande": "Other contributors",
   "Personer med både ordinarie medlemskap och liveinsatser visas under Bandmedlemmar. Alla registrerade roller och perioder visas på respektive rad.": "People with both regular band membership and live appearances are listed under Band members. All documented roles and periods remain visible in each row.",
+  "Album, EP & demos": "Albums, EPs & demos",
   "Album": "Albums",
   "EP": "EPs",
   "Singlar": "Singles",
