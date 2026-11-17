@@ -1667,14 +1667,17 @@
     ['live','Liveutgåvor'],['rehearsal','Repetitionsinspelningar'],
     ['other','Övriga utgåvor']
   ];
+  // Only explicit release relationships establish an edition family.
+  // Bonus discs are attached to their album but are not marked as reissues.
   function releaseEditionGroups(releases) {
     const present=new Map(releases.map(r=>[r.id,r])),groups=new Map();
     const rootId=r=>{
       let current=r;
       const visited=new Set([r.id]);
-      while(current.edition_of_release_id && present.has(current.edition_of_release_id)
-        && !visited.has(current.edition_of_release_id)) {
-        current=present.get(current.edition_of_release_id);
+      while(true) {
+        const parentId=current.bonus_disc_of_release_id || current.edition_of_release_id;
+        if(!parentId || !present.has(parentId) || visited.has(parentId)) break;
+        current=present.get(parentId);
         visited.add(current.id);
       }
       return current.id;
@@ -1686,28 +1689,41 @@
     });
     return [...groups].map(([id,items])=>{
       const primary=present.get(id);
-      const editions=items.slice().sort((a,b)=>
-        (a.id===primary.id?-1:b.id===primary.id?1:0)
-        || (a.release_year||9999)-(b.release_year||9999)
-        || a.title.localeCompare(b.title,'sv'));
-      return {primary,editions};
+      const byDate=(a,b)=>(a.release_year||9999)-(b.release_year||9999)
+        || a.title.localeCompare(b.title,'sv');
+      const editions=items.filter(r=>r.id===primary.id || !r.bonus_disc_of_release_id)
+        .sort((a,b)=>(a.id===primary.id?-1:b.id===primary.id?1:0) || byDate(a,b));
+      const bonusDiscs=items.filter(r=>r.id!==primary.id && Boolean(r.bonus_disc_of_release_id))
+        .sort(byDate);
+      return {primary,editions,bonusDiscs};
     }).sort((a,b)=>(a.primary.release_year||9999)-(b.primary.release_year||9999)
       || a.primary.title.localeCompare(b.primary.title,'sv'));
   }
   function editionDisplayLabel(r) {
     return r.edition_label || [r.release_year,r.format,r.catalog_number].filter(Boolean).join(' · ') || r.title;
   }
+  function bonusDiscDisplayLabel(r) {
+    return 'Bonus-CD · ' + r.title;
+  }
+  function editionLink(r, cssClass, displayTitle, currentId) {
+    return '<a class="'+cssClass+(currentId===r.id?' is-current':'')+'" href="'+releaseHref(r)+'"'
+      +(currentId===r.id?' aria-current="page"':'')+'>'
+      +'<strong>'+escapeHtml(displayTitle)+'</strong>'
+      +'<small>'+escapeHtml([r.release_year,r.format,r.catalog_number].filter(Boolean).join(' · '))
+      +'</small></a>';
+  }
   function discographyReleaseRow(group) {
     const title=group.editions.length>1
       ? group.primary.title.replace(/\s*\(Swedish CD5\)$/i,'') : group.primary.title;
     const overview=releaseRow(group.primary,{compact:true},title);
-    if(group.editions.length<2) return '<div class="discography-release">'+overview+'</div>';
+    const variants=group.editions.length+group.bonusDiscs.length;
+    if(variants<2) return '<div class="discography-release">'+overview+'</div>';
+    const titleLabel=group.bonusDiscs.length ? 'Versioner och bonusmaterial' : 'Versioner';
     return '<div class="discography-release">'+overview
-      +'<details class="discography-editions"><summary><span>Versioner</span><strong>'
-      +group.editions.length+'</strong></summary><div class="discography-editions-list">'
-      +group.editions.map(r=>'<a class="discography-edition-link" href="'+releaseHref(r)+'">'
-        +'<strong>'+escapeHtml(editionDisplayLabel(r))+'</strong>'
-        +'<small>'+escapeHtml([r.release_year,r.format,r.catalog_number].filter(Boolean).join(' · '))+'</small></a>').join('')
+      +'<details class="discography-editions"><summary><span>'+titleLabel+'</span><strong>'
+      +variants+'</strong></summary><div class="discography-editions-list">'
+      +group.editions.map(r=>editionLink(r,'discography-edition-link',editionDisplayLabel(r))).join('')
+      +group.bonusDiscs.map(r=>editionLink(r,'discography-edition-link discography-bonus-link',bonusDiscDisplayLabel(r))).join('')
       +'</div></details></div>';
   }
   function renderBandDiscography(releases) {
@@ -1719,25 +1735,30 @@
       groups: groups.filter(g => (Array.isArray(types) ? types : [types]).includes(g.primary.release_type))
     })).filter(c=>c.groups.length);
     return '<div class="band-discography">'
-      +'<p class="discography-note">Olika pressningar och nyutgåvor visas under respektive titel. Varje version har kvar sin egen arkivpost och låtlista.</p>'
+      +'<p class="discography-note">Olika pressningar, nyutgåvor och kopplat bonusmaterial visas under respektive titel. Varje utgåva behåller sin egen arkivpost och låtlista.</p>'
       +categories.map(c=>'<details class="discography-section"'+(c.types.includes('album')?' open':'')+'>'
         +'<summary><span>'+escapeHtml(c.label)+'</span><strong>'+c.groups.length+'</strong></summary>'
         +'<div class="discography-section-rows">'+c.groups.map(discographyReleaseRow).join('')+'</div>'
         +'</details>').join('')+'</div>';
   }
   function releaseVersionsPanel(r) {
-    const primary=releasesById().get(r.edition_of_release_id)||r;
-    const related=state.releases.filter(item=>item.id===primary.id || item.edition_of_release_id===primary.id);
+    const parent=releasesById().get(r.bonus_disc_of_release_id||r.edition_of_release_id)||r;
+    const primary=releasesById().get(parent.edition_of_release_id)||parent;
+    const related=state.releases.filter(item=>item.id===primary.id
+      || item.edition_of_release_id===primary.id
+      || item.bonus_disc_of_release_id===primary.id
+      || (item.bonus_disc_of_release_id && state.releases.some(edition=>
+        edition.id===item.bonus_disc_of_release_id && edition.edition_of_release_id===primary.id)));
     const group=releaseEditionGroups(related).find(g=>g.primary.id===primary.id);
-    if(!group || group.editions.length<2) return '';
-    return '<section class="release-versions-panel" aria-label="Versioner av samma utgåva">'
-      +'<div class="release-versions-heading"><h2>Versioner av samma utgåva</h2><span>'+group.editions.length+'</span></div>'
+    if(!group || group.editions.length+group.bonusDiscs.length<2) return '';
+    const title=group.bonusDiscs.length ? 'Versioner och bonusmaterial' : 'Versioner av samma utgåva';
+    return '<section class="release-versions-panel" aria-label="'+title+'">'
+      +'<div class="release-versions-heading"><h2>'+title+'</h2><span>'
+      +(group.editions.length+group.bonusDiscs.length)+'</span></div>'
       +'<div class="release-versions-links">'
-      +group.editions.map(item=>'<a class="release-version-link'+(item.id===r.id?' is-current':'')+'" href="'
-        +releaseHref(item)+'"'+(item.id===r.id?' aria-current="page"':'')+'>'
-        +'<strong>'+escapeHtml(editionDisplayLabel(item))+'</strong>'
-        +'<small>'+escapeHtml([item.release_year,item.format,item.catalog_number].filter(Boolean).join(' · '))
-        +'</small></a>').join('')+'</div></section>';
+      +group.editions.map(item=>editionLink(item,'release-version-link',editionDisplayLabel(item),r.id)).join('')
+      +group.bonusDiscs.map(item=>editionLink(item,'release-version-link release-bonus-link',bonusDiscDisplayLabel(item),r.id)).join('')
+      +'</div></section>';
   }
 
   function normalizedFilterText(value) {
