@@ -2659,14 +2659,27 @@
           ${youtubeSection(b)}
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Bildarkiv</h2></div>${archiveGallery(gallery)}</section>` : ''}
           ${links.length ? `<section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Kopplingar</h2></div><div class="relation-grid">${links.map(r => { const otherId = r.from_band_id === b.id ? r.to_band_id : r.from_band_id; const other = bandsById().get(otherId); return `<a href="${bandHref(other)}"><span>${escapeHtml(relationLabelSv(r, b.id))}</span><strong>${escapeHtml(other.canonical_name)}</strong><em>${r.from_year || ''}</em></a>`; }).join('')}</div></section>` : ''}
-          <section class="content-section"><div class="content-head"><span>${String(3 + (gallery.length ? 1 : 0) + (links.length ? 1 : 0)).padStart(2,'0')}</span><h2>Källäge</h2></div>${claimList(claims)}</section>
-          ${sources.length ? `<section class="content-section"><div class="content-head"><span>${String(4 + (gallery.length ? 1 : 0) + (links.length ? 1 : 0)).padStart(2,'0')}</span><h2>Källor</h2></div>${sourceList(sources)}</section>` : ''}
+          <details class="content-section band-source-details">
+            <summary class="content-head band-source-head">
+              <span>${String(3 + (gallery.length ? 1 : 0) + (links.length ? 1 : 0)).padStart(2,'0')}</span>
+              <h2>Källäge</h2><strong class="band-source-count">${claims.length}</strong>
+            </summary>
+            <div class="band-source-body">${claimList(claims)}</div>
+          </details>
+          ${sources.length ? `<details class="content-section band-source-details">
+            <summary class="content-head band-source-head">
+              <span>${String(4 + (gallery.length ? 1 : 0) + (links.length ? 1 : 0)).padStart(2,'0')}</span>
+              <h2>Källor</h2><strong class="band-source-count">${sources.length}</strong>
+            </summary>
+            <div class="band-source-body">${sourceList(sources)}</div>
+          </details>` : ''}
           <section class="band-tip-panel"><div class="section-kicker">HJÄLP ARKIVET VÄXA</div><h2>Vet du mer om detta band?</h2>
             <p>${bandGaps(b).length ? 'Vi söker: ' + bandGaps(b).map(escapeHtml).join(', ') + '.' : 'Har du en rättelse, ett minne eller material som kompletterar bandets historia?'}</p>
             <a class="button button-primary" href="${bandTipHref(b)}">Tipsa om ${escapeHtml(b.canonical_name)}</a>
           </section>
         </div>
       </section>`;
+    renumberBandHeadings();
     renderBandConcerts(b.id);
     renderBandExternalLinks(b.id);
   }
