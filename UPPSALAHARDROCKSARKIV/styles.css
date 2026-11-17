@@ -2025,3 +2025,31 @@ body.network-body-fullscreen { overflow:hidden; }
     margin-top:14px; padding:13px 14px;
   }
 }
+
+/* Evidence-based release credits are not inferred membership dates. */
+.band-detail-layout .band-membership-rows .credit-list > a {
+  grid-template-columns:minmax(180px,1fr) minmax(120px,.7fr) minmax(145px,auto);
+}
+.band-membership-rows .band-member-credit-years {
+  display:flex; align-items:center; justify-content:flex-end; gap:6px;
+  min-width:0; color:var(--muted); text-align:right; font-style:normal;
+  text-transform:none; white-space:nowrap;
+}
+.band-member-credit-years span { font-size:10px; letter-spacing:0; text-transform:none; }
+.band-member-credit-years strong {
+  color:var(--ink); font:600 13px/1.3 var(--condensed);
+  white-space:nowrap;
+}
+@media(max-width:760px) {
+  .band-detail-layout .band-membership-rows .credit-list > a {
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:8px 12px;
+  }
+  .band-membership-rows .band-member-credit-years {
+    grid-column:2; grid-row:1 / span 2; align-self:center;
+    flex-direction:column; gap:2px; align-items:flex-end;
+  }
+  .band-membership-rows .credit-list > a span:not(.band-member-credit-years span) {
+    grid-column:1;
+  }
+}
