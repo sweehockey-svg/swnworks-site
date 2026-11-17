@@ -1368,7 +1368,15 @@
 
   function bandHref(b) { return `#/band/${slugify(b.canonical_name)}`; }
   function personHref(p) { return `#/person/${slugify(p.canonical_name)}`; }
-  function releaseHref(r) { return `#/utgava/${slugify(`${r.title}-${r.release_year || ''}`)}`; }
+  // Release titles and years can collide across pressings. Use a short UUID
+  // suffix only for collisions; keep all existing unique-title URLs unchanged.
+  function releaseSlug(r) {
+    const base=slugify(`${r.title}-${r.release_year || ''}`);
+    const duplicate=state.releases.some(other=>other.id!==r.id
+      && slugify(`${other.title}-${other.release_year || ''}`)===base);
+    return duplicate ? base+'-'+r.id.slice(0,8) : base;
+  }
+  function releaseHref(r) { return '#/utgava/'+releaseSlug(r); }
 
   function findBand(slug) { return allBandRows().find(x => slugify(x.canonical_name) === slug); }
   function findPerson(slug) {
@@ -1383,7 +1391,8 @@
       'live-at-fellini-uppsala-02-20-2003': 'live-at-fellini-2003-2003'
     };
     const normalized = aliases[slug] || slug;
-    return state.releases.find(x => slugify(`${x.title}-${x.release_year || ''}`) === normalized);
+    return state.releases.find(x => releaseSlug(x) === normalized)
+      || state.releases.find(x => slugify(`${x.title}-${x.release_year || ''}`) === normalized);
   }
 
   function pageHeader(kicker, title, lead = '', meta = '', extraClass = '') {
