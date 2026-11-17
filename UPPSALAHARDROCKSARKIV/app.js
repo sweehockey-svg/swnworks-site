@@ -1388,7 +1388,11 @@
   function findRelease(slug) {
     // Preserve bookmarks to the earlier catalogue title after the 2026-11-07 correction.
     const aliases = {
-      'live-at-fellini-uppsala-02-20-2003': 'live-at-fellini-2003-2003'
+      'live-at-fellini-uppsala-02-20-2003': 'live-at-fellini-2003-2003',
+      // 2004 CD row was a duplicate of the 2002 original; preserve old bookmarks.
+      'second-to-none-2004-77d6d35b': 'second-to-none-2002',
+      // The digital 2004 edition no longer collides with a CD row.
+      'second-to-none-2004-90d8a36f': 'second-to-none-2004'
     };
     const normalized = aliases[slug] || slug;
     return state.releases.find(x => releaseSlug(x) === normalized)
