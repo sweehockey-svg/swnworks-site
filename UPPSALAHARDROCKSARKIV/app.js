@@ -2698,6 +2698,29 @@
       .forEach((number,index)=>{number.textContent=String(index+1).padStart(2,'0');});
   }
 
+  // Both filters use the same public, source-linked concert data as the list.
+  // This works for every band; no historical events are added to the live calendar.
+  function bandConcertYear(event) {
+    const date = typeof event.event_date === 'string' ? event.event_date : '';
+    const match = /^(\d{4})-\d{2}-\d{2}$/.exec(date);
+    if (match) return match[1];
+    const year = String(event.event_year || '');
+    return /^\d{4}$/.test(year) ? year : '';
+  }
+
+  function bandConcertCountryLabel(country) {
+    const names = {
+      'Austria': 'Österrike', 'Belgium': 'Belgien', 'Czechia': 'Tjeckien',
+      'Denmark': 'Danmark', 'Finland': 'Finland', 'France': 'Frankrike',
+      'Germany': 'Tyskland', 'Italy': 'Italien', 'Luxembourg': 'Luxemburg',
+      'Netherlands': 'Nederländerna', 'Norway': 'Norge', 'Poland': 'Polen',
+      'Portugal': 'Portugal', 'Spain': 'Spanien', 'Sweden': 'Sverige',
+      'Switzerland': 'Schweiz', 'United Kingdom': 'Storbritannien',
+      'United States': 'USA'
+    };
+    return names[country] || country;
+  }
+
   async function renderBandConcerts(bandId) {
     const activeHolder = () => {
       const holder = $('#band-concerts');
@@ -2715,12 +2738,64 @@
       if (!Array.isArray(concerts)) throw new Error('Ogiltigt konsertsvar');
       const holder = activeHolder();
       if (!holder || !concerts.length) return;
-      // The concerts have their own tab, so render the full archive at once.
-      const list=holder.querySelector('.band-concert-list');
-      list.innerHTML=concerts.map(bandConcertMarkup).join('');
-      holder.hidden=false;
-      const tab=app.querySelector('[data-band-tab="concerts"]');
-      if(tab)tab.hidden=false;
+
+      const years = [...new Set(concerts.map(bandConcertYear).filter(Boolean))]
+        .sort((a, b) => Number(b) - Number(a));
+      const countries = [...new Set(concerts.map(event => String(event.country || '').trim()).filter(Boolean))]
+        .sort((a, b) => bandConcertCountryLabel(a).localeCompare(bandConcertCountryLabel(b), 'sv'));
+      const controls = document.createElement('div');
+      controls.className = 'band-concert-filters';
+      controls.innerHTML = [
+        '<div class="band-concert-filter">',
+        '<label for="band-concert-year">År</label>',
+        '<select id="band-concert-year" data-concert-year>',
+        '<option value="">Alla år</option>',
+        ...years.map(year => '<option value="' + escapeHtml(year) + '">' + escapeHtml(year) + '</option>'),
+        '</select></div>',
+        '<div class="band-concert-filter">',
+        '<label for="band-concert-country">Land</label>',
+        '<select id="band-concert-country" data-concert-country>',
+        '<option value="">Alla länder</option>',
+        ...countries.map(country => '<option value="' + escapeHtml(country) + '">'
+          + escapeHtml(bandConcertCountryLabel(country)) + '</option>'),
+        '</select></div>',
+        '<button class="band-concert-reset" type="button" data-concert-reset hidden>Rensa filter</button>',
+        '<span class="band-concert-count" role="status" aria-live="polite" data-concert-count></span>'
+      ].join('');
+
+      const list = holder.querySelector('.band-concert-list');
+      if (!list) return;
+      list.before(controls);
+      const yearSelect = controls.querySelector('[data-concert-year]');
+      const countrySelect = controls.querySelector('[data-concert-country]');
+      const resetButton = controls.querySelector('[data-concert-reset]');
+      const count = controls.querySelector('[data-concert-count]');
+
+      const renderFilteredConcerts = () => {
+        const selectedYear = yearSelect.value;
+        const selectedCountry = countrySelect.value;
+        const visible = concerts.filter(event =>
+          (!selectedYear || bandConcertYear(event) === selectedYear)
+          && (!selectedCountry || String(event.country || '').trim() === selectedCountry)
+        );
+        list.innerHTML = visible.length
+          ? visible.map(bandConcertMarkup).join('')
+          : '<p class="band-concert-empty">Inga spelningar matchar filtren.</p>';
+        count.textContent = 'Visar ' + visible.length + ' av ' + concerts.length + ' spelningar';
+        resetButton.hidden = !selectedYear && !selectedCountry;
+      };
+      yearSelect.addEventListener('change', renderFilteredConcerts);
+      countrySelect.addEventListener('change', renderFilteredConcerts);
+      resetButton.addEventListener('click', () => {
+        yearSelect.value = '';
+        countrySelect.value = '';
+        renderFilteredConcerts();
+      });
+      renderFilteredConcerts();
+
+      holder.hidden = false;
+      const tab = app.querySelector('[data-band-tab="concerts"]');
+      if (tab) tab.hidden = false;
       renumberBandHeadings();
     } catch (error) {
       console.warn('Källbelagda konserter kunde inte hämtas', error);
