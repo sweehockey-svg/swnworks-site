@@ -1680,3 +1680,48 @@ body.network-body-fullscreen { overflow:hidden; }
   .site-header .brand-copy strong { font-size:11px; }
   .site-header .header-youtube { display:none; }
 }
+
+
+
+/* Release families: sections by format/type, with independently linked editions. */
+.band-detail-layout .release-stack { border-top:0; }
+.band-discography { display:grid; gap:14px; min-width:0; }
+.discography-note { margin:0 0 8px; color:var(--muted); font-size:13px; line-height:1.6; }
+.discography-section { min-width:0; border:1px solid var(--line-strong); background:rgba(255,255,255,.018); }
+.discography-section > summary { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 17px; cursor:pointer; list-style:none; color:var(--ink); }
+.discography-section > summary::-webkit-details-marker, .discography-editions > summary::-webkit-details-marker { display:none; }
+.discography-section > summary span { font:600 21px var(--condensed); text-transform:uppercase; letter-spacing:.03em; }
+.discography-section > summary strong { font:600 15px var(--display); color:var(--acid); }
+.discography-section > summary:hover, .discography-section[open] > summary { background:rgba(213,255,63,.055); }
+.discography-section[open] > summary { border-bottom:1px solid var(--line-strong); }
+.discography-section-rows { padding:0 17px; }
+.discography-release + .discography-release { border-top:1px solid var(--line); }
+.band-detail-layout .discography-release .release-row.release-row-compact { border:0; }
+.discography-editions { margin:0 0 15px 86px; border-left:2px solid var(--acid); padding:0 0 0 12px; }
+.discography-editions > summary { display:flex; align-items:center; gap:10px; width:max-content; max-width:100%; padding:7px 0; cursor:pointer; color:var(--acid); list-style:none; }
+.discography-editions > summary span { font:600 13px var(--condensed); text-transform:uppercase; letter-spacing:.06em; }
+.discography-editions > summary strong { font:600 12px var(--display); }
+.discography-editions > summary::after { content:'▸'; font-size:12px; transition:transform .2s; }
+.discography-editions[open] > summary::after { transform:rotate(90deg); }
+.discography-editions-list { display:grid; padding:5px 0; }
+.discography-edition-link, .release-version-link { display:grid; gap:3px; min-width:0; color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line); }
+.discography-edition-link { padding:12px 7px; }
+.discography-edition-link strong, .release-version-link strong { font:600 15px var(--condensed); overflow-wrap:anywhere; }
+.discography-edition-link small, .release-version-link small { font:400 11px/1.5 var(--sans); color:var(--muted); overflow-wrap:anywhere; }
+.discography-edition-link:hover, .release-version-link:hover { color:var(--acid); }
+.release-versions-panel { margin:0 0 36px; padding:18px 20px 20px; border:1px solid var(--line-strong); background:rgba(255,255,255,.02); }
+.release-versions-heading { display:flex; justify-content:space-between; gap:12px; align-items:center; margin:0 0 14px; }
+.release-versions-heading h2 { margin:0; font:600 21px/1.15 var(--condensed); text-transform:uppercase; }
+.release-versions-heading > span { color:var(--acid); font:600 17px var(--display); }
+.release-versions-links { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:8px; }
+.release-version-link { padding:12px; border:1px solid var(--line); }
+.release-version-link.is-current { border-color:var(--acid); background:rgba(213,255,63,.07); }
+.release-version-link.is-current::after { content:'✓'; color:var(--acid); justify-self:end; }
+@media(max-width:600px) {
+  .discography-section > summary { padding:12px; }
+  .discography-section-rows { padding:0 10px; }
+  .discography-section > summary span { font-size:19px; }
+  .discography-editions { margin-left:10px; }
+  .release-versions-panel { padding:14px; }
+  .release-versions-links { grid-template-columns:1fr; }
+}
