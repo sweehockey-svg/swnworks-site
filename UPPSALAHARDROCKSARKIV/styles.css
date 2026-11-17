@@ -2049,7 +2049,7 @@ body.network-body-fullscreen { overflow:hidden; }
     grid-column:2; grid-row:1 / span 2; align-self:center;
     flex-direction:column; gap:2px; align-items:flex-end;
   }
-  .band-membership-rows .credit-list > a span:not(.band-member-credit-years span) {
+  .band-membership-rows .credit-list > a > span {
     grid-column:1;
   }
 }
