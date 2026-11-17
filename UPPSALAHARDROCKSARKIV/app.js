@@ -1665,7 +1665,7 @@
     })).filter(c=>c.groups.length);
     return '<div class="band-discography">'
       +'<p class="discography-note">Olika pressningar och nyutgåvor visas under respektive titel. Varje version har kvar sin egen arkivpost och låtlista.</p>'
-      +categories.map(c=>'<details class="discography-section"'+(c.type==='compilation'?'':' open')+'>'
+      +categories.map(c=>'<details class="discography-section"'+(['album','ep'].includes(c.type)?' open':'')+'>'
         +'<summary><span>'+escapeHtml(c.label)+'</span><strong>'+c.groups.length+'</strong></summary>'
         +'<div class="discography-section-rows">'+c.groups.map(discographyReleaseRow).join('')+'</div>'
         +'</details>').join('')+'</div>';
