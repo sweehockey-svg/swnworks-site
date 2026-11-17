@@ -5,6 +5,7 @@
   const dictionary = {
   "Versioner och bonusmaterial": "Editions and bonus material",
   "Bonus-CD": "Bonus CD",
+  "Bonusmaterial": "Bonus material",
   "Olika pressningar, nyutgåvor och kopplat bonusmaterial visas under respektive titel. Varje utgåva behåller sin egen arkivpost och låtlista.": "Different pressings, reissues and associated bonus material appear under their parent title. Every release retains its own archive record and tracklist.",
   "Bandmedlemmar": "Band members",
   "Livemusiker": "Live musicians",
