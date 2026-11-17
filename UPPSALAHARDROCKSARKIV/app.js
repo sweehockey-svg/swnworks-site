@@ -1662,7 +1662,7 @@
 
   // A verified edition link, never a matching title alone, forms a release family.
   const DISCOGRAPHY_SECTIONS = [
-    ['album','Album'],['ep','EP'],['single','Singlar'],['demo','Demos'],
+    [['album','ep','demo'],'Album, EP & demos'],['single','Singlar'],
     ['split','Splits'],['compilation','Samlingsskivor & medverkan'],
     ['live','Liveutgåvor'],['rehearsal','Repetitionsinspelningar'],
     ['other','Övriga utgåvor']
@@ -1713,12 +1713,14 @@
   function renderBandDiscography(releases) {
     if(!releases.length) return '<div class="empty-state">Inga utgåvor registrerade ännu.</div>';
     const groups=releaseEditionGroups(releases);
-    const categories=DISCOGRAPHY_SECTIONS.map(([type,label])=>({
-      type,label,groups:groups.filter(g=>g.primary.release_type===type)
+    const categories=DISCOGRAPHY_SECTIONS.map(([types,label])=>({
+      types: Array.isArray(types) ? types : [types],
+      label,
+      groups: groups.filter(g => (Array.isArray(types) ? types : [types]).includes(g.primary.release_type))
     })).filter(c=>c.groups.length);
     return '<div class="band-discography">'
       +'<p class="discography-note">Olika pressningar och nyutgåvor visas under respektive titel. Varje version har kvar sin egen arkivpost och låtlista.</p>'
-      +categories.map(c=>'<details class="discography-section"'+(['album','ep','demo'].includes(c.type)?' open':'')+'>'
+      +categories.map(c=>'<details class="discography-section"'+(c.types.includes('album')?' open':'')+'>'
         +'<summary><span>'+escapeHtml(c.label)+'</span><strong>'+c.groups.length+'</strong></summary>'
         +'<div class="discography-section-rows">'+c.groups.map(discographyReleaseRow).join('')+'</div>'
         +'</details>').join('')+'</div>';
