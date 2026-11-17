@@ -1262,7 +1262,7 @@
     const releaseIds=new Set(state.releaseBands.filter(row=>row.band_id===bandId).map(row=>row.release_id));
     const recorded=new Map();
     const musicianRole=/guitar|gitarr|bass|basist|drums?|trumm|vocals?|vocalist|sång|singer|keyboard|synth|piano|organ|percussion|violin|cello|flute|sax|trumpet|harmonica|accordion|instrument|turntables?|banjo|mandolin|programming/i;
-    const excludeRole=/guest|gäst|featur(?:ed|ing)|session|additional|producer|production|recording|mixing|mastering|engineer|photograph|artwork|layout|design|management/i;
+    const excludeRole=/guest|gäst|featur(?:ed|ing)|session|additional/i;
     const types=new Set(['album','ep','demo','single','split']);
     state.releaseMembers.forEach(credit=>{
       if(!releaseIds.has(credit.release_id))return;
