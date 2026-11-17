@@ -1921,3 +1921,73 @@ body.network-body-fullscreen { overflow:hidden; }
 @media (prefers-reduced-motion:reduce) {
   .band-source-head::after { transition:none; }
 }
+
+/* Archive band profile: true tabs instead of a single endless page. */
+.band-tabbed-layout.first-section { display:block; padding-top:24px; padding-bottom:75px; }
+.band-tabbed-layout .band-tablist {
+  position:sticky; top:82px; z-index:21;
+  display:flex; align-items:center; gap:5px;
+  overflow-x:auto; scrollbar-width:thin; scroll-margin-top:82px;
+  padding:7px 0; border-bottom:1px solid var(--line-strong);
+  background:rgba(9,10,12,.96); backdrop-filter:blur(16px);
+}
+.band-tablist [role="tab"] {
+  flex:0 0 auto; padding:12px 16px;
+  border:0; border-bottom:2px solid transparent; cursor:pointer;
+  background:transparent; color:#afb1b6;
+  font:600 14px/1.2 var(--condensed); text-transform:uppercase; letter-spacing:.04em;
+}
+.band-tablist [role="tab"]:hover,.band-tablist [role="tab"][aria-selected="true"] { color:var(--acid); }
+.band-tablist [role="tab"][aria-selected="true"] { border-bottom-color:var(--acid); background:rgba(213,255,63,.05); }
+.band-tablist [role="tab"]:focus-visible { outline:2px solid var(--acid); outline-offset:-2px; }
+.band-tablist [hidden],.band-tab-panel[hidden] { display:none !important; }
+.band-tab-panel { min-width:0; padding:34px 0 12px; }
+.band-tab-panel:focus-visible { outline:2px solid var(--acid); outline-offset:2px; }
+.band-tabbed-layout .content-section { margin-bottom:35px; }
+.band-tabbed-layout .content-head { grid-template-columns:32px minmax(0,1fr); gap:14px; }
+.band-overview-grid {
+  display:grid; grid-template-columns:minmax(230px,.42fr) minmax(0,1fr);
+  gap:clamp(30px,5vw,75px); align-items:start;
+}
+.band-overview-grid.no-media { grid-template-columns:1fr; }
+.band-overview-grid.no-media .band-overview-media { display:none; }
+.band-overview-media { min-width:0; }
+.band-overview-media .detail-media { margin:0 0 13px; }
+.band-overview-media .detail-media img { display:block; width:100%; height:auto; aspect-ratio:auto; max-height:380px; object-fit:contain; }
+.band-overview-media .external-media-credit { margin:5px 0 17px; font-size:11px; overflow-wrap:anywhere; }
+.band-overview-copy { min-width:0; }
+.band-overview-copy .aside-label { margin-bottom:9px; }
+.band-overview-story { margin:0; color:#b4b6ba; font:400 15px/1.82 var(--sans); white-space:pre-line; }
+.band-overview-story.is-collapsed:not(.is-expanded) {
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:7; overflow:hidden;
+}
+.band-story-more {
+  display:inline-block; margin:10px 0 0; padding:6px 0;
+  background:transparent; border:0; color:var(--acid);
+  font:600 13px var(--condensed); text-transform:uppercase; cursor:pointer;
+}
+.band-story-more:hover { text-decoration:underline; text-underline-offset:3px; }
+.band-story-more:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
+.band-overview-copy .aside-facts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:28px; margin-top:26px; }
+.band-overview-copy .aside-facts div { min-width:0; min-height:50px; }
+.band-overview-copy .aside-facts strong { text-align:right; overflow-wrap:anywhere; }
+.band-tab-panel > .band-tip-panel { margin-top:38px; }
+.band-concert-pagination { text-align:center; padding-top:20px; }
+.band-concert-more {
+  padding:12px 22px; border:1px solid var(--line-strong);
+  background:var(--bg-soft); color:var(--acid);
+  font:600 13px var(--condensed); text-transform:uppercase; cursor:pointer;
+}
+.band-concert-more:hover { border-color:var(--acid); }
+@media(max-width:1000px){
+  .band-tabbed-layout .band-tablist { top:70px; scroll-margin-top:70px; }
+  .band-overview-grid { gap:32px; }
+}
+@media(max-width:680px){
+  .band-tabbed-layout.first-section { padding-top:12px; }
+  .band-tablist [role="tab"] { padding:10px 12px; font-size:13px; }
+  .band-tab-panel { padding-top:24px; }
+  .band-overview-grid { grid-template-columns:1fr; gap:24px; }
+  .band-overview-media { max-width:540px; }
+  .band-overview-copy .aside-facts { grid-template-columns:1fr; }
+}
