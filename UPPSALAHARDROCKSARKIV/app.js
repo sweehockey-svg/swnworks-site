@@ -1211,10 +1211,63 @@
         person_id: group.person_id,
         roles: roles.join(' · '),
         periods: periods.join(' · '),
-        firstYear
+        firstYear,
+        memberships
       };
     }).sort((a,b) => a.firstYear - b.firstYear || personName(a.person_id).localeCompare(personName(b.person_id),'sv'));
   }
+
+  // Classification is derived from each original membership record, not from
+  // display translations. Regular membership takes precedence if documented.
+  function membershipKind(m) {
+    const role = String(m.role || '').toLocaleLowerCase('sv');
+    const status = String(m.membership_status || '').toLowerCase();
+    const isLive = /\b(?:live|touring|tour|livemusiker|turnémusiker|konsertmusiker)\b|turné/i.test(role);
+    const guestPart = /\b(?:guest|session|featured)\b|gäst|studiomusiker|inhopp/i;
+    const isGuest = guestPart.test(role) || status === 'session' || status === 'guest';
+    const nonBandRole = /\b(?:producer|production|engineer|mixing|mastering|artwork|photography|manager)\b/i;
+    if (isLive) {
+      // Example: "Bass (1999–2002); live Guitar (2004)" has a regular period.
+      const regularPeriod = role.split(/[;|]/).some(part =>
+        part.trim() && !/\b(?:live|touring|tour)\b|turné/i.test(part)
+        && !guestPart.test(part) && !nonBandRole.test(part));
+      if (regularPeriod && !['session','guest'].includes(status)) return 'member';
+      return 'live';
+    }
+    if (isGuest) return 'guest';
+    if (nonBandRole.test(role) && !/\b(?:member|guitar|bass|drums|vocals|singer)\b|gitarr|bas|sång|trumm/i.test(role)) return 'other';
+    return 'member';
+  }
+  function groupedMembershipKind(group) {
+    const kinds=(group.memberships || []).map(membershipKind);
+    return ['member','live','guest','other'].find(kind=>kinds.includes(kind)) || 'other';
+  }
+  function renderBandMemberships(bandId, groups) {
+    if (!groups.length) return '<div class="empty-state">Lineup kartläggs.</div>';
+    const sections=[
+      {type:'member',label:'Bandmedlemmar',open:true},
+      {type:'live',label:'Livemusiker',open:false},
+      {type:'guest',label:'Gäst- och studiomusiker',open:false},
+      {type:'other',label:'Övriga medverkande',open:false}
+    ];
+    return '<div class="band-membership-sections">'
+      + '<p class="membership-note">Personer med både ordinarie medlemskap och liveinsatser visas under Bandmedlemmar. Alla registrerade roller och perioder visas på respektive rad.</p>'
+      + sections.map(section => {
+        const members=groups.filter(group=>groupedMembershipKind(group)===section.type);
+        if(!members.length)return '';
+        return '<details class="discography-section band-membership-section"'+(section.open?' open':'')+'>'
+          + '<summary><span>'+escapeHtml(section.label)+'</span><strong>'+members.length+'</strong></summary>'
+          + '<div class="discography-section-rows band-membership-rows"><div class="credit-list">'
+          + members.map(group=>{
+            const p=peopleById().get(group.person_id);
+            if(!p)return '';
+            return '<a href="'+personHref(p)+'"><strong>'+escapeHtml(personBandName(p,bandId))
+              +'</strong><span>'+escapeHtml(group.roles||'Roll kartläggs')
+              +'</span><em>'+escapeHtml(group.periods||'Årtal söks')+'</em></a>';
+          }).join('')+'</div></div></details>';
+      }).join('')+'</div>';
+  }
+
   function groupedMembershipsForPerson(id) {
     const groups = new Map();
     membershipsForPerson(id).forEach(m => {
@@ -2528,7 +2581,7 @@
       <section class="section detail-layout first-section band-detail-layout">
         <aside class="detail-aside">${bandMedia(b) ? `<figure class="detail-media"><img src="${bandMedia(b)}" alt="${escapeHtml(b.canonical_name)}"></figure>${externalMediaCredit(bandMedia(b))}` : ''}${spotifyLink(b)}<div class="aside-label">Översikt</div><p class="archive-description" ${overviewDescriptionEn ? `data-i18n-en="${escapeHtml(overviewDescriptionEn)}"` : ''}>${escapeHtml(archiveTextSv(b.description || defaultDescription))}</p><div class="aside-facts"><div><span>Status</span><strong>${b.status === 'active' ? 'Aktivt' : b.status === 'inactive' ? 'Inaktivt' : 'Okänt'}</strong></div><div><span>Arkivklass</span><strong>${scopeLabel}</strong></div><div><span>Medlemmar i arkivet</span><strong>${memberGroups.length}</strong></div><div><span>Utgåvor i arkivet</span><strong>${releaseEditionGroups(rels).length}</strong></div></div><div class="band-external-links" id="band-external-links" data-band-id="${escapeHtml(b.id)}" hidden><div class="aside-label">Officiella länkar</div><div class="band-external-link-list"></div></div></aside>
         <div class="detail-main">
-          <section class="content-section"><div class="content-head"><span>01</span><h2>Medlemmar</h2></div><div class="credit-list">${memberGroups.length ? memberGroups.map(group => { const p=peopleById().get(group.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(personBandName(p,b.id))}</strong><span>${escapeHtml(group.roles || 'Roll kartläggs')}</span><em>${escapeHtml(group.periods || 'Årtal söks')}</em></a>`; }).join('') : '<div class="empty-state">Lineup kartläggs.</div>'}</div></section>
+          <section class="content-section"><div class="content-head"><span>01</span><h2>Medlemmar</h2></div>${renderBandMemberships(b.id, memberGroups)}</section>
           <section class="content-section"><div class="content-head"><span>02</span><h2>Utgåvor</h2></div><div class="release-stack">${renderBandDiscography(rels)}</div></section>
           <section class="content-section band-concert-section" id="band-concerts" data-band-id="${escapeHtml(b.id)}" hidden>
             <div class="content-head"><span>03</span><h2>Spelningar</h2></div>
