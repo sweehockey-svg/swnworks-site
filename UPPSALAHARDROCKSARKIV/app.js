@@ -2699,10 +2699,18 @@
     }
     aside.remove();
 
+    // Keep the contribution prompt close to the band's photo instead of
+    // stretching it across the bottom of the overview tab.
+    if(tip) {
+      tip.classList.add('band-tip-compact');
+      const image=photo.querySelector('.detail-media');
+      (image ? photo : summary).append(tip);
+    }
+
     const consumed=new Set([members,editions,concerts,youtube,gallery,links,evidence,sources,tip].filter(Boolean));
     const leftovers=sections.filter(section=>!consumed.has(section));
     const tabData=[
-      {id:'overview',label:'Översikt',items:[grid,tip,...leftovers],visible:true},
+      {id:'overview',label:'Översikt',items:[grid,...leftovers],visible:true},
       {id:'members',label:'Medlemmar',items:[members],visible:!!(members && memberGroups.length)},
       {id:'releases',label:'Utgåvor',items:[editions],visible:!!(editions && releases.length)},
       {id:'concerts',label:'Spelningar',items:[concerts],visible:false},
