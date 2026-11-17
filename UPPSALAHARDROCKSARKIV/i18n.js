@@ -11,6 +11,8 @@
   "Pågående medlemmar": "Current members",
   "Tidigare medlemmar": "Former members",
   "Medlemsstatus ej fastställd": "Membership status unconfirmed",
+  "Andra band:": "Other bands:",
+  "Spelställe och ort:": "Venue and location:",
   "Livemusiker": "Live musicians",
   "Gäst- och studiomusiker": "Guest and session musicians",
   "Övriga medverkande": "Other contributors",
