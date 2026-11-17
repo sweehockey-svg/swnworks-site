@@ -1278,8 +1278,83 @@
     });
     return new Map([...recorded].map(([id,years])=>{
       const dates=[...years].sort((a,b)=>a-b);
-      return [id,{first:dates[0],last:dates[dates.length-1]}];
+      return [id,{first:dates[0],last:dates[dates.length-1],years:dates}];
     }));
+  }
+
+
+  // Documentation timeline: a release-credit mark is NOT a membership period.
+  function renderBandMemberTimeline(bandId, groups, creditYears) {
+    const today=new Date().getFullYear();
+    const valid=y=>Number.isInteger(Number(y)) && Number(y)>=1950 && Number(y)<=today+1 ? Number(y) : null;
+    const colors={vocals:'#f47783',guitar:'#4ed299',bass:'#6aaefb',drums:'#ffb55f',keys:'#b7a1ff',other:'#abb7c2'};
+    const names={vocals:'Sång',guitar:'Gitarr',bass:'Bas',drums:'Trummor',keys:'Klaviatur',other:'Övrigt'};
+    const colorRole=role=>{
+      const s=String(role||'').toLowerCase();
+      if(/guitar|gitarr/.test(s))return 'guitar';
+      if(/vocals?|sång|singer/.test(s))return 'vocals';
+      if(/drums?|trumm|percussion/.test(s))return 'drums';
+      if(/bass|\bbas\b/.test(s))return 'bass';
+      if(/keyboard|synth|piano|organ/.test(s))return 'keys';
+      return 'other';
+    };
+    const entries=groups.filter(g=>['member','live'].includes(groupedMembershipKind(g))).map(g=>{
+      const p=peopleById().get(g.person_id);
+      if(!p)return null;
+      const credit=[...(creditYears.get(g.person_id)?.years||[])].filter(y=>valid(y)!==null);
+      const intervals=[], anchors=[];
+      (g.memberships||[]).filter(m=>['member','live'].includes(membershipKind(m))).forEach(m=>{
+        const a=valid(m.joined_year), b=valid(m.left_year);
+        if(a!==null && b!==null && b>=a)intervals.push([a,b,false]);
+        else if(a!==null && m.membership_status==='current')intervals.push([a,Math.max(today,a),true]);
+        else if(a!==null)anchors.push(a);
+        else if(b!==null)anchors.push(b);
+      });
+      const years=[...credit,...anchors,...intervals.flatMap(x=>[x[0],x[1]])];
+      return years.length ? {p,g,credit:[...new Set(credit)].sort(),intervals,anchors,
+        role:colorRole(g.roles),first:Math.min(...years),last:Math.max(...years)}:null;
+    }).filter(Boolean).sort((a,b)=>a.first-b.first||a.p.canonical_name.localeCompare(b.p.canonical_name,'sv'));
+    if(entries.length<2)return '';
+    const first=Math.min(...entries.map(e=>e.first));
+    const last=Math.max(...entries.map(e=>e.last));
+    if(last<=first)return '';
+    const span=last-first+1, px=y=>(100*(y-first+.5)/span).toFixed(3)+'%';
+    const left=y=>(100*(y-first)/span).toFixed(3)+'%';
+    const width=(a,b)=>(100*(b-a+1)/span).toFixed(3)+'%';
+    const step=span<=14?1:span<=27?2:span<=55?5:10;
+    const ticks=[];
+    for(let y=first;y<=last;y++)if(y===first||y===last||y%step===0)ticks.push(y);
+    const grid=ticks.map(y=>'<i class="bm-timeline-grid" style="left:'+px(y)+'"></i>').join('');
+    const axis=ticks.map(y=>'<span class="bm-timeline-year" style="left:'+px(y)+'">'+y+'</span>').join('');
+    const roles=[...new Set(entries.map(e=>e.role))];
+    const rows=entries.map(e=>{
+      const periods=e.intervals.map(x=>
+        '<i class="bm-timeline-period" style="left:'+left(x[0])+';width:'+width(x[0],x[1])+'" title="'+
+        escapeHtml('Medlemsperiod '+x[0]+'–'+(x[2]?'pågående':x[1]))+'"></i>').join('');
+      const marks=e.credit.map(y=>'<i class="bm-timeline-credit" style="left:'+px(y)+
+        '" title="'+escapeHtml('Skivkredit '+y)+'"></i>').join('');
+      const anchors=e.anchors.map(y=>'<i class="bm-timeline-anchor" style="left:'+px(y)+
+        '" title="'+escapeHtml('Registrerat medlemsår '+y)+'"></i>').join('');
+      const accessible=e.p.canonical_name+'. '+e.intervals.map(x=>x[0]+'–'+x[1]).join(', ')+
+        '. Skivkrediter: '+e.credit.join(', ');
+      return '<div class="bm-timeline-row"><a class="bm-timeline-person" href="'+personHref(e.p)+'">'+
+        escapeHtml(personBandName(e.p,bandId))+'</a><div class="bm-timeline-track" style="--bm-color:'+
+        colors[e.role]+'" aria-label="'+escapeHtml(accessible)+'">'+grid+periods+marks+anchors+
+        '</div></div>';
+    }).join('');
+    const legend=roles.map(role=>'<span class="bm-timeline-legend-item"><i style="background:'+
+      colors[role]+'"></i>'+names[role]+'</span>').join('');
+    return '<section class="bm-timeline" aria-label="Medlemstidslinje">'+
+      '<header class="bm-timeline-heading"><h3>Tidslinje</h3></header>'+
+      '<p class="bm-timeline-note">Heldragna staplar visar dokumenterade medlemsperioder. Markeringar visar enskilda år från skivkrediter eller medlemsuppgifter, inte en obruten period.</p>'+
+      '<div class="bm-timeline-scroll" tabindex="0" aria-label="Rulla tidslinjen i sidled">'+
+        '<div class="bm-timeline-canvas" style="min-width:'+Math.min(1450,Math.max(700,220+span*34))+'px">'+
+          '<div class="bm-timeline-axis"><span>Musiker</span><div>'+axis+'</div></div>'+rows+
+        '</div></div><div class="bm-timeline-legend">'+legend+
+        '<span class="bm-timeline-legend-item"><i class="bm-timeline-credit-key"></i>Skivkredit</span>'+
+        '<span class="bm-timeline-legend-item"><i class="bm-timeline-period-key"></i>Medlemsperiod</span>'+
+        '<span class="bm-timeline-legend-item"><i class="bm-timeline-anchor-key"></i>Enskilt medlemsår</span>'+
+      '</div></section>';
   }
 
   function renderBandMemberships(bandId, groups) {
@@ -1335,7 +1410,7 @@
           + '<summary><span>'+escapeHtml(section.label)+'</span><strong>'+members.length+'</strong></summary>'
           + '<div class="discography-section-rows band-membership-rows"><div class="credit-list">'
           +rows+'</div></div></details>';
-      }).join('')+'</div>';
+      }).join('')+renderBandMemberTimeline(bandId,groups,creditYears)+'</div>';
   }
 
   function groupedMembershipsForPerson(id) {
