@@ -1725,3 +1725,20 @@ body.network-body-fullscreen { overflow:hidden; }
   .release-versions-panel { padding:14px; }
   .release-versions-links { grid-template-columns:1fr; }
 }
+
+
+
+/* The same expandable archive design also separates regular, live and guest musicians. */
+.band-membership-sections { display:grid; gap:14px; min-width:0; }
+.band-membership-sections .membership-note { margin:0 0 5px; color:var(--muted); font:400 13px/1.6 var(--sans); }
+.band-membership-section .band-membership-rows { padding:0 17px; }
+.band-membership-section .credit-list { border-top:0; }
+.band-membership-section .credit-list > a:last-child { border-bottom:0; }
+.band-membership-section .credit-list > a { min-width:0; }
+.band-membership-section .credit-list > a strong,
+.band-membership-section .credit-list > a span,
+.band-membership-section .credit-list > a em { min-width:0; overflow-wrap:anywhere; }
+@media(max-width:600px) {
+  .band-membership-section .band-membership-rows { padding:0 10px; }
+  .band-membership-section .credit-list > a { gap:10px; }
+}
