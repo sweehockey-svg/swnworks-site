@@ -1719,7 +1719,7 @@
     const variants=group.editions.length+group.bonusDiscs.length;
     if(variants<2) return '<div class="discography-release">'+overview+'</div>';
     const titleLabel=group.bonusDiscs.length ? 'Versioner och bonusmaterial' : 'Versioner';
-    return '<div class="discography-release">'+overview
+    return '<div class="discography-release discography-release-with-versions'+(group.bonusDiscs.length?' discography-release-with-bonus':'')+'">'+overview
       +'<details class="discography-editions"><summary><span>'+titleLabel+'</span><strong>'
       +variants+'</strong></summary><div class="discography-editions-list">'
       +group.editions.map(r=>editionLink(r,'discography-edition-link',editionDisplayLabel(r))).join('')
