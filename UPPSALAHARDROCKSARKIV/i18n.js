@@ -3,6 +3,9 @@
   // Swedish remains the source language. Translations never change archive
   // records, form values, routes, names or original source titles.
   const dictionary = {
+  "Versioner och bonusmaterial": "Editions and bonus material",
+  "Bonus-CD": "Bonus CD",
+  "Olika pressningar, nyutgåvor och kopplat bonusmaterial visas under respektive titel. Varje utgåva behåller sin egen arkivpost och låtlista.": "Different pressings, reissues and associated bonus material appear under their parent title. Every release retains its own archive record and tracklist.",
   "Bandmedlemmar": "Band members",
   "Livemusiker": "Live musicians",
   "Gäst- och studiomusiker": "Guest and session musicians",
