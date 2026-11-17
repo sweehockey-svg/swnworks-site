@@ -3,6 +3,18 @@
   // Swedish remains the source language. Translations never change archive
   // records, form values, routes, names or original source titles.
   const dictionary = {
+  "Album": "Albums",
+  "EP": "EPs",
+  "Singlar": "Singles",
+  "Demos": "Demos",
+  "Splits": "Split releases",
+  "Samlingsskivor & medverkan": "Compilations & appearances",
+  "Liveutgåvor": "Live releases",
+  "Repetitionsinspelningar": "Rehearsal recordings",
+  "Övriga utgåvor": "Other releases",
+  "Versioner": "Editions",
+  "Versioner av samma utgåva": "Editions of the same release",
+  "Olika pressningar och nyutgåvor visas under respektive titel. Varje version har kvar sin egen arkivpost och låtlista.": "Different pressings and reissues are grouped by title. Each edition keeps its own archive record and tracklist.",
 
   "Artistnamn / namnvarianter:": "Stage names / name variants:",
   "Sortera på": "Sort by",
