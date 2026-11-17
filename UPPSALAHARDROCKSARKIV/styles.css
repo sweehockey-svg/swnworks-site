@@ -1751,3 +1751,63 @@ body.network-body-fullscreen { overflow:hidden; }
   background:rgba(213,255,63,.035);
 }
 .discography-bonus-link strong, .release-bonus-link strong { color:var(--ink); }
+
+
+/* Keep the editions control aligned to the right of the release title on
+   wide screens. The expanded edition list always remains below the row. */
+.band-detail-layout .discography-release-with-versions {
+  position:relative;
+  min-width:0;
+}
+.band-detail-layout .discography-release-with-versions > .release-row.release-row-compact {
+  padding-right:170px;
+}
+.band-detail-layout .discography-release-with-bonus > .release-row.release-row-compact {
+  padding-right:230px;
+}
+.band-detail-layout .discography-release-with-versions > .discography-editions {
+  margin:0;
+  padding:0;
+  border:0;
+  min-width:0;
+}
+.band-detail-layout .discography-release-with-versions > .discography-editions > summary {
+  position:absolute;
+  top:30px;
+  right:0;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:max-content;
+  max-width:230px;
+  min-height:38px;
+  margin:0;
+  padding:8px 11px;
+  border:1px solid var(--line-strong);
+  border-radius:4px;
+  background:#101216;
+  white-space:nowrap;
+}
+.band-detail-layout .discography-release-with-versions > .discography-editions > summary:hover,
+.band-detail-layout .discography-release-with-versions > .discography-editions > summary:focus-visible {
+  border-color:var(--acid);
+  outline-offset:3px;
+}
+.band-detail-layout .discography-release-with-versions > .discography-editions > .discography-editions-list {
+  margin:2px 0 12px;
+  padding:6px 0 9px 12px;
+  border-left:2px solid var(--acid);
+}
+@media (max-width:800px) {
+  .band-detail-layout .discography-release-with-versions > .release-row.release-row-compact,
+  .band-detail-layout .discography-release-with-bonus > .release-row.release-row-compact {
+    padding-right:0;
+  }
+  .band-detail-layout .discography-release-with-versions > .discography-editions > summary {
+    position:static;
+    margin:0 0 10px auto;
+    max-width:100%;
+    min-height:36px;
+  }
+}
