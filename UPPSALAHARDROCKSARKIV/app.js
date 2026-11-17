@@ -1256,8 +1256,38 @@
     if (rows.some(m => status(m) === 'past' || m.left_year)) return 'past';
     return 'unknown';
   }
+  // Credit years show evidence of appearance on original releases, never
+  // assumed membership start/end dates. Reissues and compilations are excluded.
+  function releaseCreditYearsForBand(bandId) {
+    const releaseIds=new Set(state.releaseBands.filter(row=>row.band_id===bandId).map(row=>row.release_id));
+    const recorded=new Map();
+    const musicianRole=/guitar|gitarr|bass|basist|drums?|trumm|vocals?|vocalist|sång|singer|keyboard|synth|piano|organ|percussion|violin|cello|flute|sax|trumpet|harmonica|accordion|instrument|turntables?|banjo|mandolin|programming/i;
+    const excludeRole=/guest|gäst|featur(?:ed|ing)|session|additional|producer|production|recording|mixing|mastering|engineer|photograph|artwork|layout|design|management/i;
+    const types=new Set(['album','ep','demo','single','split']);
+    state.releaseMembers.forEach(credit=>{
+      if(!releaseIds.has(credit.release_id))return;
+      const release=releasesById().get(credit.release_id);
+      if(!release || !types.has(String(release.release_type || '').toLowerCase())
+        || release.edition_of_release_id || release.bonus_disc_of_release_id)return;
+      const year=Number(release.release_year);
+      if(!Number.isInteger(year) || year<1950 || year>2100)return;
+      const role=String(credit.role || '');
+      if(!musicianRole.test(role) || excludeRole.test(role))return;
+      if(!recorded.has(credit.person_id)) recorded.set(credit.person_id,new Set());
+      recorded.get(credit.person_id).add(year);
+    });
+    return new Map([...recorded].map(([id,years])=>{
+      const dates=[...years].sort((a,b)=>a-b);
+      return [id,{first:dates[0],last:dates[dates.length-1]}];
+    }));
+  }
+
   function renderBandMemberships(bandId, groups) {
     if (!groups.length) return '<div class="empty-state">Lineup kartläggs.</div>';
+    const creditYears=releaseCreditYearsForBand(bandId);
+    const hasEstimatedYears=groups.some(group=>
+      !(group.memberships || []).some(m=>m.joined_year || m.left_year) && creditYears.has(group.person_id)
+    );
     const sections=[
       {type:'member',label:'Bandmedlemmar',open:true},
       {type:'live',label:'Livemusiker',open:false},
@@ -1267,12 +1297,20 @@
     const memberRow=group=>{
       const p=peopleById().get(group.person_id);
       if(!p)return '';
+      const hasMembershipYears=(group.memberships || []).some(m=>m.joined_year || m.left_year);
+      const credited=creditYears.get(group.person_id);
+      const years=credited ? String(credited.first)+(credited.first===credited.last ? '' : '–'+credited.last) : '';
+      const period=hasMembershipYears || !credited
+        ? '<em>'+escapeHtml(group.periods||'Årtal söks')+'</em>'
+        : '<em class="band-member-credit-years" title="Årtal från individuella skivkrediter, inte bekräftade medlemsperioder.">'
+          + '<span>Skivkrediter</span><strong>'+escapeHtml(years)+'</strong></em>';
       return '<a href="'+personHref(p)+'"><strong>'+escapeHtml(personBandName(p,bandId))
         +'</strong><span>'+escapeHtml(group.roles||'Roll kartläggs')
-        +'</span><em>'+escapeHtml(group.periods||'Årtal söks')+'</em></a>';
+        +'</span>'+period+'</a>';
     };
     return '<div class="band-membership-sections">'
-      + '<p class="membership-note">Personer med både ordinarie medlemskap och liveinsatser visas under Bandmedlemmar. Alla registrerade roller och perioder visas på respektive rad.</p>'
+      + '<p class="membership-note">Personer med både ordinarie medlemskap och liveinsatser visas under Bandmedlemmar. Alla registrerade roller och perioder visas på respektive rad.'
+      + (hasEstimatedYears ? ' Årtal märkta Skivkrediter är första och sista belagda utgåvoår, inte exakta medlemsperioder.' : '') + '</p>'
       + sections.map(section => {
         const members=groups.filter(group=>groupedMembershipKind(group)===section.type);
         if(!members.length)return '';
