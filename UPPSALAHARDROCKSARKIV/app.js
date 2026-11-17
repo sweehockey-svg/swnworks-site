@@ -1620,14 +1620,16 @@
   }
 
   function renderSearch(initialQuery = '') {
-    app.innerHTML = pageHeader('HELA ARKIVET','Sök i arkivet','Hitta band, personer och utgåvor. Sök på ett namn, en titel, en genre eller ett årtal.')
+    app.innerHTML = pageHeader('HELA ARKIVET','Sök i arkivet','Hitta band, personer och utgåvor. Sök på ett namn, en titel, en genre eller ett årtal.','','archive-search-hero')
       + '<section class="section first-section archive-search"><form class="archive-search-form" role="search">'
-      + '<label class="search-box" for="archive-search-input"><span>Sök i hela arkivet</span>'
-      + '<input id="archive-search-input" type="search" placeholder="Band, person eller utgåva…" autocomplete="off" maxlength="200"></label>'
-      + '<button class="button button-primary" type="submit">Sök</button></form>'
-      + '<p id="archive-search-status" role="status" aria-live="polite"></p><div id="archive-search-results"></div></section>';
+      + '<label class="archive-search-box" for="archive-search-input"><span class="archive-search-label">Sök i hela arkivet</span>'
+      + '<span class="archive-search-control"><svg aria-hidden="true" viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>'
+      + '<input id="archive-search-input" type="search" placeholder="Band, person eller utgåva…" autocomplete="off" maxlength="200" enterkeyhint="search" aria-describedby="archive-search-status"></span></label>'
+      + '</form><p id="archive-search-status" role="status" aria-live="polite"></p><div id="archive-search-results"></div></section>';
     const input = $('#archive-search-input');
     input.value = initialQuery.slice(0,200);
+    // The search screen itself is the entry point: one click on "Sök" is enough.
+    input.focus({preventScroll:true});
     const renderResults = () => {
       const query = input.value.trim(), results = archiveSearch(query);
       const total = results.bands.length + results.people.length + results.releases.length;
@@ -4022,7 +4024,20 @@
     groups.forEach(group => group.addEventListener('toggle', () => {
       if (group.open) groups.forEach(other => { if (other !== group) other.open = false; });
     }));
-    nav.addEventListener('click', event => { if (event.target.closest('a')) close(); });
+    nav.addEventListener('click', event => {
+      const searchLink=event.target.closest('a.nav-search');
+      if(searchLink && event.button===0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+        event.preventDefault();
+        // Render synchronously from this user action so focus works on mobile too.
+        if(routePath()!=='/sok'){
+          history.pushState(null,'','#/sok');
+          renderRoute();
+        } else {
+          $('#archive-search-input')?.focus({preventScroll:true});
+        }
+      }
+      if(event.target.closest('a'))close();
+    });
     document.addEventListener('click', event => { if (!event.target.closest('.site-header')) close(); });
     document.addEventListener('keydown', event => {
       if (event.key !== 'Escape') return;
