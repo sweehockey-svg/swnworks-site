@@ -1760,10 +1760,10 @@ body.network-body-fullscreen { overflow:hidden; }
   min-width:0;
 }
 .band-detail-layout .discography-release-with-versions > .release-row.release-row-compact {
-  padding-right:170px;
+  padding-right:125px;
 }
 .band-detail-layout .discography-release-with-bonus > .release-row.release-row-compact {
-  padding-right:230px;
+  padding-right:185px;
 }
 .band-detail-layout .discography-release-with-versions > .discography-editions {
   margin:0;
@@ -1773,25 +1773,28 @@ body.network-body-fullscreen { overflow:hidden; }
 }
 .band-detail-layout .discography-release-with-versions > .discography-editions > summary {
   position:absolute;
-  top:30px;
+  top:35px;
   right:0;
   z-index:1;
   display:flex;
   align-items:center;
   justify-content:center;
   width:max-content;
-  max-width:230px;
-  min-height:38px;
+  max-width:200px;
+  min-height:28px;
   margin:0;
-  padding:8px 11px;
-  border:1px solid var(--line-strong);
-  border-radius:4px;
-  background:#101216;
+  padding:4px 6px;
+  border:1px solid transparent;
+  border-radius:3px;
+  background:transparent;
+  color:#8e9293;
   white-space:nowrap;
 }
 .band-detail-layout .discography-release-with-versions > .discography-editions > summary:hover,
 .band-detail-layout .discography-release-with-versions > .discography-editions > summary:focus-visible {
-  border-color:var(--acid);
+  border-color:rgba(213,255,63,.28);
+  background:rgba(213,255,63,.055);
+  color:var(--acid);
   outline-offset:3px;
 }
 .band-detail-layout .discography-release-with-versions > .discography-editions > .discography-editions-list {
@@ -1808,6 +1811,24 @@ body.network-body-fullscreen { overflow:hidden; }
     position:static;
     margin:0 0 10px auto;
     max-width:100%;
-    min-height:36px;
+    min-height:32px;
   }
+}
+
+/* Quiet inline editions control: the album title stays the visual focus. */
+.band-detail-layout .discography-release-with-versions > .discography-editions > summary span {
+  font:600 11px/1.2 var(--condensed);
+  letter-spacing:.03em;
+  color:inherit;
+}
+.band-detail-layout .discography-release-with-versions > .discography-editions > summary strong {
+  font:600 11px/1.2 var(--condensed);
+  color:inherit;
+}
+.band-detail-layout .discography-release-with-versions > .discography-editions > summary::after {
+  color:inherit;
+  font-size:10px;
+}
+.band-detail-layout .discography-release-with-versions > .discography-editions[open] > summary {
+  color:var(--acid);
 }
