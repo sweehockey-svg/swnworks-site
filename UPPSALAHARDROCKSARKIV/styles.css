@@ -1857,3 +1857,67 @@ body.network-body-fullscreen { overflow:hidden; }
 }
 .band-membership-section .band-member-period-label:first-child { padding-top:10px; }
 .band-membership-section .band-member-period-current { color:var(--acid); }
+
+/* Band pages: source evidence remains available but starts collapsed. */
+.band-detail-layout .band-source-details {
+  min-width:0;
+  margin-bottom:14px;
+}
+.band-detail-layout .band-source-details:last-of-type { margin-bottom:24px; }
+.band-detail-layout .band-source-head {
+  position:relative;
+  display:grid;
+  grid-template-columns:32px minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  min-height:56px;
+  margin:0;
+  padding:10px 37px 10px 0;
+  cursor:pointer;
+  list-style:none;
+}
+.band-source-head::-webkit-details-marker { display:none; }
+.band-source-head::marker { content:""; }
+.band-detail-layout .band-source-head h2 {
+  font-size:clamp(22px,2.3vw,30px);
+  line-height:1.1;
+  overflow-wrap:anywhere;
+}
+.band-source-head > .band-source-count {
+  justify-self:end;
+  color:var(--acid);
+  font:600 15px var(--display);
+}
+.band-source-head::after {
+  content:"";
+  position:absolute;
+  right:9px;
+  top:calc(50% - 5px);
+  width:9px;
+  height:9px;
+  border-right:2px solid var(--muted);
+  border-bottom:2px solid var(--muted);
+  transform:rotate(45deg);
+  transition:transform .18s ease;
+}
+.band-source-details[open] > .band-source-head::after {
+  transform:translateY(5px) rotate(225deg);
+}
+.band-source-head:hover h2,
+.band-source-details[open] > .band-source-head h2 { color:var(--acid); }
+.band-source-head:focus-visible { outline:2px solid var(--acid); outline-offset:3px; }
+.band-source-body { min-width:0; padding:17px 0 8px; }
+.band-source-body .sources-list { min-width:0; overflow-wrap:anywhere; }
+@media (max-width:600px) {
+  .band-detail-layout .band-source-head {
+    grid-template-columns:24px minmax(0,1fr) auto;
+    gap:10px;
+    min-height:50px;
+    padding-right:30px;
+  }
+  .band-detail-layout .band-source-head h2 { font-size:23px; }
+  .band-source-head::after { right:6px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .band-source-head::after { transition:none; }
+}
