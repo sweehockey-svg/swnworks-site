@@ -569,6 +569,7 @@
     let output = exact ? applyCase(key,exact) : key;
     if (!exact) {
       const rules = [
+        [/^(Bonusmaterial|Bonus-CD) · (.+)$/, (_,kind,title) => (kind === 'Bonus-CD' ? 'Bonus CD' : 'Bonus material') + ' · ' + title],
         [/^Visa musiker med gemensamma band \((\d+)\)$/, 'Show musicians with shared bands ($1)'],
         [/^\+(\d+) fler band →$/, '+$1 more bands →'],
         [/^Mer info om (.+)$/, 'More info about $1'],
