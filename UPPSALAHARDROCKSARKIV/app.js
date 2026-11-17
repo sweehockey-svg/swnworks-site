@@ -2550,16 +2550,16 @@
     return '<details class="band-concert">'
       + '<summary class="band-concert-summary">'
       + '<span class="band-concert-date">' + date + '</span>'
-      + '<span class="band-concert-headline"><strong>' + escapeHtml(venue) + '</strong>'
-      + '<span class="band-concert-subline">'
+      + '<span class="band-concert-headline" title="' + escapeHtml([venue,location].filter(Boolean).join(' · ')) + '"><strong>' + escapeHtml(venue) + '</strong>'
       + (location ? '<span class="band-concert-place">' + escapeHtml(location) + '</span>' : '')
-      + (otherBands.length ? '<span class="band-concert-other-bands">(' + otherBands.map(escapeHtml).join(', ') + ')</span>' : '')
-      + '</span></span>'
+      + '</span>'
       + '<span class="band-concert-toggle"><span class="band-concert-show-label">Mer info</span>'
       + '<span class="band-concert-hide-label">Stäng</span>'
       + '<span class="band-concert-chevron" aria-hidden="true"></span></span>'
       + '</summary>'
       + '<div class="band-concert-details">'
+      + '<p class="band-concert-detail-place"><strong>Spelställe och ort:</strong> ' + escapeHtml([venue,location].filter(Boolean).join(' · ')) + '</p>'
+      + (otherBands.length ? '<p class="band-concert-detail-bands"><strong>Andra band:</strong> ' + otherBands.map(escapeHtml).join(', ') + '</p>' : '')
       + '<div class="band-concert-evidence"><span>Källäge</span><strong>' + escapeHtml(evidenceStatus) + '</strong></div>'
       + (uncertaintyNote ? '<p class="band-concert-uncertainty"><strong>Osäkert datum eller spelställe:</strong> ' + escapeHtml(uncertaintyNote) + '</p>' : '')
       + (event.description ? '<p>' + escapeHtml(event.description) + '</p>' : '')
