@@ -1781,7 +1781,7 @@
     })).filter(c=>c.groups.length);
     return '<div class="band-discography">'
       +'<p class="discography-note">Olika pressningar, nyutgåvor och kopplat bonusmaterial visas under respektive titel. Varje utgåva behåller sin egen arkivpost och låtlista.</p>'
-      +categories.map(c=>'<details class="discography-section"'+(c.types.includes('album')?' open':'')+'>'
+      +categories.map(c=>'<details class="discography-section" open>'
         +'<summary><span>'+escapeHtml(c.label)+'</span><strong>'+c.groups.length+'</strong></summary>'
         +'<div class="discography-section-rows">'+c.groups.map(discographyReleaseRow).join('')+'</div>'
         +'</details>').join('')+'</div>';
@@ -2568,9 +2568,19 @@
   }
 
   function renumberBandHeadings() {
+    // With separate tabs, numbering starts at 01 in each tab.
+    const panels=[...document.querySelectorAll('.band-detail-layout .band-tab-panel')];
+    if(panels.length){
+      panels.forEach(panel=>{
+        [...panel.querySelectorAll('.content-section > .content-head > span')]
+          .filter(number=>!number.closest('.content-section').hidden)
+          .forEach((number,index)=>{number.textContent=String(index+1).padStart(2,'0');});
+      });
+      return;
+    }
     Array.from(document.querySelectorAll('.band-detail-layout .content-section > .content-head > span'))
       .filter(number => !number.closest('.content-section').hidden)
-      .forEach((number, index) => { number.textContent = String(index + 1).padStart(2, '0'); });
+      .forEach((number,index)=>{number.textContent=String(index+1).padStart(2,'0');});
   }
 
   async function renderBandConcerts(bandId) {
@@ -2590,32 +2600,9 @@
       if (!Array.isArray(concerts)) throw new Error('Ogiltigt konsertsvar');
       const holder = activeHolder();
       if (!holder || !concerts.length) return;
+      // The concerts have their own tab, so render the full archive at once.
       const list=holder.querySelector('.band-concert-list');
-      const maxPreview=15;
-      let expanded=false;
-      const renderRows=()=>{
-        list.innerHTML=(expanded?concerts:concerts.slice(0,maxPreview)).map(bandConcertMarkup).join('');
-      };
-      renderRows();
-      if(concerts.length>maxPreview){
-        const more=document.createElement('button');
-        more.type='button';
-        more.className='band-concert-more';
-        const updateText=()=>{
-          more.textContent=expanded?'Visa färre spelningar':'Visa alla spelningar ('+concerts.length+')';
-          more.setAttribute('aria-expanded',String(expanded));
-        };
-        updateText();
-        more.addEventListener('click',()=>{
-          expanded=!expanded;
-          renderRows();
-          updateText();
-        });
-        const actions=document.createElement('div');
-        actions.className='band-concert-pagination';
-        actions.append(more);
-        list.after(actions);
-      }
+      list.innerHTML=concerts.map(bandConcertMarkup).join('');
       holder.hidden=false;
       const tab=app.querySelector('[data-band-tab="concerts"]');
       if(tab)tab.hidden=false;
@@ -2670,8 +2657,13 @@
     const youtube=sections.find(section=>section.classList.contains('youtube-section'));
     const gallery=heading('Bildarkiv');
     const links=heading('Kopplingar');
-    const evidence=main.querySelector('#band-evidence');
-    const sources=main.querySelector('#band-sources');
+    // Match source sections by their actual headings as well as IDs.
+    // The previous ID-only lookup left these sections in Overview.
+    const sourceSections=sections.filter(section=>section.classList.contains('band-source-details'));
+    const sourceSection=title=>sourceSections.find(section=>
+      section.querySelector('.band-source-head h2')?.textContent.trim()===title);
+    const evidence=sourceSection('Källäge') || main.querySelector('#band-evidence');
+    const sources=sourceSection('Källor') || main.querySelector('#band-sources');
     const tip=main.querySelector('.band-tip-panel');
 
     const photo=document.createElement('div');
@@ -2810,14 +2802,14 @@
           ${youtubeSection(b)}
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Bildarkiv</h2></div>${archiveGallery(gallery)}</section>` : ''}
           ${links.length ? `<section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Kopplingar</h2></div><div class="relation-grid">${links.map(r => { const otherId = r.from_band_id === b.id ? r.to_band_id : r.from_band_id; const other = bandsById().get(otherId); return `<a href="${bandHref(other)}"><span>${escapeHtml(relationLabelSv(r, b.id))}</span><strong>${escapeHtml(other.canonical_name)}</strong><em>${r.from_year || ''}</em></a>`; }).join('')}</div></section>` : ''}
-          <details class="content-section band-source-details">
+          <details class="content-section band-source-details" id="band-evidence">
             <summary class="content-head band-source-head">
               <span>${String(3 + (gallery.length ? 1 : 0) + (links.length ? 1 : 0)).padStart(2,'0')}</span>
               <h2>Källäge</h2><strong class="band-source-count">${claims.length}</strong>
             </summary>
             <div class="band-source-body">${claimList(claims)}</div>
           </details>
-          ${sources.length ? `<details class="content-section band-source-details">
+          ${sources.length ? `<details class="content-section band-source-details" id="band-sources">
             <summary class="content-head band-source-head">
               <span>${String(4 + (gallery.length ? 1 : 0) + (links.length ? 1 : 0)).padStart(2,'0')}</span>
               <h2>Källor</h2><strong class="band-source-count">${sources.length}</strong>
