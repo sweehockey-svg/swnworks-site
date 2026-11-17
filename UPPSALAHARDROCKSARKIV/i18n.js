@@ -3,6 +3,11 @@
   // Swedish remains the source language. Translations never change archive
   // records, form values, routes, names or original source titles.
   const dictionary = {
+  "Bandmedlemmar": "Band members",
+  "Livemusiker": "Live musicians",
+  "Gäst- och studiomusiker": "Guest and session musicians",
+  "Övriga medverkande": "Other contributors",
+  "Personer med både ordinarie medlemskap och liveinsatser visas under Bandmedlemmar. Alla registrerade roller och perioder visas på respektive rad.": "People with both regular band membership and live appearances are listed under Band members. All documented roles and periods remain visible in each row.",
   "Album": "Albums",
   "EP": "EPs",
   "Singlar": "Singles",
