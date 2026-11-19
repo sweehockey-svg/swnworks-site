@@ -5178,3 +5178,88 @@ html[data-theme="light"] .dashboard-toolbar{background:#f8fafc;border-color:#c8d
   .drawer[data-panel="notes"] .notes-storage-info[data-kind=saved]{border-left-color:var(--green)}
   .drawer[data-panel="notes"] .notes-storage-info[data-kind=error]{border-left-color:var(--red)}
 }
+
+/* Phone layout: same cockpit, readable panels and touch-sized controls. */
+@media(max-width:760px){
+  html{scroll-padding-top:12px;scroll-padding-bottom:100px}
+  .app-shell{padding:10px 10px calc(88px + env(safe-area-inset-bottom));min-width:0}
+  .cockpit,.workspace,.dashboard-slot,.panel{min-width:0;max-width:100%}
+  .cockpit:not(.hidden){height:auto;min-height:0;display:block}
+  .cockpit .workspace{display:grid;gap:14px;height:auto;overflow:visible}
+  .dashboard-workspace .dashboard-slot{min-height:0;max-height:none;display:block}
+  .dashboard-slot>.panel{height:auto;min-height:0;overflow:visible}
+  .dashboard-toolbar{padding:14px;font-size:15px;border-radius:12px;margin:12px 0}
+  .dashboard-toolbar summary{min-height:44px;display:list-item;align-content:center;line-height:1.5}
+  .dashboard-settings{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding-top:12px}
+  .dashboard-settings label{min-width:0;font-size:14px;gap:7px}
+  .dashboard-settings :is(select,button){width:100%;min-height:48px;font-size:16px;padding:12px;text-align:left}
+  .dashboard-settings small{font-size:13px;line-height:1.5}
+  .panel{padding:16px;border-radius:14px}
+  .panel-head{gap:10px;flex-wrap:wrap}
+  .panel-head h2{font-size:21px;line-height:1.3}
+  .panel-kicker,.panel-status,.overview-context,.section-title,.form-row>span{font-size:12px;line-height:1.5}
+  .stat-grid{gap:10px}
+  .stat{padding:12px}
+  .stat>span{font-size:12px}
+  .stat strong{font-size:clamp(24px,7vw,34px);line-height:1.3}
+  .stat small,.stat-updated{font-size:12px;line-height:1.5}
+  .table-placeholder :is(span,em){font-size:14px}
+  .fact-card{padding:14px}
+  .fact-card strong{font-size:17px;line-height:1.4}
+  .fact-card p{font-size:14px;line-height:1.6}
+  .fact-card>span{font-size:12px}
+  .lookup-button,.ai-button{min-height:48px;font-size:14px}
+  .event-copy :is(span,p){font-size:13px;line-height:1.5;white-space:normal}
+  .event-period,.event-time{font-size:12px}
+  .topbar{flex-wrap:wrap;gap:12px}
+  .top-actions{flex-wrap:wrap;gap:8px;width:100%}
+  .top-actions button,.top-actions a{min-height:44px}
+  .top-actions .clock{display:none}
+  .top-actions .account-button strong{font-size:12px;max-width:180px}
+  .top-actions .account-button small{font-size:11px}
+  #showTopbar{min-height:36px;font-size:12px!important;position:static!important;margin:0 0 8px auto!important}
+  .scoreboard{padding:14px 10px;gap:8px}
+  .team strong{white-space:normal;overflow-wrap:anywhere;font-size:14px;line-height:1.35}
+  .team small{font-size:11px}
+  .score-center{min-width:70px}
+  .score{font-size:30px}
+  .period{font-size:12px;line-height:1.4}
+  .match-meta{font-size:12px;padding:10px;line-height:1.4}
+  #cockpitDeck{display:flex;left:0;right:0;bottom:0;transform:none;width:100%;max-width:100%;gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));border-radius:12px 12px 0 0;overflow-x:auto;scrollbar-width:thin;scroll-snap-type:x proximity;overscroll-behavior-x:contain}
+  #cockpitDeck::-webkit-scrollbar{display:block;height:3px}
+  #cockpitDeck::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:3px}
+  #cockpitDeck .deck-key{flex:0 0 auto;min-width:76px;min-height:52px;padding:10px 12px;scroll-snap-align:start}
+  #cockpitDeck .deck-key strong{font-size:12px;letter-spacing:.02em}
+  #cockpitDeck .deck-key>span,#cockpitDeck .deck-key>small{display:none}
+  #cockpitDeck [data-panel=match]{order:-3}
+  #cockpitDeck [data-panel=notes]{order:-2}
+  #cockpitDeck [data-panel=players]{order:-1}
+  #drawer:not(.page-expanded){inset:0 0 calc(76px + env(safe-area-inset-bottom));width:100%;max-width:100%;height:auto;max-height:none;border-radius:0;padding:14px;padding-top:max(14px,env(safe-area-inset-top));display:flex;flex-direction:column;background:var(--bg)}
+  #drawer .drawer-head{flex:0 0 auto;gap:10px;align-items:center;padding-bottom:12px}
+  #drawer .drawer-head h2{font-size:21px;line-height:1.3}
+  #drawer .drawer-body{flex:1;min-height:0;max-height:none!important;overflow:auto;overscroll-behavior:contain;padding-bottom:20px}
+  #drawer .drawer-window-actions{gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  #drawer .drawer-window-actions button{min-width:44px;min-height:44px;font-size:13px}
+  #expandDrawer{display:none}
+  body:has(#drawer.open){overflow:hidden}
+  #drawer :is(input,textarea,select){font-size:16px!important;max-width:100%}
+  #drawer button,#drawer summary{min-height:44px}
+  #drawer :is(.drawer-card span,.story-card p,.stats-intro span,.goalie-card-head,.goalie-recent){font-size:13px;line-height:1.55}
+  #drawer :is(.stats-team-grid,.story-grid,.ai-points,.pregame-grid,.pregame-columns){grid-template-columns:minmax(0,1fr)}
+  #drawer .drawer-card{padding:14px}
+  #drawer .player-stat-section{overflow-x:auto;overscroll-behavior-x:contain}
+  #drawer .player-stat-head,#drawer .player-stat-list{min-width:540px}
+  #drawer .player-search-tools{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+  #playerCardDialog{width:100%;max-width:100%;height:100dvh;max-height:100dvh;margin:0;border-radius:0;padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom))}
+  #playerCardDialog header{top:-16px;margin:-16px -16px 0;padding:16px;gap:10px}
+  #playerCardDialog h2{font-size:21px;line-height:1.35;flex-wrap:wrap}
+  #playerCardDialog :is(button,input,select,textarea){min-height:44px;font-size:16px}
+  #playerCardDialog nav{gap:8px}
+  .player-card-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:380px){
+  #drawer .drawer-head{align-items:flex-start}
+  #drawer .drawer-head h2{font-size:19px}
+  #drawer .drawer-window-actions button{padding:8px}
+  .scoreboard .team-badge{display:none}
+}
