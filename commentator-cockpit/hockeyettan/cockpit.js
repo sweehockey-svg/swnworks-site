@@ -3535,7 +3535,6 @@
       const ids=[...new Set(candidates.map(item=>item.player_id).filter(Boolean))];
       if(ids.length===1)row={...row,player_id:ids[0]};
     }
-    window.CockpitUsage?.track('player_open',tab,{player_id:row.player_id||null});
     const season=state.seasonPlayerStats.find(item=>item.team_id===row.team_id&&sameStatPlayer(item,row));
     const goalie=state.seasonGoalieStats.find(item=>item.team_id===row.team_id&&sameStatPlayer(item,row));
     const profile=state.playerProfiles.get(row.player_id)||{};
@@ -4326,7 +4325,6 @@
   }
 
   function renderDrawer(key) {
-    if(drawer.dataset.panel!==key||!drawer.classList.contains('open')) window.CockpitUsage?.track('view_open',key);
     const searchFocus=key==='players'&&document.activeElement?.id==='playerSearchInput'
       ? {start:document.activeElement.selectionStart,end:document.activeElement.selectionEnd}:null;
     const changedPanel=drawer.dataset.panel!==key;
@@ -5270,7 +5268,7 @@
 
   function toggleTopbar(hidden){
     document.documentElement.dataset.topbarHidden=String(hidden);
-    try{localStorage.setItem('commentator-cockpit-topbar-hidden',String(hidden));}catch{}
+    try{localStorage.setItem('commentator-cockpit-topbar-hidden-v2',String(hidden));}catch{}
     document.getElementById(hidden?'showTopbar':'hideTopbar').focus();
   }
   document.getElementById('hideTopbar').onclick=()=>toggleTopbar(true);
@@ -5312,5 +5310,4 @@
     theme: () => currentTheme(),
     setTheme
   };
-  window.CockpitUsage?.attach(client,()=>({user:state.authUser,approved:state.accessRows.some(a=>a.active),admin:state.accessRows.some(a=>a.active&&a.role==='admin'&&!a.team_id&&!a.league_key),league:league.accessKey,team_id:state.selectedTeam&&canAccessTeam(state.selectedTeam.id)?state.selectedTeam.id:null}));
 })();
