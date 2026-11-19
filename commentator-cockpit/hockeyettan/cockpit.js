@@ -847,10 +847,10 @@
     const dirty=(state.notesRevision||0)>(state.notesCloudRevision||0);
     const local=state.notesLocalSaved!==false;
     if(state.cloudSyncState==="synced"&&!dirty) return {title:"Sparat i molnet",text:state.cloudSyncMessage||"Anteckningarna är sparade på ditt konto och kan hämtas på en annan enhet.",kind:"saved"};
-    if(!local) return {title:"Inte säkert sparat",text:"Webbläsaren kunde inte spara anteckningarna på datorn. "+(state.cloudSyncState==="syncing"?"Molnsynk pågår; låt sidan vara öppen.":"Kopiera texten innan du stänger sidan och försök synka igen."),kind:"error"};
-    if(state.cloudSyncState==="syncing"||(state.cloudSyncState==="synced"&&dirty)) return {title:"Väntar på synkning",text:"Sparat på den här datorn. Vänta på Sparat i molnet innan du byter enhet.",kind:"pending"};
-    if(state.cloudSyncState==="error") return {title:"Sparat på datorn · synkfel",text:"Molnsynk misslyckades. Texten finns kvar i den här webbläsaren. Öppna KONTO och välj SYNKA NOTES NU för att försöka igen.",kind:"error"};
-    return {title:state.notesLocalSaved===true?"Sparat på datorn":"Sparas på den här datorn",text:state.authUser?"Molnsynk kräver godkänd lagbehörighet.":"Anteckningarna finns i den här webbläsaren. Logga in med ett godkänt konto för molnsynk.",kind:"local"};
+    if(!local) return {title:"Inte säkert sparat",text:"Webbläsaren kunde inte spara anteckningarna på enheten. "+(state.cloudSyncState==="syncing"?"Molnsynk pågår; låt sidan vara öppen.":"Kopiera texten innan du stänger sidan och försök synka igen."),kind:"error"};
+    if(state.cloudSyncState==="syncing"||(state.cloudSyncState==="synced"&&dirty)) return {title:"Väntar på synkning",text:"Sparat på den här enheten. Vänta på Sparat i molnet innan du byter enhet.",kind:"pending"};
+    if(state.cloudSyncState==="error") return {title:"Sparat på enheten · synkfel",text:"Molnsynk misslyckades. Texten finns kvar i den här webbläsaren. Öppna KONTO och välj SYNKA NOTES NU för att försöka igen.",kind:"error"};
+    return {title:state.notesLocalSaved===true?"Sparat på enheten":"Sparas på den här enheten",text:state.authUser?"Molnsynk kräver godkänd lagbehörighet.":"Anteckningarna finns i den här webbläsaren. Logga in med ett godkänt konto för molnsynk.",kind:"local"};
   }
 
   function updateNotesSaveStatus() {
@@ -1274,10 +1274,11 @@
         '<input type="hidden" id="noteEditId" value="">' +
         '<label><span>KOPPLA TILL</span><select id="noteScope">'+noteScopeOptionsHtml(state.nextGame?"match|"+state.nextGame.id:"general|")+'</select></label>' +
         '<label><span>RUBRIK</span><input id="noteTitle" maxlength="120" placeholder="T.ex. återvänder till moderklubben"></label>' +
-        '<label class="wide"><span>ANTECKNING</span><textarea id="noteBody" rows="4" maxlength="1200" placeholder="Skriv fakta, bakgrund eller en talking point du vill kunna använda i sändningen."></textarea></label>' +
-        editorialTagButtons() +
+        '<label class="wide"><span>ANTECKNING</span><textarea id="noteBody" required rows="6" maxlength="1200" placeholder="Skriv fakta, bakgrund eller ett citat från spelaren eller tränaren."></textarea></label>' +
+        '<details class="note-extra wide"><summary>Taggar och visning i sändningen</summary>' + editorialTagButtons() +
         '<label class="wide"><span>VALDA OCH EGNA TAGGAR</span><input id="noteTags" maxlength="160" aria-describedby="noteTagStatus" placeholder="Momentum, Vändpunkt, egen tagg"></label>' +
         '<label class="note-pin-control"><input type="checkbox" id="notePinned" checked><span>PINNA TILL STORY / SNABBFAKTA</span></label>' +
+        '</details><p id="noteDraftStatus" class="note-draft-status wide" role="status" aria-live="polite"></p>' +
         '<div class="note-form-actions"><button type="button" id="noteCancelEdit">RENSA</button><button type="submit" class="primary">SPARA ANTECKNING</button></div>' +
       '</form></details>' +
       '<div class="notes-search"><label><span>SÖK I NOTES</span><input type="search" id="notesSearch" value="'+esc(filters.query)+'" placeholder="Text, spelare eller lag" maxlength="200"></label>'+
@@ -1330,9 +1331,13 @@
       tagsInput.value=(selected?tags.filter((item)=>item!==tag):[...tags,tag]).join(", ");
       updateTagButtons();
     }));
+    restoreNoteDraft();
     updateTagButtons();
+    form.addEventListener('input',persistNoteDraft);
+    form.addEventListener('change',persistNoteDraft);
 
     const resetForm=()=>{
+      clearNoteDraft();
       document.getElementById("noteEditId").value="";
       document.querySelector("#noteEditor>summary").textContent="NY ANTECKNING";
       document.getElementById("noteTitle").value="";
@@ -1365,6 +1370,7 @@
       state.notes=existing
         ? state.notes.map((item)=>item.id===id?note:item)
         : [note,...state.notes];
+      clearNoteDraft();
       state.noteEditorOpen=false;
       drawerBody.scrollTop=0;
       saveNotes();
@@ -1415,9 +1421,50 @@
         document.getElementById("notePinned").checked=Boolean(note.pinned);
         const value=note.scope_type+"|"+(note.game_id||note.team_id||note.player_id||"");
         setNoteScopeValue(value,noteScopeLabel(note));
+        persistNoteDraft();
         document.getElementById("noteBody").focus();
       });
     });
+  }
+
+  // Keep interview drafts on the device, isolated by account and cockpit team.
+  function noteDraftKey() {
+    return "cockpit-note-draft-v1:"+(state.authUser?.id||"guest")+":"+(state.selectedTeam?.id||"none");
+  }
+
+  function persistNoteDraft() {
+    if(!document.getElementById("noteBody")) return;
+    const values=Object.fromEntries(["noteEditId","noteTitle","noteBody","noteTags","noteScope"].map(id=>[id,document.getElementById(id)?.value||""]));
+    values.pinned=Boolean(document.getElementById("notePinned")?.checked);
+    const status=document.getElementById("noteDraftStatus");
+    try{
+      localStorage.setItem(noteDraftKey(),JSON.stringify(values));
+      if(status) status.textContent="Utkast sparat på enheten. Tryck Spara anteckning för att synka.";
+    }catch{
+      if(status) status.textContent="Utkastet kunde inte sparas. Kopiera texten innan du lämnar sidan.";
+    }
+  }
+
+  function restoreNoteDraft() {
+    let draft;
+    try{draft=JSON.parse(localStorage.getItem(noteDraftKey())||"null");}catch{return;}
+    if(!draft||typeof draft.noteBody!=="string") return;
+    for(const id of ["noteEditId","noteTitle","noteBody","noteTags"]){
+      if(typeof draft[id]==="string") document.getElementById(id).value=draft[id];
+    }
+    setNoteScopeValue(draft.noteScope||"general|");
+    document.getElementById("notePinned").checked=Boolean(draft.pinned);
+    if(draft.noteBody||draft.noteTitle){
+      document.getElementById("noteEditor").open=true;
+      document.querySelector("#noteEditor>summary").textContent=draft.noteEditId?"REDIGERA ANTECKNING":"FORTSÄTT PÅ UTKAST";
+      document.getElementById("noteDraftStatus").textContent="Återställt utkast från den här enheten. Inte synkat ännu.";
+    }
+  }
+
+  function clearNoteDraft() {
+    try{localStorage.removeItem(noteDraftKey());}catch{}
+    const status=document.getElementById("noteDraftStatus");
+    if(status) status.textContent="";
   }
 
   function setNoteScopeValue(value,label="Tidigare koppling") {

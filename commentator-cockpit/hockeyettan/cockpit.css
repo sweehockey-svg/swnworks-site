@@ -5141,3 +5141,69 @@ html[data-theme="light"] .dashboard-toolbar{background:#f8fafc;border-color:#c8d
 .ai-print-tools{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}.ai-print-tools p{color:var(--muted);line-height:1.6}.ai-print-action{padding:10px 14px;border:1px solid var(--line);border-radius:7px;background:var(--yellow);color:#121c26;cursor:pointer;font-weight:750}.ai-print-action:disabled{opacity:.5;cursor:wait}#aiPrintPreviewContainer{margin-top:12px}#aiPrintPreviewContainer button{margin-top:8px}
 
 .print-settings{display:flex;align-items:center;flex-wrap:wrap;gap:16px;margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:10px}.print-settings legend{font-weight:800;padding:0 6px}.print-settings label{display:grid;gap:6px;font-size:14px}.print-settings select{padding:9px;border:1px solid var(--line);border-radius:6px;background:var(--panel2);color:var(--text);font:inherit}.print-settings .print-extra-toggle{display:flex;align-items:center;gap:9px;cursor:pointer}.print-extra-toggle input{width:20px;height:20px;accent-color:var(--yellow)}.print-settings>small{width:100%;color:var(--muted);line-height:1.5}
+/* Mobile interview notebook; the regular workspace remains available. */
+.mobile-hub,.mobile-nav{display:none}
+.note-extra.wide,.note-draft-status.wide{grid-column:1/-1}
+.note-extra>summary{padding:12px 0;cursor:pointer;color:var(--muted);font-size:14px}
+.note-extra>label{display:grid;gap:8px;margin:12px 0}
+.note-draft-status{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+@media(max-width:1100px){
+  .drawer,.drawer.medium,.drawer.full-work,.drawer.stats-wide,.drawer.ai-work{max-width:calc(100vw - 24px);width:calc(100vw - 24px);right:12px;left:auto}
+  .drawer .drawer-body input,.drawer .drawer-body select,.drawer .drawer-body textarea{font-size:16px!important}
+  .drawer button,.drawer summary{min-height:44px}
+  .drawer .note-form{grid-template-columns:1fr}
+  .drawer .note-form label>span,.drawer .notes-search label>span{font-size:13px}
+}
+@media(max-width:760px){
+  .app-shell{padding:12px 12px calc(90px + env(safe-area-inset-bottom))}
+  .topbar{flex-wrap:wrap;gap:12px}
+  .top-actions{flex-wrap:wrap;gap:8px;width:100%}
+  .top-actions .clock,.top-actions .competition-button{display:none}
+  .top-actions .account-button{margin-left:auto;min-height:44px}
+  .top-actions .account-button strong{font-size:12px;max-width:180px}
+  .top-actions .account-button small{font-size:11px}
+  .top-actions .theme-toggle{min-height:44px}
+  .mobile-hub{display:block;margin:12px 0 18px;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+  .mobile-hub-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .mobile-hub-head span{font-size:12px;color:var(--yellow);letter-spacing:.08em}
+  .mobile-hub h2{font-size:24px;margin:6px 0 0}
+  .mobile-hub p{font-size:16px;line-height:1.55;color:var(--muted)}
+  #mobileMatchContext{color:var(--text);font-weight:700}
+  .mobile-hub button{border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);padding:12px;font-size:14px;min-height:48px;cursor:pointer}
+  .mobile-hub .mobile-primary{width:100%;background:var(--yellow);color:#06111a;border:0;font-size:16px;font-weight:800}
+  .mobile-install{margin-top:18px;font-size:14px;color:var(--muted)}
+  .mobile-install summary{padding:10px 0;cursor:pointer;min-height:44px}
+  .mobile-install p{font-size:14px}
+  body.mobile-notes #cockpitScreen>.match-hero,body.mobile-notes #cockpitScreen>.workspace{display:none}
+  body.mobile-notes #cockpitDeck{display:none!important}
+  .mobile-nav:not(.hidden){display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;position:fixed;z-index:45;left:0;right:0;bottom:0;gap:4px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line)}
+  .mobile-nav button{min-width:0;min-height:48px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--muted);font:700 13px/1.2 Inter,Arial,sans-serif}
+  .mobile-nav button[aria-pressed=true]{border-color:var(--yellow);color:var(--yellow);background:var(--panel2)}
+  body:not(.mobile-notes) .mobile-nav{display:none!important}
+  .drawer,.drawer.medium,.drawer.full-work,.drawer.stats-wide,.drawer.ai-work{inset:0 0 calc(72px + env(safe-area-inset-bottom));width:100%;max-width:100%;border-radius:0;padding:16px;display:flex;flex-direction:column;height:auto;max-height:none;background:var(--bg);padding-top:max(16px,env(safe-area-inset-top))}
+  body:not(.mobile-notes) .drawer{bottom:0}
+  .drawer .drawer-head{flex:none;padding-bottom:12px}
+  .drawer .drawer-body{flex:1;min-height:0;max-height:none!important;overflow:auto;overscroll-behavior:contain;padding-bottom:24px}
+  body.drawer-open{overflow:hidden}
+  .drawer .drawer-head h2{font-size:24px}
+  .drawer .close-button{min-width:44px;min-height:44px;font-size:26px}
+  .drawer .note-editor .note-form{padding:12px;gap:16px}
+  .drawer .note-form input,.drawer .note-form select,.drawer .note-form textarea{padding:12px;min-height:48px;width:100%;max-width:100%}
+  .drawer .note-form textarea{min-height:180px;line-height:1.6}
+  .drawer .note-form-actions{display:grid;grid-template-columns:1fr 2fr;gap:10px}
+  .drawer .note-form-actions button,.drawer .note-actions button{font-size:13px;min-height:48px;letter-spacing:0}
+  .drawer .notes-search{grid-template-columns:1fr;gap:12px}
+  .drawer .notes-search input,.drawer .notes-search select{width:100%;min-height:48px}
+  .drawer .note-card p{font-size:16px}
+  .drawer .drawer-card span,.drawer .notes-meta,.drawer .notes-meta small,.drawer .note-card-head span,.drawer .note-card-head small{font-size:13px;line-height:1.5}
+  .drawer .notes-meta{flex-wrap:wrap;gap:8px}
+  .drawer .note-card{padding:16px}
+  .drawer .note-card-head{flex-wrap:wrap}
+  .drawer .note-card-head span{white-space:normal}
+  .drawer .note-tag-picker button{min-height:44px;font-size:14px}
+  .drawer .note-extra .note-pin-control input{width:24px;min-height:24px;height:24px}
+  .drawer .notes-storage-info{border-left:3px solid var(--yellow)}
+  .drawer .notes-storage-info[data-kind=saved]{border-left-color:var(--green)}
+  .drawer .notes-storage-info[data-kind=error]{border-left-color:var(--red)}
+}
+@media(max-width:760px){body.mobile-notes .dashboard-toolbar{display:none}}

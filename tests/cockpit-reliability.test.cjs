@@ -40,7 +40,7 @@ test('cloud saving status waits for the newest edit, not an older successful wri
 });
 test('failed cloud sync distinguishes safe local backup from an unsaved draft',()=>{
   const state={cloudSyncState:'error',notesLocalSaved:true};
-  assert.equal(saveStatus(state).title,'Sparat på datorn · synkfel');
+  assert.equal(saveStatus(state).title,'Sparat på enheten · synkfel');
   state.notesLocalSaved=false;assert.equal(saveStatus(state).title,'Inte säkert sparat');
   state.cloudSyncState='synced';assert.equal(saveStatus(state).title,'Sparat i molnet');
 });
