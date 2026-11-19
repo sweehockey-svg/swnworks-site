@@ -7,8 +7,8 @@
   const nav=document.getElementById('mobileNav');
   const toggle=document.getElementById('mobileModeToggle');
   const small=window.matchMedia('(max-width: 760px)');
-  let full=false,openedFor='';
-  try{full=localStorage.getItem('cockpit-mobile-full')==='true';}catch{}
+  let full=true,openedFor='';
+  try{full=localStorage.getItem('cockpit-mobile-full-v2')!=='false';}catch{}
 
   function openPanel(panel,compose=false){
     if(!cockpit.state.teamDataLoaded||screen.classList.contains('hidden')) return;
@@ -47,7 +47,7 @@
   document.querySelector('.mobile-hub').addEventListener('click',event=>event.stopPropagation());
   toggle.addEventListener('click',()=>{
     full=!full;
-    try{localStorage.setItem('cockpit-mobile-full',String(full));}catch{}
+    try{localStorage.setItem('cockpit-mobile-full-v2',String(full));}catch{}
     document.getElementById('closeDrawer').click();
     update();
   });

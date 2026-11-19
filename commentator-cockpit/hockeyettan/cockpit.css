@@ -5207,3 +5207,11 @@ html[data-theme="light"] .dashboard-toolbar{background:#f8fafc;border-color:#c8d
   .drawer .notes-storage-info[data-kind=error]{border-left-color:var(--red)}
 }
 @media(max-width:760px){body.mobile-notes .dashboard-toolbar{display:none}}
+
+/* Keep the usual match workspace first; offer notes as a quick action. */
+@media(max-width:760px){
+  body:not(.mobile-notes) .mobile-hub{display:flex;align-items:center;gap:10px;padding:12px;flex-wrap:wrap}
+  body:not(.mobile-notes) .mobile-hub-head{display:contents}
+  body:not(.mobile-notes) .mobile-hub-head>div,body:not(.mobile-notes) .mobile-hub>p,body:not(.mobile-notes) .mobile-install{display:none}
+  body:not(.mobile-notes) .mobile-hub .mobile-primary{width:auto;flex:1;order:-1}
+}
