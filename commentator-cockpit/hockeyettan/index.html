@@ -26,7 +26,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="cockpit.css?v=20261119-mobile3">
+  <link rel="stylesheet" href="cockpit.css?v=20261119-notes4">
 </head>
 <body>
   <div class="app-shell">
@@ -87,13 +87,6 @@
     </main>
 
     <main class="cockpit route-screen hidden" id="cockpitScreen">
-      <section class="mobile-hub" aria-label="Mobil arbetsyta">
-        <div class="mobile-hub-head"><div><span>INFÖR MATCHEN</span><h2>Anteckningsblock</h2></div><button type="button" id="mobileModeToggle" aria-pressed="true">Hela cockpiten</button></div>
-        <p id="mobileMatchContext"></p>
-        <p>Skriv efter samtalet med spelare eller tränare. Sparade anteckningar synkas till samma konto på datorn.</p>
-        <button type="button" class="mobile-primary" data-mobile-panel="notes">Skriv en anteckning</button>
-        <details class="mobile-install"><summary>Lägg på hemskärmen</summary><p>iPhone/iPad: öppna i Safari, välj Dela och Lägg till på hemskärmen. Android: öppna webbläsarens meny och välj Lägg till på startskärmen eller Installera app.</p><p>Öppna och logga in medan du har internet. Kontrollera att det står Sparat i molnet innan du byter enhet.</p></details>
-      </section>
       <section class="match-hero">
         <div class="match-meta">
           <span class="live-pill">NÄSTA MATCH</span>
@@ -231,12 +224,6 @@
       <div class="drawer-body" id="drawerBody"></div>
     </section>
 
-    <nav id="mobileNav" class="mobile-nav hidden" aria-label="Mobilnavigation">
-      <button type="button" data-mobile-panel="notes" aria-pressed="false">Anteckningar</button>
-      <button type="button" data-mobile-panel="players" aria-pressed="false">Spelare</button>
-      <button type="button" data-mobile-panel="match" aria-pressed="false">Match</button>
-      <button type="button" data-mobile-panel="account" aria-pressed="false">Konto</button>
-    </nav>
     <nav class="deck hidden" id="cockpitDeck" aria-label="Cockpit navigation">
       <button class="deck-key active" data-panel="match"><span>01</span><strong>MATCH</strong></button>
       <button class="deck-key" data-panel="lines"><span>02</span><strong>KEDJOR</strong></button>
@@ -258,8 +245,8 @@
   <script src="../lineup-changes.js?v=20261010-1"></script>
   <script src="ai-print.js?v=20261101-2"></script>
   <script src="print-center.js?v=20261102-new-logo"></script>
-  <script src="cockpit.js?v=20261119-mobile3"></script>
+  <script src="cockpit.js?v=20261119-notes4"></script>
   <script src="dashboard.js?v=20261020-1"></script>
-  <script src="mobile.js?v=20261119-mobile3"></script>
+  <script src="mobile.js?v=20261119-notes4"></script>
 </body>
 </html>

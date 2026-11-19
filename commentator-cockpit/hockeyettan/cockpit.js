@@ -4379,6 +4379,7 @@
         renderDrawer('studio');
       });
     } else if (key === "notes") {
+      if(changedPanel && window.innerWidth<=760) state.noteEditorOpen=true;
       drawerBody.innerHTML = renderNotes();
       bindNotesUi();
     } else if (key === "ai") {
