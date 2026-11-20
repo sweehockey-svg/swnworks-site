@@ -2170,7 +2170,7 @@
     const game=live||pregame||ended ? state.nextGame : state.latestFocusGame;
     const events=live||ended ? state.currentEvents : pregame ? [] : state.latestEvents;
     const eventPanelTitle=document.getElementById("eventPanelTitle");
-    if(eventPanelTitle) eventPanelTitle.textContent=ended ? "SLUT · Matchhändelser" : live ? "LIVE · Senaste händelser" : pregame ? "Inför nedsläpp" : "Senaste match · underlag";
+    if(eventPanelTitle) eventPanelTitle.textContent=ended ? "SLUT · Matchhändelser" : live ? "LIVE · Senaste händelser" : pregame ? "Inför nedsläpp" : game ? "Föregående match: "+getTeamName(game.home_team_id)+" – "+getTeamName(game.away_team_id) : "Ingen föregående match";
 
     if(!game){
       feed.className="empty-state";
@@ -2247,7 +2247,7 @@
       ? 'MATCH SLUT · 60:00'
       : live
         ? 'LIVE MATCH · ' + esc(state.focusTeam.canonical_name.toUpperCase()) + ' · ' + (events.length?'OFFICIELL EVENTDATA':'INVÄNTAR MATCHDATA')
-        : 'SENASTE MATCH · UNDERLAG'+(state.opponent?' INFÖR '+esc(state.opponent.canonical_name.toUpperCase()):'');
+        : 'FÖREGÅENDE MATCH · AVSLUTAD';
     const footer=esc(game.venue_name || "") + ' · ' +
       (live
         ? (events.length ? events.length + ' importerade händelser' : 'väntar på '+league.sourceLabel+'-data')

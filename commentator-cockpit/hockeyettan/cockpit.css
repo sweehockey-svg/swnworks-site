@@ -5482,3 +5482,16 @@ html[data-theme=light] #homeScreen.league-teams .team-visibility button[aria-pre
 
 /* Navigation labels need no decorative numbering. */
 #cockpitDeck .deck-key{justify-content:center;gap:4px}
+
+/* Readable match data at commentary distance. */
+.dashboard-workspace .standings-full{font-size:13px;line-height:1.45}
+.dashboard-workspace .standings-full :is(td,th){padding:8px 6px}
+.dashboard-workspace .standings-full thead th{font-size:11px}
+.dashboard-workspace .standings-full small{font-size:11px}
+.dashboard-workspace .event-copy p{font-size:14px;line-height:1.55}
+.dashboard-workspace .event-copy :is(strong,span){font-size:12px;line-height:1.45}
+.dashboard-workspace .event-time strong{font-size:13px;line-height:1.3}
+.dashboard-workspace .event-time span{font-size:10px}
+.dashboard-workspace .event-row{padding:11px 10px}
+.dashboard-panel-content>.event-panel>.panel-head #eventPanelTitle{font-size:13px;line-height:1.5;font-weight:600}
+.dashboard-workspace .recent-game-top{font-size:11px;line-height:1.5;flex-wrap:wrap;gap:6px}
