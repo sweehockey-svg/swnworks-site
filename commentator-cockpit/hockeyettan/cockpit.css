@@ -5426,3 +5426,32 @@ html[data-theme=light] #homeScreen.league-teams .team-card-copy>small{color:#337
 html[data-theme=light] #homeScreen.league-teams .team-visibility button[aria-pressed=true]{background:#ffc32c;color:#071119;border-color:#ffc32c}
 @media(max-width:1150px){#homeScreen.league-teams .team-toolbar{grid-template-areas:"visibility visibility" "search count" "filters filters"}}
 @media(max-width:600px){#homeScreen.league-teams .team-toolbar{grid-template-areas:"visibility" "search" "filters" "count"}#homeScreen.league-teams .team-visibility{gap:7px;padding-bottom:14px}#homeScreen.league-teams .team-visibility button{flex:1;justify-content:center;padding:10px 12px}}
+
+/* Dashboard widgets stay readable in narrow desktop and tablet columns. */
+.dashboard-widget>.panel-head{position:sticky;top:0;z-index:2;background:var(--panel);padding-block:10px}
+.dashboard-widget-body>button,.dashboard-widget-body select{min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--text);padding:8px 12px;max-width:100%}
+.dashboard-widget-body>label{display:grid;gap:6px;margin-bottom:14px}
+.dashboard-widget .lineup-team-grid,.dashboard-widget .goalie-card-grid{grid-template-columns:minmax(0,1fr)}
+.dashboard-widget [data-edit-lineup]{display:none}
+.dashboard-widget .lineup-row{min-width:0}
+.dashboard-widget .note-card{margin-top:12px;overflow-wrap:anywhere}
+.dashboard-widget .note-card p{white-space:pre-wrap}
+.dashboard-player-table{width:100%;border-collapse:collapse;font-size:13px}
+.dashboard-player-table :is(td,th){padding:9px 4px;border-bottom:1px solid var(--line);text-align:right}
+.dashboard-player-table :is(td,th):first-child{text-align:left;overflow-wrap:anywhere}
+.dashboard-player-table .player-card-link{white-space:normal;text-align:left}
+.dashboard-widget [hidden]{display:none!important}
+@container (max-width:600px){.dashboard-widget .lineup-forwards,.dashboard-widget .lineup-defense{grid-template-columns:minmax(0,1fr)}}
+.dashboard-widget{container-type:inline-size}
+
+  .dashboard-widget .lineup-forwards,.dashboard-widget .lineup-defense{display:grid;grid-template-columns:minmax(0,1fr);width:100%;margin-left:0;margin-right:0;gap:8px}
+  .dashboard-widget .lineup-slot{grid-template-columns:28px 34px minmax(0,1fr);padding:10px;gap:8px;min-width:0;text-align:left;align-items:center}
+  .dashboard-widget .lineup-slot>span{position:static;font-size:12px;line-height:1.3}
+  .dashboard-widget .lineup-slot>strong{min-width:0;overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere;font-size:14px;line-height:1.45}
+  .dashboard-widget .lineup-slot .player-card-link{display:block;max-width:100%;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;word-break:normal;font-size:14px;line-height:1.45}
+  .dashboard-widget .lineup-individual-stats{grid-column:1/-1}
+  .dashboard-widget .lineup-slot.empty{grid-template-columns:28px minmax(0,1fr);justify-items:start;min-height:48px}
+  .dashboard-widget .lineup-line-head{gap:8px;flex-wrap:wrap}
+  .dashboard-widget .lineup-line-head strong,.dashboard-widget .lineup-line-head span{font-size:12px;line-height:1.4}
+  .dashboard-widget .lineup-goalies>div>strong{white-space:normal;overflow:visible;text-overflow:clip;font-size:14px;line-height:1.45}
+  .dashboard-widget .lineup-goalies .player-card-link{white-space:normal;overflow-wrap:anywhere;font-size:14px;line-height:1.45}

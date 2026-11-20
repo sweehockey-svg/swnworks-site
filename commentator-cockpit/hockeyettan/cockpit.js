@@ -4352,6 +4352,18 @@
     return renderMatchCheck() + renderPregameCockpit() + renderDataHealth() + renderUpcomingGames() + '<section><h3>ÖVRIGA MATCHER · SAMMA SERIE OCH MATCHDAG</h3><div data-league-board>'+leagueMatchesHtml()+'</div></section>' + rest;
   }
 
+  function dashboardNotesHtml() {
+    const notes=currentEditorialNotes().filter(note=>note.is_active!==false).slice().sort((a,b)=>Number(Boolean(b.pinned))-Number(Boolean(a.pinned))||String(b.updated_at||b.created_at||'').localeCompare(String(a.updated_at||a.created_at||'')));
+    return '<button type="button" data-dashboard-open="notes">Skriv / redigera anteckningar</button>'+(notes.length?notes.map(note=>'<article class="note-card"><small>'+esc(noteScopeLabel(note))+(note.pinned?' · PINNAD':'')+'</small>'+(note.title?'<h3>'+esc(note.title)+'</h3>':'')+'<p>'+playerTextMarkup(note.body)+'</p></article>').join(''):'<p>Inga anteckningar ännu. Lägg till dina pratpunkter i Notes.</p>');
+  }
+  function dashboardPlayersHtml() {
+    if(!state.focusTeam||!state.opponent)return '<p>Välj en match först.</p>';
+    return '<label>Visa lag<select data-dashboard-player-team><option value="both">Båda lagen</option>'+[state.focusTeam,state.opponent].map((team,i)=>'<option value="'+i+'">'+esc(team.canonical_name)+'</option>').join('')+'</select></label>'+[state.focusTeam,state.opponent].map((team,i)=>{
+      const rows=state.seasonPlayerStats.filter(row=>row.team_id===team.id&&row.position!=='GK').slice().sort((a,b)=>Number(b.points||0)-Number(a.points||0));
+      return '<section data-dashboard-player-group="'+i+'"><h3>'+esc(team.canonical_name)+' · Säsong</h3>'+(rows.length?'<table class="dashboard-player-table"><thead><tr><th>Spelare</th><th title="Matcher">M</th><th>Mål</th><th>Ass</th><th>P</th></tr></thead><tbody>'+rows.map(row=>'<tr><td><b>#'+esc(row.jersey_number??'–')+'</b> '+playerCardLink(row)+'</td><td>'+esc(row.games_played??0)+'</td><td>'+esc(row.goals??0)+'</td><td>'+esc(row.assists??0)+'</td><td><strong>'+esc(row.points??0)+'</strong></td></tr>').join('')+'</tbody></table>':'<p>Spelarstatistik har inte publicerats.</p>')+'</section>';
+    }).join('');
+  }
+
   function renderDrawer(key) {
     const searchFocus=key==='players'&&document.activeElement?.id==='playerSearchInput'
       ? {start:document.activeElement.selectionStart,end:document.activeElement.selectionEnd}:null;
@@ -5213,7 +5225,7 @@
       event.composedPath().includes(playerCardDialog) || target.closest('[data-player-card]') ||
       event.composedPath().includes(drawer) ||
       drawer.contains(target) ||
-      target.closest(".deck-key") ||
+      target.closest(".deck-key") || target.closest("[data-dashboard-open]") ||
       target.closest("#lineupChangeNotice") ||
       target.closest("#accountButton") ||
       target.closest("#lockLoginButton") ||
@@ -5332,7 +5344,7 @@
     state,
     reload: () => routeApp().catch(showLoadError),
     openPanel: renderDrawer,
-    widgets:{specialHtml:()=>state.focusTeam&&state.opponent?renderSpecialTeams():'<p>Välj en match först.</p>',leagueHtml:leagueMatchesHtml,standingsHtml:()=>document.getElementById('standingsQuick')?.innerHTML||'<p>Tabell saknas.</p>'},
+    widgets:{notesHtml:dashboardNotesHtml,playersHtml:dashboardPlayersHtml,linesHtml:()=>state.focusTeam&&state.opponent?'<button type="button" data-dashboard-open="lines">Öppna / redigera matchkedjor</button>'+renderLineups():'<p>Välj en match först.</p>',goaliesHtml:()=>state.focusTeam&&state.opponent?renderGoalieStats():'<p>Välj en match först.</p>',h2hHtml:()=>state.focusTeam&&state.opponent?renderH2H():'<p>Välj en match först.</p>',specialHtml:()=>state.focusTeam&&state.opponent?renderSpecialTeams():'<p>Välj en match först.</p>',leagueHtml:leagueMatchesHtml,standingsHtml:()=>document.getElementById('standingsQuick')?.innerHTML||'<p>Tabell saknas.</p>'},
     editorialNotes: () => currentEditorialNotes(),
     aiFallback: (question="") => localAiBrief(question),
     syncNotes: () => syncNotesWithCloud(),
