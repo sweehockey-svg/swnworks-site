@@ -5479,3 +5479,6 @@ html[data-theme=light] #homeScreen.league-teams .team-visibility button[aria-pre
 .dashboard-panel-content>.event-panel>.panel-head{padding-top:0;margin-bottom:8px}
 .dashboard-panel-content>.event-panel>.panel-head #eventPanelTitle{display:block;font-size:12px;font-weight:500;color:var(--muted);margin:0}
 @media(max-width:1100px),(pointer:coarse) and (max-width:1366px){.dashboard-panel-controls>select{font-size:18px;min-height:44px}}
+
+/* Navigation labels need no decorative numbering. */
+#cockpitDeck .deck-key{justify-content:center;gap:4px}
