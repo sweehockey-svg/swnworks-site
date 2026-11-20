@@ -5495,3 +5495,14 @@ html[data-theme=light] #homeScreen.league-teams .team-visibility button[aria-pre
 .dashboard-workspace .event-row{padding:11px 10px}
 .dashboard-panel-content>.event-panel>.panel-head #eventPanelTitle{font-size:13px;line-height:1.5;font-weight:600}
 .dashboard-workspace .recent-game-top{font-size:11px;line-height:1.5;flex-wrap:wrap;gap:6px}
+
+/* Use formation layout whenever the actual panel width allows it. */
+@container (min-width:620px){
+ .dashboard-widget .lineup-forwards{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .dashboard-widget .lineup-defense{grid-template-columns:repeat(2,minmax(0,1fr));width:68%;margin:8px auto 0}
+ .dashboard-widget .lineup-slot{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;gap:6px;padding:10px;min-height:112px}
+ .dashboard-widget .lineup-slot>span{align-self:flex-start;font-size:11px}
+ .dashboard-widget .lineup-slot>b{display:block;color:var(--text);background:var(--yellow);color:#071824;border-radius:7px;padding:5px 10px;font-size:20px;line-height:1.2;margin:0}
+ .dashboard-widget .lineup-slot>strong,.dashboard-widget .lineup-slot .player-card-link{text-align:center;white-space:normal;font-size:14px;line-height:1.4}
+ .dashboard-widget .lineup-slot.empty{display:flex;justify-content:center;align-items:center}
+}
