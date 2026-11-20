@@ -573,6 +573,7 @@
   function renderLeagueHome() {
     setRouteScreen("home");
     document.getElementById("homeScreen")?.classList.toggle("league-entry",!state.authUser||!canAccessLeague());
+    document.getElementById("homeScreen")?.classList.toggle("league-teams",Boolean(state.authUser)&&canAccessLeague());
     document.title="Commentator Cockpit · "+league.displayName;
     document.getElementById("currentTeamButton")?.classList.add("hidden");
     const heroTitle=document.querySelector(".league-home-hero h2");

@@ -5368,3 +5368,47 @@ html[data-theme=light] #homeScreen.league-entry .league-access-gate #leagueLogin
 @media(max-width:760px){#homeScreen.league-entry{grid-template-columns:minmax(0,1fr);gap:26px;max-width:600px;padding:12px 6px 32px}#homeScreen.league-entry .league-entry-brand{padding-bottom:20px}.league-entry-brand img{width:50px;height:50px;flex-basis:50px}.league-entry-brand strong{font-size:19px}#homeScreen.league-entry .league-home-hero{padding:6px 0 0}#homeScreen.league-entry .league-home-logo{width:146px;height:56px;margin-bottom:22px}#homeScreen.league-entry .league-home-hero h2{font-size:clamp(42px,10vw,60px);margin:16px 0 20px}#homeScreen.league-entry .league-home-hero>p{font-size:16px}#homeScreen.league-entry .league-entry-benefits{gap:9px;margin-top:20px;font-size:13px}#homeScreen.league-entry .league-access-gate{padding:26px}#homeScreen.league-entry .league-access-gate>strong{font-size:28px}#homeScreen.league-entry .swahnworks-credit{margin-top:0;padding-top:22px;font-size:10px;flex-wrap:wrap}#homeScreen.league-entry .league-gate-actions{flex-direction:column}}
 #homeScreen.league-entry .league-home-logo.hockeytvaan-league-logo{width:180px;height:76px;padding:0;overflow:hidden}
 #homeScreen.league-entry .league-home-logo.suomi-logo{width:84px;height:84px;padding:8px}
+
+/* A readable team selector, consistent with the Cockpit product pages. */
+#homeScreen.league-teams{--entry-ink:#f2f5f7;--entry-muted:#a1b4bf;--entry-gold:#ffc32c;--teams-panel:#0b202b;display:block;width:100%;max-width:1320px;margin:0 auto;padding:24px 20px 48px;text-align:left}
+#homeScreen.league-teams .league-entry-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--entry-ink);padding-bottom:24px;margin-bottom:30px;border-bottom:1px solid var(--line)}
+#homeScreen.league-teams .league-home-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 28px;text-align:left;width:100%;max-width:none;margin:0 0 32px;padding:0;background:transparent;border:0;box-shadow:none}
+#homeScreen.league-teams .league-home-logo{grid-column:2;grid-row:1/4;align-self:center;width:170px;height:66px;padding:8px 12px;margin:0;background:#fff;border-radius:10px;box-shadow:none}
+#homeScreen.league-teams .league-home-logo.hockeytvaan-league-logo{width:180px;height:76px;padding:0;overflow:hidden}
+#homeScreen.league-teams .league-home-logo.suomi-logo{width:82px;height:82px;padding:8px}
+#homeScreen.league-teams .league-home-logo img{width:100%;height:100%;object-fit:contain}
+#homeScreen.league-teams .league-home-hero>span{grid-column:1;grid-row:1;font-size:11px;line-height:1.5;letter-spacing:.14em;color:var(--entry-gold)}
+#homeScreen.league-teams .league-home-hero h2{grid-column:1;grid-row:2;font-size:46px;line-height:1.15;letter-spacing:-.045em;color:var(--entry-ink);margin:10px 0 12px}
+#homeScreen.league-teams .league-home-hero>p{grid-column:1;grid-row:3;margin:0;max-width:600px;font-size:14px;line-height:1.65;color:var(--entry-muted)}
+#homeScreen.league-teams .team-toolbar{display:grid;grid-template-columns:minmax(240px,420px) minmax(0,1fr) auto;gap:20px;align-items:end;margin:0 0 22px;padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--teams-panel);width:100%;max-width:none}
+#homeScreen.league-teams .team-search{display:grid;gap:8px;margin:0;min-width:0}
+#homeScreen.league-teams .team-search>span{font-size:11px;letter-spacing:.08em;color:var(--entry-muted)}
+#homeScreen.league-teams .team-search input{width:100%;min-width:0;min-height:48px;padding:12px 14px;border:1px solid #395361;border-radius:7px;background:var(--bg);color:var(--entry-ink);font:400 16px/1.4 Inter,Arial,sans-serif}
+#homeScreen.league-teams .team-search input::placeholder{color:var(--entry-muted)}
+#homeScreen.league-teams .team-filters{display:flex;align-items:center;flex-wrap:wrap;gap:7px;min-width:0;overflow:visible;padding:0;grid-column:auto;grid-row:auto}
+#homeScreen.league-teams .team-filters button{min-height:46px;padding:10px 13px;border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--entry-muted);font:700 11px/1.4 Inter,Arial,sans-serif;letter-spacing:.04em;cursor:pointer}
+#homeScreen.league-teams .team-filters button.active{border-color:var(--entry-gold);background:#ffc32c12;color:var(--entry-gold)}
+#homeScreen.league-teams .team-result-count{display:block;font-size:12px;line-height:1.5;white-space:nowrap;padding-bottom:13px;color:var(--entry-muted);grid-column:auto;grid-row:auto}
+#homeScreen.league-teams .team-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;width:100%;max-width:none;margin:0;padding:0}
+#homeScreen.league-teams .team-card{display:grid;grid-template-columns:56px minmax(0,1fr) 16px;align-items:center;gap:14px;min-height:118px;min-width:0;margin:0;padding:18px 16px;border:1px solid #2d4856;border-radius:12px;background:var(--teams-panel);text-align:left;color:var(--entry-ink);box-shadow:none;transition:border-color .15s ease,transform .15s ease;cursor:pointer}
+#homeScreen.league-teams .team-card:hover{border-color:var(--entry-gold);transform:translateY(-2px)}
+#homeScreen.league-teams .team-card:focus-visible{outline:2px solid var(--entry-gold);outline-offset:3px}
+#homeScreen.league-teams .team-card.filtered-out{display:none}
+#homeScreen.league-teams .team-card-badge{width:56px;height:56px;padding:6px;border:1px solid var(--line);border-radius:10px;background:transparent;overflow:hidden;font-size:15px}
+#homeScreen.league-teams .team-card-badge img{width:100%;height:100%;object-fit:contain}
+#homeScreen.league-teams .team-card-copy{min-width:0}
+#homeScreen.league-teams .team-card-copy>span{display:block;font-size:10px;line-height:1.5;letter-spacing:.02em;color:var(--entry-muted);white-space:normal}
+#homeScreen.league-teams .team-card-copy>strong{display:block;font-size:15px;line-height:1.35;letter-spacing:-.015em;color:var(--entry-ink);white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;margin:5px 0 7px}
+#homeScreen.league-teams .team-card-copy>small{display:block;font-size:9px;line-height:1.5;letter-spacing:.05em;color:#8cd7b3}
+#homeScreen.league-teams .team-card-arrow{font-size:17px;color:var(--entry-muted)}
+#homeScreen.league-teams .swahnworks-credit{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;border-top:1px solid var(--line);padding-top:24px;margin-top:32px;font-size:11px;letter-spacing:.08em;color:var(--entry-muted)}
+#homeScreen.league-teams .swahnworks-credit strong{font-size:12px;color:var(--entry-ink)}
+html[data-theme=light] #homeScreen.league-teams{--entry-ink:#132d3e;--entry-muted:#496578;--entry-gold:#996500;--teams-panel:#fff}
+html[data-theme=light] #homeScreen.league-teams .team-search input{background:#f5f8fb;border-color:#bbceda}
+html[data-theme=light] #homeScreen.league-teams .team-card{border-color:#c2d2de}
+html[data-theme=light] #homeScreen.league-teams .team-card:hover{border-color:#bb8508}
+html[data-theme=light] #homeScreen.league-teams .team-card-copy>small{color:#337557}
+@media(max-width:1150px){#homeScreen.league-teams .team-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#homeScreen.league-teams .team-toolbar{grid-template-columns:minmax(220px,1fr) auto;gap:14px}#homeScreen.league-teams .team-filters{grid-column:1/-1;grid-row:2}#homeScreen.league-teams .team-result-count{grid-column:2;grid-row:1}}
+@media(max-width:850px){#homeScreen.league-teams .team-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){#homeScreen.league-teams{padding:12px 4px 30px}#homeScreen.league-teams .league-entry-brand{padding-bottom:20px;margin-bottom:24px}#homeScreen.league-teams .league-home-hero{gap:0 16px;margin-bottom:24px}#homeScreen.league-teams .league-home-logo{width:112px;height:44px;padding:6px 8px}#homeScreen.league-teams .league-home-logo.hockeytvaan-league-logo{width:112px;height:48px;padding:0}#homeScreen.league-teams .league-home-logo.suomi-logo{width:58px;height:58px;padding:6px}#homeScreen.league-teams .league-home-hero>span{font-size:9px;letter-spacing:.08em}#homeScreen.league-teams .league-home-hero h2{font-size:36px;margin:9px 0 12px}#homeScreen.league-teams .league-home-hero>p{grid-column:1/-1;font-size:13px}#homeScreen.league-teams .team-toolbar{grid-template-columns:1fr;padding:14px;gap:12px;margin-bottom:16px}#homeScreen.league-teams .team-filters{grid-column:1;grid-row:2;gap:6px}#homeScreen.league-teams .team-filters button{flex:1 0 auto;padding:10px;font-size:10px}#homeScreen.league-teams .team-result-count{grid-column:1;grid-row:3;padding:0;font-size:11px}#homeScreen.league-teams .team-grid{grid-template-columns:minmax(0,1fr);gap:12px}#homeScreen.league-teams .team-card{min-height:102px;padding:16px;gap:14px}#homeScreen.league-teams .team-card-copy>strong{font-size:17px}#homeScreen.league-teams .team-card-copy>span{font-size:11px}#homeScreen.league-teams .team-card-copy>small{font-size:10px}#homeScreen.league-teams .swahnworks-credit{font-size:10px;margin-top:24px}}
+@media(prefers-reduced-motion:reduce){#homeScreen.league-teams .team-card{transition:none}}
