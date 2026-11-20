@@ -572,6 +572,7 @@
 
   function renderLeagueHome() {
     setRouteScreen("home");
+    document.getElementById("homeScreen")?.classList.toggle("league-entry",!state.authUser||!canAccessLeague());
     document.title="Commentator Cockpit · "+league.displayName;
     document.getElementById("currentTeamButton")?.classList.add("hidden");
     const heroTitle=document.querySelector(".league-home-hero h2");
@@ -581,12 +582,15 @@
     removeTeamToolbar();
 
     if(!state.authUser){
-      if(heroTitle) heroTitle.textContent="Logga in för att öppna "+league.displayName;
-      if(heroCopy) heroCopy.textContent="Laglistan och själva kommentatorscockpiten är privat. Logga in med ett konto som har liga- eller lagbehörighet.";
+      if(heroTitle) heroTitle.textContent="Din plats för matchen.";
+      if(heroCopy) heroCopy.textContent="Förbered dig inför nedsläpp. Ha matchdata, spelare och dina egna vinklar samlade i Commentator Cockpit för "+league.displayName+".";
       grid.innerHTML=
-        '<section class="league-access-gate"><span>PRIVAT ARBETSYTA</span><strong>'+esc(league.displayName)+'</strong>'+
-        '<p>Den här miljön finns, men lag, matcher och arbetsdata visas först efter godkänd inloggning.</p>'+
-        '<button type="button" id="leagueLoginButton">LOGGA IN / KONTO</button></section>';
+        '<section class="league-access-gate"><span>VÄLKOMMEN TILL DIN COCKPIT</span><strong>Öppna '+esc(league.displayName)+'</strong>'+
+        '<p>Logga in med din e-postadress. Vi skickar en personlig inloggningslänk till dig.</p>'+
+        '<button type="button" id="leagueLoginButton">Logga in med e-post</button>'+
+        '<small class="entry-login-caption">Inget lösenord behövs.</small>'+
+        '<div class="entry-access-info"><b>Privat beta</b><p>Du behöver godkänd behörighet för ditt lag eller din liga. Vill du testa? <a href="mailto:info@swnworks.se?subject=Testa%20Commentator%20Cockpit">Kontakta oss</a>.</p></div>'+
+        '<a class="entry-back-link" href="../">Till alla ligor</a></section>';
       document.getElementById("leagueLoginButton")?.addEventListener("click",()=>renderDrawer("account"));
       setSyncStatus("","Åtkomst krävs · "+league.displayName);
       return;
