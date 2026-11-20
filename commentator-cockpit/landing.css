@@ -51,3 +51,5 @@ body.cc-landing{--cc-bg:#061118;--cc-panel:#0b1c26;--cc-line:#233944;--cc-muted:
 @media(prefers-reduced-motion:reduce){.cc-landing *{scroll-behavior:auto!important;transition:none!important}}
 @media(max-width:480px){.cc-league-logo img{max-width:100px}.cc-landing .cc-league h3{font-size:24px}}
 @media(max-width:380px){.cc-landing .cc-league h3{font-size:23px}}
+/* Contain the tilted preview frame without introducing horizontal scrolling. */
+.cc-hero{overflow:clip}
