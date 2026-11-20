@@ -5467,3 +5467,15 @@ html[data-theme=light] #homeScreen.league-teams .team-visibility button[aria-pre
 .dashboard-layout-options button{padding:10px;text-align:left;min-height:44px;border:1px solid var(--line);border-radius:6px;background:var(--panel2);color:var(--text);font:inherit}
 .dashboard-layout-options small{color:var(--muted);line-height:1.5}
 @media(max-width:1100px),(pointer:coarse) and (max-width:1366px){.dashboard-panel-controls>select,.dashboard-layout-menu summary{min-height:44px;font-size:15px}.dashboard-panel-content>.panel{height:auto;overflow:visible}.dashboard-panel-content{flex:none}}
+
+/* The selector is the heading; keep only useful match context below it. */
+.dashboard-panel-controls{padding:10px 12px 6px}
+.dashboard-panel-controls>select{font-size:19px;font-weight:750;border:0;background:transparent;padding:4px 24px 4px 0;min-height:36px}
+.dashboard-panel-controls>select option{background:var(--panel);color:var(--text);font-size:15px}
+.dashboard-panel-content>.panel{border-top:0;padding-top:6px}
+.dashboard-panel-content>.panel>.panel-head :is(.panel-kicker,h2){display:none}
+.dashboard-panel-content>.assistant-panel>.panel-head,.dashboard-panel-content>.dashboard-widget>.panel-head{display:none}
+.dashboard-panel-content>.match-panel>.panel-head{padding-top:0;margin-bottom:10px}
+.dashboard-panel-content>.event-panel>.panel-head{padding-top:0;margin-bottom:8px}
+.dashboard-panel-content>.event-panel>.panel-head #eventPanelTitle{display:block;font-size:12px;font-weight:500;color:var(--muted);margin:0}
+@media(max-width:1100px),(pointer:coarse) and (max-width:1366px){.dashboard-panel-controls>select{font-size:18px;min-height:44px}}
