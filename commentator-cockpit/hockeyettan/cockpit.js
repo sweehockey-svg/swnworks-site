@@ -209,7 +209,8 @@
   function updateDrawerLayout() {
     const workspace=document.querySelector('.cockpit:not(.hidden) .workspace');
     const feed=workspace?.querySelector('.event-panel');
-    const docked=window.innerWidth>=1101&&window.innerHeight>=650&&Boolean(feed);
+    const tabletTouch=window.matchMedia('(pointer:coarse) and (max-width:1366px)').matches;
+    const docked=!tabletTouch&&window.innerWidth>=1101&&window.innerHeight>=650&&Boolean(feed);
     drawer.classList.toggle('docked',docked);
     if(!docked) return;
     const area=workspace.getBoundingClientRect(),start=feed.getBoundingClientRect();

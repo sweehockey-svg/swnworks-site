@@ -9,12 +9,13 @@
   const bar=document.createElement('details');bar.className='dashboard-toolbar';
   bar.innerHTML='<summary>Min dashboard · välj paneler</summary><div class="dashboard-settings">'+['Vänster','Mitten','Höger'].map((name,i)=>'<label><span data-dashboard-position>'+name+'</span><select data-dashboard-slot="'+i+'">'+Object.entries(choices).map(([value,label])=>'<option value="'+value+'">'+label+'</option>').join('')+'</select></label>').join('')+'<button type="button" data-dashboard-preset>Tabell · feed · PP/BP</button><button type="button" data-dashboard-reset>Återställ standard</button><small>Layouten sparas för ditt konto i den här webbläsaren. På mindre skärmar staplas panelerna.</small></div>';
   workspace.before(bar);
-  const stacked=window.matchMedia('(max-width:760px)');
   function updatePositionLabels(){
-    const labels=stacked.matches?['Överst','Mitten','Nederst']:['Vänster','Mitten','Höger'];
+    const columns=window.getComputedStyle(workspace).gridTemplateColumns.trim().split(/\s+/).length;
+    const labels=columns===1?['Överst','Mitten','Nederst']:columns===2?['Överst till vänster','Överst till höger','Nederst']:['Vänster','Mitten','Höger'];
     bar.querySelectorAll('[data-dashboard-position]').forEach((label,i)=>{label.textContent=labels[i];});
   }
-  stacked.addEventListener('change',updatePositionLabels);
+  window.addEventListener('resize',updatePositionLabels);
+  window.addEventListener('cockpit:render',updatePositionLabels);
   updatePositionLabels();
   const slots=defaults.map(()=>{const node=document.createElement('div');node.className='dashboard-slot';workspace.append(node);return node;});
   const extra={};

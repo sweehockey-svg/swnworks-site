@@ -5283,3 +5283,52 @@ html[data-theme="light"] .dashboard-toolbar{background:#f8fafc;border-color:#c8d
   #drawer .lineup-goalies>div>strong{white-space:normal;overflow:visible;text-overflow:clip;font-size:14px;line-height:1.45}
   #drawer .lineup-goalies .player-card-link{white-space:normal;overflow-wrap:anywhere;font-size:14px;line-height:1.45}
 }
+
+/* Tablets: portrait reading and landscape dashboard, with touch controls. */
+@media(min-width:761px) and (max-width:1100px), (min-width:1101px) and (max-width:1366px) and (pointer:coarse){
+  .app-shell{padding:16px 16px calc(100px + env(safe-area-inset-bottom))}
+  .cockpit:not(.hidden){display:block;height:auto;min-height:0}
+  .cockpit:not(.hidden) .workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:16px;height:auto;overflow:visible}
+  .dashboard-workspace .dashboard-slot{min-height:0;max-height:none}
+  .dashboard-workspace .dashboard-slot:last-child{grid-column:1/-1}
+  .dashboard-slot>.panel{height:auto;min-height:0;overflow:visible}
+  .panel{padding:18px}
+  .panel-head h2{font-size:23px}
+  .panel-kicker,.panel-status,.overview-context{font-size:12px;line-height:1.5}
+  .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .stat{grid-template-columns:minmax(0,1fr);grid-template-areas:"a" "b" "c" "d";gap:4px}
+  .stat strong{font-size:28px;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+  .stat :is(span,small,time){font-size:12px;line-height:1.4;white-space:normal}
+  .fact-card strong{font-size:17px;line-height:1.4}.fact-card p{font-size:14px;line-height:1.6}
+  .dashboard-toolbar{padding:14px;font-size:15px;margin:12px 0}
+  .dashboard-toolbar summary{min-height:44px;align-content:center}
+  .dashboard-settings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .dashboard-settings label{min-width:0;font-size:14px;gap:7px}
+  .dashboard-settings :is(select,button){width:100%;min-height:48px;padding:12px;font-size:16px}
+  .dashboard-settings small{grid-column:1/-1;font-size:13px;line-height:1.5}
+  .topbar{flex-wrap:wrap;gap:12px}.top-actions{flex-wrap:wrap;gap:10px}
+  .top-actions :is(button,a){min-height:44px}.account-button strong{font-size:13px}.account-button small{font-size:11px}
+  #showTopbar{min-height:44px;font-size:13px!important;position:static!important;margin:0 0 10px auto!important}
+  #cockpitDeck{display:flex;justify-content:flex-start;gap:6px;width:calc(100% - 24px);bottom:max(10px,env(safe-area-inset-bottom));padding:10px;overflow-x:auto;scrollbar-width:thin;scroll-snap-type:x proximity}
+  #cockpitDeck .deck-key{flex:1 0 76px;min-height:56px;padding:10px;scroll-snap-align:start}
+  #cockpitDeck .deck-key strong{font-size:12px}#cockpitDeck .deck-key>span,#cockpitDeck .deck-key>small{display:none}
+  #cockpitDeck [data-panel=match]{order:-3}#cockpitDeck [data-panel=notes]{order:-2}#cockpitDeck [data-panel=players]{order:-1}
+  #drawer:not(.page-expanded){left:auto;right:16px;top:max(16px,env(safe-area-inset-top));bottom:calc(100px + env(safe-area-inset-bottom));width:min(980px,calc(100vw - 32px));max-width:calc(100vw - 32px);height:auto;max-height:none;padding:20px;display:flex;flex-direction:column;background:var(--bg)}
+  #drawer .drawer-head{flex:0 0 auto;gap:16px;padding-bottom:14px}#drawer .drawer-head h2{font-size:25px}
+  #drawer .drawer-body{flex:1;min-height:0;max-height:none!important;overflow:auto;overscroll-behavior:contain;padding-bottom:24px}
+  #drawer :is(input,textarea,select){font-size:16px!important;max-width:100%}
+  #drawer button,#drawer summary{min-height:44px}
+  #drawer .drawer-window-actions{gap:8px}#drawer .drawer-window-actions button{min-width:44px;min-height:44px;font-size:14px}
+  #drawer :is(.drawer-card span,.story-card p,.stats-intro span){font-size:14px;line-height:1.6}
+  #drawer .lineup-slot>strong,#drawer .lineup-slot .player-card-link{font-size:14px;line-height:1.45;white-space:normal;overflow:visible;overflow-wrap:anywhere;text-overflow:clip}
+  #drawer .note-form textarea{min-height:220px;font-size:17px!important;line-height:1.6}
+  #drawer .note-form-actions button{min-height:48px;font-size:14px;padding:12px 18px}
+  body:has(#drawer.open){overflow:hidden}
+  #playerCardDialog{width:calc(100vw - 32px);max-height:calc(100dvh - 32px);padding:20px;font-size:16px}
+  #playerCardDialog :is(button,input,select,textarea){min-height:44px;font-size:16px}
+}
+@media(min-width:761px) and (max-width:1100px) and (orientation:portrait), (min-width:1101px) and (max-width:1366px) and (pointer:coarse) and (orientation:portrait){
+  .cockpit:not(.hidden) .workspace{grid-template-columns:minmax(0,1fr)}
+  .dashboard-workspace .dashboard-slot{grid-column:1/-1}
+  #drawer :is(.stats-team-grid,.lineup-team-grid,.pregame-columns){grid-template-columns:minmax(0,1fr)}
+}
