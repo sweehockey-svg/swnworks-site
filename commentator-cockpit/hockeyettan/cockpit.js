@@ -462,6 +462,19 @@
     return allowedCommentatorTeams();
   }
 
+  function teamDirectoryState() {
+    const owner=state.authUser?.id||'guest';
+    if(state.teamDirectory?.owner!==owner||state.teamDirectory?.league!==league.accessKey){
+      state.teamDirectory={owner,league:league.accessKey,mode:'mine'};
+    }
+    return state.teamDirectory;
+  }
+
+  function teamDirectoryTeams() {
+    const teams=teamDirectoryState().mode==='all'?[...state.competitionTeams]:visibleLeagueTeams();
+    return teams.slice().sort((a,b)=>Number(canAccessTeam(b.id))-Number(canAccessTeam(a.id))||a.canonical_name.localeCompare(b.canonical_name,'sv'));
+  }
+
   function selectTeamInPlace(team) {
     if(!team) return false;
     state.selectedTeam=team;
@@ -479,7 +492,7 @@
   }
 
   function normalizeTeamSelectionForAccess() {
-    if(!state.authUser||globalAdminAccess()||leagueAccess()) return false;
+    if(!state.authUser||!state.selectedTeamSlug||globalAdminAccess()||leagueAccess()) return false;
     const allowed=allowedCommentatorTeams();
     if(allowed.length!==1) return false;
     if(state.selectedTeam&&canAccessTeam(state.selectedTeam.id)) return false;
@@ -529,13 +542,15 @@
 
   function renderTeamToolbar(teams,grid) {
     removeTeamToolbar();
-    if(teams.length<=1) return;
+    if(!state.authUser||!canAccessLeague()) return;
 
     const groups=[...new Set(teams.map(teamFilterLabel).filter(Boolean))];
     const toolbar=document.createElement("section");
     toolbar.className="team-toolbar";
     toolbar.id="teamToolbar";
+    const directory=teamDirectoryState();
     toolbar.innerHTML=
+      '<div class="team-visibility" role="group" aria-label="Vilka lag ska visas?"><button type="button" data-team-visibility="mine" aria-pressed="'+(directory.mode==='mine')+'">Mina lag <span>'+visibleLeagueTeams().length+'</span></button><button type="button" data-team-visibility="all" aria-pressed="'+(directory.mode==='all')+'">Alla lag <span>'+state.competitionTeams.length+'</span></button></div>'+
       '<label class="team-search"><span>SÖK LAG</span><input id="teamSearchInput" type="search" autocomplete="off" placeholder="Skriv lagnamn…"></label>'+
       (groups.length>1
         ? '<div class="team-filters" role="group" aria-label="Filtrera grupp"><button type="button" class="active" data-team-filter="ALL">ALLA</button>'+
@@ -544,6 +559,12 @@
         : '')+
       '<span class="team-result-count" id="teamResultCount">'+teams.length+' LAG</span>';
     grid.parentElement?.insertBefore(toolbar,grid);
+
+    toolbar.querySelectorAll('[data-team-visibility]').forEach(button=>button.addEventListener('click',()=>{
+      if(directory.mode===button.dataset.teamVisibility) return;
+      directory.mode=button.dataset.teamVisibility;
+      renderLeagueHome();
+    }));
 
     let activeGroup="ALL";
     const input=toolbar.querySelector("#teamSearchInput");
@@ -609,39 +630,40 @@
       return;
     }
 
-    const teams=visibleLeagueTeams().sort((a,b)=>
-      a.canonical_name.localeCompare(b.canonical_name,"sv")
-    );
+    const teams=teamDirectoryTeams();
     if(heroTitle) heroTitle.textContent=teams.length===1?"Öppna lag":"Välj lag";
     if(heroCopy){
       heroCopy.textContent=globalAdminAccess()
         ? "Global admin · alla lag i "+league.displayName+"."
         : leagueAccess()
           ? "Ligaaccess · alla lag i "+league.displayName+"."
-          : "Här visas bara de lag som ditt konto har behörighet till.";
+          : teamDirectoryState().mode==='all'
+            ? 'Dina lag går att öppna. Övriga lag visas som låsta.'
+            : 'Här visas de lag som ditt konto har behörighet till. Välj Alla lag för att se hela ligan.';
     }
 
     grid.innerHTML=teams.map((team)=>{
-      const status=globalAdminAccess()
+      const unlocked=canAccessTeam(team.id);
+      const status=!unlocked?"LÅST · BEHÖRIGHET KRÄVS":globalAdminAccess()
         ? "ADMIN · ÖPPEN"
         : leagueAccess()
           ? "LIGAACCESS · ÖPPEN"
           : "ÖPPEN FÖR DIG";
       const group=teamFilterLabel(team);
-      return '<button class="team-card unlocked" type="button" data-team-id="'+esc(team.id)+'" data-team-group="'+esc(group)+'" data-team-name="'+esc(team.canonical_name.toLocaleLowerCase("sv-SE"))+'">' +
+      return '<button class="team-card '+(unlocked?'unlocked':'locked')+'" '+(unlocked?'':'disabled aria-disabled="true" ')+'type="button" data-team-id="'+esc(team.id)+'" data-team-group="'+esc(group)+'" data-team-name="'+esc(team.canonical_name.toLocaleLowerCase("sv-SE"))+'">' +
         '<div class="team-card-badge">'+teamLogoMarkup(team.canonical_name,"team-card-logo")+'</div>' +
         '<div class="team-card-copy"><span>'+esc(group)+' · '+esc(league.upperName)+'</span><strong>'+esc(team.canonical_name)+'</strong><small>'+esc(status)+'</small></div>' +
-        '<div class="team-card-arrow">→</div>' +
+        '<div class="team-card-arrow" aria-hidden="true">'+(unlocked?'→':'–')+'</div>' +
       '</button>';
     }).join("");
     renderTeamToolbar(teams,grid);
-    grid.querySelectorAll("[data-team-id]").forEach((button)=>{
+    grid.querySelectorAll(".team-card.unlocked[data-team-id]").forEach((button)=>{
       button.addEventListener("click",()=>{
         const team=state.teamById.get(button.dataset.teamId);
-        if(team) openTeam(team);
+        if(team&&canAccessTeam(team.id)) openTeam(team);
       });
     });
-    document.getElementById("syncText").textContent=teams.length+" åtkomliga "+league.displayName+"-lag · "+league.groupSummary;
+    document.getElementById("syncText").textContent=visibleLeagueTeams().length+" åtkomliga "+league.displayName+"-lag · "+league.groupSummary;
   }
 
   function renderTeamLock() {
