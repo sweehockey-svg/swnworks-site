@@ -5130,7 +5130,7 @@ html[data-theme="light"] :is(.standings-freshness,.league-board-status,.league-m
 
 .dashboard-parking{display:none!important}.dashboard-toolbar{margin:6px 0;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel);font-size:12px}.dashboard-toolbar summary{cursor:pointer;font-weight:800}.dashboard-settings{display:flex;align-items:end;flex-wrap:wrap;gap:9px;padding-top:8px}.dashboard-settings label{display:grid;gap:4px;margin:0;min-width:140px}.dashboard-settings :is(select,button){padding:7px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}.dashboard-settings small{width:100%;color:var(--muted)}
 .dashboard-slot{min-width:0;min-height:0;display:flex}.dashboard-slot>.panel{width:100%;min-width:0;height:100%;min-height:0;overflow-y:auto;overflow-x:hidden}.dashboard-widget-body{min-width:0}.dashboard-widget .special-team-grid{grid-template-columns:minmax(0,1fr)}.dashboard-widget .special-team-head h3{white-space:normal;overflow-wrap:anywhere}
-@media(min-width:1101px) and (min-height:700px){.cockpit:not(.hidden):has(.dashboard-toolbar){grid-template-rows:auto auto minmax(0,1fr)}}
+
 @media(max-width:1100px){.dashboard-workspace .dashboard-slot{min-height:320px}.dashboard-workspace .dashboard-slot:last-child{grid-column:1/-1}}
 @media(max-width:760px){.dashboard-workspace .dashboard-slot{grid-column:1/-1;max-height:65dvh;min-height:280px}}
 html[data-theme="light"] .dashboard-toolbar{background:#f8fafc;border-color:#c8d6df;color:#132d3e}html[data-theme="light"] .dashboard-settings :is(select,button){background:#fff;border-color:#a8bfce;color:#132d3e}html[data-theme="light"] .dashboard-settings small{color:#496578}
@@ -5455,3 +5455,15 @@ html[data-theme=light] #homeScreen.league-teams .team-visibility button[aria-pre
   .dashboard-widget .lineup-line-head strong,.dashboard-widget .lineup-line-head span{font-size:12px;line-height:1.4}
   .dashboard-widget .lineup-goalies>div>strong{white-space:normal;overflow:visible;text-overflow:clip;font-size:14px;line-height:1.45}
   .dashboard-widget .lineup-goalies .player-card-link{white-space:normal;overflow-wrap:anywhere;font-size:14px;line-height:1.45}
+/* Panel selection stays with its panel instead of using a separate toolbar. */
+.dashboard-workspace .dashboard-slot{display:flex;flex-direction:column;gap:0;position:relative}
+.dashboard-panel-controls{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;background:var(--panel);flex:none}
+.dashboard-panel-controls>select{min-width:0;flex:1;width:100%;padding:6px 8px;min-height:34px;border:1px solid var(--line);border-radius:6px;background:var(--panel2);color:var(--text);font:inherit;font-size:13px}
+.dashboard-panel-content{display:flex;flex:1;min-height:0;min-width:0}
+.dashboard-panel-content>.panel{width:100%;min-width:0;height:100%;min-height:0;overflow-y:auto;overflow-x:hidden;border-top-left-radius:0;border-top-right-radius:0}
+.dashboard-layout-menu{position:relative;flex:none;font-size:13px}
+.dashboard-layout-menu summary{cursor:pointer;min-height:34px;align-content:center;padding:4px 8px;color:var(--text)}
+.dashboard-layout-options{position:absolute;top:calc(100% + 8px);right:0;z-index:20;width:240px;max-width:80vw;display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);box-shadow:0 12px 30px #0005}
+.dashboard-layout-options button{padding:10px;text-align:left;min-height:44px;border:1px solid var(--line);border-radius:6px;background:var(--panel2);color:var(--text);font:inherit}
+.dashboard-layout-options small{color:var(--muted);line-height:1.5}
+@media(max-width:1100px),(pointer:coarse) and (max-width:1366px){.dashboard-panel-controls>select,.dashboard-layout-menu summary{min-height:44px;font-size:15px}.dashboard-panel-content>.panel{height:auto;overflow:visible}.dashboard-panel-content{flex:none}}
