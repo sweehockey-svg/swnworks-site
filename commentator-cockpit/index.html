@@ -11,141 +11,37 @@
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#06111a">
   <meta name="description" content="Commentator Cockpit samlar matchdata, research och pratpunkter för kommentatorer. Läs om verktyget och välj liga i den privata betan.">
-  <title>Commentator Cockpit · SWNWORKS</title>
+  <title>Commentator Cockpit · Din plats för matchen</title>
   <link rel="stylesheet" href="selector.css?v=20261120-cockpit-brand1">
+  <link rel="stylesheet" href="landing.css?v=20261120-redesign1">
 </head>
-<body>
-  <div class="selector-shell">
-    <header class="selector-topbar">
-      <a class="cockpit-product-brand" href="./" aria-label="Commentator Cockpit · startsida">
-        <img src="hockeyettan/icons/cockpit-192-v1.png" width="64" height="64" alt="" decoding="async">
-        <span><strong>Commentator Cockpit</strong><small>BY SWNWORKS</small></span>
-      </a>
-      <div class="topbar-actions">
-        <span class="private-note">PRIVAT BETA</span>
-        <button class="selector-account-button" id="selectorAccountButton" type="button">
-          <span class="selector-account-dot"></span>
-          <span><strong>LOGGA IN</strong><small>KONTO</small></span>
-        </button>
-        <a class="contact" href="mailto:info@swnworks.se">KONTAKT</a>
-      </div>
-    </header>
-
-    <main>
-      <section class="selector-hero">
-        <div>
-          <span class="kicker">COMMENTATOR COCKPIT · BY SWNWORKS</span>
-          <h1>Mer koll.<br>Bättre pratpunkter.</h1>
-          <p>Commentator Cockpit samlar matchdata, research och livehändelser i ett arbetsverktyg för kommentatorer. Förbered dig före matchen och ha informationen nära till hands under sändningen.</p>
-          <div class="intro-actions">
-            <a class="intro-button" href="#competitionTitle">Välj liga <span aria-hidden="true">→</span></a>
-            <a class="intro-contact" href="mailto:info@swnworks.se?subject=Beta%C3%A5tkomst%20till%20Commentator%20Cockpit">Fråga om betaåtkomst <span aria-hidden="true">↗</span></a>
-          </div>
-        </div>
-        <aside class="selector-status" aria-label="Produktstatus">
-          <div class="selector-status-top">
-            <span>COMMENTATOR COCKPIT</span>
-            <span class="selector-status-live"><i></i> AKTIV</span>
-          </div>
-          <strong>Din plats för matchen</strong>
-          <small>Matchförberedelse · live · research · AI-stöd</small>
-          <div class="selector-status-meta">
-            <span><b>ÅTKOMST</b> Godkänd inloggning krävs</span>
-            <span><b>STATUS</b> Privat beta</span>
-          </div>
-        </aside>
-      </section>
-
-      <section class="product-intro" aria-labelledby="productIntroTitle">
-        <div class="section-head"><span>01</span><h2 id="productIntroTitle">Före och under sändningen</h2></div>
-        <div class="intro-features">
-          <article><span class="intro-number">FÖRE MATCH</span><h3>Bygg din research</h3><p>Samla laguppställningar, statistik och bakgrund inför nedsläpp.</p></article>
-          <article><span class="intro-number">UNDER MATCH</span><h3>Följ det som händer</h3><p>Ha matchdata och livehändelser samlade medan du kommenterar.</p></article>
-          <article><span class="intro-number">NÄSTA PRATPUNKT</span><h3>Hitta en ny vinkel</h3><p>Använd pratpunkter och AI-stöd som underlag för din egen analys.</p></article>
-        </div>
-        <p class="beta-guidance">Verktyget är i privat beta. För att använda en liga behöver du ett konto med godkänd åtkomst. Kontakta SWNWORKS om du vill testa.</p>
-      </section>
-
-      <section class="competition-section" aria-labelledby="competitionTitle">
-        <div class="section-head">
-          <span>02</span>
-          <h2 id="competitionTitle">Ligor & turneringar</h2>
-        </div>
-
-        <div class="competition-grid">
-          <a class="competition-card active" href="hockeyettan/" data-league-key="hockeyettan">
-            <div class="card-head">
-              <span class="state" data-card-state>TILLGÄNGLIG · PRIVAT BETA</span>
-              <span class="arrow">↗</span>
-            </div>
-            <div class="logo-stage">
-              <div class="league-logo" data-league-logo>
-                <span class="league-logo-fallback" aria-hidden="true">Hockeyettan</span>
-                <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Logo_Hockeyettan.svg" alt="Hockeyettan">
-              </div>
-            </div>
-            <div class="card-copy">
-              <small>ISHOCKEY · SVERIGE</small>
-              <h3>Hockeyettan</h3>
-              <p>39 lag · Norra + Södra</p>
-              <div class="feature-tags"><span>SWEHOCKEY</span><span>LIVE</span><span>LINEUPS</span><span>AI</span></div>
-            </div>
-            <div class="card-foot">
-              <span>ÖPPNA MILJÖ</span>
-              <span>→</span>
-            </div>
-          </a>
-
-          <a class="competition-card active" href="hockeytvaan/" data-league-key="hockeytvaan">
-            <div class="card-head">
-              <span class="state" data-card-state>TILLGÄNGLIG · PRIVAT BETA</span>
-              <span class="arrow">↗</span>
-            </div>
-            <div class="logo-stage">
-              <div class="league-logo hockeytvaan-league-logo" data-league-logo><span class="league-logo-fallback" aria-hidden="true">Hockeytvåan</span><img src="https://pqaymcvlwsruxvekvvtl.supabase.co/storage/v1/object/public/team-logos/leagues/hockeytvaan.jpg" alt="Hockeytvåan"></div>
-            </div>
-            <div class="card-copy">
-              <small>ISHOCKEY · SVERIGE</small>
-              <h3>Hockeytvåan</h3>
-              <p>79 lag · Norr · Väst · Öst · Syd</p>
-              <div class="feature-tags"><span>SWEHOCKEY</span><span>MATCHFEED</span><span>S5</span><span>AI</span></div>
-            </div>
-            <div class="card-foot">
-              <span>ÖPPNA MILJÖ</span>
-              <span>→</span>
-            </div>
-          </a>
-
-          <a class="competition-card active" href="suomi-sarja/" data-league-key="suomi-sarja">
-            <div class="card-head">
-              <span class="state" data-card-state>TILLGÄNGLIG · PRIVAT BETA</span>
-              <span class="arrow">↗</span>
-            </div>
-            <div class="logo-stage">
-              <div class="league-logo suomi-logo" data-league-logo><span class="league-logo-fallback" aria-hidden="true">Suomi-sarja</span><img src="https://pqaymcvlwsruxvekvvtl.supabase.co/storage/v1/object/public/team-logos/leagues/suomi-sarja.jpg" alt="Suomi-sarja"></div>
-            </div>
-            <div class="card-copy">
-              <small>ISHOCKEY · FINLAND</small>
-              <h3>Suomi-sarja</h3>
-              <p>14 lag · Nationell serie</p>
-              <div class="feature-tags"><span>LEIJONAT</span><span>LIVE</span><span>LINEUPS</span><span>AI</span></div>
-            </div>
-            <div class="card-foot">
-              <span>ÖPPNA MILJÖ</span>
-              <span>→</span>
-            </div>
-          </a>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <span>SWNWORKS</span>
-      <span>Sports technology · broadcast tools</span>
-      <span>2026</span>
-    </footer>
-  </div>
-
+<body class="cc-landing">
+<a class="cc-skip" href="#mainContent">Till innehållet</a>
+<div class="cc-shell">
+<header class="cc-header">
+  <a class="cc-brand" href="./" aria-label="Commentator Cockpit · startsida"><img src="hockeyettan/icons/cockpit-192-v1.png" alt="" width="60" height="60"><span><strong>Commentator<br>Cockpit<span class="cc-brand-dot">.</span></strong><small>BY SWNWORKS</small></span></a>
+  <nav class="cc-header-nav" aria-label="Huvudnavigation"><a href="#competitionTitle">Ligor</a><a href="#howItWorks">Så fungerar det</a><a href="mailto:info@swnworks.se">Kontakt</a></nav>
+  <button class="selector-account-button" id="selectorAccountButton" type="button"><span class="selector-account-dot"></span><span><strong>Logga in</strong><small>Ditt konto</small></span></button>
+</header>
+<main id="mainContent">
+<section class="cc-hero" aria-labelledby="heroTitle">
+  <div class="cc-hero-copy"><span class="cc-eyebrow"><span></span> FÖR DIG SOM GER MATCHEN EN RÖST</span><h1 id="heroTitle">Din match.<br>Din <em>cockpit.</em></h1><p>Från första researchen till sista slutsignalen. Samla matchdata, spelarkoll och egna anteckningar på ett ställe — och hitta nästa sak att prata om.</p><div class="cc-hero-actions"><a class="cc-button cc-button-primary" href="#competitionTitle">Välj din liga</a><a class="cc-text-link" href="#howItWorks">Upptäck verktyget</a></div><div class="cc-availability"><span>Privat beta</span><p>Dator, mobil och surfplatta. Samma konto.</p></div></div>
+  <div class="cc-preview-wrap"><div class="cc-preview" aria-label="Förhandsvisning med exempeltext"><div class="cc-preview-bar"><span class="cc-preview-brand">COMMENTATOR COCKPIT</span><span class="cc-demo-label">EXEMPELVY</span></div><div class="cc-preview-heading"><div><span class="cc-eyebrow">DIN PLATS FÖR MATCHEN</span><h2 id="previewTitle">Redo före nedsläpp.</h2></div><img src="hockeyettan/icons/cockpit-192-v1.png" alt="" width="76" height="76"></div><div class="cc-preview-tabs" role="tablist" aria-label="Exempel på arbetsflöde"><button id="previewPrepTab" role="tab" aria-selected="true" aria-controls="previewPrep" type="button">Förbered</button><button id="previewLiveTab" role="tab" aria-selected="false" aria-controls="previewLive" tabindex="-1" type="button">Kommentera</button><button id="previewNotesTab" role="tab" aria-selected="false" aria-controls="previewNotes" tabindex="-1" type="button">Anteckna</button></div>
+    <div class="cc-preview-content" id="previewPrep" role="tabpanel" aria-labelledby="previewPrepTab"><div class="cc-example-line"><span>TRUPP & KEDJOR</span><b>Vilka kliver ut på isen?</b><p>Laguppställningar, spelare och bakgrund inför matchen.</p></div><div class="cc-example-line"><span>STATISTIK & FORM</span><b>Hitta det som sticker ut.</b><p>Samla underlaget till dina egna vinklar.</p></div><div class="cc-preview-note"><span>DIN RESEARCH</span><p>”Fråga tränaren om kedjornas roller inför nedsläpp.”</p></div></div>
+    <div class="cc-preview-content" id="previewLive" role="tabpanel" aria-labelledby="previewLiveTab" hidden><div class="cc-example-line"><span>MATCHFEED</span><b>Följ matchens utveckling.</b><p>Händelser och statistik när officiell data publiceras.</p></div><div class="cc-example-line"><span>SPELARKOLL</span><b>Namnet, numret, sammanhanget.</b><p>Öppna spelare och kedjor medan du kommenterar.</p></div><div class="cc-preview-note"><span>DIN NÄSTA PRATPUNKT</span><p>Matchdata och research nära till hands i sändningen.</p></div></div>
+    <div class="cc-preview-content" id="previewNotes" role="tabpanel" aria-labelledby="previewNotesTab" hidden><div class="cc-example-line"><span>I OMKLÄDNINGSRUMMET</span><b>Fånga det du vill minnas.</b><p>Skriv efter samtalet med spelaren eller tränaren.</p></div><div class="cc-example-line"><span>VID KOMMENTATORSPLATSEN</span><b>Ta med anteckningarna.</b><p>Synka sparade anteckningar mellan dina enheter med samma konto.</p></div><div class="cc-preview-note"><span>EGNA ORD. EGNA VINKLAR.</span><p>Researchen är din — cockpiten håller den nära.</p></div></div>
+    <div class="cc-preview-footer"><span>Research</span><span>Matchdata</span><span>Notes</span><span>AI-stöd</span></div></div><span class="cc-preview-caption">Ett arbetsverktyg. Hela vägen genom matchen.</span></div>
+</section>
+<section class="cc-leagues-section" aria-labelledby="competitionTitle"><div class="cc-section-heading"><div><span class="cc-eyebrow">HITTA DIN ARBETSYTA</span><h2 id="competitionTitle">Vilken liga kommenterar du?</h2></div><p>Välj liga för att fortsätta till ditt lag och din cockpit.</p></div><div class="cc-leagues"><a class="competition-card cc-league" href="hockeyettan/" data-league-key="hockeyettan"><div class="cc-league-top"><span>Sverige · Ishockey</span><span class="cc-enter" aria-hidden="true">↗</span></div><div class="cc-league-logo cc-logo-ettan" data-league-logo><span class="cc-logo-fallback" aria-hidden="true">Hockeyettan</span><img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Logo_Hockeyettan.svg" alt="Hockeyettan" loading="lazy" decoding="async"></div><h3>Hockeyettan</h3><p>Norra & Södra</p><span class="cc-league-tools">Trupp · matchdata · research</span><div class="cc-league-access"><span data-card-state>TILLGÄNGLIG · PRIVAT BETA</span><strong>Öppna cockpit</strong></div></a>
+<a class="competition-card cc-league" href="hockeytvaan/" data-league-key="hockeytvaan"><div class="cc-league-top"><span>Sverige · Ishockey</span><span class="cc-enter" aria-hidden="true">↗</span></div><div class="cc-league-logo cc-logo-tvaan" data-league-logo><span class="cc-logo-fallback" aria-hidden="true">Hockeytvåan</span><img src="https://pqaymcvlwsruxvekvvtl.supabase.co/storage/v1/object/public/team-logos/leagues/hockeytvaan.jpg" alt="Hockeytvåan" loading="lazy" decoding="async"></div><h3>Hockeytvåan</h3><p>Norr · Väst · Öst · Syd</p><span class="cc-league-tools">Statistik · matchfeed · research</span><div class="cc-league-access"><span data-card-state>TILLGÄNGLIG · PRIVAT BETA</span><strong>Öppna cockpit</strong></div></a>
+<a class="competition-card cc-league" href="suomi-sarja/" data-league-key="suomi-sarja"><div class="cc-league-top"><span>Finland · Ishockey</span><span class="cc-enter" aria-hidden="true">↗</span></div><div class="cc-league-logo cc-logo-suomi" data-league-logo><span class="cc-logo-fallback" aria-hidden="true">Suomi-sarja</span><img src="https://pqaymcvlwsruxvekvvtl.supabase.co/storage/v1/object/public/team-logos/leagues/suomi-sarja.jpg" alt="Suomi-sarja" loading="lazy" decoding="async"></div><h3>Suomi-sarja</h3><p>Nationell serie</p><span class="cc-league-tools">Trupp · matchdata · research</span><div class="cc-league-access"><span data-card-state>TILLGÄNGLIG · PRIVAT BETA</span><strong>Öppna cockpit</strong></div></a></div><div class="cc-access-note"><span class="cc-beta-badge">PRIVAT BETA</span><p>Du behöver ett konto med godkänd lag- eller ligabehörighet.</p><a href="mailto:info@swnworks.se?subject=Testa%20Commentator%20Cockpit">Jag vill testa</a></div></section>
+<section class="cc-workflow" id="howItWorks" aria-labelledby="workflowTitle"><div class="cc-section-heading"><div><span class="cc-eyebrow">ETT FLÖDE. HELA MATCHEN.</span><h2 id="workflowTitle">Mer närvaro.<br>Mindre letande.</h2></div><p>Du står för rösten och analysen.<br>Cockpiten hjälper dig att hålla ihop underlaget.</p></div><div class="cc-workflow-grid"><article><span class="cc-phase">FÖRE</span><h3>Bygg din match.</h3><p>Läs på om lagen, gå igenom spelarna och samla vinklarna du vill ha med till sändningen.</p><span class="cc-feature-foot">Trupp · form · research</span></article><article><span class="cc-phase">UNDER</span><h3>Håll blicken på spelet.</h3><p>Ha matchfeed, statistik och spelaruppgifter samlade. Öppna rätt underlag när du behöver det.</p><span class="cc-feature-foot">Matchfeed · kedjor · spelare</span></article><article><span class="cc-phase">MELLAN</span><h3>Hitta nästa pratpunkt.</h3><p>Gå tillbaka till egna anteckningar och ta hjälp av AI-stöd när du vill pröva en ny vinkel.</p><span class="cc-feature-foot">Notes · bakgrund · AI-stöd</span></article></div></section>
+<section class="cc-everywhere" aria-labelledby="everywhereTitle"><div class="cc-everywhere-symbol" aria-hidden="true"><div class="cc-device-desktop"></div><div class="cc-device-tablet"></div><div class="cc-device-phone"></div></div><div><span class="cc-eyebrow">FRÅN OMKLÄDNINGSRUM TILL KOMMENTATORSPLATS</span><h2 id="everywhereTitle">Samma cockpit.<br>På din skärm.</h2><p>Förbered på datorn. Anteckna i mobilen. Ta med en surfplatta till arenan. Layouten anpassar sig efter skärmen — du använder samma adress och konto.</p><div class="cc-device-labels"><span>Dator</span><span>Mobil</span><span>Surfplatta</span></div></div></section>
+<section class="cc-faq" aria-labelledby="faqTitle"><div><span class="cc-eyebrow">BRA ATT VETA</span><h2 id="faqTitle">Innan du kliver in.</h2></div><div><details><summary>Hur får jag tillgång till verktyget?</summary><p>Commentator Cockpit är i privat beta. Kontakta <a href="mailto:info@swnworks.se">info@swnworks.se</a> om du vill testa. Du loggar in med en personlig länk via e-post, och får åtkomst till godkända lag eller ligor.</p></details><details><summary>Kan jag använda mobilen eller en surfplatta?</summary><p>Ja. Samma adress anpassar sig efter skärmen. Du kan också lägga till sidan på hemskärmen och öppna den som en webbapp.</p></details><details><summary>Var kommer matchdatan ifrån?</summary><p>Verktyget använder importerad serie- och matchdata från bland annat Swehockey och Leijonat. Innehållet beror på vad källorna har publicerat. Egna anteckningar och AI-stöd är separata redaktionella underlag.</p></details><details><summary>Hur fungerar anteckningar mellan enheter?</summary><p>Logga in med samma konto och godkänd behörighet. Vänta på ”Sparat i molnet” innan du byter enhet. Matchdata och molnsynk kräver internetanslutning.</p></details></div></section>
+<section class="cc-bottom-cta"><div><span class="cc-eyebrow">VI SES VID NEDSLÄPP.</span><h2>Gör plats för din nästa match.</h2></div><a class="cc-button cc-button-primary" href="#competitionTitle">Öppna din liga</a></section>
+</main>
+<footer class="cc-footer"><a class="cc-footer-brand" href="./"><img src="hockeyettan/icons/cockpit-48-v1.png" width="36" height="36" alt=""><span>Commentator Cockpit</span></a><span>Koncept & utveckling av <a href="../">SWNWORKS</a></span><a href="mailto:info@swnworks.se">info@swnworks.se</a></footer>
+</div>
   <div class="selector-auth-backdrop" id="selectorAuthBackdrop" hidden></div>
   <aside class="selector-auth-panel" id="selectorAuthPanel" aria-hidden="true" aria-labelledby="selectorAuthTitle">
     <div class="selector-auth-head">
@@ -158,9 +54,10 @@
     <div class="selector-auth-body" id="selectorAuthBody"></div>
   </aside>
 
-  <script src="public-intro.js?v=1"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="usage.js?v=20261018-1"></script>
-  <script src="selector.js?v=20261018-usage"></script>
+
+<script src="public-intro.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="selector.js?v=20261018-usage"></script>
+<script src="landing.js?v=20261120-redesign1"></script>
 </body>
 </html>
