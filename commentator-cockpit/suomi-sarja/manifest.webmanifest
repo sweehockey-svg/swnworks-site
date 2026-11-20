@@ -1,0 +1,25 @@
+{
+  "id": "./",
+  "name": "Commentator Cockpit · Suomi-sarja",
+  "short_name": "Cockpit",
+  "lang": "sv",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#04101a",
+  "theme_color": "#06111a",
+  "icons": [
+    {
+      "src": "../hockeyettan/icons/cockpit-192-v1.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../hockeyettan/icons/cockpit-512-v1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
