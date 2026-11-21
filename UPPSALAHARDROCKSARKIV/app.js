@@ -3818,7 +3818,7 @@
       ? '<div class="release-credit-group"><h3>Utgåvekrediter</h3><div class="credit-list">'+albumRows+'</div></div>'
       : '';
     const songSection=songRows
-      ? '<div class="release-credit-group"><h3>Låtcredits</h3>'
+      ? '<div class="release-credit-group"><h3>Låtkrediter</h3>'
         +'<p class="release-credit-explainer">Sammanställda från enskilda låtar. En kompositörskredit styrker låtskrivande, inte automatiskt medverkan på inspelningen. Se respektive låt och Källor för underlaget.</p>'
         +'<div class="credit-list">'+songRows+'</div></div>'
       : '';
