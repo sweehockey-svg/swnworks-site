@@ -1357,6 +1357,23 @@
       '</div></section>';
   }
 
+  // Show the musician's real name followed by the alias credited in this band.
+  // Scope these overrides to the specific band: an alias used by the same person
+  // in another project should not appear in every band's member list.
+  const BAND_MEMBERSHIP_DISPLAY_NAMES = {
+    '4a5ce117-ba3e-4fa0-8271-2d786c5d6db2': {
+      '7f2b36c6-d1a4-42b0-a721-fe3ccf69f7b1': 'David Berlin (Lee de Parade)',
+      '183ddefb-0895-45b6-a3c3-c082093f1454': 'Jens Hagekull (Felix Culpa)',
+      'a1bc2a2d-a544-4a63-a0bc-180911ac9a5c': 'Dave Janney (Frank Fuentes)',
+      '7e15c9bd-d0ed-42a7-9731-38ee5960b377': 'Stefan Pettersson (Dietro Quella Porta)',
+      '51b8e949-0fd1-41bc-ace9-af7cae1f34cd': "Henrik Sundin (Henri D'Ranged)"
+    }
+  };
+
+  function bandMembershipDisplayName(person, bandId) {
+    return BAND_MEMBERSHIP_DISPLAY_NAMES[bandId]?.[person.id] || personBandName(person, bandId);
+  }
+
   function renderBandMemberships(bandId, groups) {
     if (!groups.length) return '<div class="empty-state">Lineup kartläggs.</div>';
     const creditYears=releaseCreditYearsForBand(bandId);
@@ -1379,7 +1396,7 @@
         ? '<em>'+escapeHtml(group.periods||'Årtal söks')+'</em>'
         : '<em class="band-member-credit-years" title="Årtal från individuella skivkrediter, inte bekräftade medlemsperioder.">'
           + '<span>Skivkrediter</span><strong>'+escapeHtml(years)+'</strong></em>';
-      return '<a href="'+personHref(p)+'"><strong>'+escapeHtml(personBandName(p,bandId))
+      return '<a href="'+personHref(p)+'"><strong>'+escapeHtml(bandMembershipDisplayName(p,bandId))
         +'</strong><span>'+escapeHtml(group.roles||'Roll kartläggs')
         +'</span>'+period+'</a>';
     };
