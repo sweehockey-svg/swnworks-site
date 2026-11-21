@@ -1267,8 +1267,14 @@
     state.releaseMembers.forEach(credit=>{
       if(!releaseIds.has(credit.release_id))return;
       const release=releasesById().get(credit.release_id);
-      if(!release || !types.has(String(release.release_type || '').toLowerCase())
-        || release.edition_of_release_id || release.bonus_disc_of_release_id)return;
+      if(!release || release.bonus_disc_of_release_id)return;
+      const type=String(release.release_type || '').toLowerCase();
+      const format=String(release.format || '');
+      // Editions can hold musician credits missing from the base LP/CD.
+      // Deduplicate by year, not by release, and include original promo CDs.
+      const documentedRelease=types.has(type)
+        || (type==='other' && /\bpromo\b/i.test(format) && !/digital|youtube|archive/i.test(format));
+      if(!documentedRelease)return;
       const year=Number(release.release_year);
       if(!Number.isInteger(year) || year<1950 || year>2100)return;
       const role=String(credit.role || '');
