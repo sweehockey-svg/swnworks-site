@@ -1311,17 +1311,32 @@
       ? state.releases.filter(r=>bandReleaseIds.has(r.id)
         && discographyTypes.has(String(r.release_type||'').toLowerCase()) && valid(r.release_year)!==null)
       : [];
-    // Retrospective digital reissues should not stretch a 1997–2006 band
-    // chronology to 2023 and make the historical lineups unreadable.
-    const retrospectiveVersions=bandDiscography.filter(r=>r.edition_of_release_id && Number(r.release_year)>2010);
-    const periodReleases=bandDiscography.filter(r=>!retrospectiveVersions.includes(r));
+    // Timeline = original, actually issued albums/EPs/demos only.
+    // No reissues, later digital archive uploads, or recordings known only
+    // from online videos. Those remain accessible in the discography.
+    const originallyIssued=(r)=>
+      !r.edition_of_release_id && !r.bonus_disc_of_release_id &&
+      r.id!=='1b0025b5-5e7a-4c3a-bfbd-d729dcc614d7' &&
+      !/digital|youtube|archive|arkiv/i.test(String(r.format||''));
+    const periodReleases=bandDiscography.filter(originallyIssued);
     const periodReleaseById=new Map(periodReleases.map(r=>[r.id,r]));
+    // A same-year physical LP/CD edition can be the only place a member is
+    // explicitly credited. It can support the ORIGINAL album's year, but
+    // it does not create an extra release marker.
+    const creditSourceReleaseById=new Map(periodReleaseById);
+    for(const edition of bandDiscography){
+      if(!edition.edition_of_release_id || !periodReleaseById.has(edition.edition_of_release_id))continue;
+      const original=periodReleaseById.get(edition.edition_of_release_id);
+      if(Number(edition.release_year)!==Number(original.release_year))continue;
+      if(/digital|youtube|archive|arkiv/i.test(String(edition.format||'')))continue;
+      creditSourceReleaseById.set(edition.id,original);
+    }
     const roleIsMusician=/guitar|gitarr|bass|basist|drums?|trumm|vocals?|vocalist|sång|singer|keyboard|synth|piano|organ|percussion|instrument/i;
     const roleIsGuestOrTechnical=/guest|gäst|featur(?:ed|ing)|session|additional|engineer|tekniker|mixing|record(?:ed|ing) by|producer/i;
     const memberReleaseCredits=new Map();
     if(isUnkinds){
       for(const c of state.releaseMembers){
-        const release=periodReleaseById.get(c.release_id);
+        const release=creditSourceReleaseById.get(c.release_id);
         if(!release)continue;
         const role=String(c.role||'');
         if(!roleIsMusician.test(role) || roleIsGuestOrTechnical.test(role))continue;
@@ -1449,23 +1464,20 @@
         '<span class="bm-timeline-discography-label">Album, EP & demos</span>'+
         '<div class="bm-timeline-track" aria-label="Album, EP och demoinspelningar">'+grid+pins+'</div></div>';
     }
-    const retrospectiveLinks=(isUnkinds&&retrospectiveVersions.length)
-      ? '<p class="bm-timeline-note bm-timeline-retrospective">Senare arkivutgåvor (utanför bandets ursprungliga årtal): '+
-        retrospectiveVersions.map(r=>'<a href="'+releaseHref(r)+'">'+
-          escapeHtml(r.release_year+' · '+r.title)+'</a>').join(' · ')+'.</p>'
-      : '';
+    // Reissues and retrospective archive uploads are intentionally absent
+    // from this timeline; they remain listed under the full discography.
     const legend=roles.map(role=>'<span class="bm-timeline-legend-item"><i style="background:'+
       colors[role]+'"></i>'+names[role]+'</span>').join('');
     return '<section class="bm-timeline" aria-label="Medlemstidslinje">'+
       '<header class="bm-timeline-heading"><h3>Tidslinje</h3></header>'+
       '<p class="bm-timeline-note">Heldragna staplar visar belagda medlemsår. '+(isUnkinds
-        ? 'Översta raden markerar alla album, EP och demos. Klicka eller håll pekaren över en markering för titel och utgåva. Musikerradernas skivmarkeringar visas bara vid individuellt belagd medverkan, inte automatiskt för alla som var med i bandet.'
+        ? 'Översta raden visar endast ursprungligen utgivna album, EP och demos. Återutgåvor, senare digitala arkivpubliceringar och aldrig utgivna studiosamlingar visas inte som skivsläpp här. Håll pekaren över eller klicka på markeringarna för att se titeln. Musiker får markeringar enbart vid dokumenterad medverkan.'
         : 'Markeringar visar enskilda belagda år från skivkrediter eller medlemsuppgifter.')+'</p>'+
       (isUnkinds ? '<p class="bm-timeline-note">ÖVERGÅNGEN 2002/2003: David Berlin, Jens Hagekull och Magnus Åberg är dokumenterade på studioinspelningar från cirka 2002. John Swahns uppsättning spelade på Fellini redan 20 februari 2003 och spelade enligt arkivredaktörens uppgift in demon Almost Human dessförinnan. Snuffed By The Yakuza uppgav senare att trion lämnade The Unkinds under 2003, utan att ange månad. Därför visas deras avgång som en ungefärlig övergång vid årsskiftet, inte som ett påstående om två parallella uppsättningar under 2003. Exakt datum är okänt.</p>' : '')+
       '<div class="bm-timeline-scroll" tabindex="0" aria-label="Rulla tidslinjen i sidled">'+
         '<div class="bm-timeline-canvas" style="min-width:'+Math.min(1450,Math.max(700,220+span*34))+'px">'+
           '<div class="bm-timeline-axis"><span>Musiker / utgåvor</span><div>'+axis+'</div></div>'+discographyTimelineRow+rows+
-        '</div></div>'+retrospectiveLinks+'<div class="bm-timeline-legend">'+legend+
+        '</div></div><div class="bm-timeline-legend">'+legend+
         '<span class="bm-timeline-legend-item"><i class="bm-timeline-credit-key"></i>'+(isUnkinds?'Krediterad på utgåva (klickbar)':'Skivkredit')+'</span>'+
         (isUnkinds ? '<span class="bm-timeline-legend-item"><i class="bm-timeline-release-key"></i>Album / EP / demo</span>' : '')+
         '<span class="bm-timeline-legend-item"><i class="bm-timeline-period-key"></i>Medlemsperiod</span>'+
