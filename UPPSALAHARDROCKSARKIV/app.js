@@ -1259,6 +1259,43 @@
     if (rows.some(m => status(m) === 'past' || m.left_year)) return 'past';
     return 'unknown';
   }
+  // A timeline mark represents an originally ISSUED record, not a recording
+  // session, a later reissue or the date of a digital archival upload.
+  // Original digital-first releases must remain eligible.
+  // Only explicitly documented release families/labels are treated as editions;
+  // never merge two titles just because their names happen to match.
+  const TIMELINE_UNISSUED_SESSIONS=new Set([
+    '1b0025b5-5e7a-4c3a-bfbd-d729dcc614d7' // The Unkinds: Goin' Out Of Style, session circa 2002
+  ]);
+  const TIMELINE_MUSIC_TYPES=new Set(['album','ep','demo','single','split']);
+  function isOriginalTimelineRelease(r) {
+    if(!r || r.edition_of_release_id || r.bonus_disc_of_release_id)return false;
+    if(TIMELINE_UNISSUED_SESSIONS.has(r.id))return false;
+    const format=String(r.format||'').trim();
+    const label=String(r.edition_label||'');
+    // Archive recordings have a recording year but no verified original issue.
+    // Do not exclude formats such as "CD; digital archival edition",
+    // "Demo / digital archival release" or "Digital archival edition; original EP":
+    // those contain documented original physical/demo releases.
+    if(/^(?:archive|archival|arkiv)(?:\s+(?:recording|inspelning|session|compilation|samling))?$/i.test(format))return false;
+    if(/^(?:digital|online)\s+(?:archival|archive|arkiv)\s+(?:release|upload|publicering)$/i.test(format))return false;
+    if(/^(?:osläppta|unreleased)\b/i.test(format))return false;
+    if(/(?:reissue|re-release|återutgåva|remaster(?:ed)?)/i.test(label))return false;
+    return true;
+  }
+  // Physical or digital editions may be the sole source of musician credits.
+  // Same-year credits support the ORIGINAL issue; later reissues do not create
+  // a new historical credit year. The edition itself remains intact in the DB.
+  function originalTimelineCreditRelease(r) {
+    if(!r || r.bonus_disc_of_release_id)return null;
+    if(isOriginalTimelineRelease(r))return r;
+    if(!r.edition_of_release_id)return null;
+    const original=releasesById().get(r.edition_of_release_id);
+    if(!original || !isOriginalTimelineRelease(original))return null;
+    if(Number(r.release_year)!==Number(original.release_year))return null;
+    return original;
+  }
+
   // Credit years show evidence of appearance on original releases, never
   // assumed membership start/end dates. Reissues and compilations are excluded.
   function releaseCreditYearsForBand(bandId) {
@@ -1269,18 +1306,14 @@
     const types=new Set(['album','ep','demo','single','split']);
     state.releaseMembers.forEach(credit=>{
       if(!releaseIds.has(credit.release_id))return;
-      const release=releasesById().get(credit.release_id);
-      if(!release || release.bonus_disc_of_release_id)return;
-      // The Goin' Out Of Style 2002 recording session was not itself a
-      // released demo. Don't present a 2021 online upload or an approximate
-      // session year as a formal album-credit date on the member timeline.
-      if(release.id==='1b0025b5-5e7a-4c3a-bfbd-d729dcc614d7')return;
+      const release=originalTimelineCreditRelease(releasesById().get(credit.release_id));
+      if(!release)return;
       const type=String(release.release_type || '').toLowerCase();
       const format=String(release.format || '');
-      // Editions can hold musician credits missing from the base LP/CD.
-      // Deduplicate by year, not by release, and include original promo CDs.
+      // An original promo is also valid evidence; its year is never taken
+      // from a later digital reissue.
       const documentedRelease=types.has(type)
-        || (type==='other' && /\bpromo\b/i.test(format) && !/digital|youtube|archive/i.test(format));
+        || (type==='other' && /\bpromo\b/i.test(format));
       if(!documentedRelease)return;
       const year=Number(release.release_year);
       if(!Number.isInteger(year) || year<1950 || year>2100)return;
@@ -1304,51 +1337,36 @@
     // Keep a band's discography on its own timeline row. It must not be
     // mistaken for participation by every musician whose membership spans it.
     const discographyTypes=new Set(['album','ep','demo']);
-    const bandReleaseIds=isUnkinds
-      ? new Set(state.releaseBands.filter(x=>x.band_id===bandId).map(x=>x.release_id))
-      : new Set();
-    const bandDiscography=isUnkinds
-      ? state.releases.filter(r=>bandReleaseIds.has(r.id)
-        && discographyTypes.has(String(r.release_type||'').toLowerCase()) && valid(r.release_year)!==null)
-      : [];
-    // Timeline = original, actually issued albums/EPs/demos only.
-    // No reissues, later digital archive uploads, or recordings known only
-    // from online videos. Those remain accessible in the discography.
-    const originallyIssued=(r)=>
-      !r.edition_of_release_id && !r.bonus_disc_of_release_id &&
-      r.id!=='1b0025b5-5e7a-4c3a-bfbd-d729dcc614d7' &&
-      !/digital|youtube|archive|arkiv/i.test(String(r.format||''));
-    const periodReleases=bandDiscography.filter(originallyIssued);
-    const periodReleaseById=new Map(periodReleases.map(r=>[r.id,r]));
-    // A same-year physical LP/CD edition can be the only place a member is
-    // explicitly credited. It can support the ORIGINAL album's year, but
-    // it does not create an extra release marker.
-    const creditSourceReleaseById=new Map(periodReleaseById);
-    for(const edition of bandDiscography){
-      if(!edition.edition_of_release_id || !periodReleaseById.has(edition.edition_of_release_id))continue;
-      const original=periodReleaseById.get(edition.edition_of_release_id);
-      if(Number(edition.release_year)!==Number(original.release_year))continue;
-      if(/digital|youtube|archive|arkiv/i.test(String(edition.format||'')))continue;
-      creditSourceReleaseById.set(edition.id,original);
-    }
-    const roleIsMusician=/guitar|gitarr|bass|basist|drums?|trumm|vocals?|vocalist|sång|singer|keyboard|synth|piano|organ|percussion|instrument/i;
+    const bandReleaseIds=new Set(state.releaseBands.filter(x=>x.band_id===bandId).map(x=>x.release_id));
+    const bandDiscography=state.releases.filter(r=>bandReleaseIds.has(r.id));
+    // Exactly one mark per originally issued album/EP/demo. All variants
+    // remain listed on the band's discography and on their own detail pages.
+    const periodReleases=bandDiscography.filter(r=>
+      discographyTypes.has(String(r.release_type||'').toLowerCase())
+      && valid(r.release_year)!==null && isOriginalTimelineRelease(r));
+    // Single/split credits can support the musician's timeline even though
+    // the discography row deliberately contains only albums, EPs and demos.
+    const creditedOriginalIds=new Set(bandDiscography.filter(r=>
+      (TIMELINE_MUSIC_TYPES.has(String(r.release_type||'').toLowerCase())
+        || (String(r.release_type||'').toLowerCase()==='other' && /\bpromo\b/i.test(String(r.format||''))))
+      && isOriginalTimelineRelease(r)).map(r=>r.id));
+    const roleIsMusician=/guitar|gitarr|bass|basist|drums?|trumm|vocals?|vocalist|sång|singer|keyboard|synth|piano|organ|percussion|violin|cello|flute|sax|trumpet|harmonica|accordion|instrument|turntables?|banjo|mandolin|programming/i;
     const roleIsGuestOrTechnical=/guest|gäst|featur(?:ed|ing)|session|additional|engineer|tekniker|mixing|record(?:ed|ing) by|producer/i;
     const memberReleaseCredits=new Map();
-    if(isUnkinds){
-      for(const c of state.releaseMembers){
-        const release=creditSourceReleaseById.get(c.release_id);
-        if(!release)continue;
-        const role=String(c.role||'');
-        if(!roleIsMusician.test(role) || roleIsGuestOrTechnical.test(role))continue;
-        const year=valid(release.release_year);
-        if(year===null)continue;
-        if(!memberReleaseCredits.has(c.person_id))memberReleaseCredits.set(c.person_id,new Map());
-        const years=memberReleaseCredits.get(c.person_id);
-        if(!years.has(year))years.set(year,new Map());
-        const releases=years.get(year);
-        if(!releases.has(release.id))releases.set(release.id,{release,roles:new Set()});
-        releases.get(release.id).roles.add(role);
-      }
+    for(const c of state.releaseMembers){
+      if(!bandReleaseIds.has(c.release_id))continue;
+      const release=originalTimelineCreditRelease(releasesById().get(c.release_id));
+      if(!release || !creditedOriginalIds.has(release.id))continue;
+      const role=String(c.role||'');
+      if(!roleIsMusician.test(role) || roleIsGuestOrTechnical.test(role))continue;
+      const year=valid(release.release_year);
+      if(year===null)continue;
+      if(!memberReleaseCredits.has(c.person_id))memberReleaseCredits.set(c.person_id,new Map());
+      const years=memberReleaseCredits.get(c.person_id);
+      if(!years.has(year))years.set(year,new Map());
+      const releases=years.get(year);
+      if(!releases.has(release.id))releases.set(release.id,{release,roles:new Set()});
+      releases.get(release.id).roles.add(role);
     }
     const releaseTitleWithContext=(release)=>{
       const title=String(release.title||'Utgåva');
@@ -1372,8 +1390,7 @@
       const p=peopleById().get(g.person_id);
       if(!p)return null;
       const creditDetails=memberReleaseCredits.get(g.person_id)||new Map();
-      const credit=(isUnkinds ? [...creditDetails.keys()] : [...(creditYears.get(g.person_id)?.years||[])])
-        .filter(y=>valid(y)!==null);
+      const credit=[...creditDetails.keys()].filter(y=>valid(y)!==null);
       const intervals=[], anchors=[], transitions=[];
       (g.memberships||[]).filter(m=>['member','live'].includes(membershipKind(m))).forEach(m=>{
         const a=valid(m.joined_year), b=valid(m.left_year);
@@ -1399,11 +1416,11 @@
       return years.length ? {p,g,credit:[...new Set(credit)].sort((a,b)=>a-b),creditDetails,intervals,anchors,transitions,
         role:colorRole(g.roles),first:Math.min(...years),last:Math.max(...years)}:null;
     }).filter(Boolean).sort((a,b)=>a.first-b.first||a.p.canonical_name.localeCompare(b.p.canonical_name,'sv'));
-    if(entries.length<2)return '';
+    if(entries.length<2 && !periodReleases.length)return '';
     const allYears=[...entries.flatMap(e=>[e.first,e.last]),...periodReleases.map(r=>Number(r.release_year))];
     const first=Math.min(...allYears);
     const last=Math.max(...allYears);
-    if(last<=first)return '';
+    if(last<first)return '';
     const span=last-first+1, px=y=>(100*(y-first+.5)/span).toFixed(3)+'%';
     const left=y=>(100*(y-first)/span).toFixed(3)+'%';
     const width=(a,b)=>(100*(b-a+1)/span).toFixed(3)+'%';
@@ -1418,8 +1435,6 @@
         '<i class="bm-timeline-period" style="left:'+left(x[0])+';width:'+width(x[0],x[1])+'" title="'+
         escapeHtml('Medlemsperiod '+x[0]+'–'+(x[2]?'pågående':x[1]))+'"></i>').join('');
       const marks=e.credit.map(y=>{
-        if(!isUnkinds)return '<i class="bm-timeline-credit" style="left:'+px(y)+
-          '" title="'+escapeHtml('Skivkredit '+y)+'"></i>';
         const matches=[...(e.creditDetails.get(y)?.values()||[])];
         if(!matches.length)return '';
         const tooltip=matches.map(({release,roles})=>
@@ -1444,7 +1459,7 @@
     // Every original album/EP/demo is visible even without any named musicians.
     // Same-year formats are grouped in one accessible tooltip to avoid overlap.
     let discographyTimelineRow='';
-    if(isUnkinds && periodReleases.length){
+    if(periodReleases.length){
       const releasesByYear=new Map();
       for(const release of periodReleases){
         const year=Number(release.release_year);
@@ -1470,16 +1485,14 @@
       colors[role]+'"></i>'+names[role]+'</span>').join('');
     return '<section class="bm-timeline" aria-label="Medlemstidslinje">'+
       '<header class="bm-timeline-heading"><h3>Tidslinje</h3></header>'+
-      '<p class="bm-timeline-note">Heldragna staplar visar belagda medlemsår. '+(isUnkinds
-        ? 'Översta raden visar endast ursprungligen utgivna album, EP och demos. Återutgåvor, senare digitala arkivpubliceringar och aldrig utgivna studiosamlingar visas inte som skivsläpp här. Håll pekaren över eller klicka på markeringarna för att se titeln. Musiker får markeringar enbart vid dokumenterad medverkan.'
-        : 'Markeringar visar enskilda belagda år från skivkrediter eller medlemsuppgifter.')+'</p>'+
+      '<p class="bm-timeline-note">Heldragna staplar visar belagda medlemsår. Översta raden visar bara ursprungligen utgivna album, EP och demos. Återutgåvor, digitala arkivuppladdningar och outgivna sessioner finns kvar i diskografin men ger inte egna släppmarkeringar. Klicka eller håll pekaren över markeringarna för titel och dokumenterade musikercredits.</p>'+
       (isUnkinds ? '<p class="bm-timeline-note">ÖVERGÅNGEN 2002/2003: David Berlin, Jens Hagekull och Magnus Åberg är dokumenterade på studioinspelningar från cirka 2002. John Swahns uppsättning spelade på Fellini redan 20 februari 2003 och spelade enligt arkivredaktörens uppgift in demon Almost Human dessförinnan. Snuffed By The Yakuza uppgav senare att trion lämnade The Unkinds under 2003, utan att ange månad. Därför visas deras avgång som en ungefärlig övergång vid årsskiftet, inte som ett påstående om två parallella uppsättningar under 2003. Exakt datum är okänt.</p>' : '')+
       '<div class="bm-timeline-scroll" tabindex="0" aria-label="Rulla tidslinjen i sidled">'+
         '<div class="bm-timeline-canvas" style="min-width:'+Math.min(1450,Math.max(700,220+span*34))+'px">'+
           '<div class="bm-timeline-axis"><span>Musiker / utgåvor</span><div>'+axis+'</div></div>'+discographyTimelineRow+rows+
         '</div></div><div class="bm-timeline-legend">'+legend+
-        '<span class="bm-timeline-legend-item"><i class="bm-timeline-credit-key"></i>'+(isUnkinds?'Krediterad på utgåva (klickbar)':'Skivkredit')+'</span>'+
-        (isUnkinds ? '<span class="bm-timeline-legend-item"><i class="bm-timeline-release-key"></i>Album / EP / demo</span>' : '')+
+        '<span class="bm-timeline-legend-item"><i class="bm-timeline-credit-key"></i>Krediterad på utgåva (klickbar)</span>'+
+        (periodReleases.length ? '<span class="bm-timeline-legend-item"><i class="bm-timeline-release-key"></i>Album / EP / demo</span>' : '')+
         '<span class="bm-timeline-legend-item"><i class="bm-timeline-period-key"></i>Medlemsperiod</span>'+
         '<span class="bm-timeline-legend-item"><i class="bm-timeline-anchor-key"></i>Enskilt medlemsår</span>'+
         (isUnkinds ? '<span class="bm-timeline-legend-item"><i class="bm-timeline-transition-key"></i>Ungefärlig övergång 2002/03</span>' : '')+
@@ -3789,7 +3802,7 @@
   function timelineRows() {
     const rows = [], localIds = new Set(uppsalaBands().map(b=>b.id));
     const releaseLocal = new Set(state.releaseBands.filter(link=>localIds.has(link.band_id)).map(link=>link.release_id));
-    state.releases.forEach(r => {
+    state.releases.filter(isOriginalTimelineRelease).forEach(r => {
       const b = releaseBand(r.id);
       const credits = creditsForRelease(r.id).map(c => `${personName(c.person_id)} (${roleSv(c.role)})`);
       rows.push({year:releaseListingYear(r), kind:'release', local:releaseLocal.has(r.id) || localIds.has(b?.id),
@@ -3823,7 +3836,7 @@
       + '</a></h3><p>' + escapeHtml(row.text) + '</p>'
       + (row.credits ? '<details class="timeline-credits"><summary>Visa dokumenterade krediter</summary><p>' + escapeHtml(row.credits) + '</p></details>' : '')
       + '<div class="timeline-tags">' + row.tags.map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('') + '</div></article>';
-    app.innerHTML = `${pageHeader('ÅR FÖR ÅR','Tidslinjen','Utgåvor och dokumenterade bandbildningar samlade kronologiskt. Årtal utan dokumenterad uppgift visas sist.')}
+    app.innerHTML = `${pageHeader('ÅR FÖR ÅR','Tidslinjen','Originalutgåvor och dokumenterade bandbildningar i kronologisk ordning. Återutgåvor och senare arkivpubliceringar finns kvar i diskografin. Årtal utan dokumenterad uppgift visas sist.')}
       <section class="section page-section first-section">
         <div class="index-toolbar"><label class="search-box"><span>Sök i tidslinjen</span><input id="timeline-search" type="search" placeholder="Band, utgåva, person eller år…"></label><div class="index-count"><strong id="timeline-count"></strong> händelser</div></div>
         <div class="band-filter-bar">
