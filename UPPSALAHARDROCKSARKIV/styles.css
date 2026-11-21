@@ -377,6 +377,37 @@ button, input { font: inherit; }
 .credit-list { border-top:1px solid var(--line); }
 .credit-list > a { display:grid; grid-template-columns:minmax(180px,1fr) minmax(140px,.7fr) 120px; gap:24px; align-items:center; min-height:70px; padding:12px 0; border-bottom:1px solid var(--line); color:inherit; text-decoration:none; }
 .credit-list > a:hover strong { color:var(--acid); }
+/* Release credits: separate personnel credited on the release from
+   credits individually attached to tracks. No empty placeholder once
+   the track credits are available. */
+.release-credit-group { margin-bottom:22px; }
+.release-credit-group:last-child { margin-bottom:0; }
+.release-credit-group h3 {
+  margin:0 0 12px;font:600 18px/1.3 var(--condensed);
+  text-transform:uppercase;letter-spacing:.02em;color:var(--ink);
+}
+.release-credit-explainer {
+  margin:0 0 12px;color:var(--muted);font-size:12px;line-height:1.55;
+}
+.release-credit-group .credit-list > a,
+.release-credit-group .credit-list > .release-credit-static { min-height:58px; }
+.release-credit-static {
+  display:grid;grid-template-columns:minmax(180px,1fr) minmax(140px,.7fr) 120px;
+  gap:24px;align-items:center;min-height:70px;padding:12px 0;
+  border-bottom:1px solid var(--line);
+}
+.release-credit-static strong { font-family:var(--condensed);font-size:19px;text-transform:uppercase; }
+.release-credit-static span { color:#b8b9bd;font-size:13px; }
+.release-credit-static em {
+  justify-self:end;color:var(--muted);font-style:normal;
+  font-family:var(--condensed);font-size:12px;text-transform:uppercase;
+}
+@media(max-width:680px){
+  .release-credit-static {grid-template-columns:1fr auto;gap:8px 16px;padding:15px 0;}
+  .release-credit-static span {grid-column:1;}
+  .release-credit-static em {grid-column:2;grid-row:1 / span 2;}
+}
+
 .credit-list strong { font-family:var(--condensed); font-size:19px; text-transform:uppercase; }
 .credit-list span { color:#b8b9bd; font-size:13px; }
 .credit-list em { justify-self:end; color:var(--muted); font-style:normal; font-family:var(--condensed); font-size:12px; text-transform:uppercase; }
