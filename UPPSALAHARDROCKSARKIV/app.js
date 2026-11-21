@@ -3663,10 +3663,14 @@
     const claims = claimsForEntity('release', r.id);
     const sources = sourcesForClaims(claims);
     const gallery = releaseGallery(r);
+    const isJuvenile1997=r.id==='a0aef6e4-1246-405e-8cb0-5e90e1455229';
+    const juvenileArtworkNote=isJuvenile1997
+      ? '<div class="archive-cover-disclaimer"><strong>AI-bearbetad rekonstruktion av originalomslaget (1997).</strong> Baserad på ett fotografi av demokassetten. Perspektiv, kontrast och skuggor har bearbetats digitalt och vissa detaljer kan avvika från originalet. <a href="assets/archive-media/gallery/the-unkinds/juvenile-battlecries-original-photo.svg" target="_blank" rel="noopener">Se originalfotografiet</a>.</div>'
+      : '';
     const meta = [releaseListingYear(r) || 'Årtal söks', releaseListingContext(r), r.release_type, r.format, linkedBands.length > 1 ? 'Samlingsalbum · ' + linkedBands.map(b => b.canonical_name).join(', ') : band?.canonical_name].filter(Boolean).map(x => `<span>${escapeHtml(x)}</span>`).join('');
     app.innerHTML = `${breadcrumbs([{label:'Utgåvor',href:'#/utgavor'},{label:r.title}])}${pageHeader('UTGÅVA / ARKIVPOST',escapeHtml(r.title),'',meta)}
       <section class="section detail-layout first-section">
-        <aside class="detail-aside">${releaseMedia(r) ? `<figure class="detail-media release-artwork"><img src="${releaseMedia(r)}" alt="${escapeHtml(r.title)}"></figure>${externalMediaCredit(releaseMedia(r))}` : ''}${spotifyLink(band, r.id)}<div class="aside-label">Utgåva</div><p>${escapeHtml(r.description || `En ${r.release_type || 'utgåva'} från ${r.release_year || 'okänt år'} i arkivet.`)}</p>${band ? `<a class="button button-ghost aside-button" href="${bandHref(band)}">Öppna ${escapeHtml(band.canonical_name)}</a>` : ''}</aside>
+        <aside class="detail-aside">${releaseMedia(r) ? `<figure class="detail-media release-artwork"><img src="${releaseMedia(r)}" alt="${escapeHtml(r.title)}"></figure>${isJuvenile1997 ? juvenileArtworkNote : externalMediaCredit(releaseMedia(r))}` : ''}${spotifyLink(band, r.id)}<div class="aside-label">Utgåva</div><p>${escapeHtml(r.description || `En ${r.release_type || 'utgåva'} från ${r.release_year || 'okänt år'} i arkivet.`)}</p>${band ? `<a class="button button-ghost aside-button" href="${bandHref(band)}">Öppna ${escapeHtml(band.canonical_name)}</a>` : ''}</aside>
         <div class="detail-main">
 
           ${releaseVersionsPanel(r)}
