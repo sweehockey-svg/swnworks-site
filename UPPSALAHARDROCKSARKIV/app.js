@@ -650,6 +650,9 @@
   }
 
   function externalMediaCredit(src='') {
+    if (src==='assets/archive-media/gallery/the-unkinds/kill-the-king-original-cover-photo.svg') {
+      return '<span class="external-media-credit">Fotografi av originalomslaget. Fotograf ej angiven. Bilden är inte AI-genererad.</span>';
+    }
     const meta = externalMediaMeta(src);
     if (!meta) return '';
     return `<a class="external-media-credit" href="${escapeHtml(meta.sourceUrl)}" target="_blank" rel="noopener">Extern bildkälla: ${escapeHtml(meta.label)} ↗</a>`;
