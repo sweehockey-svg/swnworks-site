@@ -1519,7 +1519,6 @@
   function renderBandMemberships(bandId, groups) {
     if (!groups.length) return '<div class="empty-state">Lineup kartläggs.</div>';
     const creditYears=releaseCreditYearsForBand(bandId);
-    const hasCreditYears=groups.some(group=>creditYears.has(group.person_id));
     // The Unkinds has editor-reviewed minimum member spans based on multiple
     // contemporary lineup credits. Show those once, rather than a duplicate
     // "member" and "record credits" range on each row.
@@ -1530,53 +1529,63 @@
       {type:'guest',label:'Gäst- och studiomusiker',open:false},
       {type:'other',label:'Övriga medverkande',open:false}
     ];
+    // Every band uses the same compact 3-column member row:
+    // person | documented roles | ONE year/evidence label.
+    // A recording credit is not itself proof of band membership.
     const memberRow=group=>{
       const p=peopleById().get(group.person_id);
       if(!p)return '';
-      const hasMembershipYears=(group.memberships || []).some(m=>m.joined_year || m.left_year);
+      const kind=groupedMembershipKind(group);
+      const membershipRows=(group.memberships||[]).filter(m=>membershipKind(m)===kind);
+      const hasMembershipYears=membershipRows.some(m=>m.joined_year || m.left_year);
       const credited=creditYears.get(group.person_id);
-      const years=credited ? String(credited.first)+(credited.first===credited.last ? '' : '–'+credited.last) : '';
-      if(isUnkindsHistory && hasMembershipYears){
-        const membershipRows=(group.memberships||[]).filter(m=>membershipKind(m)==='member');
-        const yearsJoined=membershipRows.map(m=>Number(m.joined_year)).filter(Number.isFinite).filter(y=>y>1800);
-        const yearsLeft=membershipRows.map(m=>Number(m.left_year)).filter(Number.isFinite).filter(y=>y>1800);
-        const first=yearsJoined.length?Math.min(...yearsJoined):null;
-        const last=yearsLeft.length?Math.max(...yearsLeft):null;
-        const isApprox=membershipRows.some(m=>m.joined_precision==='approximate');
-        let span=group.periods||'Årtal söks';
-        if(first && last)span=(isApprox?'ca ':'')+first+(last===first?'':'–'+last);
-        else if(first && !last && credited?.first===first)span=String(first);
-        const isEvidence=membershipRows.some(m=>m.joined_precision==='before'||m.left_precision==='after')
-          || (!!first && !last && credited?.first===first);
-        const label=isEvidence?'Belagd':'Medlem';
-        const tooltip=isEvidence
-          ? 'Dokumenterad som bandmedlem under angiven period. Exakt inträdes- och utträdesdatum är inte fastställda.'
-          : 'Registrerad medlemsperiod. Uppgiften kan ha varierande årsprecision.';
-        const period='<span class="band-member-date-evidence"><em class="band-member-period-years" title="'+
-          escapeHtml(tooltip)+'"><span>'+label+'</span><strong>'+escapeHtml(span)+'</strong></em></span>';
-        return '<a href="'+personHref(p)+'"><strong>'+escapeHtml(bandMembershipDisplayName(p,bandId))
-          +'</strong><span>'+escapeHtml(group.roles||'Roll kartläggs')
-          +'</span>'+period+'</a>';
+      const creditSpan=credited ? String(credited.first)+(credited.first===credited.last ? '' : '–'+credited.last) : '';
+      let label='', span='', tooltip='';
+      if(hasMembershipYears){
+        const periods=[...new Set(membershipRows.map(m=>{
+          const original=yearSpan(m);
+          return (m.joined_precision==='approximate' || m.left_precision==='approximate')
+            && !/^ca\\s/i.test(original) ? 'ca '+original : original;
+        }))];
+        // Preserve the manually reviewed compact ranges for The Unkinds.
+        // Do not merge distinct periods for other bands: this could invent
+        // continuous membership across a documented hiatus.
+        span=periods.join(' · ');
+        let evidence=membershipRows.some(m=>m.joined_precision==='before' || m.left_precision==='after');
+        if(isUnkindsHistory && kind==='member'){
+          const joined=membershipRows.map(m=>Number(m.joined_year)).filter(y=>Number.isFinite(y)&&y>1800);
+          const left=membershipRows.map(m=>Number(m.left_year)).filter(y=>Number.isFinite(y)&&y>1800);
+          const first=joined.length ? Math.min(...joined) : null;
+          const last=left.length ? Math.max(...left) : null;
+          const approx=membershipRows.some(m=>m.joined_precision==='approximate');
+          if(first && last)span=(approx?'ca ':'')+first+(last===first?'':'–'+last);
+          else if(first && !last && credited?.first===first)span=String(first);
+          evidence=evidence || (!!first && !last && credited?.first===first);
+        }
+        label=kind==='member' ? (evidence?'Belagd':'Medlem')
+          : kind==='live' ? 'Live' : kind==='guest' ? 'Gäst' : 'Medverkan';
+        tooltip=(evidence
+          ? 'Belagd medverkan under angivet år eller period. Exakta medlemsdatum är inte alltid kända.'
+          : 'Registrerad '+(kind==='member'?'medlemsperiod':'medverkan')+'. Årtalens precision beror på arkivets källor.')
+          +(credited ? ' Separata individuella skivkrediter: '+creditSpan+'.' : '');
+      } else if(credited){
+        // The musician is credited on a record, but membership dates are unknown.
+        label='Skivkredit';
+        span=creditSpan;
+        tooltip='Individuellt krediterad på en originalutgåva. Detta fastställer inte start- eller slutår som bandmedlem.';
+      } else {
+        label='År';
+        span='Årtal söks';
+        tooltip='Det finns ännu inga belagda år för denna person i bandet.';
       }
-      // Keep membership-period evidence and actual record credits separate.
-      // Some members appear on an original release while their start/end dates are unknown.
-      const membershipEvidence=hasMembershipYears
-        ? '<em class="band-member-period-years"><span>Medlem</span><strong>'+escapeHtml(group.periods||'Årtal söks')+'</strong></em>'
-        : (!credited ? '<em class="band-member-period-years"><strong>'+escapeHtml(group.periods||'Årtal söks')+'</strong></em>' : '');
-      const releaseEvidence=credited
-        ? '<em class="band-member-credit-years" title="År med registrerad individuell skivkredit, inte en bekräftad medlemsperiod.">'
-          + '<span>Skivkrediter</span><strong>'+escapeHtml(years)+'</strong></em>'
-        : '';
-      const period='<span class="band-member-date-evidence">'+membershipEvidence+releaseEvidence+'</span>';
-      return '<a href="'+personHref(p)+'"><strong>'+escapeHtml(bandMembershipDisplayName(p,bandId))
-        +'</strong><span>'+escapeHtml(group.roles||'Roll kartläggs')
-        +'</span>'+period+'</a>';
+      const period='<span class="band-member-date-evidence"><em class="band-member-period-years" title="'+
+        escapeHtml(tooltip)+'"><span>'+escapeHtml(label)+'</span><strong>'+
+        escapeHtml(span)+'</strong></em></span>';
+      return '<a href="'+personHref(p)+'"><strong>'+escapeHtml(bandMembershipDisplayName(p,bandId))+
+        '</strong><span>'+escapeHtml(group.roles||'Roll kartläggs')+'</span>'+period+'</a>';
     };
     return '<div class="band-membership-sections">'
-      + '<p class="membership-note">Personer med både ordinarie medlemskap och liveinsatser visas under Bandmedlemmar. Alla registrerade roller och perioder visas på respektive rad.'
-      + (isUnkindsHistory
-          ? ' Årtal visar belagd medlemsnärvaro, inte nödvändigtvis exakt inträde eller utträde. Skivkrediterna finns kvar på respektive utgåva och i tidslinjen.'
-          : (hasCreditYears ? ' Medlem visar dokumenterade medlemsår. Skivkrediter visar år med individuella krediter på utgåvor och är inte medlemsperioder.' : '')) + '</p>'
+      + '<p class="membership-note">Personer med både ordinarie medlemskap och liveinsatser visas under Bandmedlemmar. Varje rad visar namn, dokumenterade roller och en sammanfattad årsuppgift. Belagd anger dokumenterad närvaro, inte exakta medlemsdatum. Skivkredit betyder enbart att personen finns krediterad på en utgåva. Alla registrerade perioder och krediter finns kvar på sina respektive arkivsidor.</p>'
       + sections.map(section => {
         const members=groups.filter(group=>groupedMembershipKind(group)===section.type);
         if(!members.length)return '';
