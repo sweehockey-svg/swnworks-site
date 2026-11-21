@@ -1377,9 +1377,7 @@
   function renderBandMemberships(bandId, groups) {
     if (!groups.length) return '<div class="empty-state">Lineup kartläggs.</div>';
     const creditYears=releaseCreditYearsForBand(bandId);
-    const hasEstimatedYears=groups.some(group=>
-      !(group.memberships || []).some(m=>m.joined_year || m.left_year) && creditYears.has(group.person_id)
-    );
+    const hasCreditYears=groups.some(group=>creditYears.has(group.person_id));
     const sections=[
       {type:'member',label:'Bandmedlemmar',open:true},
       {type:'live',label:'Livemusiker',open:false},
@@ -1392,17 +1390,23 @@
       const hasMembershipYears=(group.memberships || []).some(m=>m.joined_year || m.left_year);
       const credited=creditYears.get(group.person_id);
       const years=credited ? String(credited.first)+(credited.first===credited.last ? '' : '–'+credited.last) : '';
-      const period=hasMembershipYears || !credited
-        ? '<em>'+escapeHtml(group.periods||'Årtal söks')+'</em>'
-        : '<em class="band-member-credit-years" title="Årtal från individuella skivkrediter, inte bekräftade medlemsperioder.">'
-          + '<span>Skivkrediter</span><strong>'+escapeHtml(years)+'</strong></em>';
+      // Keep membership-period evidence and actual record credits separate.
+      // Some members appear on an original release while their start/end dates are unknown.
+      const membershipEvidence=hasMembershipYears
+        ? '<em class="band-member-period-years"><span>Medlem</span><strong>'+escapeHtml(group.periods||'Årtal söks')+'</strong></em>'
+        : (!credited ? '<em class="band-member-period-years"><strong>'+escapeHtml(group.periods||'Årtal söks')+'</strong></em>' : '');
+      const releaseEvidence=credited
+        ? '<em class="band-member-credit-years" title="År med registrerad individuell skivkredit, inte en bekräftad medlemsperiod.">'
+          + '<span>Skivkrediter</span><strong>'+escapeHtml(years)+'</strong></em>'
+        : '';
+      const period='<span class="band-member-date-evidence">'+membershipEvidence+releaseEvidence+'</span>';
       return '<a href="'+personHref(p)+'"><strong>'+escapeHtml(bandMembershipDisplayName(p,bandId))
         +'</strong><span>'+escapeHtml(group.roles||'Roll kartläggs')
         +'</span>'+period+'</a>';
     };
     return '<div class="band-membership-sections">'
       + '<p class="membership-note">Personer med både ordinarie medlemskap och liveinsatser visas under Bandmedlemmar. Alla registrerade roller och perioder visas på respektive rad.'
-      + (hasEstimatedYears ? ' Årtal märkta Skivkrediter är första och sista belagda utgåvoår, inte exakta medlemsperioder.' : '') + '</p>'
+      + (hasCreditYears ? ' Medlem visar dokumenterade medlemsår. Skivkrediter visar år med individuella krediter på utgåvor och är inte medlemsperioder.' : '') + '</p>'
       + sections.map(section => {
         const members=groups.filter(group=>groupedMembershipKind(group)===section.type);
         if(!members.length)return '';
