@@ -1268,6 +1268,10 @@
       if(!releaseIds.has(credit.release_id))return;
       const release=releasesById().get(credit.release_id);
       if(!release || release.bonus_disc_of_release_id)return;
+      // The Goin' Out Of Style demos were recorded around 2002, but only
+      // archived online in 2021. Do not turn the upload date into a 2021
+      // musician/lineup credit on the historical timeline.
+      if(release.id==='1b0025b5-5e7a-4c3a-bfbd-d729dcc614d7')return;
       const type=String(release.release_type || '').toLowerCase();
       const format=String(release.format || '');
       // Editions can hold musician credits missing from the base LP/CD.
