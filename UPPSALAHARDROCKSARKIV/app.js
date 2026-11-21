@@ -3771,6 +3771,68 @@
     });
   }
 
+  // Release-level and track-level credits are distinct facts. A composer
+  // listed on nine songs must not be silently promoted to a musician credit
+  // for the physical release; show their documented songwriting separately.
+  function renderReleaseCredits(releaseId, tracks=[], trackCredits=[], status='loading') {
+    const holder=$('#release-credits');
+    if(!holder || holder.dataset.releaseId!==String(releaseId))return;
+    const albumCredits=creditsForRelease(releaseId);
+    const albumRows=albumCredits.map(credit=>{
+      const person=peopleById().get(credit.person_id);
+      const name=credit.credited_as || person?.canonical_name || 'Okänd';
+      const inner='<strong>'+escapeHtml(name)+'</strong>'
+        +'<span>'+escapeHtml(roleSv(credit.role||''))+'</span>'
+        +'<em>'+escapeHtml(person?.canonical_name||'')+'</em>';
+      return person
+        ? '<a href="'+escapeHtml(personHref(person))+'">'+inner+'</a>'
+        : '<div class="release-credit-static">'+inner+'</div>';
+    }).join('');
+    const trackIds=new Set(tracks.map(track=>track.id));
+    const trackNames=new Map(tracks.map(track=>[track.id,track.title]));
+    const aggregated=new Map();
+    trackCredits.forEach(credit=>{
+      if(!trackIds.has(credit.track_id))return;
+      const person=peopleById().get(credit.person_id);
+      const name=String(credit.credited_as||person?.canonical_name||'Okänd');
+      const role=String(credit.role||'Ospecificerad roll');
+      const key=String(credit.person_id||name.toLocaleLowerCase('sv'))+'\u001f'+role.toLocaleLowerCase('sv');
+      if(!aggregated.has(key))aggregated.set(key,{person,name,role,tracks:new Set()});
+      aggregated.get(key).tracks.add(credit.track_id);
+    });
+    const songRows=[...aggregated.values()].sort((a,b)=>
+      a.name.localeCompare(b.name,'sv')||a.role.localeCompare(b.role,'sv')).map(entry=>{
+      const count=entry.tracks.size;
+      const full=tracks.length>0 && count===trackIds.size;
+      const scope=full?'Samtliga '+trackIds.size+' spår':count+' av '+trackIds.size+' spår';
+      const songNames=[...entry.tracks].map(id=>trackNames.get(id)).filter(Boolean);
+      const tooltip=full?'Alla låtar på denna registrerade utgåva':songNames.join(', ');
+      const inner='<strong>'+escapeHtml(entry.name)+'</strong>'
+        +'<span>'+escapeHtml(roleSv(entry.role))+'</span>'
+        +'<em>'+escapeHtml(scope)+'</em>';
+      return entry.person
+        ? '<a href="'+escapeHtml(personHref(entry.person))+'" title="'+escapeHtml(tooltip)+'">'+inner+'</a>'
+        : '<div class="release-credit-static" title="'+escapeHtml(tooltip)+'">'+inner+'</div>';
+    }).join('');
+    const albumSection=albumRows
+      ? '<div class="release-credit-group"><h3>Utgåvekrediter</h3><div class="credit-list">'+albumRows+'</div></div>'
+      : '';
+    const songSection=songRows
+      ? '<div class="release-credit-group"><h3>Låtcredits</h3>'
+        +'<p class="release-credit-explainer">Sammanställda från enskilda låtar. En kompositörskredit styrker låtskrivande, inte automatiskt medverkan på inspelningen. Se respektive låt och Källor för underlaget.</p>'
+        +'<div class="credit-list">'+songRows+'</div></div>'
+      : '';
+    const unavailable=status==='loading'
+      ? '<div class="empty-state">Hämtar låtcredits…</div>'
+      : status==='error'
+        ? '<div class="empty-state">Låtcredits kunde inte hämtas just nu.</div>'
+        : '';
+    const empty=!albumSection && !songSection && status==='ready'
+      ? '<div class="empty-state">Krediter kartläggs.</div>'
+      : '';
+    holder.innerHTML=albumSection+songSection+unavailable+empty;
+  }
+
   async function renderReleaseTracklist(releaseId) {
     const holder = $('#release-tracklist');
     if (!holder || holder.dataset.releaseId !== String(releaseId)) return;
@@ -3788,21 +3850,27 @@
       if (!activeHolder()) return;
       if (!tracks.length) {
         renderReleaseSources(releaseId, [], [], 'ready');
+        renderReleaseCredits(releaseId, [], [], 'ready');
         activeHolder().innerHTML = '<div class="empty-state">Låtlistan kartläggs.</div>';
         return;
       }
 
-      let credits = [];
+      let credits = [], creditStatus='ready';
       try {
         const ids = tracks.map(track => track.id).join(',');
         const creditsUrl = `${cfg.supabaseUrl}/rest/v1/release_track_credits?select=track_id,person_id,role,credited_as,source_id,notes&track_id=in.(${ids})`;
         const creditRes = await fetch(creditsUrl, {headers});
-        if (creditRes.ok) credits = await creditRes.json();
+        if (!creditRes.ok) throw new Error('HTTP '+creditRes.status);
+        credits = await creditRes.json();
+        if(!Array.isArray(credits))throw new Error('Ogiltigt svar för låtcredits');
       } catch (error) {
+        creditStatus='error';
+        credits=[];
         console.warn('Spårcredits kunde inte hämtas', error);
       }
       if (!activeHolder()) return;
-      renderReleaseSources(releaseId, tracks, Array.isArray(credits) ? credits : [], 'ready');
+      renderReleaseSources(releaseId, tracks, credits, creditStatus);
+      renderReleaseCredits(releaseId, tracks, credits, creditStatus);
       const byTrack = new Map();
       (Array.isArray(credits) ? credits : []).forEach(credit => {
         if (!byTrack.has(credit.track_id)) byTrack.set(credit.track_id, []);
@@ -3857,6 +3925,7 @@
       if (activeHolder()) {
         activeHolder().innerHTML = '<div class="empty-state">Låtlistan kunde inte hämtas just nu.</div>';
         renderReleaseSources(releaseId, [], [], 'error');
+        renderReleaseCredits(releaseId, [], [], 'error');
       }
     }
   }
@@ -3915,12 +3984,13 @@
           ${releaseVersionsPanel(r)}
           <section class="content-section"><div class="content-head"><span>01</span><h2>Låtlista</h2></div><div id="release-tracklist" class="release-tracklist" data-release-id="${escapeHtml(r.id)}"><div class="empty-state">Hämtar låtlistan…</div></div></section>
           ${youtubeSection(band, r.id)}
-          <section class="content-section"><div class="content-head"><span>02</span><h2>Krediter</h2></div><div class="credit-list">${credits.length ? credits.map(c => { const p=peopleById().get(c.person_id); return `<a href="${personHref(p)}"><strong>${escapeHtml(c.credited_as || p.canonical_name)}</strong><span>${escapeHtml(roleSv(c.role || ''))}</span><em>${escapeHtml(p.canonical_name)}</em></a>`; }).join('') : '<div class="empty-state">Krediter kartläggs.</div>'}</div></section>
+          <section class="content-section"><div class="content-head"><span>02</span><h2>Krediter</h2></div><div id="release-credits" data-release-id="${escapeHtml(r.id)}"></div></section>
           ${gallery.length ? `<section class="content-section"><div class="content-head"><span>03</span><h2>Omslag & originalmaterial</h2></div>${archiveGallery(gallery)}</section>` : ''}
           <section class="content-section"><div class="content-head"><span>${gallery.length ? '04':'03'}</span><h2>Källäge</h2></div><div id="release-source-status"></div></section>
           <section class="content-section"><div class="content-head"><span>${gallery.length ? '05':'04'}</span><h2>Källor</h2></div><div id="release-sources" data-release-id="${escapeHtml(r.id)}"></div></section>
         </div>
       </section>`;
+    renderReleaseCredits(r.id);
     renderReleaseSources(r.id);
     renderReleaseTracklist(r.id);
   }
