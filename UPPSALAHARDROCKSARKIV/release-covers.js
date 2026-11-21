@@ -936,6 +936,12 @@ window.ARCHIVE_RELEASE_COVERS = {
     "sourceUrl": "https://music.apple.com/se/album/rockin-reckless/1442766073?uo=4",
     "label": "Spellbound — Rockin' Reckless"
   },
+  "a0aef6e4-1246-405e-8cb0-5e90e1455229": {
+    "src": "assets/archive-media/gallery/the-unkinds/juvenile-battlecries-ai-reconstruction.svg",
+    "sourceUrl": "https://swnworks.se/UPPSALAHARDROCKSARKIV/assets/archive-media/gallery/the-unkinds/juvenile-battlecries-original-photo.svg",
+    "label": "The Unkinds – Juvenile Battlecries (1997) · AI-bearbetad rekonstruktion, ej originalfoto",
+    "checked": "2026-11-21"
+  },
   "9f202b2f-33af-44c6-80c0-d9d3b3938572": {
     "src": "assets/release-covers/9f202b2f-33af-44c6-80c0-d9d3b3938572.svg",
     "sourceUrl": "https://music.apple.com/se/album/juvenile-battlecries-the-lost-97-session-more/1667611284?uo=4",
