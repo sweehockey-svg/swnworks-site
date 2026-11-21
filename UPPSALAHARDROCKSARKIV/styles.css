@@ -2147,6 +2147,66 @@ body.network-body-fullscreen { overflow:hidden; }
 .bm-timeline-transition:hover {filter:brightness(1.25);}
 .bm-timeline-legend-item .bm-timeline-transition-key {width:12px;height:12px;background:var(--bg);border:2px dashed var(--acid);border-radius:4px;}
 
+
+/* Discography is distinct from member spans; release credits link to their albums. */
+.bm-timeline-discography-row {
+  height:44px;
+  background:color-mix(in srgb, var(--acid) 7%, transparent) !important;
+  border-bottom:1px solid var(--line-strong);
+}
+.bm-timeline-discography-label {
+  color:var(--acid);
+  font:600 13px/1.25 var(--condensed);
+  letter-spacing:.01em;
+  text-transform:uppercase;
+}
+.bm-timeline-release-pin {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:absolute;
+  z-index:4;
+  top:3px;
+  left:0;
+  width:18px;
+  height:20px;
+  transform:translateX(-50%);
+  border:2px solid var(--acid);
+  border-radius:3px;
+  box-shadow:0 0 0 2px var(--bg);
+  background:var(--acid);
+  color:var(--bg);
+  text-decoration:none;
+  cursor:pointer;
+}
+.bm-timeline-release-pin:hover,
+.bm-timeline-release-pin:focus-visible {
+  transform:translateX(-50%) scale(1.2);
+  box-shadow:0 0 0 3px var(--bg),0 0 0 4px var(--acid);
+  outline:none;
+}
+.bm-timeline-pin-count {font:700 12px/1 var(--condensed);}
+.bm-timeline-credit-link {
+  z-index:3;
+  display:block;
+  text-decoration:none;
+  cursor:pointer;
+}
+.bm-timeline-credit-link:hover,
+.bm-timeline-credit-link:focus-visible {
+  filter:brightness(1.35);
+  box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--bm-color);
+  outline:0;
+}
+.bm-timeline-legend-item .bm-timeline-release-key {
+  background:var(--acid);border:1px solid var(--acid);border-radius:3px;
+  width:13px;height:13px;
+}
+.bm-timeline-retrospective a {
+  color:var(--acid);text-decoration:underline;text-underline-offset:2px;
+}
+.bm-timeline-retrospective {margin:12px 0 0;}
+
 .bm-timeline-credit:hover,.bm-timeline-period:hover,.bm-timeline-anchor:hover {filter:brightness(1.25);}
 .bm-timeline-legend {display:flex;flex-wrap:wrap;gap:9px 18px;padding-top:15px;}
 .bm-timeline-legend-item {display:inline-flex;align-items:center;gap:7px;color:var(--muted);font:11px/1.4 var(--sans);}
