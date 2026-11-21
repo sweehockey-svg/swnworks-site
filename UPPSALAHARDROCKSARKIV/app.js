@@ -1512,8 +1512,29 @@
     }
   };
 
+  // Documented public stage names from the person_names register.
+  // A band's own name credit takes precedence; ambiguous aliases require
+  // a band-specific match rather than guessing.
+  const PERSON_STAGE_NAMES={"00a8ebe4-af35-4062-a244-77370f0dfa8b":["AQC","Frater Kaos","Kafziel"],"04116838-80a7-44c9-81e4-22833b4fba42":["Infinite K"],"051e287e-43e6-4a31-973f-28411f782855":["BJOERK","Kahn Ibbal"],"05ff7fa0-cf6d-4383-bd71-bcc988af0b15":["Cosmarul"],"06857f40-796a-467a-a765-012c0d100c77":["Tom Terror"],"073da589-2f4d-4d4e-b9d8-2f3deeed3253":["The Road Grader"],"089e7f00-1376-45ff-b7fb-3a0ba2890b00":["EB","Fritz"],"08a4a64f-4129-4dff-8897-dd2bbb0bae20":["Nemgrá"],"0ce78fc5-8ca1-4480-9ea1-364787a448b5":["Eddie Flawless","Shit"],"10b35ceb-a1c5-4c4a-9248-054ca5fd7862":["Semen"],"1432fb62-4f46-4fd9-b94b-87553e3a012c":["A. Lillo"],"15568a85-6d99-4c16-b41f-d06e0bb73108":["Stjärnvind"],"157bc778-7589-4704-9435-79a75bf1d005":["M."],"183ddefb-0895-45b6-a3c3-c082093f1454":["Felix Culpa"],"19424b5b-7bcd-4bdc-8d4d-8fa01b84f44c":["P.J.","P.J. Vorum","PJ"],"1b71d053-3e0d-4a26-9229-e1c8c0415361":["Format"],"1bb14e4f-0c01-4fd4-9c04-76c3312e7244":["S. L."],"1e0b8815-ba46-4523-b78d-4d7ebdce512d":["Fnojan"],"1ffd6a21-eb2f-41a9-8c9b-1ab6a0f83fbc":["Romantic Rapist"],"200c5716-6a2b-47c4-a8c3-85e552864240":["Cedan"],"2133f7c9-ae0a-41c0-9ba4-ca550300a063":["John Doe"],"22ac48b9-2992-448b-ba93-cb3b1a9b411e":["Tender G"],"25fdfd55-ace3-4092-b72d-7e912751efa9":["Björn"],"2735d17f-24b6-418f-b749-f157e8b9dafe":["Henry","Henry Bowers","Kung Henry","MC Tapi"],"29bb2736-83be-4b28-bedb-695619abe398":["H."],"3062f42e-a8a7-4ef1-aee9-806a284ef0fd":["Lou Siffer"],"3840c7fc-8d4c-476a-b318-f21829c2e121":["Cuntripper","E.","Rötan"],"3e02ad49-2518-4e05-a0b6-efa5ab15d0f5":["Necrobird"],"3eaf1cf5-edfe-4427-9be3-7f0db19b8765":["Pete Stooaahl"],"3f8244e3-53b4-44a1-9b06-794bf80eecea":["Gil Yotin"],"4449b2d7-a16a-4214-8674-62c76cfb3f6c":["Niklas"],"44944b0f-3351-4bfa-a732-f0ef63b4ca8b":["Cadaver","J.","Zeke"],"4824a685-c7d0-42b9-86b2-d3b712002379":["E. Forcas","Forcas"],"4a9b08f0-b994-4355-9c80-bfed714d284b":["J.","J. Dee"],"4b757557-7143-4fd6-8857-9820dae1e38b":["Phnom","The Tall One with the Coat"],"4e9d9d45-f95d-4a5c-ae53-51cd76e87ef6":["G. Grotesque","Gottfrid Omen"],"4f454062-4873-4141-9f1a-92260b0a2d10":["Blasphemer"],"4fb4e2c7-b6ad-4a2f-ac5c-227cacfc3588":["Jägermeister","Krippe"],"4fc3a38d-d424-48c9-ab37-1405ce608d5d":["Chris Unrepentant","Crippe Gustafsson","Thrash Gordon"],"51360d81-7736-4899-b9ff-e60e45b686ed":["Joel Borg"],"515f0d06-831a-4f7c-957f-d07ef768eeeb":["AEBERG","Barefoot Baby Brown"],"51782ef3-6254-469d-91e0-33b3dd7d910f":["JT Holmström"],"52572df8-b3c0-4bf6-817f-74b0142478fc":["J.K."],"52594e3d-e29b-48f2-b253-c571e15ec847":["Stålis"],"530c8f9f-304d-45af-8134-39fc820887e0":["Drutten"],"5f04aeec-f8e3-4655-97f7-6a4cb8fe9e3a":["Larry Lethal","Thermoss"],"5fd8a71e-cff8-424e-ad6b-5e4a16623ba6":["Dr Dille"],"66fbf735-3480-4f56-b4f2-b9b688dcac37":["D.I.E.","Demon","DIE"],"69e9e397-9186-4451-9791-89e59810fee9":["Viktor"],"6b0d1006-1814-48cc-abc4-1d79101b630e":["Average Joe","J. Meggido","J. Megiddo","Jumpin' Jack Thrash"],"6b79c289-f4f6-4aa9-9c85-aa6186228ce8":["Jerka"],"6b7f4fa2-30cb-4eb2-8141-9967d9bcb412":["HORNPER"],"6bab2ee3-68b6-46c2-ae48-0be35a3f05da":["Mutilator"],"6ca1a0c1-0b91-449c-9da5-322bccd220d7":["Armageddor"],"6ece768d-c9c1-414e-b3ce-157e0a269478":["Gehenna"],"6ed72691-3fbe-4682-b911-1256440f5962":["Enforced","Forced","Gorm"],"70504ca5-5f0d-47ee-bb6d-b9b1a8f606b2":["Nicolas Ruin Art"],"73a1fd84-92c5-49ab-ae7e-1a37684f577f":["Dadze"],"73f23122-8a3d-4fd3-9a44-acea55427881":["Munchensfinxen"],"790d3bad-8e95-40e7-bbfd-aa492fc04871":["C.C.","C.C. Rockets"],"79e91be1-208e-490f-9bde-b7e7bc633b31":["Saffran"],"7c49d2e4-0758-41d8-a404-7819526d4acd":["Cult"],"7de5f791-2517-4b31-9cb0-d030ecd0b1ac":["Goathead"],"7e15c9bd-d0ed-42a7-9731-38ee5960b377":["Count Wassberg","Dietro Quella Porta","Sir Algaroj"],"7e636b6e-edc7-4d6f-99b3-39f546f06fb9":["Hell Y. Hansen"],"7f2b36c6-d1a4-42b0-a721-fe3ccf69f7b1":["Lee de Parade"],"7f3bfb2e-ed55-4e40-891b-e656fb7dd9bd":["Gilberth"],"7f4e367b-2543-4db6-be21-7172c21a9a3a":["Flodis","Flodiz"],"80bae339-257d-4b55-a13b-3216a495fe52":["Petty Theft"],"8277d19f-0ac5-434f-9028-e5025ebafeda":["Calle Rudolfsson"],"85a6f934-3239-45e8-abc8-b90a24732199":["P. Possessed","Possessor"],"8689aa81-06fa-479c-98fa-fd9019c71e87":["Set Teitan","Set Teitan 131"],"86b11d6a-621d-472b-ad05-4f7ceb214566":["Mörk","Y."],"87463051-6100-438c-b662-d9e938e7c34d":["Crowlech"],"8a1feff0-215a-41bc-be4f-9cd26f5a440d":["Anton"],"9042f90e-e1c7-49ee-adae-2bae3a8105c3":["Crack","Ghost","Tok Ghost"],"9086e429-f6fd-4025-b977-ab22470c9204":["Spakur"],"90de28f6-55df-4468-a8e7-6971adaf2abc":["Petter","Pontius"],"9107c73a-f7a3-4ab7-9cec-4709bd90089b":["Angst","Angst (Nazghor)","Gringo"],"9980ef8e-e32f-4960-9df0-52a5b198dde2":["King Antichrist"],"9b27821d-ce8c-461b-87da-0d68dd1ddc05":["Dr. Schitz"],"9b4c9cce-eb76-4750-858b-dd6b085754b2":["Asgrahim","Beast"],"a1bc2a2d-a544-4a63-a0bc-180911ac9a5c":["Frank \"Fuck You\" Fuentes","Frank Fuentes"],"a2190222-7719-4e37-916a-784b2afb8402":["Crvs","Gillerström"],"a2bb9ace-bacf-4b18-9926-41fab19281a0":["Napoleon Pukes"],"a725f4b5-bff2-4d1a-bf81-b3d562a64de2":["TG"],"a7c04b37-4fd6-4047-9159-df1350c76500":["Kalle Runeson"],"a856e938-8697-48bd-b6f5-6478b0ab4fa4":["Spine"],"a94c2afd-2cef-4ff9-a36f-bb70af316a2a":["K-Oz"],"ab71860c-95c1-45c6-bb5e-cbcc6b420fb7":["Phil In"],"abdaa6f9-5196-4e54-b13e-2506d090c948":["Sölvi Silver"],"ad1e6cf0-8501-4c29-af83-e4d9c36a43e3":["F. Feratu"],"b0b2065a-dfa5-4f4e-8ade-67d32dca7bbc":["H. Death","Hampe Death"],"b4bf4b9d-35cf-472c-abed-5a95518fa9d1":["Marre Martini"],"bb8cf4ed-3ea5-4c50-bcb6-3d55efa60edc":["Pat Splat","SPRAENG"],"bc399045-4176-450b-a8a8-927c29c95c26":["Iron Kongo"],"bd9cd3d4-8a1a-4c1e-9a9b-976a5581dcc9":["M.J."],"bfd9ceec-cb90-4766-94cf-806e1297ee2f":["Pavan"],"c6c3784c-5d1d-4400-9393-5d39ecade12e":["Uncle"],"c6f8685f-8abf-4abd-b086-92dc7b4280d4":["The One Wearing the Hat","Vargr"],"c82da2bb-737d-4b0d-93f6-de35923a3528":["Coffin","Ormen","Phantasma"],"c8ca3dee-24fb-41c6-a291-e239d89b78af":["Slummer"],"cd20003e-0b79-4a4b-ac7d-125dd2328e19":["HCF","The Old Wrinkled Man","Xemtoth","Xemtoth Bûrzthrakal"],"d446169f-839d-46b0-a067-76fcb7a99ee9":["Apollyon"],"d4c29abe-73f8-43d3-b04e-16767247ff5d":["Sir Eric Beyond"],"d81c843a-f23b-4488-85ed-1b28de597d41":["Hughin"],"d97ebf07-56ed-4467-b8fd-0cdde0766c53":["Chris C-Liber"],"df537068-d9e3-4036-8f5e-decc108f79f8":["A. Nekromonger","AE","Nekromonger"],"e0cafc14-dfac-4358-b5ca-6a14e3a69ee2":["Dr. Ted Killer Miller"],"e1c2276b-7634-4134-97b8-9fa3e0042f34":["Dead"],"e53d2578-0bc8-414e-b63a-f3e119e0b97b":["L.","Linus"],"e58cdd5f-686d-4bc6-a30e-6bd7cc8367d7":["P."],"e5b5c701-f36a-4ba0-9838-e637cd1e3867":["Ray Zår"],"e66498a5-086c-4098-9ad8-9fba0043dcf6":["Dave Grave","David Grave"],"e7a3820e-137c-4b79-ab88-deb474d7f1df":["Fjällhammer","Munhin"],"e811cdbc-c384-4b15-9d89-c89b7f40c092":["R. Meresin"],"f5ce47fd-997c-4526-9edb-d055fd29f2ec":["Anton"],"f89607c1-db10-4293-80bb-c1135351f5e9":["Dele"],"fc92cc80-80b0-41f9-a0b2-b85c00c320eb":["Nya Sampan"],"fcd272cf-c8b7-43c4-898e-1d45e0fdc43d":["Anal","Olli"]};
   function bandMembershipDisplayName(person, bandId) {
-    return BAND_MEMBERSHIP_DISPLAY_NAMES[bandId]?.[person.id] || personBandName(person, bandId);
+    if(!person)return '';
+    const reviewed=BAND_MEMBERSHIP_DISPLAY_NAMES[bandId]?.[person.id];
+    if(reviewed)return reviewed;
+    const base=personDisplayName(person);
+    const specific=verifiedIdentity(person)?.bandNames?.[bandId] || '';
+    const candidates=PERSON_STAGE_NAMES[person.id] || [];
+    let alias=specific;
+    if(!alias && candidates.length===1)alias=candidates[0];
+    if(!alias && candidates.length>1){
+      const releaseIds=new Set(state.releaseBands.filter(link=>link.band_id===bandId).map(link=>link.release_id));
+      const credited=new Set(state.releaseMembers.filter(row=>row.person_id===person.id && releaseIds.has(row.release_id))
+        .map(row=>String(row.credited_as||'').trim().toLocaleLowerCase('sv')));
+      alias=candidates.find(name=>credited.has(name.toLocaleLowerCase('sv'))) || '';
+    }
+    alias=String(alias||'').trim();
+    if(!alias || alias.toLocaleLowerCase('sv')===base.toLocaleLowerCase('sv'))return base;
+    if(alias.startsWith(base+' ('))return alias;
+    return base+' ('+alias+')';
   }
 
   function renderBandMemberships(bandId, groups) {
@@ -1540,18 +1561,23 @@
       const hasMembershipYears=membershipRows.some(m=>m.joined_year || m.left_year);
       const credited=creditYears.get(group.person_id);
       const creditSpan=credited ? String(credited.first)+(credited.first===credited.last ? '' : '–'+credited.last) : '';
+      // Explicit 2009 live evidence is not evidence of a joining year.
+      const liveEvidence=bandId==='002a445e-2d55-461c-bd3b-ec1f5dc67238' && ({
+        '62195900-267a-4419-9c3a-20d01926096b':2009,
+        'f793b2a3-b470-4e2d-8d01-b06bafb57bc9':2009
+      })[group.person_id];
       let label='', span='', tooltip='';
       if(hasMembershipYears){
-        const periods=[...new Set(membershipRows.map(m=>{
-          const original=yearSpan(m);
-          return (m.joined_precision==='approximate' || m.left_precision==='approximate')
-            && !/^ca\\s/i.test(original) ? 'ca '+original : original;
+        const periods=[...new Set(membershipRows.filter(m=>m.joined_year || m.left_year).map(m=>{
+          const first=Number(m.joined_year)||null, last=Number(m.left_year)||null;
+          const compact=first && last && last!==first ? first+'–'+last : String(first||last);
+          return (m.joined_precision==='approximate' || m.left_precision==='approximate' ? 'ca ':'')+compact;
         }))];
         // Preserve the manually reviewed compact ranges for The Unkinds.
         // Do not merge distinct periods for other bands: this could invent
         // continuous membership across a documented hiatus.
         span=periods.join(' · ');
-        let evidence=membershipRows.some(m=>m.joined_precision==='before' || m.left_precision==='after');
+        let evidence=membershipRows.some(m=>m.joined_precision==='before' || m.left_precision==='after' || m.membership_status==='unknown');
         if(isUnkindsHistory && kind==='member'){
           const joined=membershipRows.map(m=>Number(m.joined_year)).filter(y=>Number.isFinite(y)&&y>1800);
           const left=membershipRows.map(m=>Number(m.left_year)).filter(y=>Number.isFinite(y)&&y>1800);
@@ -1568,24 +1594,32 @@
           ? 'Belagd medverkan under angivet år eller period. Exakta medlemsdatum är inte alltid kända.'
           : 'Registrerad '+(kind==='member'?'medlemsperiod':'medverkan')+'. Årtalens precision beror på arkivets källor.')
           +(credited ? ' Separata individuella skivkrediter: '+creditSpan+'.' : '');
+      } else if(liveEvidence){
+        label='Livebelagd';
+        span=String(liveEvidence);
+        tooltip='Dokumenterat liveframträdande. Året fastställer inte inträde eller utträde.';
       } else if(credited){
         // The musician is credited on a record, but membership dates are unknown.
         label='Skivkredit';
         span=creditSpan;
         tooltip='Individuellt krediterad på en originalutgåva. Detta fastställer inte start- eller slutår som bandmedlem.';
       } else {
-        label='År';
+        label='';
         span='Årtal söks';
         tooltip='Det finns ännu inga belagda år för denna person i bandet.';
       }
       const period='<span class="band-member-date-evidence"><em class="band-member-period-years" title="'+
         escapeHtml(tooltip)+'"><span>'+escapeHtml(label)+'</span><strong>'+
         escapeHtml(span)+'</strong></em></span>';
+      const roleParts=String(group.roles||'').split(' · ').filter(Boolean);
+      let displayRole=roleParts.filter(part=>!/(?:exakt|verifierade|verifierat|slutligt|obekräftat)/i.test(part)).join(' · ');
+      if(!displayRole)displayRole=roleParts.join(' · ');
+      displayRole=displayRole.replace(/\\s*\\((?:ny medlem|belagd vid liveframträdande)[^)]*\\)/gi,'').trim();
       return '<a href="'+personHref(p)+'"><strong>'+escapeHtml(bandMembershipDisplayName(p,bandId))+
-        '</strong><span>'+escapeHtml(group.roles||'Roll kartläggs')+'</span>'+period+'</a>';
+        '</strong><span>'+escapeHtml(displayRole||'Roll kartläggs')+'</span>'+period+'</a>';
     };
     return '<div class="band-membership-sections">'
-      + '<p class="membership-note">Personer med både ordinarie medlemskap och liveinsatser visas under Bandmedlemmar. Varje rad visar namn, dokumenterade roller och en sammanfattad årsuppgift. Belagd anger dokumenterad närvaro, inte exakta medlemsdatum. Skivkredit betyder enbart att personen finns krediterad på en utgåva. Alla registrerade perioder och krediter finns kvar på sina respektive arkivsidor.</p>'
+      + '<p class="membership-note">Personer med både ordinarie medlemskap och liveinsatser visas under Bandmedlemmar. Varje rad visar namn, dokumenterade roller och en sammanfattad årsuppgift. Belagd anger dokumenterad närvaro, inte exakta medlemsdatum. Ett enskilt år innebär inte fortsatt medlemskap. Skivkredit betyder enbart att personen finns krediterad på en utgåva. Alla registrerade perioder och krediter finns kvar på sina respektive arkivsidor.</p>'
       + sections.map(section => {
         const members=groups.filter(group=>groupedMembershipKind(group)===section.type);
         if(!members.length)return '';
