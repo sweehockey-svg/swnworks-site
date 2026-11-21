@@ -1426,7 +1426,9 @@
       // someone performed on that recording or stayed in the band that year.
       if(roleIsWriter.test(role)){
         addTimelineCredit(memberWriterCredits,c.person_id,release,role,c.track_title);
-      }else if(roleIsMusician.test(role) && !roleIsGuestOrTechnical.test(role)){
+      }
+      // A single credit may explicitly list both performance and songwriting.
+      if(roleIsMusician.test(role) && !roleIsGuestOrTechnical.test(role)){
         addTimelineCredit(memberReleaseCredits,c.person_id,release,role,c.track_title);
       }
     }
