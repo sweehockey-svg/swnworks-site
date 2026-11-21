@@ -814,7 +814,7 @@
       "AEBERG"
     ],
     "bandNames": {
-      "4a5ce117-ba3e-4fa0-8271-2d786c5d6db2": "Barefoot Baby Brown",
+      "4a5ce117-ba3e-4fa0-8271-2d786c5d6db2": "Magnus Åberg (Barefoot Baby Brown)",
       "002a445e-2d55-461c-bd3b-ec1f5dc67238": "Barefoot Baby Brown",
       "3dd83d44-1db9-47a8-b5ec-930f4c41b142": "AEBERG"
     },
