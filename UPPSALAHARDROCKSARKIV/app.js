@@ -1292,6 +1292,7 @@
   // Documentation timeline: a release-credit mark is NOT a membership period.
   function renderBandMemberTimeline(bandId, groups, creditYears) {
     const today=new Date().getFullYear();
+    const isUnkinds=bandId==='4a5ce117-ba3e-4fa0-8271-2d786c5d6db2';
     const valid=y=>Number.isInteger(Number(y)) && Number(y)>=1950 && Number(y)<=today+1 ? Number(y) : null;
     const colors={vocals:'#f47783',guitar:'#4ed299',bass:'#6aaefb',drums:'#ffb55f',keys:'#b7a1ff',other:'#abb7c2'};
     const names={vocals:'Sång',guitar:'Gitarr',bass:'Bas',drums:'Trummor',keys:'Klaviatur',other:'Övrigt'};
@@ -1311,7 +1312,17 @@
       const intervals=[], anchors=[];
       (g.memberships||[]).filter(m=>['member','live'].includes(membershipKind(m))).forEach(m=>{
         const a=valid(m.joined_year), b=valid(m.left_year);
-        if(a!==null && b!==null && b>=a)intervals.push([a,b,false]);
+        if(isUnkinds && a!==null && b!==null && b>=a && (a===b || (b===2003 && a<b && m.left_precision==='year' && [
+          '7f2b36c6-d1a4-42b0-a721-fe3ccf69f7b1', // David Berlin / Lee de Parade
+          '183ddefb-0895-45b6-a3c3-c082093f1454', // Jens Hagekull / Felix Culpa
+          '515f0d06-831a-4f7c-957f-d07ef768eeeb'  // Magnus Åberg / Barefoot Baby Brown
+        ].includes(String(g.person_id))))) {
+          // A calendar-year boundary is not a dated transition. Represent
+          // the last uncertain year as a point instead of a full year of overlap.
+          if(a<b)intervals.push([a,b-1,false]);
+          anchors.push(b);
+        }
+        else if(a!==null && b!==null && b>=a)intervals.push([a,b,false]);
         else if(a!==null && m.membership_status==='current')intervals.push([a,Math.max(today,a),true]);
         else if(a!==null)anchors.push(a);
         else if(b!==null)anchors.push(b);
@@ -1344,7 +1355,7 @@
       const accessible=e.p.canonical_name+'. '+e.intervals.map(x=>x[0]+'–'+x[1]).join(', ')+
         '. Skivkrediter: '+e.credit.join(', ');
       return '<div class="bm-timeline-row"><a class="bm-timeline-person" href="'+personHref(e.p)+'">'+
-        escapeHtml(personBandName(e.p,bandId))+'</a><div class="bm-timeline-track" style="--bm-color:'+
+        escapeHtml(bandMembershipDisplayName(e.p,bandId))+'</a><div class="bm-timeline-track" style="--bm-color:'+
         colors[e.role]+'" aria-label="'+escapeHtml(accessible)+'">'+grid+periods+marks+anchors+
         '</div></div>';
     }).join('');
@@ -1352,7 +1363,8 @@
       colors[role]+'"></i>'+names[role]+'</span>').join('');
     return '<section class="bm-timeline" aria-label="Medlemstidslinje">'+
       '<header class="bm-timeline-heading"><h3>Tidslinje</h3></header>'+
-      '<p class="bm-timeline-note">Heldragna staplar visar dokumenterade medlemsperioder. Markeringar visar enskilda år från skivkrediter eller medlemsuppgifter, inte en obruten period.</p>'+
+      '<p class="bm-timeline-note">Heldragna staplar visar belagda årsspann, inte exakta start- och slutdatum. Markeringar visar enskilda belagda år från skivkrediter eller medlemsuppgifter.</p>'+
+      (isUnkinds ? '<p class="bm-timeline-note">ÅR 2003: Två uppsättningar är dokumenterade under samma kalenderår, men inte nödvändigtvis samtidigt. John Swahns uppsättning är belagd på Fellini 20 februari 2003. David Berlin, Jens Hagekull och Magnus Åberg uppgav senare att de lämnade bandet under 2003 för att bilda Snuffed By The Yakuza. Exakt ordning och eventuell överlappning är inte fastställd. Därför visas okända delar av 2003 som årsmarkeringar, inte som heldragna medlemsperioder.</p>' : '')+
       '<div class="bm-timeline-scroll" tabindex="0" aria-label="Rulla tidslinjen i sidled">'+
         '<div class="bm-timeline-canvas" style="min-width:'+Math.min(1450,Math.max(700,220+span*34))+'px">'+
           '<div class="bm-timeline-axis"><span>Musiker</span><div>'+axis+'</div></div>'+rows+
