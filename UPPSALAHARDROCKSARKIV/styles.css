@@ -2142,6 +2142,19 @@ body.network-body-fullscreen { overflow:hidden; }
 .bm-timeline-grid {position:absolute;top:-7px;bottom:-5px;border-left:1px solid rgba(255,255,255,.09);pointer-events:none;}
 .bm-timeline-period {position:absolute;top:8px;height:10px;background:var(--bm-color);border-radius:2px;box-shadow:0 0 0 1px #0006;}
 .bm-timeline-credit {position:absolute;top:4px;width:9px;height:18px;transform:translateX(-50%);background:var(--bm-color);border:1px solid var(--bg);border-radius:2px;box-shadow:0 0 0 1px #ffffff55;}
+/* Songwriting is a separate documented credit, never implied performance.
+   Position below the musician bar so both credits remain clickable. */
+.bm-timeline-writing {
+  position:absolute;top:21px;width:12px;height:4px;
+  transform:translateX(-50%);background:#d7adff;border:1px solid #76519c;
+  border-radius:2px;z-index:4;box-shadow:0 0 0 1px var(--bg);
+}
+.bm-timeline-writing:hover,.bm-timeline-writing:focus-visible {
+  filter:brightness(1.2);outline:2px solid #d7adff;outline-offset:2px;
+}
+.bm-timeline-legend-item .bm-timeline-writing-key {
+  width:13px;height:4px;background:#d7adff;border:1px solid #76519c;border-radius:2px;
+}
 .bm-timeline-anchor {position:absolute;top:6px;width:11px;height:11px;transform:translateX(-50%) rotate(45deg);border:2px solid var(--bm-color);background:var(--bg);}
 .bm-timeline-transition {position:absolute;top:5px;width:12px;height:14px;transform:translateX(-50%);border:2px dashed var(--bm-color);background:var(--bg);border-radius:5px;box-shadow:0 0 0 2px var(--bg);z-index:2;}
 .bm-timeline-transition:hover {filter:brightness(1.25);}
