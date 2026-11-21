@@ -936,6 +936,12 @@ window.ARCHIVE_RELEASE_COVERS = {
     "sourceUrl": "https://music.apple.com/se/album/rockin-reckless/1442766073?uo=4",
     "label": "Spellbound — Rockin' Reckless"
   },
+  "d618f836-2b09-476e-bf65-e19f60025232": {
+    "src": "assets/archive-media/gallery/the-unkinds/kill-the-king-original-cover-photo.svg",
+    "sourceUrl": "https://swnworks.se/UPPSALAHARDROCKSARKIV/assets/archive-media/gallery/the-unkinds/kill-the-king-original-cover-photo.svg",
+    "label": "The Unkinds – Kill The King · fotografi av original-CD-R-omslag, ej AI-bearbetat",
+    "checked": "2026-11-21"
+  },
   "a0aef6e4-1246-405e-8cb0-5e90e1455229": {
     "src": "assets/archive-media/gallery/the-unkinds/juvenile-battlecries-ai-reconstruction.svg",
     "sourceUrl": "https://swnworks.se/UPPSALAHARDROCKSARKIV/assets/archive-media/gallery/the-unkinds/juvenile-battlecries-original-photo.svg",
