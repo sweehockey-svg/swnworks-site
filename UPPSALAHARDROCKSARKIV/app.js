@@ -1384,6 +1384,10 @@
     if (!groups.length) return '<div class="empty-state">Lineup kartläggs.</div>';
     const creditYears=releaseCreditYearsForBand(bandId);
     const hasCreditYears=groups.some(group=>creditYears.has(group.person_id));
+    // The Unkinds has editor-reviewed minimum member spans based on multiple
+    // contemporary lineup credits. Show those once, rather than a duplicate
+    // "member" and "record credits" range on each row.
+    const isUnkindsHistory=bandId==='4a5ce117-ba3e-4fa0-8271-2d786c5d6db2';
     const sections=[
       {type:'member',label:'Bandmedlemmar',open:true},
       {type:'live',label:'Livemusiker',open:false},
@@ -1396,6 +1400,28 @@
       const hasMembershipYears=(group.memberships || []).some(m=>m.joined_year || m.left_year);
       const credited=creditYears.get(group.person_id);
       const years=credited ? String(credited.first)+(credited.first===credited.last ? '' : '–'+credited.last) : '';
+      if(isUnkindsHistory && hasMembershipYears){
+        const membershipRows=(group.memberships||[]).filter(m=>membershipKind(m)==='member');
+        const yearsJoined=membershipRows.map(m=>Number(m.joined_year)).filter(Number.isFinite).filter(y=>y>1800);
+        const yearsLeft=membershipRows.map(m=>Number(m.left_year)).filter(Number.isFinite).filter(y=>y>1800);
+        const first=yearsJoined.length?Math.min(...yearsJoined):null;
+        const last=yearsLeft.length?Math.max(...yearsLeft):null;
+        const isApprox=membershipRows.some(m=>m.joined_precision==='approximate');
+        let span=group.periods||'Årtal söks';
+        if(first && last)span=(isApprox?'ca ':'')+first+(last===first?'':'–'+last);
+        else if(first && !last && credited?.first===first)span=String(first);
+        const isEvidence=membershipRows.some(m=>m.joined_precision==='before'||m.left_precision==='after')
+          || (!!first && !last && credited?.first===first);
+        const label=isEvidence?'Belagd':'Medlem';
+        const tooltip=isEvidence
+          ? 'Dokumenterad som bandmedlem under angiven period. Exakt inträdes- och utträdesdatum är inte fastställda.'
+          : 'Registrerad medlemsperiod. Uppgiften kan ha varierande årsprecision.';
+        const period='<span class="band-member-date-evidence"><em class="band-member-period-years" title="'+
+          escapeHtml(tooltip)+'"><span>'+label+'</span><strong>'+escapeHtml(span)+'</strong></em></span>';
+        return '<a href="'+personHref(p)+'"><strong>'+escapeHtml(bandMembershipDisplayName(p,bandId))
+          +'</strong><span>'+escapeHtml(group.roles||'Roll kartläggs')
+          +'</span>'+period+'</a>';
+      }
       // Keep membership-period evidence and actual record credits separate.
       // Some members appear on an original release while their start/end dates are unknown.
       const membershipEvidence=hasMembershipYears
@@ -1412,7 +1438,9 @@
     };
     return '<div class="band-membership-sections">'
       + '<p class="membership-note">Personer med både ordinarie medlemskap och liveinsatser visas under Bandmedlemmar. Alla registrerade roller och perioder visas på respektive rad.'
-      + (hasCreditYears ? ' Medlem visar dokumenterade medlemsår. Skivkrediter visar år med individuella krediter på utgåvor och är inte medlemsperioder.' : '') + '</p>'
+      + (isUnkindsHistory
+          ? ' Årtal visar belagd medlemsnärvaro, inte nödvändigtvis exakt inträde eller utträde. Skivkrediterna finns kvar på respektive utgåva och i tidslinjen.'
+          : (hasCreditYears ? ' Medlem visar dokumenterade medlemsår. Skivkrediter visar år med individuella krediter på utgåvor och är inte medlemsperioder.' : '')) + '</p>'
       + sections.map(section => {
         const members=groups.filter(group=>groupedMembershipKind(group)===section.type);
         if(!members.length)return '';
