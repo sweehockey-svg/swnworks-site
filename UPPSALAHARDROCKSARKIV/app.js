@@ -690,6 +690,7 @@
       const snapshot = await loadArchiveSnapshot();
       archiveLoaded = true;
       Object.keys(state).forEach(key => state[key] = Array.isArray(snapshot?.[key]) ? snapshot[key] : []);
+      bandTimelineTrackCreditCache.clear();
       try { const response=await fetch(`${cfg.supabaseUrl}/rest/v1/person_family_relations?select=person_a_id,person_b_id,relation_type,source_id,note`,{headers:{apikey:cfg.publishableKey,Accept:'application/json'}}); if(response.ok)state.familyRelations=await response.json(); } catch(error) { console.warn('Familjekopplingar kunde inte hämtas',error); }
       syncLabel.textContent = `Live från arkivet · ${new Date().toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}`;
       if (routePath() !== '/kontakt' || !$('.archive-contact-form')) renderRoute();
@@ -1329,8 +1330,57 @@
   }
 
 
-  // Documentation timeline: a release-credit mark is NOT a membership period.
-  function renderBandMemberTimeline(bandId, groups, creditYears) {
+  // Track credits are loaded per band on demand, not in the site-wide archive
+  // snapshot. This avoids loading every song just to render the home page.
+  const bandTimelineTrackCreditCache=new Map();
+  async function hydrateBandTimelineTrackCredits(bandId, groups){
+    if(!groups.length || bandTimelineTrackCreditCache.has(bandId))return;
+    const releaseIds=[...new Set(state.releaseBands.filter(row=>row.band_id===bandId).map(row=>row.release_id))];
+    if(!releaseIds.length)return;
+    const headers={apikey:cfg.publishableKey,Accept:'application/json'};
+    async function fetchRows(table, columns, field, ids, chunkSize=48){
+      const rows=[];
+      for(let start=0;start<ids.length;start+=chunkSize){
+        const batch=ids.slice(start,start+chunkSize);
+        const url=cfg.supabaseUrl+'/rest/v1/'+table+'?select='+columns+'&'+field+'=in.('+batch.map(encodeURIComponent).join(',')+')';
+        const response=await fetch(url,{headers});
+        if(!response.ok)throw Error('HTTP '+response.status+' '+table);
+        const json=await response.json();
+        if(!Array.isArray(json))throw Error('Unexpected response for '+table);
+        rows.push(...json);
+      }
+      return rows;
+    }
+    try{
+      const tracks=await fetchRows('release_tracks','id,release_id,title','release_id',releaseIds);
+      const byTrack=new Map(tracks.map(track=>[track.id,track]));
+      const credits=await fetchRows('release_track_credits','track_id,person_id,role,credited_as,source_id','track_id',tracks.map(track=>track.id),60);
+      const records=credits.map(credit=>{
+        const track=byTrack.get(credit.track_id);
+        return track?{...credit,release_id:track.release_id,track_title:track.title}:null;
+      }).filter(Boolean);
+      bandTimelineTrackCreditCache.set(bandId,records);
+      // If navigation has moved to another band, do not overwrite that page.
+      const section=app.querySelector('.bm-timeline[data-band-id="'+bandId+'"]');
+      if(!section)return;
+      const oldScroll=section.querySelector('.bm-timeline-scroll')?.scrollLeft||0;
+      const html=renderBandMemberTimeline(bandId,groups,releaseCreditYearsForBand(bandId),records);
+      if(!html)return;
+      const container=document.createElement('div');
+      container.innerHTML=html;
+      const replacement=container.firstElementChild;
+      if(!replacement)return;
+      section.replaceWith(replacement);
+      const scroll=replacement.querySelector('.bm-timeline-scroll');
+      if(scroll)scroll.scrollLeft=oldScroll;
+    }catch(error){
+      console.warn('Låtkrediter kunde inte laddas till tidslinjen',error);
+      // Existing release/member evidence stays visible on failure.
+    }
+  }
+
+  // Documentation timeline: recording, composition and membership are distinct.
+  function renderBandMemberTimeline(bandId, groups, creditYears, trackCreditRecords=[]) {
     const today=new Date().getFullYear();
     const isUnkinds=bandId==='4a5ce117-ba3e-4fa0-8271-2d786c5d6db2';
     const valid=y=>Number.isInteger(Number(y)) && Number(y)>=1950 && Number(y)<=today+1 ? Number(y) : null;
@@ -1351,23 +1401,37 @@
         || (String(r.release_type||'').toLowerCase()==='other' && /\bpromo\b/i.test(String(r.format||''))))
       && isOriginalTimelineRelease(r)).map(r=>r.id));
     const roleIsMusician=/guitar|gitarr|bass|basist|drums?|trumm|vocals?|vocalist|sång|singer|keyboard|synth|piano|organ|percussion|violin|cello|flute|sax|trumpet|harmonica|accordion|instrument|turntables?|banjo|mandolin|programming/i;
+    const roleIsWriter=/composer|composition|songwriter|songwriting|written.by|lyrics|lyricist|kompositör|låtskriv|textförfattare/i;
     const roleIsGuestOrTechnical=/guest|gäst|featur(?:ed|ing)|session|additional|engineer|tekniker|mixing|record(?:ed|ing) by|producer/i;
     const memberReleaseCredits=new Map();
-    for(const c of state.releaseMembers){
-      if(!bandReleaseIds.has(c.release_id))continue;
-      const release=originalTimelineCreditRelease(releasesById().get(c.release_id));
-      if(!release || !creditedOriginalIds.has(release.id))continue;
-      const role=String(c.role||'');
-      if(!roleIsMusician.test(role) || roleIsGuestOrTechnical.test(role))continue;
+    const memberWriterCredits=new Map();
+    function addTimelineCredit(target,personId,release,role,trackTitle){
       const year=valid(release.release_year);
-      if(year===null)continue;
-      if(!memberReleaseCredits.has(c.person_id))memberReleaseCredits.set(c.person_id,new Map());
-      const years=memberReleaseCredits.get(c.person_id);
+      if(year===null || !personId)return;
+      if(!target.has(personId))target.set(personId,new Map());
+      const years=target.get(personId);
       if(!years.has(year))years.set(year,new Map());
       const releases=years.get(year);
-      if(!releases.has(release.id))releases.set(release.id,{release,roles:new Set()});
-      releases.get(release.id).roles.add(role);
+      if(!releases.has(release.id))releases.set(release.id,{release,roles:new Set(),tracks:new Set()});
+      const entry=releases.get(release.id);
+      entry.roles.add(role);
+      if(trackTitle)entry.tracks.add(trackTitle);
     }
+    function collectTimelineCredit(c){
+      if(!bandReleaseIds.has(c.release_id))return;
+      const release=originalTimelineCreditRelease(releasesById().get(c.release_id));
+      if(!release || !creditedOriginalIds.has(release.id))return;
+      const role=String(c.role||'');
+      // Songwriting is useful historical evidence, but never a claim that
+      // someone performed on that recording or stayed in the band that year.
+      if(roleIsWriter.test(role)){
+        addTimelineCredit(memberWriterCredits,c.person_id,release,role,c.track_title);
+      }else if(roleIsMusician.test(role) && !roleIsGuestOrTechnical.test(role)){
+        addTimelineCredit(memberReleaseCredits,c.person_id,release,role,c.track_title);
+      }
+    }
+    state.releaseMembers.forEach(collectTimelineCredit);
+    trackCreditRecords.forEach(collectTimelineCredit);
     const releaseTitleWithContext=(release)=>{
       const title=String(release.title||'Utgåva');
       if(release.id==='1b0025b5-5e7a-4c3a-bfbd-d729dcc614d7')
@@ -1390,7 +1454,9 @@
       const p=peopleById().get(g.person_id);
       if(!p)return null;
       const creditDetails=memberReleaseCredits.get(g.person_id)||new Map();
+      const writingDetails=memberWriterCredits.get(g.person_id)||new Map();
       const credit=[...creditDetails.keys()].filter(y=>valid(y)!==null);
+      const writing=[...writingDetails.keys()].filter(y=>valid(y)!==null);
       const intervals=[], anchors=[], transitions=[];
       (g.memberships||[]).filter(m=>['member','live'].includes(membershipKind(m))).forEach(m=>{
         const a=valid(m.joined_year), b=valid(m.left_year);
@@ -1412,8 +1478,9 @@
         else if(a!==null)anchors.push(a);
         else if(b!==null)anchors.push(b);
       });
-      const years=[...credit,...anchors,...transitions,...intervals.flatMap(x=>[x[0],x[1]])];
-      return years.length ? {p,g,credit:[...new Set(credit)].sort((a,b)=>a-b),creditDetails,intervals,anchors,transitions,
+      const years=[...credit,...writing,...anchors,...transitions,...intervals.flatMap(x=>[x[0],x[1]])];
+      return years.length ? {p,g,credit:[...new Set(credit)].sort((a,b)=>a-b),creditDetails,
+        writing:[...new Set(writing)].sort((a,b)=>a-b),writingDetails,intervals,anchors,transitions,
         role:colorRole(g.roles),first:Math.min(...years),last:Math.max(...years)}:null;
     }).filter(Boolean).sort((a,b)=>a.first-b.first||a.p.canonical_name.localeCompare(b.p.canonical_name,'sv'));
     if(entries.length<2 && !periodReleases.length)return '';
@@ -1437,11 +1504,23 @@
       const marks=e.credit.map(y=>{
         const matches=[...(e.creditDetails.get(y)?.values()||[])];
         if(!matches.length)return '';
-        const tooltip=matches.map(({release,roles})=>
-          y+' · '+releaseTitleWithContext(release)+'\nKrediterad: '+[...roles].join(', ')).join('\n\n');
+        const tooltip=matches.map(({release,roles,tracks})=>
+          y+' · '+releaseTitleWithContext(release)+'\nMusiker: '+[...roles].join(', ')
+          +(tracks.size?'\nLåtar: '+[...tracks].join(', '):'')).join('\n\n');
         const release=matches[0].release;
         return '<a class="bm-timeline-credit bm-timeline-credit-link" style="left:'+px(y)+
           '" href="'+releaseHref(release)+'" title="'+escapeHtml(tooltip)+
+          '" aria-label="'+escapeHtml(tooltip)+'"></a>';
+      }).join('');
+      const writers=e.writing.map(y=>{
+        const matches=[...(e.writingDetails.get(y)?.values()||[])];
+        if(!matches.length)return '';
+        const tooltip=matches.map(({release,roles,tracks})=>
+          y+' · '+releaseTitleWithContext(release)+'\nLåtskrivarkredit: '+[...roles].join(', ')
+          +(tracks.size?'\nLåtar: '+[...tracks].join(', '):'')
+          +'\nDetta är inte ett belägg för spelad eller sjungen medverkan.').join('\n\n');
+        return '<a class="bm-timeline-writing bm-timeline-credit-link" style="left:'+px(y)+
+          '" href="'+releaseHref(matches[0].release)+'" title="'+escapeHtml(tooltip)+
           '" aria-label="'+escapeHtml(tooltip)+'"></a>';
       }).join('');
       const anchors=e.anchors.map(y=>'<i class="bm-timeline-anchor" style="left:'+px(y)+
@@ -1450,10 +1529,10 @@
         '" title="'+escapeHtml('Uppgiven avgång 2003. Övergång ungefär 2002/2003; exakt datum är okänt.')+'"></i>').join('');
       const accessible=e.p.canonical_name+'. '+e.intervals.map(x=>x[0]+'–'+x[1]).join(', ')+
         (e.transitions.length ? '. Uppgiven avgång under 2003, okänd månad.' : '')+
-        '. Skivkrediter: '+e.credit.join(', ');
+        '. Musikercredits: '+e.credit.join(', ')+'. Låtskrivarkrediter: '+e.writing.join(', ');
       return '<div class="bm-timeline-row"><a class="bm-timeline-person" href="'+personHref(e.p)+'">'+
         escapeHtml(bandMembershipDisplayName(e.p,bandId))+'</a><div class="bm-timeline-track" style="--bm-color:'+
-        colors[e.role]+'" aria-label="'+escapeHtml(accessible)+'">'+grid+periods+marks+anchors+transitionMarks+
+        colors[e.role]+'" aria-label="'+escapeHtml(accessible)+'">'+grid+periods+marks+writers+anchors+transitionMarks+
         '</div></div>';
     }).join('');
     // Every original album/EP/demo is visible even without any named musicians.
@@ -1483,15 +1562,16 @@
     // from this timeline; they remain listed under the full discography.
     const legend=roles.map(role=>'<span class="bm-timeline-legend-item"><i style="background:'+
       colors[role]+'"></i>'+names[role]+'</span>').join('');
-    return '<section class="bm-timeline" aria-label="Medlemstidslinje">'+
+    return '<section class="bm-timeline" data-band-id="'+escapeHtml(bandId)+'" aria-label="Medlemstidslinje">'+
       '<header class="bm-timeline-heading"><h3>Tidslinje</h3></header>'+
-      '<p class="bm-timeline-note">Heldragna staplar visar belagda medlemsår. Översta raden visar bara ursprungligen utgivna album, EP och demos. Återutgåvor, digitala arkivuppladdningar och outgivna sessioner finns kvar i diskografin men ger inte egna släppmarkeringar. Klicka eller håll pekaren över markeringarna för titel och dokumenterade musikercredits.</p>'+
+      '<p class="bm-timeline-note">Heldragna staplar visar dokumenterade medlemsperioder. Översta raden visar ursprungliga album, EP och demos. Stående markeringar är individuella musikercredits, små streck nedtill visar separata låtskrivarkrediter. Varken låtskrivande eller en skivkredit bevisar en sammanhängande medlemsperiod. Återutgåvor skapar inga extra markeringar.</p>'+
       (isUnkinds ? '<p class="bm-timeline-note">ÖVERGÅNGEN 2002/2003: David Berlin, Jens Hagekull och Magnus Åberg är dokumenterade på studioinspelningar från cirka 2002. John Swahns uppsättning spelade på Fellini redan 20 februari 2003 och spelade enligt arkivredaktörens uppgift in demon Almost Human dessförinnan. Snuffed By The Yakuza uppgav senare att trion lämnade The Unkinds under 2003, utan att ange månad. Därför visas deras avgång som en ungefärlig övergång vid årsskiftet, inte som ett påstående om två parallella uppsättningar under 2003. Exakt datum är okänt.</p>' : '')+
       '<div class="bm-timeline-scroll" tabindex="0" aria-label="Rulla tidslinjen i sidled">'+
         '<div class="bm-timeline-canvas" style="min-width:'+Math.min(1450,Math.max(700,220+span*34))+'px">'+
           '<div class="bm-timeline-axis"><span>Musiker / utgåvor</span><div>'+axis+'</div></div>'+discographyTimelineRow+rows+
         '</div></div><div class="bm-timeline-legend">'+legend+
-        '<span class="bm-timeline-legend-item"><i class="bm-timeline-credit-key"></i>Krediterad på utgåva (klickbar)</span>'+
+        '<span class="bm-timeline-legend-item"><i class="bm-timeline-credit-key"></i>Musiker på utgåva (klickbar)</span>'+
+        '<span class="bm-timeline-legend-item"><i class="bm-timeline-writing-key"></i>Låtskrivare (klickbar)</span>'+
         (periodReleases.length ? '<span class="bm-timeline-legend-item"><i class="bm-timeline-release-key"></i>Album / EP / demo</span>' : '')+
         '<span class="bm-timeline-legend-item"><i class="bm-timeline-period-key"></i>Medlemsperiod</span>'+
         '<span class="bm-timeline-legend-item"><i class="bm-timeline-anchor-key"></i>Enskilt medlemsår</span>'+
@@ -1644,7 +1724,7 @@
           + '<summary><span>'+escapeHtml(section.label)+'</span><strong>'+members.length+'</strong></summary>'
           + '<div class="discography-section-rows band-membership-rows"><div class="credit-list">'
           +rows+'</div></div></details>';
-      }).join('')+renderBandMemberTimeline(bandId,groups,creditYears)+'</div>';
+      }).join('')+renderBandMemberTimeline(bandId,groups,creditYears,bandTimelineTrackCreditCache.get(bandId)||[])+'</div>';
   }
 
   function groupedMembershipsForPerson(id) {
@@ -3269,6 +3349,7 @@
         </div>
       </section>`;
     setupBandProfileTabs(memberGroups, rels);
+    hydrateBandTimelineTrackCredits(b.id,memberGroups);
     renumberBandHeadings();
     renderBandConcerts(b.id);
     renderBandExternalLinks(b.id);
