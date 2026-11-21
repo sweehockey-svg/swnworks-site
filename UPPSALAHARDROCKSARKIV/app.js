@@ -1881,6 +1881,24 @@
   }
 
 
+  // Historical demo collections are filed under their approximate recording
+  // year, even when the first known public upload happened much later.
+  // Keep the actual publication year/date on the Supabase release record.
+  const HISTORICAL_DEMO_RECORDING_YEARS = new Map([
+    ['1b0025b5-5e7a-4c3a-bfbd-d729dcc614d7', 2002]
+  ]);
+  function releaseListingYear(r) {
+    return HISTORICAL_DEMO_RECORDING_YEARS.get(r.id) || r.release_year || null;
+  }
+  function releaseListingYearLabel(r) {
+    return String(releaseListingYear(r) || '—');
+  }
+  function releaseListingContext(r) {
+    return HISTORICAL_DEMO_RECORDING_YEARS.has(r.id)
+      ? 'Inspelat ca 2002 · publicerat på YouTube 2021'
+      : '';
+  }
+
   function releaseRow(r, bandLabel, titleOverride) {
     const compact = bandLabel?.compact === true;
     const band = releaseBand(r.id);
@@ -1888,7 +1906,7 @@
     const cover = releaseMedia(r);
     return `<a class="release-row${cover ? ' has-cover' : ''}${compact ? ' release-row-compact' : ''}" href="${releaseHref(r)}">
       <div class="release-cover-thumb">${cover ? `<img src="${escapeHtml(cover)}" alt="${escapeHtml(r.title)}" loading="lazy">` : '<span>UHA</span>'}</div>
-      <div class="release-year">${r.release_year || '—'}</div>
+      <div class="release-year">${releaseListingYearLabel(r)}</div>
       <div><div class="release-title">${escapeHtml(titleOverride || r.title)}</div><span class="release-kind">${escapeHtml([r.release_type, r.format].filter(Boolean).join(' · '))}</span></div>
       ${compact ? '' : `<div class="release-band">${escapeHtml(typeof bandLabel === 'string' ? bandLabel : (band?.canonical_name || 'Band kartläggs'))}</div>`}
       ${compact ? '' : `<div class="release-credits">${escapeHtml(credits.join(' · ') || 'Krediter kartläggs')}${creditsForRelease(r.id).length > 4 ? ' …' : ''}</div>`}
@@ -1927,18 +1945,18 @@
     });
     return [...groups].map(([id,items])=>{
       const primary=present.get(id);
-      const byDate=(a,b)=>(a.release_year||9999)-(b.release_year||9999)
+      const byDate=(a,b)=>(releaseListingYear(a)||9999)-(releaseListingYear(b)||9999)
         || a.title.localeCompare(b.title,'sv');
       const editions=items.filter(r=>r.id===primary.id || !r.bonus_disc_of_release_id)
         .sort((a,b)=>(a.id===primary.id?-1:b.id===primary.id?1:0) || byDate(a,b));
       const bonusDiscs=items.filter(r=>r.id!==primary.id && Boolean(r.bonus_disc_of_release_id))
         .sort(byDate);
       return {primary,editions,bonusDiscs};
-    }).sort((a,b)=>(a.primary.release_year||9999)-(b.primary.release_year||9999)
+    }).sort((a,b)=>(releaseListingYear(a.primary)||9999)-(releaseListingYear(b.primary)||9999)
       || a.primary.title.localeCompare(b.primary.title,'sv'));
   }
   function editionDisplayLabel(r) {
-    return r.edition_label || [r.release_year,r.format,r.catalog_number].filter(Boolean).join(' · ') || r.title;
+    return r.edition_label || [releaseListingYear(r),r.format,r.catalog_number].filter(Boolean).join(' · ') || r.title;
   }
   function bonusDiscDisplayLabel(r) {
     return (/\bCD(?:-R|R)?\b/i.test(r.format || '') ? 'Bonus-CD' : 'Bonusmaterial') + ' · ' + r.title;
@@ -1947,7 +1965,7 @@
     return '<a class="'+cssClass+(currentId===r.id?' is-current':'')+'" href="'+releaseHref(r)+'"'
       +(currentId===r.id?' aria-current="page"':'')+'>'
       +'<strong>'+escapeHtml(displayTitle)+'</strong>'
-      +'<small>'+escapeHtml([r.release_year,r.format,r.catalog_number].filter(Boolean).join(' · '))
+      +'<small>'+escapeHtml([releaseListingYear(r),r.format,r.catalog_number].filter(Boolean).join(' · '))
       +'</small></a>';
   }
   function discographyReleaseRow(group) {
@@ -3452,7 +3470,7 @@
     });
     const releases = state.releases.filter(r => localBandNames.has(r.id));
     const types = [...new Set(releases.map(r=>r.release_type).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'sv'));
-    const decades = [...new Set(releases.filter(r=>r.release_year).map(r=>Math.floor(r.release_year/10)*10))].sort((a,b)=>a-b);
+    const decades = [...new Set(releases.filter(r=>releaseListingYear(r)).map(r=>Math.floor(releaseListingYear(r)/10)*10))].sort((a,b)=>a-b);
     app.innerHTML = `${pageHeader('DEMOER / KASSETTER / UTGÅVOR','Utgåvor','Utgåvorna är ofta de bästa hållpunkterna för årtal, lineups och hur scenen faktiskt såg ut vid en viss tidpunkt.')}
       <section class="section page-section first-section">
         <div class="index-toolbar"><label class="search-box"><span>Sök utgåva</span><input id="release-search" type="search" placeholder="Titel, band eller år…"></label><div class="index-count"><strong id="registry-count"></strong> utgåvor</div></div>
@@ -3469,14 +3487,14 @@
     const update=bindRegistry(()=> {
       const term=input.value.trim().toLocaleLowerCase('sv');
       return releases.filter(r=>
-        `${r.title} ${bandNames.get(r.id)} ${r.release_year||''}`.toLocaleLowerCase('sv').includes(term) &&
+        `${r.title} ${bandNames.get(r.id)} ${releaseListingYear(r)||''} ${r.release_year||''}`.toLocaleLowerCase('sv').includes(term) &&
         (!type.value || r.release_type===type.value) &&
-        (!decade.value || (decade.value==='unknown' ? !r.release_year : r.release_year && Math.floor(r.release_year/10)*10===Number(decade.value)))
+        (!decade.value || (decade.value==='unknown' ? !releaseListingYear(r) : releaseListingYear(r) && Math.floor(releaseListingYear(r)/10)*10===Number(decade.value)))
       ).sort((a,b)=> {
         if(sort.value==='title') return a.title.localeCompare(b.title,'sv');
         if(sort.value==='band') return bandNames.get(a.id).localeCompare(bandNames.get(b.id),'sv') || a.title.localeCompare(b.title,'sv');
-        const yearA=a.release_year || (sort.value==='newest' ? -1 : 9999);
-        const yearB=b.release_year || (sort.value==='newest' ? -1 : 9999);
+        const yearA=releaseListingYear(a) || (sort.value==='newest' ? -1 : 9999);
+        const yearB=releaseListingYear(b) || (sort.value==='newest' ? -1 : 9999);
         return (sort.value==='newest' ? yearB-yearA : yearA-yearB) || a.title.localeCompare(b.title,'sv');
       });
     },rows=>rows.map(r=>releaseRow(r, bandNames.get(r.id))).join(''),'release-stack',[[input,'input'],[type,'change'],[decade,'change'],[sort,'change']]);
@@ -3649,7 +3667,7 @@
     const claims = claimsForEntity('release', r.id);
     const sources = sourcesForClaims(claims);
     const gallery = releaseGallery(r);
-    const meta = [r.release_year || 'Årtal söks', r.release_type, r.format, linkedBands.length > 1 ? 'Samlingsalbum · ' + linkedBands.map(b => b.canonical_name).join(', ') : band?.canonical_name].filter(Boolean).map(x => `<span>${escapeHtml(x)}</span>`).join('');
+    const meta = [releaseListingYear(r) || 'Årtal söks', releaseListingContext(r), r.release_type, r.format, linkedBands.length > 1 ? 'Samlingsalbum · ' + linkedBands.map(b => b.canonical_name).join(', ') : band?.canonical_name].filter(Boolean).map(x => `<span>${escapeHtml(x)}</span>`).join('');
     app.innerHTML = `${breadcrumbs([{label:'Utgåvor',href:'#/utgavor'},{label:r.title}])}${pageHeader('UTGÅVA / ARKIVPOST',escapeHtml(r.title),'',meta)}
       <section class="section detail-layout first-section">
         <aside class="detail-aside">${releaseMedia(r) ? `<figure class="detail-media release-artwork"><img src="${releaseMedia(r)}" alt="${escapeHtml(r.title)}"></figure>${externalMediaCredit(releaseMedia(r))}` : ''}${spotifyLink(band, r.id)}<div class="aside-label">Utgåva</div><p>${escapeHtml(r.description || `En ${r.release_type || 'utgåva'} från ${r.release_year || 'okänt år'} i arkivet.`)}</p>${band ? `<a class="button button-ghost aside-button" href="${bandHref(band)}">Öppna ${escapeHtml(band.canonical_name)}</a>` : ''}</aside>
@@ -3674,9 +3692,9 @@
     state.releases.forEach(r => {
       const b = releaseBand(r.id);
       const credits = creditsForRelease(r.id).map(c => `${personName(c.person_id)} (${roleSv(c.role)})`);
-      rows.push({year:r.release_year, kind:'release', local:releaseLocal.has(r.id) || localIds.has(b?.id),
+      rows.push({year:releaseListingYear(r), kind:'release', local:releaseLocal.has(r.id) || localIds.has(b?.id),
         href:releaseHref(r), title:`${b?.canonical_name || 'Okänt band'} — ${r.title}`,
-        text:'Utgåva i arkivet.', credits:credits.join(', '), tags:[r.release_type,r.format].filter(Boolean)});
+        text:releaseListingContext(r) || 'Utgåva i arkivet.', credits:credits.join(', '), tags:[r.release_type,r.format].filter(Boolean)});
     });
     const bandMap = bandsById();
     state.claims.filter(c => c.claim_type === 'band_formation' && c.from_year).forEach(c => {
