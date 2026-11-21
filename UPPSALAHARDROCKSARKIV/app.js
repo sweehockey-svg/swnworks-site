@@ -1268,9 +1268,9 @@
       if(!releaseIds.has(credit.release_id))return;
       const release=releasesById().get(credit.release_id);
       if(!release || release.bonus_disc_of_release_id)return;
-      // The Goin' Out Of Style demos were recorded around 2002, but only
-      // archived online in 2021. Do not turn the upload date into a 2021
-      // musician/lineup credit on the historical timeline.
+      // The Goin' Out Of Style 2002 recording session was not itself a
+      // released demo. Don't present a 2021 online upload or an approximate
+      // session year as a formal album-credit date on the member timeline.
       if(release.id==='1b0025b5-5e7a-4c3a-bfbd-d729dcc614d7')return;
       const type=String(release.release_type || '').toLowerCase();
       const format=String(release.format || '');
@@ -1881,21 +1881,17 @@
   }
 
 
-  // Historical demo collections are filed under their approximate recording
-  // year, even when the first known public upload happened much later.
-  // Keep the actual publication year/date on the Supabase release record.
-  const HISTORICAL_DEMO_RECORDING_YEARS = new Map([
-    ['1b0025b5-5e7a-4c3a-bfbd-d729dcc614d7', 2002]
-  ]);
+  // The archive may register an approximate recording year for previously
+  // unreleased demo sessions. An online upload is not a new record release.
   function releaseListingYear(r) {
-    return HISTORICAL_DEMO_RECORDING_YEARS.get(r.id) || r.release_year || null;
+    return r.release_year || null;
   }
   function releaseListingYearLabel(r) {
     return String(releaseListingYear(r) || '—');
   }
   function releaseListingContext(r) {
-    return HISTORICAL_DEMO_RECORDING_YEARS.has(r.id)
-      ? 'Inspelat ca 2002 · publicerat på YouTube 2021'
+    return r.id==='1b0025b5-5e7a-4c3a-bfbd-d729dcc614d7'
+      ? 'Inspelat ca 2002 · upplagt på YouTube 2021 (ej utgiven demo)'
       : '';
   }
 
