@@ -2211,3 +2211,14 @@ body.network-body-fullscreen { overflow:hidden; }
 @media(prefers-reduced-motion:reduce){
   .archive-search .archive-search-control {transition:none;}
 }
+
+
+/* Historical-cassette reconstruction: visible, neutral provenance label. */
+.archive-cover-disclaimer {
+  margin: 10px 0 14px;
+  font: 400 12px/1.55 var(--body, inherit);
+  color: var(--muted, #aaa);
+  max-width: 420px;
+}
+.archive-cover-disclaimer strong { font-weight:700; color:var(--ink, #ddd); }
+.archive-cover-disclaimer a { color:var(--acid, #d9fd39); text-decoration:underline; text-underline-offset:2px; }
