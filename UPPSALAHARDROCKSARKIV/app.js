@@ -12,7 +12,7 @@
   });
 
   const state = {
-    people: [], bands: [], relatedBands: [], allBands: [], memberships: [], releases: [], releaseBands: [], releaseMembers: [],
+    people: [], personNames: [], bands: [], relatedBands: [], allBands: [], memberships: [], releases: [], releaseBands: [], releaseMembers: [],
     relations: [], familyRelations: [], sources: [], claims: [], claimSources: [], claimEntities: [], uppsalaBandIds: [], mediaItems: [], mediaLinks: []
   };
 
@@ -1591,6 +1591,17 @@
       'a1bc2a2d-a544-4a63-a0bc-180911ac9a5c': 'Dave Janney (Frank Fuentes)',
       '7e15c9bd-d0ed-42a7-9731-38ee5960b377': 'Stefan Pettersson (Dietro Quella Porta)',
       '51b8e949-0fd1-41bc-ace9-af7cae1f34cd': "Henrik Sundin (Henri D'Ranged)"
+    },
+    // Hærdsmälta: member-specific aliases verified in band-owned recordings.
+    // Keep historical (AEBERG/BJOERK) and later (Doom/Louise) credit names.
+    '3dd83d44-1db9-47a8-b5ec-930f4c41b142': {
+      '515f0d06-831a-4f7c-957f-d07ef768eeeb': 'Magnus Åberg (AEBERG, Doom Paérignon)',
+      '051e287e-43e6-4a31-973f-28411f782855': 'Anders Björk (BJOERK, Louise Moulderer)',
+      '70504ca5-5f0d-47ee-bb6d-b9b1a8f606b2': 'Dennis Olsson (Nicolas Ruin Art)',
+      '2f8d3192-d4f5-46d9-bfee-6b119dd0205d': 'Simon Wettervik (Pol Pot Roger)',
+      'bb8cf4ed-3ea5-4c50-bcb6-3d55efa60edc': 'Patrik Sporrong (SPRAENG)'
+      // Philippe de Nihil is currently documented only by this stage name.
+      // His canonical display must remain "Philippe de Nihil", not a guessed real name.
     }
   };
 
@@ -1604,7 +1615,15 @@
     if(reviewed)return reviewed;
     const base=personDisplayName(person);
     const specific=verifiedIdentity(person)?.bandNames?.[bandId] || '';
-    const candidates=PERSON_STAGE_NAMES[person.id] || [];
+    // Prefer the latest verified stage names returned by the public archive RPC.
+    // Static names are a safe fallback for an older snapshot.
+    const currentAliases=state.personNames
+      .filter(item=>item.person_id===person.id && item.name_type==='stage')
+      .map(item=>String(item.name||'').trim())
+      .filter(Boolean);
+    const candidates=currentAliases.length
+      ? [...new Set(currentAliases)]
+      : (PERSON_STAGE_NAMES[person.id] || []);
     let alias=specific;
     if(!alias && candidates.length===1)alias=candidates[0];
     if(!alias && candidates.length>1){
