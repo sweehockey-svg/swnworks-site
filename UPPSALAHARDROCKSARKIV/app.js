@@ -1020,7 +1020,34 @@
 ];
   const verifiedIdentity = p => VERIFIED_PERSON_IDENTITIES.find(x => x.id === p?.id);
   function personAliases(p) {
-    return (verifiedIdentity(p)?.aliases || []).filter(name => name !== p.canonical_name);
+    if (!p) return [];
+    // Combine editor-reviewed historic names with the current public stage-name
+    // register. This keeps newly verified aliases visible on every person profile
+    // and searchable without changing the person's canonical identity.
+    const registered=state.personNames
+      .filter(row=>String(row.person_id)===String(p.id) && row.name_type==='stage')
+      .map(row=>row.name);
+    const names=[...(verifiedIdentity(p)?.aliases || []),...registered];
+    const seen=new Set([String(p.canonical_name||'').trim().toLocaleLowerCase('sv')]);
+    const aliases=names.map(name=>String(name||'').trim()).filter(name=>{
+      const key=name.toLocaleLowerCase('sv');
+      if(!key || seen.has(key))return false;
+      seen.add(key);
+      return true;
+    });
+    // Show the two HAERDSMAELTA identities in their documented order; preserve
+    // the remaining stage names (Barefoot Baby Brown, Kahn Ibbal and others).
+    const preferred={
+      '515f0d06-831a-4f7c-957f-d07ef768eeeb':['AEBERG','Doom Paérignon'],
+      '051e287e-43e6-4a31-973f-28411f782855':['BJOERK','Louise Moulderer']
+    }[p.id];
+    if(preferred){
+      aliases.sort((a,b)=>{
+        const rank=name=>{const i=preferred.findIndex(x=>x.toLocaleLowerCase('sv')===name.toLocaleLowerCase('sv'));return i<0 ? preferred.length : i;};
+        return rank(a)-rank(b);
+      });
+    }
+    return aliases;
   }
   function personSearchName(p) {
     return [p?.canonical_name || '', ...personAliases(p || {})].join(' ');
