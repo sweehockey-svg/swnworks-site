@@ -3836,40 +3836,53 @@
     }).join('');
     const trackIds=new Set(tracks.map(track=>track.id));
     const trackNames=new Map(tracks.map(track=>[track.id,track.title]));
-    const aggregated=new Map();
+    // Group by PERSON, not person + role. Different roles can cover
+    // different songs, so preserve each role's individual track set.
+    const byPerson=new Map();
     trackCredits.forEach(credit=>{
       if(!trackIds.has(credit.track_id))return;
       const person=peopleById().get(credit.person_id);
       const name=String(credit.credited_as||person?.canonical_name||'Okänd');
       const role=String(credit.role||'Ospecificerad roll');
-      const key=String(credit.person_id||name.toLocaleLowerCase('sv'))+'\u001f'+role.toLocaleLowerCase('sv');
-      if(!aggregated.has(key))aggregated.set(key,{person,name,role,tracks:new Set()});
-      aggregated.get(key).tracks.add(credit.track_id);
+      const key=String(credit.person_id||name.toLocaleLowerCase('sv'));
+      if(!byPerson.has(key))byPerson.set(key,{person,name,roles:new Map()});
+      const entry=byPerson.get(key);
+      const roleKey=roleSv(role).trim().toLocaleLowerCase('sv');
+      if(!entry.roles.has(roleKey))entry.roles.set(roleKey,{role,tracks:new Set()});
+      entry.roles.get(roleKey).tracks.add(credit.track_id);
     });
-    // Show full-release roles once: release-level credit takes precedence over
-    // identical credits repeated on every track. Keep all track records intact.
-    const redundantFullReleaseRole=entry=>
-      trackIds.size>0 && entry.tracks.size===trackIds.size &&
+    // A full-release credit takes precedence over the same role repeated
+    // on every song. Never hide a different role or a partial-song credit.
+    const redundantFullReleaseRole=(person,roleEntry)=>
+      trackIds.size>0 && roleEntry.tracks.size===trackIds.size &&
       albumCredits.some(albumCredit=>
-        albumCredit.person_id && albumCredit.person_id===entry.person?.id &&
+        albumCredit.person_id && albumCredit.person_id===person?.id &&
         roleSv(albumCredit.role||'').trim().toLocaleLowerCase('sv')===
-          roleSv(entry.role).trim().toLocaleLowerCase('sv'));
-    const songRows=[...aggregated.values()]
-      .filter(entry=>!redundantFullReleaseRole(entry))
-      .sort((a,b)=>
-      a.name.localeCompare(b.name,'sv')||a.role.localeCompare(b.role,'sv')).map(entry=>{
-      const count=entry.tracks.size;
-      const full=tracks.length>0 && count===trackIds.size;
-      const scope=full?'Samtliga '+trackIds.size+' spår':count+' av '+trackIds.size+' spår';
-      const songNames=[...entry.tracks].map(id=>trackNames.get(id)).filter(Boolean);
-      const tooltip=full?'Alla låtar på denna registrerade utgåva':songNames.join(', ');
-      const inner='<strong>'+escapeHtml(entry.name)+'</strong>'
-        +'<span>'+escapeHtml(roleSv(entry.role))+'</span>'
-        +'<em>'+escapeHtml(scope)+'</em>';
-      return entry.person
-        ? '<a href="'+escapeHtml(personHref(entry.person))+'" title="'+escapeHtml(tooltip)+'">'+inner+'</a>'
-        : '<div class="release-credit-static" title="'+escapeHtml(tooltip)+'">'+inner+'</div>';
-    }).join('');
+          roleSv(roleEntry.role).trim().toLocaleLowerCase('sv'));
+    const songRows=[...byPerson.values()]
+      .sort((a,b)=>a.name.localeCompare(b.name,'sv'))
+      .map(entry=>{
+        const roles=[...entry.roles.values()]
+          .filter(roleEntry=>!redundantFullReleaseRole(entry.person,roleEntry));
+        if(!roles.length)return '';
+        const creditedTracks=new Set(roles.flatMap(roleEntry=>[...roleEntry.tracks]));
+        const count=creditedTracks.size;
+        const full=tracks.length>0 && count===trackIds.size;
+        const scope=full?'Samtliga '+trackIds.size+' spår':count+' av '+trackIds.size+' spår';
+        // E.g. "kompositör (9/10), gitarr (8/10)"; when every role
+        // covers the same tracks, a single count on the right is enough.
+        const differentScopes=roles.some(roleEntry=>roleEntry.tracks.size!==count);
+        const labels=roles.map(roleEntry=>roleSv(roleEntry.role)+
+          (differentScopes?' ('+roleEntry.tracks.size+'/'+trackIds.size+')':''));
+        const tooltip=roles.map(roleEntry=>roleSv(roleEntry.role)+': '+
+          [...roleEntry.tracks].map(id=>trackNames.get(id)).filter(Boolean).join(', ')).join(' | ');
+        const inner='<strong>'+escapeHtml(entry.name)+'</strong>'
+          +'<span>'+escapeHtml(labels.join(', '))+'</span>'
+          +'<em>'+escapeHtml(scope)+'</em>';
+        return entry.person
+          ? '<a href="'+escapeHtml(personHref(entry.person))+'" title="'+escapeHtml(tooltip)+'">'+inner+'</a>'
+          : '<div class="release-credit-static" title="'+escapeHtml(tooltip)+'">'+inner+'</div>';
+      }).join('');
     const albumSection=albumRows
       ? '<div class="release-credit-group"><h3>Utgåvekrediter</h3><div class="credit-list">'+albumRows+'</div></div>'
       : '';
