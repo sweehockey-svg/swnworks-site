@@ -2326,3 +2326,36 @@ body.network-body-fullscreen { overflow:hidden; }
 }
 .archive-cover-disclaimer strong { font-weight:700; color:var(--ink, #ddd); }
 .archive-cover-disclaimer a { color:var(--acid, #d9fd39); text-decoration:underline; text-underline-offset:2px; }
+
+/* Release pages: shorter hero, adaptive long titles, content visible earlier. */
+.page-hero.release-page-hero { min-height:245px; }
+.release-page-hero .page-hero-inner { padding-top:42px; padding-bottom:34px; }
+.release-page-hero h1 {
+  max-width:1100px;
+  font-size:clamp(42px,5.6vw,90px);
+  line-height:.98;
+  letter-spacing:-.045em;
+  overflow-wrap:anywhere;
+  hyphens:auto;
+}
+.release-page-hero.release-page-hero-long h1 {
+  max-width:1060px;
+  font-size:clamp(34px,4.2vw,64px);
+  line-height:1.02;
+  letter-spacing:-.037em;
+}
+.release-page-hero .page-meta { margin-top:17px; }
+.release-detail-layout.first-section { padding-top:44px; }
+@media (max-width:760px) {
+  .page-hero.release-page-hero { min-height:0; }
+  .release-page-hero .page-hero-inner { padding-top:30px; padding-bottom:28px; }
+  .release-page-hero h1 { font-size:clamp(35px,8.3vw,60px); line-height:1; }
+  .release-page-hero.release-page-hero-long h1 { font-size:clamp(30px,7.2vw,49px); line-height:1.06; }
+  .release-detail-layout.first-section { padding-top:30px; }
+}
+@media (max-width:480px) {
+  .release-page-hero h1 { font-size:clamp(30px,8vw,43px); }
+  .release-page-hero.release-page-hero-long h1 { font-size:clamp(27px,7vw,36px); }
+  .release-page-hero .page-hero-inner { padding-top:26px; padding-bottom:22px; }
+  .release-page-hero .page-meta { margin-top:13px; }
+}
