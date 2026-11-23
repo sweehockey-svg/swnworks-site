@@ -3836,6 +3836,38 @@
     }).join('');
     const trackIds=new Set(tracks.map(track=>track.id));
     const trackNames=new Map(tracks.map(track=>[track.id,track.title]));
+    const trackMetadata=new Map(tracks.map(track=>[track.id,track]));
+    // Compact consecutive song numbers into readable ranges:
+    // [1,2,3,5,6,8,10] => "1–3, 5–6, 8, 10".
+    // Keep discs separate when a release has more than one disc.
+    const trackNumberRanges=trackIdSet=>{
+      const discs=new Map();
+      trackIdSet.forEach(id=>{
+        const track=trackMetadata.get(id);
+        if(!track)return;
+        const number=Number(track.track_number);
+        if(!Number.isInteger(number) || number<1)return;
+        const disc=Number(track.disc_number)||1;
+        if(!discs.has(disc))discs.set(disc,new Set());
+        discs.get(disc).add(number);
+      });
+      return [...discs.entries()].sort((a,b)=>a[0]-b[0]).map(([disc,numbers])=>{
+        const sorted=[...numbers].sort((a,b)=>a-b);
+        const ranges=[];
+        let start=null,previous=null;
+        const finish=()=>{
+          if(start===null)return;
+          ranges.push(start===previous?String(start):start+'–'+previous);
+        };
+        sorted.forEach(number=>{
+          if(start===null){start=number;previous=number;}
+          else if(number===previous+1){previous=number;}
+          else {finish();start=number;previous=number;}
+        });
+        finish();
+        return (discs.size>1?'CD '+disc+': ':'')+ranges.join(', ');
+      }).join(' · ');
+    };
     // Group by PERSON, not person + role. Different roles can cover
     // different songs, so preserve each role's individual track set.
     const byPerson=new Map();
@@ -3866,14 +3898,14 @@
           .filter(roleEntry=>!redundantFullReleaseRole(entry.person,roleEntry));
         if(!roles.length)return '';
         const creditedTracks=new Set(roles.flatMap(roleEntry=>[...roleEntry.tracks]));
-        const count=creditedTracks.size;
-        const full=tracks.length>0 && count===trackIds.size;
-        const scope=full?'Samtliga '+trackIds.size+' spår':count+' av '+trackIds.size+' spår';
-        // E.g. "kompositör (9/10), gitarr (8/10)"; when every role
-        // covers the same tracks, a single count on the right is enough.
-        const differentScopes=roles.some(roleEntry=>roleEntry.tracks.size!==count);
+        const scopeNumbers=trackNumberRanges(creditedTracks);
+        const scope=scopeNumbers?'Spår '+scopeNumbers:creditedTracks.size+' av '+trackIds.size+' spår';
+        // Show actual track ranges for different roles, not misleading
+        // 9/10 counts. Compare track sets, not just their sizes.
+        const sameTracks=(a,b)=>a.size===b.size && [...a].every(id=>b.has(id));
+        const differentScopes=roles.some(roleEntry=>!sameTracks(roleEntry.tracks,creditedTracks));
         const labels=roles.map(roleEntry=>roleSv(roleEntry.role)+
-          (differentScopes?' ('+roleEntry.tracks.size+'/'+trackIds.size+')':''));
+          (differentScopes?' ('+(trackNumberRanges(roleEntry.tracks)||roleEntry.tracks.size+' spår')+')':''));
         const tooltip=roles.map(roleEntry=>roleSv(roleEntry.role)+': '+
           [...roleEntry.tracks].map(id=>trackNames.get(id)).filter(Boolean).join(', ')).join(' | ');
         const inner='<strong>'+escapeHtml(entry.name)+'</strong>'
