@@ -1329,7 +1329,7 @@
   function releaseCreditYearsForBand(bandId) {
     const releaseIds=new Set(state.releaseBands.filter(row=>row.band_id===bandId).map(row=>row.release_id));
     const recorded=new Map();
-    const musicianRole=/guitar|gitarr|bass|basist|drums?|trumm|vocals?|vocalist|sång|singer|keyboard|synth|piano|organ|percussion|violin|cello|flute|sax|trumpet|harmonica|accordion|instrument|turntables?|banjo|mandolin|programming/i;
+    const musicianRole=/guitar|gitarr|bass|\bbas\b|basist|drums?|trumm|vocals?|vocalist|sång|singer|keyboard|synth|piano|organ|percussion|violin|cello|flute|sax|trumpet|harmonica|accordion|instrument|turntables?|banjo|mandolin|programming/i;
     const excludeRole=/guest|gäst|featur(?:ed|ing)|session|additional/i;
     const types=new Set(['album','ep','demo','single','split']);
     state.releaseMembers.forEach(credit=>{
@@ -1427,7 +1427,7 @@
       (TIMELINE_MUSIC_TYPES.has(String(r.release_type||'').toLowerCase())
         || (String(r.release_type||'').toLowerCase()==='other' && /\bpromo\b/i.test(String(r.format||''))))
       && isOriginalTimelineRelease(r)).map(r=>r.id));
-    const roleIsMusician=/guitar|gitarr|bass|basist|drums?|trumm|vocals?|vocalist|sång|singer|keyboard|synth|piano|organ|percussion|violin|cello|flute|sax|trumpet|harmonica|accordion|instrument|turntables?|banjo|mandolin|programming/i;
+    const roleIsMusician=/guitar|gitarr|bass|\bbas\b|basist|drums?|trumm|vocals?|vocalist|sång|singer|keyboard|synth|piano|organ|percussion|violin|cello|flute|sax|trumpet|harmonica|accordion|instrument|turntables?|banjo|mandolin|programming/i;
     const roleIsWriter=/composer|composition|songwriter|songwriting|written.by|lyrics|lyricist|kompositör|låtskriv|textförfattare/i;
     const roleIsGuestOrTechnical=/guest|gäst|featur(?:ed|ing)|session|additional|engineer|tekniker|mixing|record(?:ed|ing) by|producer/i;
     const memberReleaseCredits=new Map();
