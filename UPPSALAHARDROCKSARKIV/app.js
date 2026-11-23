@@ -1421,6 +1421,11 @@
     const periodReleases=bandDiscography.filter(r=>
       discographyTypes.has(String(r.release_type||'').toLowerCase())
       && valid(r.release_year)!==null && isOriginalTimelineRelease(r));
+    // Recorded sessions without a documented contemporary release are still
+    // musical history. Show them separately from issued album/EP/demo pins.
+    const recordingSessions=bandDiscography.filter(r=>
+      TIMELINE_UNISSUED_SESSIONS.has(r.id) && valid(r.release_year)!==null);
+    const recordingSessionIds=new Set(recordingSessions.map(r=>r.id));
     // Single/split credits can support the musician's timeline even though
     // the discography row deliberately contains only albums, EPs and demos.
     const creditedOriginalIds=new Set(bandDiscography.filter(r=>
@@ -1432,6 +1437,7 @@
     const roleIsGuestOrTechnical=/guest|gäst|featur(?:ed|ing)|session|additional|engineer|tekniker|mixing|record(?:ed|ing) by|producer/i;
     const memberReleaseCredits=new Map();
     const memberWriterCredits=new Map();
+    const memberRecordingCredits=new Map();
     function addTimelineCredit(target,personId,release,role,trackTitle){
       const year=valid(release.release_year);
       if(year===null || !personId)return;
@@ -1446,9 +1452,18 @@
     }
     function collectTimelineCredit(c){
       if(!bandReleaseIds.has(c.release_id))return;
-      const release=originalTimelineCreditRelease(releasesById().get(c.release_id));
-      if(!release || !creditedOriginalIds.has(release.id))return;
+      const sourceRelease=releasesById().get(c.release_id);
       const role=String(c.role||'');
+      // Sessions are recordings, not contemporary releases. Their musician
+      // credits deserve a separate outline marker rather than an issued-disc dot.
+      if(recordingSessionIds.has(c.release_id)){
+        if(roleIsMusician.test(role) && !roleIsGuestOrTechnical.test(role)){
+          addTimelineCredit(memberRecordingCredits,c.person_id,sourceRelease,role,c.track_title);
+        }
+        return;
+      }
+      const release=originalTimelineCreditRelease(sourceRelease);
+      if(!release || !creditedOriginalIds.has(release.id))return;
       // Songwriting is useful historical evidence, but never a claim that
       // someone performed on that recording or stayed in the band that year.
       if(roleIsWriter.test(role)){
@@ -1484,8 +1499,10 @@
       if(!p)return null;
       const creditDetails=memberReleaseCredits.get(g.person_id)||new Map();
       const writingDetails=memberWriterCredits.get(g.person_id)||new Map();
+      const recordingDetails=memberRecordingCredits.get(g.person_id)||new Map();
       const credit=[...creditDetails.keys()].filter(y=>valid(y)!==null);
       const writing=[...writingDetails.keys()].filter(y=>valid(y)!==null);
+      const recordings=[...recordingDetails.keys()].filter(y=>valid(y)!==null);
       const intervals=[], anchors=[], transitions=[];
       (g.memberships||[]).filter(m=>['member','live'].includes(membershipKind(m))).forEach(m=>{
         const a=valid(m.joined_year), b=valid(m.left_year);
@@ -1507,13 +1524,14 @@
         else if(a!==null)anchors.push(a);
         else if(b!==null)anchors.push(b);
       });
-      const years=[...credit,...writing,...anchors,...transitions,...intervals.flatMap(x=>[x[0],x[1]])];
+      const years=[...credit,...writing,...recordings,...anchors,...transitions,...intervals.flatMap(x=>[x[0],x[1]])];
       return years.length ? {p,g,credit:[...new Set(credit)].sort((a,b)=>a-b),creditDetails,
-        writing:[...new Set(writing)].sort((a,b)=>a-b),writingDetails,intervals,anchors,transitions,
-        role:colorRole(g.roles),first:Math.min(...years),last:Math.max(...years)}:null;
+        writing:[...new Set(writing)].sort((a,b)=>a-b),writingDetails,
+        recordings:[...new Set(recordings)].sort((a,b)=>a-b),recordingDetails,
+        intervals,anchors,transitions,role:colorRole(g.roles),first:Math.min(...years),last:Math.max(...years)}:null;
     }).filter(Boolean).sort((a,b)=>a.first-b.first||a.p.canonical_name.localeCompare(b.p.canonical_name,'sv'));
-    if(entries.length<2 && !periodReleases.length)return '';
-    const allYears=[...entries.flatMap(e=>[e.first,e.last]),...periodReleases.map(r=>Number(r.release_year))];
+    if(entries.length<2 && !periodReleases.length && !recordingSessions.length)return '';
+    const allYears=[...entries.flatMap(e=>[e.first,e.last]),...periodReleases.map(r=>Number(r.release_year)),...recordingSessions.map(r=>Number(r.release_year))];
     const first=Math.min(...allYears);
     const last=Math.max(...allYears);
     if(last<first)return '';
@@ -1541,6 +1559,16 @@
           '" href="'+releaseHref(release)+'" title="'+escapeHtml(tooltip)+
           '" aria-label="'+escapeHtml(tooltip)+'"></a>';
       }).join('');
+      const sessionMarks=e.recordings.map(y=>{
+        const matches=[...(e.recordingDetails.get(y)?.values()||[])];
+        if(!matches.length)return '';
+        const tooltip=matches.map(({release,roles,tracks})=>
+          y+' (ungefärligt inspelningsår) · '+releaseTitleWithContext(release)+'\nInspelad medverkan: '+[...roles].join(', ')
+          +(tracks.size?'\nLåtar: '+[...tracks].join(', '):'')).join('\n\n');
+        return '<a class="bm-timeline-recording-credit bm-timeline-credit-link" style="left:'+px(y)+
+          '" href="'+releaseHref(matches[0].release)+'" title="'+escapeHtml(tooltip)+
+          '" aria-label="'+escapeHtml(tooltip)+'"></a>';
+      }).join('');
       const writers=e.writing.map(y=>{
         const matches=[...(e.writingDetails.get(y)?.values()||[])];
         if(!matches.length)return '';
@@ -1558,10 +1586,10 @@
         '" title="'+escapeHtml('Uppgiven avgång 2003. Övergång ungefär 2002/2003; exakt datum är okänt.')+'"></i>').join('');
       const accessible=e.p.canonical_name+'. '+e.intervals.map(x=>x[0]+'–'+x[1]).join(', ')+
         (e.transitions.length ? '. Uppgiven avgång under 2003, okänd månad.' : '')+
-        '. Musikercredits: '+e.credit.join(', ')+'. Låtskrivarkrediter: '+e.writing.join(', ');
+        '. Musikercredits: '+e.credit.join(', ')+'. Inspelningskrediter: '+e.recordings.join(', ')+'. Låtskrivarkrediter: '+e.writing.join(', ');
       return '<div class="bm-timeline-row"><a class="bm-timeline-person" href="'+personHref(e.p)+'">'+
         escapeHtml(bandMembershipDisplayName(e.p,bandId))+'</a><div class="bm-timeline-track" style="--bm-color:'+
-        colors[e.role]+'" aria-label="'+escapeHtml(accessible)+'">'+grid+periods+marks+writers+anchors+transitionMarks+
+        colors[e.role]+'" aria-label="'+escapeHtml(accessible)+'">'+grid+periods+marks+sessionMarks+writers+anchors+transitionMarks+
         '</div></div>';
     }).join('');
     // Every original album/EP/demo is visible even without any named musicians.
@@ -1587,20 +1615,37 @@
         '<span class="bm-timeline-discography-label">Album, EP & demos</span>'+
         '<div class="bm-timeline-track" aria-label="Album, EP och demoinspelningar">'+grid+pins+'</div></div>';
     }
-    // Reissues and retrospective archive uploads are intentionally absent
-    // from this timeline; they remain listed under the full discography.
+    // Historical studio/demo sessions have their own row, never a solid
+    // release pin. An approximate 2002 recording must not become a 2002 issue.
+    let sessionsTimelineRow='';
+    if(recordingSessions.length){
+      const sessionPins=recordingSessions.map(release=>{
+        const year=Number(release.release_year);
+        const tip=year+' (ca, inspelning – ej utgiven då)\n'+release.title+
+          '\nDokumenterade demoinspelningar, arkivpublicerade senare. Klicka för detaljer.';
+        return '<a class="bm-timeline-session-pin" style="left:'+px(year)+
+          '" href="'+releaseHref(release)+'" title="'+escapeHtml(tip)+
+          '" aria-label="'+escapeHtml(tip)+'"></a>';
+      }).join('');
+      sessionsTimelineRow='<div class="bm-timeline-row bm-timeline-discography-row bm-timeline-session-row">'+
+        '<span class="bm-timeline-discography-label">Demoinspelningar (arkiv)</span>'+
+        '<div class="bm-timeline-track" aria-label="Dokumenterade, ej ursprungligen utgivna inspelningar">'+grid+sessionPins+'</div></div>';
+    }
+    // Later reissues stay in the full discography, never appearing as new
+    // original release pins in this history timeline.
     const legend=roles.map(role=>'<span class="bm-timeline-legend-item"><i style="background:'+
       colors[role]+'"></i>'+names[role]+'</span>').join('');
     return '<section class="bm-timeline" data-band-id="'+escapeHtml(bandId)+'" aria-label="Medlemstidslinje">'+
       '<header class="bm-timeline-heading"><h3>Tidslinje</h3></header>'+
-      '<p class="bm-timeline-note">Heldragna staplar visar dokumenterade medlemsperioder. Översta raden visar ursprungliga album, EP och demos. Stående markeringar är individuella musikercredits, små streck nedtill visar separata låtskrivarkrediter. Varken låtskrivande eller en skivkredit bevisar en sammanhängande medlemsperiod. Återutgåvor skapar inga extra markeringar.</p>'+
+      '<p class="bm-timeline-note">Heldragna staplar visar dokumenterade medlemsperioder. Översta raden visar ursprungligen utgivna album, EP och demos. En separat rad visar belagda, tidigare outgivna demoinspelningar vid deras ungefärliga inspelningsår. Stående markeringar är individuella musikercredits; konturmarkeringar anger inspelningsmedverkan och små streck visar låtskrivarkrediter. Sådana markeringar bevisar inte en sammanhängande medlemsperiod. Återutgåvor skapar inga extra utgivningsmarkeringar.</p>'+
       (isUnkinds ? '<p class="bm-timeline-note">ÖVERGÅNGEN 2002/2003: David Berlin, Jens Hagekull och Magnus Åberg är dokumenterade på studioinspelningar från cirka 2002. John Swahns uppsättning spelade på Fellini redan 20 februari 2003 och spelade enligt arkivredaktörens uppgift in demon Almost Human dessförinnan. Snuffed By The Yakuza uppgav senare att trion lämnade The Unkinds under 2003, utan att ange månad. Därför visas deras avgång som en ungefärlig övergång vid årsskiftet, inte som ett påstående om två parallella uppsättningar under 2003. Exakt datum är okänt.</p>' : '')+
       '<div class="bm-timeline-scroll" tabindex="0" aria-label="Rulla tidslinjen i sidled">'+
         '<div class="bm-timeline-canvas" style="min-width:'+Math.min(1450,Math.max(700,220+span*34))+'px">'+
-          '<div class="bm-timeline-axis"><span>Musiker / utgåvor</span><div>'+axis+'</div></div>'+discographyTimelineRow+rows+
+          '<div class="bm-timeline-axis"><span>Musiker / utgåvor</span><div>'+axis+'</div></div>'+discographyTimelineRow+sessionsTimelineRow+rows+
         '</div></div><div class="bm-timeline-legend">'+legend+
         '<span class="bm-timeline-legend-item"><i class="bm-timeline-credit-key"></i>Musiker på utgåva (klickbar)</span>'+
         '<span class="bm-timeline-legend-item"><i class="bm-timeline-writing-key"></i>Låtskrivare (klickbar)</span>'+
+        (recordingSessions.length ? '<span class="bm-timeline-legend-item"><i class="bm-timeline-session-key"></i>Demoinspelning, ej utgiven då</span><span class="bm-timeline-legend-item"><i class="bm-timeline-recording-key"></i>Inspelningskredit</span>' : '')+
         (periodReleases.length ? '<span class="bm-timeline-legend-item"><i class="bm-timeline-release-key"></i>Album / EP / demo</span>' : '')+
         '<span class="bm-timeline-legend-item"><i class="bm-timeline-period-key"></i>Medlemsperiod</span>'+
         '<span class="bm-timeline-legend-item"><i class="bm-timeline-anchor-key"></i>Enskilt medlemsår</span>'+
