@@ -2359,3 +2359,46 @@ body.network-body-fullscreen { overflow:hidden; }
   .release-page-hero .page-hero-inner { padding-top:26px; padding-bottom:22px; }
   .release-page-hero .page-meta { margin-top:13px; }
 }
+
+/* Unissued demo sessions on band timelines: distinguish recordings from published releases. */
+.bm-timeline-session-row {
+  background:rgba(255,255,255,.023) !important;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+.bm-timeline-session-row .bm-timeline-discography-label { color:#bac0c6; }
+.bm-timeline-session-pin {
+  position:absolute;
+  top:4px;left:0;
+  width:17px;height:17px;
+  transform:translateX(-50%) rotate(45deg);
+  border:2px dashed #d7adff;
+  background:var(--bg);
+  box-shadow:0 0 0 2px var(--bg);
+  z-index:4;
+  text-decoration:none;
+  cursor:pointer;
+}
+.bm-timeline-session-pin:hover,
+.bm-timeline-session-pin:focus-visible {
+  transform:translateX(-50%) rotate(45deg) scale(1.15);
+  outline:2px solid #d7adff;outline-offset:2px;
+}
+.bm-timeline-recording-credit {
+  position:absolute;top:3px;left:0;
+  width:11px;height:19px;
+  transform:translateX(-50%);
+  background:var(--bg);
+  border:2px dashed var(--bm-color);
+  border-radius:3px;
+  z-index:5;
+  box-shadow:0 0 0 1px var(--bg);
+}
+.bm-timeline-legend-item .bm-timeline-session-key {
+  width:12px;height:12px;
+  transform:rotate(45deg);
+  border:2px dashed #d7adff;background:var(--bg);
+}
+.bm-timeline-legend-item .bm-timeline-recording-key {
+  width:9px;height:15px;
+  border:2px dashed var(--acid);border-radius:3px;background:var(--bg);
+}
