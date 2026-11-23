@@ -3992,7 +3992,7 @@
         const total = Number(seconds);
         return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
       };
-      activeHolder().innerHTML = `<ol class="release-tracks">${tracks.map(track => {
+      activeHolder().innerHTML = `<ol class="release-tracks">${tracks.map((track,index) => {
         const displayCredits = (byTrack.get(track.id) || []).map(credit => {
           const person = peopleById().get(credit.person_id);
           const name = credit.credited_as || person?.canonical_name || 'Okänd';
@@ -4004,8 +4004,17 @@
           : '';
         const note = String(track.notes || '').trim();
         const notes = note && noteGroups.get(note).length === 1 ? `<span class="release-track-note">${escapeHtml(note)}</span>` : '';
-        return `<li class="release-track">
-          <span class="release-track-number">${String(track.track_number).padStart(2,'0')}</span>
+        // A printed cassette J-card can provide physical side and position
+        // without changing the shared track-number data model.
+        const sideRe = /^ORIGINALKASSETTENS TRYCKTA SPÅRLISTA: Sida ([AB]), spår ([0-9]+)/;
+        const sideMatch = String(track.notes || '').match(sideRe);
+        const previousMatch = index ? String(tracks[index-1].notes || '').match(sideRe) : null;
+        const sideHeading = sideMatch && (!previousMatch || previousMatch[1] !== sideMatch[1])
+          ? '<li class="release-track-side-heading" style="list-style:none;font-size:.78rem;font-weight:800;letter-spacing:.13em;padding:.85rem 0 .35rem">SIDA ' + sideMatch[1] + '</li>'
+          : '';
+        const trackLabel = sideMatch ? sideMatch[1] + sideMatch[2] : String(track.track_number).padStart(2,'0');
+        return `${sideHeading}<li class="release-track">
+          <span class="release-track-number">${trackLabel}</span>
           <div class="release-track-main">
             <div class="release-track-header"><strong>${escapeHtml(track.title)}</strong><div class="release-track-actions">
               ${youtubeTrackLink(releaseId, track.title)}
