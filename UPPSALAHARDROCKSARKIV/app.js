@@ -3846,7 +3846,17 @@
       if(!aggregated.has(key))aggregated.set(key,{person,name,role,tracks:new Set()});
       aggregated.get(key).tracks.add(credit.track_id);
     });
-    const songRows=[...aggregated.values()].sort((a,b)=>
+    // Show full-release roles once: release-level credit takes precedence over
+    // identical credits repeated on every track. Keep all track records intact.
+    const redundantFullReleaseRole=entry=>
+      trackIds.size>0 && entry.tracks.size===trackIds.size &&
+      albumCredits.some(albumCredit=>
+        albumCredit.person_id && albumCredit.person_id===entry.person?.id &&
+        roleSv(albumCredit.role||'').trim().toLocaleLowerCase('sv')===
+          roleSv(entry.role).trim().toLocaleLowerCase('sv'));
+    const songRows=[...aggregated.values()]
+      .filter(entry=>!redundantFullReleaseRole(entry))
+      .sort((a,b)=>
       a.name.localeCompare(b.name,'sv')||a.role.localeCompare(b.role,'sv')).map(entry=>{
       const count=entry.tracks.size;
       const full=tracks.length>0 && count===trackIds.size;
