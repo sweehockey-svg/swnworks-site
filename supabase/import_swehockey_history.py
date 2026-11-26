@@ -28,6 +28,25 @@ def parse_roster(page):
             name = re.search(r'<strong\b[^>]*>(.*?)</strong>', raw_cells[1], re.S | re.I)
             yield club, clean(name.group(1)) if name else cells[1], cells[2]
 
+def load_roster_page(cached_page, url, *, cached_only=False, refresh=False, cache_max_age_hours=24):
+    """Never silently substitute an old snapshot when a fresh request fails."""
+    if cached_only:
+        return cached_page.read_text(encoding='utf-8')
+    if cached_page.exists() and not refresh:
+        age = max(0, time.time() - cached_page.stat().st_mtime)
+        if age < cache_max_age_hours * 3600:
+            return cached_page.read_text(encoding='utf-8')
+    request = urllib.request.Request(url, headers={'User-Agent': 'SWNWORKS commentator history import; source-linked roster research'})
+    with urllib.request.urlopen(request, timeout=20) as response:
+        page = response.read().decode('utf-8')
+    if not list(parse_roster(page)):
+        raise ValueError('Source has no readable player registrations; cache was not replaced')
+    temporary = cached_page.with_suffix('.html.tmp')
+    temporary.write_text(page, encoding='utf-8')
+    temporary.replace(cached_page)
+    time.sleep(0.35)
+    return page
+
 def quote(value):
     return "'" + str(value).replace("'", "''") + "'"
 
@@ -39,7 +58,13 @@ def run():
     parser.add_argument('--cache-dir', default='.history-cache')
     parser.add_argument('--cached-only', action='store_true', help='Rebuild from every cached public roster without network requests')
     parser.add_argument('--seeds', help='Comma-separated verified competition IDs; replaces the default starting pages')
+    parser.add_argument('--refresh', action='store_true', help='Refetch every visited source, ignoring cached age')
+    parser.add_argument('--cache-max-age-hours', type=float, default=24, help='Reuse cache for at most this many hours (default: 24)')
     args = parser.parse_args()
+    if args.refresh and args.cached_only:
+        parser.error('--refresh cannot be combined with --cached-only')
+    if args.cache_max_age_hours < 0:
+        parser.error('--cache-max-age-hours must be nonnegative')
     cache = Path(args.cache_dir)
     cache.mkdir(exist_ok=True)
     players = collections.defaultdict(list)
@@ -58,14 +83,7 @@ def run():
         url = f'https://stats.swehockey.se/Teams/Info/TeamRoster/{competition}'
         try:
             cached_page = cache / f'{competition}.html'
-            if cached_page.exists():
-                page = cached_page.read_text(encoding='utf-8')
-            elif not args.cached_only:
-                request = urllib.request.Request(url, headers={'User-Agent': 'SWNWORKS commentator history import; source-linked roster research'})
-                with urllib.request.urlopen(request, timeout=20) as response:
-                    page = response.read().decode('utf-8')
-                cached_page.write_text(page, encoding='utf-8')
-                time.sleep(0.35)
+            page = load_roster_page(cached_page, url, cached_only=args.cached_only, refresh=args.refresh, cache_max_age_hours=args.cache_max_age_hours)
             # Follow historical season options and competition siblings only,
             # excluding the global current-season navigation.
             local = page[page.find('onchange="doNavigate(this)"'):page.find('id="RefreshContent"')]

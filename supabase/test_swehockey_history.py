@@ -1,10 +1,42 @@
-import unittest
+import unittest, tempfile, os
 from unittest.mock import patch
 from pathlib import Path
-from import_swehockey_history import key, parse_roster, quote
+from import_swehockey_history import key, parse_roster, quote, load_roster_page
 from validate_swehockey_history import RosterValidator, validate
 
 class HistoryParserTests(unittest.TestCase):
+    def test_stale_cache_refresh_keeps_both_clubs(self):
+        old='<tr><th class="tdTitle">Club A</th></tr><tr><td>1</td><td>One, Player</td><td>2001-01-01</td><td>RW</td></tr>'
+        fresh=old+old.replace('Club A','Club B')
+        with tempfile.TemporaryDirectory() as directory:
+            cache=Path(directory)/'1.html'
+            cache.write_text(old,encoding='utf-8')
+            os.utime(cache,(0,0))
+            with patch('import_swehockey_history.urllib.request.urlopen') as fetch, patch('import_swehockey_history.time.sleep'):
+                fetch.return_value.__enter__.return_value.read.return_value=fresh.encode()
+                page=load_roster_page(cache,'https://stats.swehockey.se/Teams/Info/TeamRoster/1')
+                self.assertEqual([club for club,_,_ in parse_roster(page)],['Club A','Club B'])
+                self.assertEqual(cache.read_text(encoding='utf-8'),fresh)
+                fetch.assert_called_once()
+
+    def test_recent_cache_and_explicit_offline_do_not_fetch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            cache=Path(directory)/'1.html'
+            cache.write_text('snapshot',encoding='utf-8')
+            with patch('import_swehockey_history.urllib.request.urlopen') as fetch:
+                self.assertEqual(load_roster_page(cache,'https://example.invalid'),'snapshot')
+                self.assertEqual(load_roster_page(cache,'https://example.invalid',cached_only=True),'snapshot')
+                fetch.assert_not_called()
+
+    def test_failed_refresh_keeps_previous_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            cache=Path(directory)/'1.html'
+            cache.write_text('snapshot',encoding='utf-8')
+            with patch('import_swehockey_history.urllib.request.urlopen',side_effect=OSError('offline')):
+                with self.assertRaises(OSError):
+                    load_roster_page(cache,'https://example.invalid',refresh=True)
+            self.assertEqual(cache.read_text(encoding='utf-8'),'snapshot')
+
     def test_validation_rejects_wrong_club_or_season(self):
         fixture = '<option selected>2018-19</option><tr><th class="tdTitle">MODO Hockey</th></tr><tr><td>1</td><td>One, Player</td><td>2001-01-01</td><td>RW</td></tr>'
         with patch.object(Path, 'read_text', return_value=fixture):

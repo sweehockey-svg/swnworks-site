@@ -48,3 +48,12 @@ Available records range from 2004/05 to 2026/27; this does not mean every
 intervening season or every player is covered. The independent validator passed
 every imported association. Empty/missing-season pages were skipped.
 The background collection contains 20 reviewed summaries for 19 Väsby players.
+
+### Refreshing new registrations
+
+Cached pages expire after 24 hours. Use `--refresh` to force fresh source pages.
+`--cached-only` remains an explicit offline snapshot rebuild and cannot be
+combined with `--refresh`. Failed or unreadable fetches are reported without
+replacing the previous snapshot. Existing database registrations are retained;
+imports only upsert player/source/club records, including several clubs in one
+season. Validate generated SQL and review coverage failures before applying it.
