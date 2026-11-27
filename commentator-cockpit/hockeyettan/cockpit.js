@@ -3542,6 +3542,7 @@
     }).join(' · ');
   }
   function historySummaryHtml(sources){
+    const multiple=historyTotalsGroups(sources).length>1;
     return historyTotalsGroups(sources).map(group=>{
       const sum=field=>group.rows.every(row=>Number.isInteger(row[field]))?group.rows.reduce((n,row)=>n+row[field],0):null;
       const fields=group.kind==='goalie'?[['games','M'],['save_percentage','Räddn.%'],['goals_against_average','GAA'],['saves','Räddn.'],['goals_against','Insl.']]:[['games','M'],['goals','Mål'],['assists','Assist'],['points','Poäng'],['penalty_minutes','Utv.min'],['plus_minus','+/−']];
@@ -3555,7 +3556,7 @@
         }
         return sum(field)??'–';
       };
-      return '<span class="history-summary-group"><span class="history-summary-competition">'+esc(group.family)+(group.kind==='goalie'?' · Målvakt':'')+'</span><span class="history-summary-numbers">'+fields.map(([field,label])=>'<span class="history-summary-cell"><small>'+label+'</small><b>'+esc(value(field))+'</b></span>').join('')+'</span></span>';
+      return '<span class="history-summary-group"><span class="history-summary-competition">'+(multiple?esc(group.family):'')+(group.kind==='goalie'?' · Målvakt':'')+'</span><span class="history-summary-numbers">'+fields.map(([field,label])=>'<span class="history-summary-cell"><small>'+label+'</small><b>'+esc(value(field))+'</b></span>').join('')+'</span></span>';
     }).join('');
   }
   function rosterHistoryRowHtml(item){
@@ -3567,7 +3568,9 @@
     }
     const statistics=historyStatisticsHtml(item.sources);
     const total=historyTotalsText(item.sources);
-    return '<details class="player-card-game player-history-collapse"><summary title="Totalt i inläst underlag. Öppna för seriedelar och källor."><strong>'+esc(item.season)+' · '+esc(item.club)+'</strong><span class="history-summary-stats">'+(historySummaryHtml(item.sources)||esc(leagues.join(' · ')||(statistics?'Visa statistik':'Klubbregistrering')))+'</span><b class="history-summary-arrow" aria-hidden="true">▾</b></summary><div class="player-history-body">'+(total?'<small>Totalt i inläst underlag · olika ligor och åldersklasser hålls isär.</small>':'')+
+    const groups=historyTotalsGroups(item.sources);
+    const competition=[...new Set(groups.map(group=>group.family))].join(' / ')||leagues.join(' · ')||'Klubbregistrering';
+    return '<details class="player-card-game player-history-collapse"><summary title="Totalt i inläst underlag. Öppna för seriedelar och källor."><strong>'+esc(item.season)+' · '+esc(item.club)+'</strong><span class="history-summary-league">'+esc(competition)+'</span><span class="history-summary-stats">'+(historySummaryHtml(item.sources)||(statistics?'Visa statistik':''))+'</span><b class="history-summary-arrow" aria-hidden="true">▾</b></summary><div class="player-history-body">'+(total?'<small>Totalt i inläst underlag · olika ligor och åldersklasser hålls isär.</small>':'')+
       statistics+(sources.size?'<details class="player-history-sources"><summary>Visa källor · '+sources.size+'</summary><div>'+Array.from(sources.entries()).map(([url,source],index)=>'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Källa '+(index+1)+(url.includes('/Teams/Info/PlayersByTeam/')?' · Säsongsstatistik':url.includes('/Game/Reports/OfficialLineup/')?' · Officiell laguppställning':new URL(url).hostname==='stats.swehockey.se'?' · Truppregistrering':' · Officiellt klubbregister')+(source.league?' · '+esc(source.league):'')+'</a>').join('')+'</div></details>':'')+'</div></details>';
   }
   async function bindPlayerHistory(row){

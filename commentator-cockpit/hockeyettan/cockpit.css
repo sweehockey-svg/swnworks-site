@@ -5554,3 +5554,7 @@ html[data-theme="light"] .player-history-collapse .history-summary-competition,h
 .history-summary-cell small{font-size:11px}
 .history-summary-group+.history-summary-group{margin-top:0}
 @media(max-width:600px){.player-history-collapse>summary>strong{flex:0 0 auto}.player-history-collapse .history-summary-stats{flex-basis:auto;margin-left:auto;gap:12px}.player-history-collapse .history-summary-cell{min-width:0}}
+
+.player-history-collapse .history-summary-league{display:inline;color:#a2b6c9;font-size:12px;white-space:nowrap;flex-shrink:0}
+.history-summary-competition:empty{display:none}
+html[data-theme="light"] .player-history-collapse .history-summary-league{color:#496578}
