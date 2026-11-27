@@ -3497,7 +3497,7 @@
     try{const url=new URL(value);return ['https:','http:'].includes(url.protocol)&&!url.username&&!url.password?url.href:null;}catch{return null;}
   }
   function historyStatisticsHtml(sources){
-    const rows=sources.filter(source=>source.statistics&&Number.isInteger(source.statistics.games));
+    const rows=sources.flatMap(source=>Array.isArray(source.statistics?.entries)?source.statistics.entries.map(statistics=>({...source,statistics})): [source]).filter(source=>source.statistics&&Number.isInteger(source.statistics.games));
     if(!rows.length)return '';
     return '<div style="grid-column:1/-1;overflow-x:auto">'+rows.map(source=>{
       const s=source.statistics,phase={regular:'Grundserie',playoffs:'Slutspel',qualification:'Kval'}[s.phase]||'Seriedel';

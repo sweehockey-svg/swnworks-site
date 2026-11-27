@@ -7,7 +7,7 @@ import argparse,json,re
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from import_swehockey_history import quote
-from import_swehockey_statistics import source_metadata
+from import_swehockey_statistics import source_metadata,merge_statistics
 
 def pack(statements):
     unique={}
@@ -21,7 +21,10 @@ def pack(statements):
         stats.pop('identity_source_url');stats.pop('identity_method',None)
         row[5]=json.dumps(stats,separators=(',',':'))
         identity=(row[0],row[4],row[2])
-        if identity in unique and unique[identity]!=row:raise ValueError('Conflicting source statistics')
+        if identity in unique and unique[identity]!=row:
+            old=unique[identity]
+            if old[:5]!=row[:5] or old[6:]!=row[6:]:raise ValueError('Conflicting identity evidence')
+            row[5]=json.dumps(merge_statistics(json.loads(old[5]),json.loads(row[5])),separators=(',',':'))
         unique[identity]=row
     values=',\n'.join('('+','.join(map(quote,row))+')' for row in unique.values())
     return "with incoming(player_id,season,club,league,source_url,statistics,birth_date,identity_source) as (values\n"+values+"\n) insert into public.swehockey_player_history(player_id,season,club,league,source_url,statistics) select p.id,i.season,i.club,i.league,i.source_url,i.statistics::jsonb || jsonb_build_object('identity_source_url',i.identity_source,'identity_method','unique_historical_name_and_same_season_birth_date') from incoming i join public.players p on p.id::text=i.player_id and p.birth_date=i.birth_date::date where exists(select 1 from public.swehockey_player_history h where h.player_id=p.id and h.source_url=i.identity_source and h.season=i.season) on conflict(player_id,source_url,club) do update set statistics=excluded.statistics,league=excluded.league,checked_at=now();\n"
@@ -42,5 +45,12 @@ if __name__=='__main__':
         cid=fields[4].rsplit('/',1)[1]
         if cid in titles:statements[n]=statement.replace(quote(fields[3])+','+quote(fields[4]),quote(titles[cid])+','+quote(fields[4]),1)
     out=root/'bulk';out.mkdir(exist_ok=True)
-    for n in range(0,len(statements),300):(out/f'{n//300}.sql').write_text(pack(statements[n:n+300]),encoding='utf-8')
-    print(json.dumps({'statements':len(statements),'batches':(len(statements)+299)//300}))
+    # Merge roles before batching, including pairs on opposite batch boundaries.
+    bulk=pack(statements)
+    prefix,body=bulk.split('\n',1)
+    values,suffix=body.rsplit('\n) insert',1)
+    rows=[line.rstrip(',') for line in values.splitlines()]
+    for n in range(0,len(rows),300):(out/f'{n//300}.sql').write_text(prefix+'\n'+',\n'.join(rows[n:n+300])+'\n) insert'+suffix,encoding='utf-8')
+    summary={'source_statements':len(statements),'records':len(rows),'batches':(len(rows)+299)//300}
+    (out/'manifest.json').write_text(json.dumps(summary),encoding='utf-8')
+    print(json.dumps(summary))

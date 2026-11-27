@@ -96,3 +96,5 @@ The matcher indexes all names and birth dates from those historical roster sourc
 Competition headings determine phase; generic league labels alone are insufficient. Competition-specific titles are retained, so junior stages and senior leagues stay separate. No cross-competition totals are inferred. Goalkeeper history uses GPI, save percentage, GAA, saves and goals against, separately from skater scoring. Sources without readable statistics remain in the coverage report; no rows are deleted.
 
 Generated SQL/data exports/cached HTML are local review artifacts and must not be committed. This is an on-demand refresh, not a scheduled background service.
+
+If a player appears as both a skater and a (possibly backup) goalkeeper in one source, statistics retain both entries under `kind: dual`. The interface renders separate scoring and goalkeeping tables. The bulk packer merges roles globally before splitting batches, and rejects contradictory figures within the same role rather than overwriting one arbitrarily.

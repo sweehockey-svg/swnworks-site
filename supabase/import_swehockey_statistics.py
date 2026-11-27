@@ -8,6 +8,16 @@ import argparse, collections, json, re
 from pathlib import Path
 from import_swehockey_history import clean, key, quote, parse_roster
 
+def merge_statistics(first, second):
+    entries={}
+    for value in [first,second]:
+        for entry in value.get('entries',[value]):
+            kind=entry.get('kind','skater')
+            if kind in entries and entries[kind]!=entry:
+                raise ValueError('Conflicting same-role source statistics')
+            entries[kind]=entry
+    return next(iter(entries.values())) if len(entries)==1 else {'kind':'dual','entries':list(entries.values())}
+
 def source_metadata(page):
     label = re.search(r'<label>\s*(\d{4}-\d{2})\s*-\s*(.*?)</label>', page, re.S)
     selected = re.search(r'<option[^>]*selected[^>]*>\s*(\d{4}-\d{2})', page)
@@ -87,7 +97,15 @@ def build_sql(players, page, competition, phase, identity_index=None):
     for player in players:
         by_name[key(player['display_name'])].append(player)
     statements = []
-    for club, name, stats in parse_statistics(page):
+    source_rows={}
+    for club,name,stats in parse_statistics(page):
+        stats['phase']=phase
+        name=re.sub(r'\*+$','',name).strip()
+        entry_key=(club,key(name))
+        if entry_key in source_rows:
+            source_rows[entry_key]=(club,name,merge_statistics(source_rows[entry_key][2],stats))
+        else:source_rows[entry_key]=(club,name,stats)
+    for club, name, stats in source_rows.values():
         # Swehockey's trailing asterisks annotate transfers, not the name.
         name = re.sub(r'\*+$','',name).strip()
         matches = by_name[key(name)]

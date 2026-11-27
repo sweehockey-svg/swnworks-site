@@ -1,11 +1,17 @@
 import unittest
-from import_swehockey_statistics import parse_statistics, build_sql, identity_witness, source_metadata
+from import_swehockey_statistics import parse_statistics, build_sql, identity_witness, source_metadata, merge_statistics
 from pack_swehockey_statistics import pack
 
 def fixture():
     return '<label>2022-23 - SHL</label><tr><th class="tdTitle">Luleå HF</th></tr><tr>'+''.join('<th>'+x+'</th>' for x in ['Name','Pos','GP','G','A','TP','PIM','+/-'])+'</tr><tr>'+''.join('<td>'+x+'</td>' for x in ['Nordström, Viggo','LW','1','0','0','0','0','0'])+'</tr>'
 
 class StatisticsTests(unittest.TestCase):
+    def test_dual_roles_preserve_both_but_same_role_conflicts_fail(self):
+        skater={'kind':'skater','games':17,'goals':2,'phase':'regular'}
+        goalie={'kind':'goalie','games':0,'save_percentage':None,'phase':'regular'}
+        result=merge_statistics(skater,goalie)
+        self.assertEqual(result,{'kind':'dual','entries':[skater,goalie]})
+        with self.assertRaises(ValueError):merge_statistics(skater,dict(skater,games=99))
     def test_bulk_packer_keeps_identity_and_birthdate_guards(self):
         p={'id':'a','display_name':'Viggo Nordström','birth_date':'2003-09-11'}
         evidence={'season':'2022/23','club':'Other club','birth_date':'2003-09-11','source_url':'https://stats.swehockey.se/Teams/Info/TeamRoster/13467'}
