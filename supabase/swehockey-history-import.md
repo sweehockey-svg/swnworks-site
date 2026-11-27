@@ -78,3 +78,11 @@ https://www.westkelownawarriors.ca/stats/roster/19/55 (exact name and DOB).
 The source constraint explicitly permits this official club roster host/path.
 Foreign roster evidence is labelled separately in the UI. No statistics are
 copied from Elite Prospects; broad historical source crawling is not automatic.
+
+### Historical skater statistics
+
+`import_swehockey_statistics.py PLAYERS_JSON HTML COMPETITION --phase regular|playoffs|qualification --output SQL` reads the complete PlayersByTeam page, using its column headings rather than fixed cell offsets. The explicit source season and competition heading must agree with the requested phase. Goalkeeper rows are skipped; zero-point skaters are retained. Generated SQL accepts only a unique registry-name match with an existing DOB-verified club/season history row and an unchanged registry birth date. Review skipped players rather than guessing identities.
+
+Statistics live in the optional `statistics` JSONB column of `swehockey_player_history`. Sources remain separate by competition URL; the interface labels league and phase and never sums different competitions. A missing statistics row does not mean zero appearances. The existing active-commentator read policy and administrator-only writes remain in force.
+
+2026-11-27: initial SHL import includes regular-season archives 2020/21–2025/26 and five available play-out archives. This is not complete career coverage and does not yet import goalkeeper statistics. Viggo Nordström / Luleå HF / SHL / 2022/23 verified at PlayersByTeam/13469: GP 1, G 0, A 0, TP 0, PIM 0, +/- 0. His SHL roster entry is absent; the existing DOB-verified Luleå junior registration establishes identity for the statistics supplement.

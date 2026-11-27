@@ -4,3 +4,5 @@ test('lineup and roster evidence have distinct source labels',()=>{for(const [pa
 test('unsafe source URL never becomes a link',()=>{const html=ctx.rosterHistoryRowHtml({season:'2025/26',club:'Nybro',sources:[{source_url:'javascript:alert(1)'}]});assert.doesNotMatch(html,/<a /);});
 
 test('official foreign roster is labelled separately',()=>{const html=ctx.rosterHistoryRowHtml({season:'2023/24',club:'West Kelowna Warriors',sources:[{league:'BCHL',source_url:'https://www.westkelownawarriors.ca/stats/roster/19/55'}]});assert.match(html,/Officiellt klubbregister/);assert.doesNotMatch(html,/Truppregistrering/);});
+
+test('statistics keep SHL and junior competitions separate and preserve zero',()=>{const html=ctx.rosterHistoryRowHtml({season:'2022/23',club:'Luleå HF',sources:[{league:'SHL',statistics:{games:1,goals:0,assists:0,points:0,phase:'regular'}},{league:'J20 Nationell',statistics:{games:25,goals:11,assists:20,points:31,phase:'regular'}}]});assert.match(html,/SHL · Grundserie/);assert.match(html,/J20 Nationell · Grundserie/);assert.match(html,/<td>1<\/td><td>0<\/td>/);});
