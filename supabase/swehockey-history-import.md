@@ -86,3 +86,13 @@ copied from Elite Prospects; broad historical source crawling is not automatic.
 Statistics live in the optional `statistics` JSONB column of `swehockey_player_history`. Sources remain separate by competition URL; the interface labels league and phase and never sums different competitions. A missing statistics row does not mean zero appearances. The existing active-commentator read policy and administrator-only writes remain in force.
 
 2026-11-27: initial SHL import includes regular-season archives 2020/21–2025/26 and five available play-out archives. This is not complete career coverage and does not yet import goalkeeper statistics. Viggo Nordström / Luleå HF / SHL / 2022/23 verified at PlayersByTeam/13469: GP 1, G 0, A 0, TP 0, PIM 0, +/- 0. His SHL roster entry is absent; the existing DOB-verified Luleå junior registration establishes identity for the statistics supplement.
+
+### Competition-wide Swedish history refresh
+
+`refresh_swehockey_statistics.py PLAYERS_JSON --rosters ROSTER_CACHE [FRESH_CACHE] --output-dir OUTPUT --limit 1000` discovers Swedish senior/junior competition sources from previously reviewed roster archives. Reads local snapshots concurrently; network statistics fetches are sequential and spaced by 0.5 seconds, with a 20-second timeout and a 24-hour cache. Failures and missing metadata are recorded; no stale network fallback or database writes happen in this runner.
+
+The matcher indexes all names and birth dates from those historical roster sources and independently validates their club/name/DOB associations using HTMLParser. A statistical name must map uniquely in the player registry and have exactly one historical DOB, matching the registry, with evidence in the same season. Generated SQL additionally requires that exact roster evidence and birth date still exist in the production registry/history. This permits a missing loan club without matching on a name alone. Name collisions and absent same-season evidence are skipped. Transfer asterisks are treated as annotations; no fuzzy name matching is performed.
+
+Competition headings determine phase; generic league labels alone are insufficient. Competition-specific titles are retained, so junior stages and senior leagues stay separate. No cross-competition totals are inferred. Goalkeeper history uses GPI, save percentage, GAA, saves and goals against, separately from skater scoring. Sources without readable statistics remain in the coverage report; no rows are deleted.
+
+Generated SQL/data exports/cached HTML are local review artifacts and must not be committed. This is an on-demand refresh, not a scheduled background service.

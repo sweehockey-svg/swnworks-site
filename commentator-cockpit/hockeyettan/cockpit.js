@@ -3499,10 +3499,13 @@
   function historyStatisticsHtml(sources){
     const rows=sources.filter(source=>source.statistics&&Number.isInteger(source.statistics.games));
     if(!rows.length)return '';
-    return '<div style="grid-column:1/-1;overflow-x:auto"><table><thead><tr><th>Liga / del</th><th>M</th><th>Mål</th><th>Assist</th><th>Poäng</th><th>Utv.min</th><th>+/−</th></tr></thead><tbody>'+rows.map(source=>{
+    return '<div style="grid-column:1/-1;overflow-x:auto">'+rows.map(source=>{
       const s=source.statistics,phase={regular:'Grundserie',playoffs:'Slutspel',qualification:'Kval'}[s.phase]||'Seriedel';
-      return '<tr><td>'+esc(source.league)+' · '+phase+'</td>'+['games','goals','assists','points','penalty_minutes','plus_minus'].map(field=>'<td>'+esc(Number.isInteger(s[field])?s[field]:'–')+'</td>').join('')+'</tr>';
-    }).join('')+'</tbody></table></div>';
+      const goalie=s.kind==='goalie';
+      const fields=goalie?['games','save_percentage','goals_against_average','saves','goals_against']:['games','goals','assists','points','penalty_minutes','plus_minus'];
+      const labels=goalie?['M (spelat)','Räddn.%','GAA','Räddningar','Insläppta']:['M','Mål','Assist','Poäng','Utv.min','+/−'];
+      return '<table><caption>'+esc(source.league)+' · '+phase+'</caption><thead><tr>'+labels.map(label=>'<th>'+label+'</th>').join('')+'</tr></thead><tbody><tr>'+fields.map(field=>'<td>'+esc(typeof s[field]==='number'&&Number.isFinite(s[field])?s[field]:'–')+'</td>').join('')+'</tr></tbody></table>';
+    }).join('')+'</div>';
   }
   function rosterHistoryRowHtml(item){
     const leagues=[...new Set(item.sources.map(source=>String(source.league||'').trim()).filter(Boolean))];
@@ -3536,7 +3539,7 @@
       if(!seasons.has(key))seasons.set(key,{season:item.season,club:item.club,sources:[]});
       seasons.get(key).sources.push(item);
     }
-    automaticSection.innerHTML='<h3>Klubbhistorik · verifierade källor</h3><p>Truppregistreringar matchade på namn och födelsedatum, kompletterade med verifierade officiella laguppställningar. En laguppställning visar uttagning till match, inte garanterad speltid eller övergångsdatum. Utländska klubbar kan kompletteras från officiella klubbregister. Säsongsstatistik visas separat per tävling och seriedel; olika seriedelar summeras inte automatiskt. Underlaget är inte en fullständig karriärhistorik.</p>'+ (automatic.error?'<p role="status">Swehockey-historiken kunde inte hämtas. Öppna fliken igen för att försöka på nytt.</p>':seasons.size?Array.from(seasons.values()).map(rosterHistoryRowHtml).join(''):'<p>Ingen äldre klubbregistrering hittades för spelaren i det importerade underlaget.</p>')+'<h3>Egna kompletteringar</h3>';
+    automaticSection.innerHTML='<h3>Klubbhistorik · verifierade källor</h3><p>Truppregistreringar matchade på namn och födelsedatum, kompletterade med officiell säsongsstatistik och verifierade laguppställningar. Statistik kan komplettera en klubb som saknas i truppregistret när spelarens identitet har verifierats i samma säsongs underlag. En laguppställning visar uttagning till match, inte garanterad speltid eller övergångsdatum. Utländska klubbar kan kompletteras från officiella klubbregister. Säsongsstatistik visas separat per tävling och seriedel; olika seriedelar summeras inte automatiskt. Underlaget är inte en fullständig karriärhistorik.</p>'+ (automatic.error?'<p role="status">Swehockey-historiken kunde inte hämtas. Öppna fliken igen för att försöka på nytt.</p>':seasons.size?Array.from(seasons.values()).map(rosterHistoryRowHtml).join(''):'<p>Ingen äldre klubbregistrering hittades för spelaren i det importerade underlaget.</p>')+'<h3>Egna kompletteringar</h3>';
     container.prepend(automaticSection);
     if(background.error||(background.data||[]).length){
       const backgroundSection=document.createElement('section');
