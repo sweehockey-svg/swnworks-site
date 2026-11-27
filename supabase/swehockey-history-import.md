@@ -57,3 +57,17 @@ combined with `--refresh`. Failed or unreadable fetches are reported without
 replacing the previous snapshot. Existing database registrations are retained;
 imports only upsert player/source/club records, including several clubs in one
 season. Validate generated SQL and review coverage failures before applying it.
+
+### Reviewed match-lineup supplements
+
+History accepts official Swehockey lineup URLs as well as roster pages. A
+reviewed lineup supplements a missing club/season; it establishes selection,
+not ice time or a transfer date. Verify the exact team block, date, player name
+and identity against the registry and an independent club source. The existing
+player/source/club upsert keeps roster evidence and supports multiple clubs.
+This does not automatically crawl every historical match.
+
+Reviewed example: Viggo Nordström (2003-09-11), Nybro Vikings IF, 2025/26,
+HockeyAllsvenskan, official lineup 1005710 (2025-10-04). Nybro's published loan
+announcement corroborates identity and the loan to Hudiksvalls HC:
+https://www.nybrovikings.com/article/8eeat7d-38k4d/view
