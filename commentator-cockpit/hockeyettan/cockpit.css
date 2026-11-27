@@ -5529,3 +5529,16 @@ html[data-theme="light"] #playerCardDialog .player-history-statistics-table th{c
 .player-history-collapse .player-history-statistics{display:block;width:100%;min-width:0;overflow-x:auto;margin:6px 0}
 .player-history-body>.player-history-sources{margin-top:8px}
 @media(max-width:600px){.player-history-collapse>summary{flex-wrap:wrap}.player-history-collapse .history-summary-stats{flex-basis:calc(100% - 24px);order:2}.player-history-collapse .history-summary-arrow{order:1}}
+
+.player-history-collapse>summary{align-items:center;gap:16px}
+.player-history-collapse .history-summary-stats{display:block;margin-left:auto;text-align:right;min-width:0}
+.player-history-collapse .history-summary-group{display:block;color:inherit}
+.player-history-collapse .history-summary-competition{display:block;color:#a2b6c9;font-size:12px;margin-bottom:3px}
+.player-history-collapse .history-summary-numbers{display:flex;justify-content:flex-end;gap:12px;color:inherit}
+.player-history-collapse .history-summary-cell{display:flex;flex-direction:column;min-width:40px;color:inherit;font-variant-numeric:tabular-nums;text-align:right}
+.history-summary-cell small{font-size:10px;color:#a2b6c9;white-space:nowrap}
+.history-summary-cell b{font-size:13px}
+.player-history-collapse .history-summary-arrow{margin-left:0}
+.history-summary-group+.history-summary-group{margin-top:8px}
+html[data-theme="light"] .player-history-collapse .history-summary-competition,html[data-theme="light"] .history-summary-cell small{color:#496578}
+@media(max-width:600px){.player-history-collapse>summary>strong{flex:1}.player-history-collapse .history-summary-stats{flex-basis:100%;margin-left:0}.player-history-collapse .history-summary-numbers{gap:8px}.player-history-collapse .history-summary-cell{min-width:32px}}
