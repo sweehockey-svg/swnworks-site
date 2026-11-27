@@ -5506,3 +5506,14 @@ html[data-theme=light] #homeScreen.league-teams .team-visibility button[aria-pre
  .dashboard-widget .lineup-slot>strong,.dashboard-widget .lineup-slot .player-card-link{text-align:center;white-space:normal;font-size:14px;line-height:1.4}
  .dashboard-widget .lineup-slot.empty{display:flex;justify-content:center;align-items:center}
 }
+
+/* Career statistics fill a separate row; numbers share aligned columns. */
+.player-history-row>.player-history-statistics{display:block;flex:0 0 100%;width:100%;min-width:0;overflow-x:auto;margin:6px 0 2px}
+#playerCardDialog .player-history-statistics-table{width:100%;min-width:640px;border-collapse:collapse;font-size:13px;line-height:1.45;table-layout:fixed}
+#playerCardDialog .player-history-statistics-table th,#playerCardDialog .player-history-statistics-table td{padding:8px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid #355369;font-variant-numeric:tabular-nums}
+#playerCardDialog .player-history-statistics-table th:first-child,#playerCardDialog .player-history-statistics-table td:first-child{width:44%;text-align:left;white-space:normal;overflow-wrap:anywhere}
+#playerCardDialog .player-history-statistics-table th{font-size:11px;color:#a2b6c9;font-weight:600}
+#playerCardDialog .player-history-statistics-table tbody tr:last-child td{border-bottom:0}
+#playerCardDialog .player-history-statistics-table caption{text-align:left;padding:10px 0 4px;font-weight:600}
+html[data-theme="light"] #playerCardDialog .player-history-statistics-table :is(th,td){border-color:#c8d6df}
+html[data-theme="light"] #playerCardDialog .player-history-statistics-table th{color:#496578}
