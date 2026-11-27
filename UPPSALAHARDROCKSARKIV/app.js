@@ -2387,6 +2387,7 @@
     const originalTypes = new Set(['demo', 'album', 'ep', 'single', 'split']);
     for (const release of releases) {
       if (!originalTypes.has(String(release?.release_type || '').toLowerCase())) continue;
+      if (!isOriginalTimelineRelease(release)) continue;
       const year = validYear(release.release_year);
       if (year === null || (formed !== null && year < formed)
         || (disbanded !== null && year > disbanded)) continue;
