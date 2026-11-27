@@ -5542,3 +5542,15 @@ html[data-theme="light"] #playerCardDialog .player-history-statistics-table th{c
 .history-summary-group+.history-summary-group{margin-top:8px}
 html[data-theme="light"] .player-history-collapse .history-summary-competition,html[data-theme="light"] .history-summary-cell small{color:#496578}
 @media(max-width:600px){.player-history-collapse>summary>strong{flex:1}.player-history-collapse .history-summary-stats{flex-basis:100%;margin-left:0}.player-history-collapse .history-summary-numbers{gap:8px}.player-history-collapse .history-summary-cell{min-width:32px}}
+
+/* Keep each club-season summary on one compact line. */
+.player-history-collapse>summary{flex-wrap:nowrap;gap:12px;white-space:nowrap}
+.player-history-collapse>summary>strong{flex-shrink:0}
+.player-history-collapse .history-summary-stats{display:flex;align-items:center;gap:18px;overflow-x:auto}
+.player-history-collapse .history-summary-group{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.player-history-collapse .history-summary-competition{margin:0;white-space:nowrap}
+.player-history-collapse .history-summary-numbers{display:flex;gap:12px}
+.player-history-collapse .history-summary-cell{flex-direction:row;align-items:baseline;justify-content:flex-end;gap:4px;min-width:0}
+.history-summary-cell small{font-size:11px}
+.history-summary-group+.history-summary-group{margin-top:0}
+@media(max-width:600px){.player-history-collapse>summary>strong{flex:0 0 auto}.player-history-collapse .history-summary-stats{flex-basis:auto;margin-left:auto;gap:12px}.player-history-collapse .history-summary-cell{min-width:0}}
