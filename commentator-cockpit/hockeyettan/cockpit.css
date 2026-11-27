@@ -5517,3 +5517,15 @@ html[data-theme=light] #homeScreen.league-teams .team-visibility button[aria-pre
 #playerCardDialog .player-history-statistics-table caption{text-align:left;padding:10px 0 4px;font-weight:600}
 html[data-theme="light"] #playerCardDialog .player-history-statistics-table :is(th,td){border-color:#c8d6df}
 html[data-theme="light"] #playerCardDialog .player-history-statistics-table th{color:#496578}
+
+.player-history-collapse>summary{display:flex;align-items:baseline;gap:5px;list-style:none;cursor:pointer;font-size:13px;line-height:1.6}
+.player-history-collapse>summary::-webkit-details-marker{display:none}
+.player-history-collapse>summary:focus-visible{outline:2px solid var(--yellow);outline-offset:4px}
+.player-history-collapse .history-summary-stats{display:inline;color:inherit;font-size:13px}
+.history-summary-arrow{margin-left:auto;flex-shrink:0;color:#ffcf4a;transition:transform .15s}
+.player-history-collapse[open]>summary>.history-summary-arrow{transform:rotate(180deg)}
+.player-history-body{padding-top:10px;min-width:0}
+.player-history-body>small{display:block;color:#a2b6c9;font-size:11px;margin-bottom:6px}
+.player-history-collapse .player-history-statistics{display:block;width:100%;min-width:0;overflow-x:auto;margin:6px 0}
+.player-history-body>.player-history-sources{margin-top:8px}
+@media(max-width:600px){.player-history-collapse>summary{flex-wrap:wrap}.player-history-collapse .history-summary-stats{flex-basis:calc(100% - 24px);order:2}.player-history-collapse .history-summary-arrow{order:1}}

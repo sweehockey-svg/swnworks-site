@@ -3511,6 +3511,32 @@
       }).join('')+'</tbody></table>';
     }).join('')+'</div>';
   }
+  function historyTotalsText(sources){
+    const groups=new Map(),seen=new Set();
+    for(const source of sources){
+      if(!safeHistoryUrl(source.source_url)||!source.source_url.includes('/Teams/Info/PlayersByTeam/'))continue;
+      const league=String(source.league||'');
+      const family=/U20|J20|SuperElit/i.test(league)?'U20':/U18|J18/i.test(league)?'U18':/U16|J16/i.test(league)?'U16':/SHL|Elitserien/i.test(league)?'SHL':/HockeyAllsvenskan|Allsvenskan/i.test(league)?'Hockeyallsvenskan':/Hockeyettan|Allettan/i.test(league)?'Hockeyettan':league;
+      for(const stat of source.statistics?.entries||[source.statistics]){
+        if(!stat||!['regular','playoffs','qualification'].includes(stat.phase))continue;
+        const kind=stat.kind==='goalie'?'goalie':'skater',identity=source.source_url+'|'+kind;
+        if(seen.has(identity))continue;
+        seen.add(identity);
+        const key=family+'|'+kind;
+        if(!groups.has(key))groups.set(key,{family,kind,rows:[],titles:new Set(),uncertain:false});
+        const group=groups.get(key),title=league.toLocaleLowerCase('sv-SE').replace(/[^a-zåäö0-9]/g,'')+'|'+stat.phase;
+        if(group.titles.has(title))group.uncertain=true;
+        group.titles.add(title);group.rows.push(stat);
+      }
+    }
+    return [...groups.values()].map(group=>{
+      const fields=group.kind==='goalie'?['games']:['games','goals','assists','points'];
+      const prefix=groups.size>1?group.family+(group.kind==='goalie'?' MV':'')+': ':'';
+      if(group.uncertain||group.rows.some(row=>fields.some(field=>!Number.isInteger(row[field])||row[field]<0)))return prefix+'Visa statistik';
+      const total=Object.fromEntries(fields.map(field=>[field,group.rows.reduce((sum,row)=>sum+row[field],0)]));
+      return prefix+total.games+' M'+(group.kind==='goalie'?' · MV':' · '+total.goals+' mål · '+total.assists+' assist · '+total.points+' P');
+    }).join(' · ');
+  }
   function rosterHistoryRowHtml(item){
     const leagues=[...new Set(item.sources.map(source=>String(source.league||'').trim()).filter(Boolean))];
     const sources=new Map();
@@ -3519,8 +3545,9 @@
       if(url&&!sources.has(url))sources.set(url,source);
     }
     const statistics=historyStatisticsHtml(item.sources);
-    return '<article class="player-card-game player-history-row"><strong>'+esc(item.season)+' · '+esc(item.club)+'</strong>'+(statistics?'':'<span>'+esc(leagues.join(' · '))+'</span>')+
-      statistics+(sources.size?'<details class="player-history-sources"><summary>Visa källor · '+sources.size+'</summary><div>'+Array.from(sources.entries()).map(([url,source],index)=>'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Källa '+(index+1)+(url.includes('/Teams/Info/PlayersByTeam/')?' · Säsongsstatistik':url.includes('/Game/Reports/OfficialLineup/')?' · Officiell laguppställning':new URL(url).hostname==='stats.swehockey.se'?' · Truppregistrering':' · Officiellt klubbregister')+(source.league?' · '+esc(source.league):'')+'</a>').join('')+'</div></details>':'')+'</article>';
+    const total=historyTotalsText(item.sources);
+    return '<details class="player-card-game player-history-collapse"><summary title="Totalt i inläst underlag. Öppna för seriedelar och källor."><strong>'+esc(item.season)+' · '+esc(item.club)+'</strong><span class="history-summary-stats">'+(total?' — '+esc(total):statistics?' — Visa statistik':' — '+esc(leagues.join(' · ')||'Klubbregistrering'))+'</span><b class="history-summary-arrow" aria-hidden="true">▾</b></summary><div class="player-history-body">'+(total?'<small>Totalt i inläst underlag · olika ligor och åldersklasser hålls isär.</small>':'')+
+      statistics+(sources.size?'<details class="player-history-sources"><summary>Visa källor · '+sources.size+'</summary><div>'+Array.from(sources.entries()).map(([url,source],index)=>'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Källa '+(index+1)+(url.includes('/Teams/Info/PlayersByTeam/')?' · Säsongsstatistik':url.includes('/Game/Reports/OfficialLineup/')?' · Officiell laguppställning':new URL(url).hostname==='stats.swehockey.se'?' · Truppregistrering':' · Officiellt klubbregister')+(source.league?' · '+esc(source.league):'')+'</a>').join('')+'</div></details>':'')+'</div></details>';
   }
   async function bindPlayerHistory(row){
     const request=++playerHistoryRequest,ownerId=state.authUser?.id,container=playerCardDialog.querySelector('#playerHistory');
