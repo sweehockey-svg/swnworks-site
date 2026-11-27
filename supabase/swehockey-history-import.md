@@ -71,3 +71,10 @@ Reviewed example: Viggo Nordström (2003-09-11), Nybro Vikings IF, 2025/26,
 HockeyAllsvenskan, official lineup 1005710 (2025-10-04). Nybro's published loan
 announcement corroborates identity and the loan to Hudiksvalls HC:
 https://www.nybrovikings.com/article/8eeat7d-38k4d/view
+
+Reviewed additions, 2026-11-27: Viggo Nordström / BIK Karlskoga / 2024/25,
+OfficialLineup/882590 (2025-01-05); West Kelowna Warriors / BCHL / 2023/24,
+https://www.westkelownawarriors.ca/stats/roster/19/55 (exact name and DOB).
+The source constraint explicitly permits this official club roster host/path.
+Foreign roster evidence is labelled separately in the UI. No statistics are
+copied from Elite Prospects; broad historical source crawling is not automatic.
