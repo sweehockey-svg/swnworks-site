@@ -43,6 +43,14 @@ class StatisticsTests(unittest.TestCase):
     def test_zero_points_and_header_mapping(self):
         club,name,s=next(parse_statistics(fixture()))
         self.assertEqual((club,name,s['games'],s['points']),('Luleå HF','Nordström, Viggo',1,0))
+    def test_unrelated_conflicting_rows_do_not_block_known_player(self):
+        p={'id':'a','display_name':'Viggo Nordström','birth_date':'2003-09-11'}
+        unknown=fixture().replace('Nordström, Viggo','Other, Player')
+        conflicting=unknown.replace('<td>1</td>','<td>2</td>')
+        sql=build_sql([p],fixture()+unknown+conflicting,13469,'regular')
+        self.assertEqual(len(sql.strip().splitlines()),1)
+        with self.assertRaises(ValueError):
+            build_sql([p],fixture()+fixture().replace('<td>1</td>','<td>2</td>'),13469,'regular')
     def test_ambiguous_name_skipped(self):
         p={'id':'a','display_name':'Viggo Nordström','birth_date':'2003-09-11'}
         self.assertEqual(build_sql([p,p],fixture(),13469,'regular').strip(),'')

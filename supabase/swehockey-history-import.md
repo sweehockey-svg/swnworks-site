@@ -98,3 +98,19 @@ Competition headings determine phase; generic league labels alone are insufficie
 Generated SQL/data exports/cached HTML are local review artifacts and must not be committed. This is an on-demand refresh, not a scheduled background service.
 
 If a player appears as both a skater and a (possibly backup) goalkeeper in one source, statistics retain both entries under `kind: dual`. The interface renders separate scoring and goalkeeping tables. The bulk packer merges roles globally before splitting batches, and rejects contradictory figures within the same role rather than overwriting one arbitrarily.
+
+
+2026-11-27 Roman Semjonov coverage audit: regional archive seeds 5013, 6097,
+7116, 8163, 9250 and 10347 expose 95 competition stages for 2014/15–2019/20.
+The previous snapshot inventory did not cover these older regional stages;
+season-level aggregate IDs can return no roster metadata and must not be
+mistaken for complete coverage. Use regional seeds with --seeds and review
+coverage/failures explicitly. Roman was supplemented with 17 independently
+DOB-validated roster records and 19 statistical sources, covering seven
+club-seasons. Spring stages 6841 and 10076 require same-season evidence from
+another stage because his name is absent from those current roster pages.
+No Danish data or Elite Prospects statistics were imported. This correction
+covers Roman only; it is not a completed refresh for every registered player.
+Unmatched or ambiguous names are filtered before role merging, so conflicting
+same-role rows for an unrelated player cannot abort a verified player's import.
+Conflicting same-role rows for a selected player still fail explicitly.

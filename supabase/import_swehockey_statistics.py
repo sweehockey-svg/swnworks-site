@@ -101,6 +101,9 @@ def build_sql(players, page, competition, phase, identity_index=None):
     for club,name,stats in parse_statistics(page):
         stats['phase']=phase
         name=re.sub(r'\*+$','',name).strip()
+        # Unrelated or ambiguous names must not block verified players.
+        if len(by_name[key(name)]) != 1:
+            continue
         entry_key=(club,key(name))
         if entry_key in source_rows:
             source_rows[entry_key]=(club,name,merge_statistics(source_rows[entry_key][2],stats))

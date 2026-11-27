@@ -3516,7 +3516,7 @@
     for(const source of sources){
       if(!safeHistoryUrl(source.source_url)||!source.source_url.includes('/Teams/Info/PlayersByTeam/'))continue;
       const league=String(source.league||'');
-      const family=/U20|J20|SuperElit/i.test(league)?'U20':/U18|J18/i.test(league)?'U18':/U16|J16/i.test(league)?'U16':/SHL|Elitserien/i.test(league)?'SHL':/HockeyAllsvenskan|Allsvenskan/i.test(league)?'Hockeyallsvenskan':/Hockeyettan|Allettan/i.test(league)?'Hockeyettan':league;
+      const family=/U20|J20|SuperElit/i.test(league)?'U20':/U18|J18/i.test(league)?'U18':/U16|J16/i.test(league)?'U16':/SHL|Elitserien/i.test(league)?'SHL':/Hockeyettan|Allettan/i.test(league)?'Hockeyettan':/HockeyAllsvenskan|Allsvenskan/i.test(league)?'Hockeyallsvenskan':league;
       for(const stat of source.statistics?.entries||[source.statistics]){
         if(!stat||!['regular','playoffs','qualification'].includes(stat.phase))continue;
         const kind=stat.kind==='goalie'?'goalie':'skater',identity=source.source_url+'|'+kind;
